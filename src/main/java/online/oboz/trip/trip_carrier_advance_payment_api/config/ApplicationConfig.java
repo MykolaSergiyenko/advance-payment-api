@@ -1,4 +1,4 @@
-package online.oboz.trip.trip_carrier_advance_api.config;
+package online.oboz.trip.trip_carrier_advance_payment_api.config;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;

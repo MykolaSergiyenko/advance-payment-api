@@ -6,29 +6,308 @@ info:
 servers:
     - url: "{server}/v1"
 paths:
-
-
-
-    /tracking/settings/search_contractors:
+    /request_give_advance_payment/{id}:
         post:
-            security:
-                -   bearerAuth: []
-            summary: "Поиск контрагентов"
-            operationId: searchContractors
+#            security:
+#                -   bearerAuth: []
+            summary: "запрос на выдачу аванса"
+            operationId: requestGiveAdvancePayment
             tags:
-                - Settings
+                - Advance
             parameters:
-                -   name: with_settings
+                -   name: id
+                    in: path
+                    description: "ID перевозки"
+                    required: true
+                    schema:
+                        type: integer
+                        format: int64
+                        minimum: 1
+            responses:
+                200:
+                    description: "OK"
+                default:
+                    description: "Some other error"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                422:
+                    description: "Business error"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+
+    /confirm_advance_payment/{id}:
+        post:
+#            security:
+#                -   bearerAuth: []
+            summary: "Подтверждение аванса / отказ на выдачу аванса "
+            operationId: giveAdvancePayment
+            tags:
+                - Advance
+            parameters:
+                -   name: id
+                    in: path
+                    description: "Id контрагента"
+                    required: true
+                    schema:
+                        type: integer
+                        format: int64
+                        minimum: 1
+                -   name: is_success
                     in: query
-                    description: "with_settings"
+                    description: "Флаг подтверждения выдачи аванса"
                     required: false
                     schema:
                         type: boolean
+                        default: false
+
+            responses:
+                200:
+                    description: "OK"
+                default:
+                    description: "Some other error"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                422:
+                    description: "Business error"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+
+#TODO вынести в новую админку
+    /add_excluded_contractor/{id}:
+        post:
+#            security:
+#                -   bearerAuth: []
+            summary: "Добавить / удалить контрагента в таблицу исключений"
+            operationId: addExcludedContractor
+            tags:
+                - Setting
+            parameters:
+                -   name: id
+                    in: path
+                    description: "Id контрагента"
+                    required: true
+                    schema:
+                        type: integer
+                        format: int64
+                        minimum: 1
+            responses:
+                200:
+                    description: "OK"
+                default:
+                    description: "Some other error"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                422:
+                    description: "Business error"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+
+    #TODO вынести в новую админку
+    /delete_excluded_contractor/{id}:
+        delete:
+#            security:
+#                -   bearerAuth: []
+            summary: "Добавить / удалить контрагента в таблицу исключений"
+            operationId: deleteExcludedContractor
+            tags:
+                - Setting
+            parameters:
+                -   name: id
+                    in: path
+                    description: "Id контрагента"
+                    required: true
+                    schema:
+                        type: integer
+                        format: int64
+                        minimum: 1
+            responses:
+                200:
+                    description: "OK"
+                default:
+                    description: "Some other error"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                422:
+                    description: "Business error"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+
+    /is_advanced/{id}:
+        get:
+#            security:
+#                -   bearerAuth: []
+            summary: "Выдать аванс"
+            operationId: isAdvanced
+            tags:
+                - Advance
+            responses:
+                200:
+                    description: "OK"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/isAdvancedRequestResponse"
+                default:
+                    description: "Some other error"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                422:
+                    description: "Business error"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+
+    /orders:
+        post:
+#            security:
+#                -   bearerAuth: []
+            summary: "Просмотр списка заказов"
+            operationId: getOrderList
+            tags:
+                - Orders
             requestBody:
                 content:
                     application/json:
                         schema:
                             $ref: '#/components/schemas/Filter'
+            responses:
+                200:
+                    description: "OK"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ResponseOrders'
+                default:
+                    description: "Some other error"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                422:
+                    description: "Business error"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+
+    /orders/{order_id}:
+        get:
+#            security:
+#                -   bearerAuth: []
+            summary: "Просмотр заказа"
+            operationId: getOrderWithInfoById
+            tags:
+                - Orders
+            parameters:
+                -   name: order_id
+                    in: path
+                    schema:
+                        type: integer
+                        format: int32
+                    required: true
+            responses:
+                200:
+                    description: "OK"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/OrderDTO"
+                default:
+                    description: "Some other error"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                422:
+                    description: "Business error"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+
+    /dictionaries/trip_types:
+        get:
+#            security:
+#                -   bearerAuth: []
+            summary: "Справочник типов перевозки"
+            operationId: getTripTypesDict
+            tags:
+                - Dictionaries
+            responses:
+                200:
+                    description: "OK"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/TripTypesResponse"
+                default:
+                    description: "Some other error"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                422:
+                    description: "Business error"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+
+    /dictionaries/trip_statuses:
+        get:
+#            security:
+#                -   bearerAuth: []
+            summary: "Справочник статусов перевозки"
+            operationId: getTripStatusesDict
+            tags:
+                - Dictionaries
+            responses:
+                200:
+                    description: "OK"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/TripStatusesResponse"
+                default:
+                    description: "Some other error"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                422:
+                    description: "Business error"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+
+    /dictionaries/clients:
+        get:
+#            security:
+#                -   bearerAuth: []
+            summary: "Список клиентов"
+            operationId: getClients
+            tags:
+                - Dictionaries
             responses:
                 200:
                     description: "OK"
@@ -49,140 +328,12 @@ paths:
                             schema:
                                 $ref: "#/components/schemas/Error"
 
-    /tracking/settings/delete_contractor_settings/{id}:
-        delete:
-            security:
-                -   bearerAuth: []
-            summary: "Удаление настроек контрагента"
-            operationId: deleteContractorSettings
-            tags:
-                - Settings
-            parameters:
-                -   name: id
-                    in: path
-                    description: "Id контрагента"
-                    required: true
-                    schema:
-                        type: integer
-                        format: int64
-                        minimum: 1
-            responses:
-                200:
-                    description: "OK"
-                default:
-                    description: "Some other error"
-                    content:
-                        application/json:
-                            schema:
-                                $ref: "#/components/schemas/Error"
-                422:
-                    description: "Business error"
-                    content:
-                        application/json:
-                            schema:
-                                $ref: "#/components/schemas/Error"
-
-    /tracking/contractor_settings/{id}:
+    /dictionaries/carrier:
         get:
-            security:
-                -   bearerAuth: []
-            summary: "Получить настройки контрагента"
-            operationId: getContractorSettings
-            tags:
-                - Settings
-            parameters:
-                -   name: id
-                    in: path
-                    description: "Id контрагента"
-                    required: true
-                    schema:
-                        type: integer
-                        format: int64
-                        minimum: 1
-            responses:
-                200:
-                    description: "OK"
-                    content:
-                        application/json:
-                            schema:
-                                $ref: "#/components/schemas/ContractorDTO"
-                default:
-                    description: "Some other error"
-                    content:
-                        application/json:
-                            schema:
-                                $ref: "#/components/schemas/Error"
-                422:
-                    description: "Business error"
-                    content:
-                        application/json:
-                            schema:
-                                $ref: "#/components/schemas/Error"
-
-    /tracking/settings/contractor/add_contractor_settings:
-        post:
-            security:
-                -   bearerAuth: []
-            summary: "Добавить настройки контрагента"
-            operationId: addContractorSettings
-            tags:
-                - Settings
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/ContractorDTO'
-            responses:
-                200:
-                    description: "OK"
-                default:
-                    description: "Some other error"
-                    content:
-                        application/json:
-                            schema:
-                                $ref: "#/components/schemas/Error"
-                422:
-                    description: "Business error - Настройки трекинга для данного клиента уже есть"
-                    content:
-                        application/json:
-                            schema:
-                                $ref: "#/components/schemas/Error"
-
-    /tracking/settings/contractor/change_contractor_settings:
-        put:
-            security:
-                -   bearerAuth: []
-            summary: "Изменить настройки контрагента"
-            operationId: updateContractorSettings
-            tags:
-                - Settings
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/ContractorDTO'
-            responses:
-                200:
-                    description: "OK"
-                default:
-                    description: "Some other error"
-                    content:
-                        application/json:
-                            schema:
-                                $ref: "#/components/schemas/Error"
-                422:
-                    description: "Business error - Настройки трекинга для данного клиента уже есть"
-                    content:
-                        application/json:
-                            schema:
-                                $ref: "#/components/schemas/Error"
-
-    /tracking/dictionaries/order_types:
-        get:
-            security:
-                -   bearerAuth: []
-            summary: "Справочник типов заказов"
-            operationId: getOrderTypesDict
+#            security:
+#                -   bearerAuth: []
+            summary: "Список перевозчиков"
+            operationId: getCarriers
             tags:
                 - Dictionaries
             responses:
@@ -191,7 +342,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: "#/components/schemas/OrdersTypesResponse"
+                                $ref: "#/components/schemas/ContractorResponse"
                 default:
                     description: "Some other error"
                     content:
@@ -205,12 +356,12 @@ paths:
                             schema:
                                 $ref: "#/components/schemas/Error"
 
-    /tracking/dictionaries/track_source_dictionary:
+    /dictionaries/document_types:
         get:
-            security:
-                -   bearerAuth: []
-            summary: "Справочник типов регинга"
-            operationId: getTrackSourceDict
+#            security:
+#                -   bearerAuth: []
+            summary: "Список документов"
+            operationId: getDocumentTypes
             tags:
                 - Dictionaries
             responses:
@@ -219,7 +370,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: "#/components/schemas/TrackSourceResponse"
+                                $ref: "#/components/schemas/DocumentTypesResponse"
                 default:
                     description: "Some other error"
                     content:
@@ -233,16 +384,12 @@ paths:
                             schema:
                                 $ref: "#/components/schemas/Error"
 
-# Apply the security globally to all operations
-#security:
-#    - bearerAuth: []
 components:
-    #define the security scheme type (HTTP bearer)
-    securitySchemes:
-        bearerAuth:            # arbitrary name for the security scheme
-            type: http
-            scheme: bearer
-            bearerFormat: JWT
+#    securitySchemes:
+#        bearerAuth:
+#            type: http
+#            scheme: bearer
+#            bearerFormat: JWT
     schemas:
         Error:
             required:
@@ -257,25 +404,181 @@ components:
                 error_message:
                     type: string
 
-        ContractorResponse:
+        ResponseOrders:
             type: object
-            description: "Список Contractors"
+            description: "Список заказов"
             properties:
-                total:
-                    type: integer
-                    format: int32
-                    description: "Всего Contractors"
-                contractors:
+                orders:
                     type: array
                     items:
-                        $ref: '#/components/schemas/ContractorDTO'
+                        $ref: '#/components/schemas/FrontOrderResponse'
+                paginator:
+                    $ref: '#/components/schemas/Paginator'
+
+        FrontOrderResponse:
+            type: object
+            description: "Заказ"
+            properties:
+                trip_id:
+                    type: integer
+                    format: int32
+                    description: "ID перевозки"
+                order_id:
+                    type: integer
+                    format: int32
+                    description: "ID заказа"
+                trip_type_code:
+                    type: string
+                    description: "Тип перевозки"
+                order_num:
+                    type: string
+                    description: "Номер заказа клиента"
+                trip_num:
+                    type: string
+                    description: "Номер заказа поставщика"
+                origin_order_num:
+                    type: string
+                    description: "Внешний номер заявки"
+                client:
+                    $ref: '#/components/schemas/ContractorDTO'
+                carrier:
+                    $ref: '#/components/schemas/ContractorDTO'
+                fact_start_date:
+                    type: string
+                    format: date-time
+                    description: "Факт.дата погрузки"
+                trip_status_code:
+                    type: string
+                    description: "Статус заказа"
+                driver:
+                    $ref: '#/components/schemas/PersonDTO'
+                dispatcher:
+                    $ref: '#/components/schemas/PersonDTO'
+
+        OrderDTO:
+            type: object
+            description: "Заказ"
+            properties:
+                order_num:
+                    type: string
+                    description: "Номер заказа клиента"
+                order_status:
+                    type: string
+                    description: "Статус заказа"
+                origin_order_num:
+                    type: string
+                    description: "Внешний номер заявки"
+                order_type:
+                    type: string
+                    description: "Тип заказа"
+                client:
+                    $ref: '#/components/schemas/ContractorDTO'
+                contract_name:
+                    type: string
+                    description: "Договор с клиентом"
+                contract_num:
+                    type: string
+                    description: "Номер договора"
+                contract_payment_contractor_name:
+                    type: string
+                    description: "Юр лицо для взаиморасчетов"
+                payment_contractor:
+                    $ref: '#/components/schemas/ContractorDTO'
+                author:
+                    $ref: '#/components/schemas/PersonDTO'
+                order_points:
+                    $ref: '#/components/schemas/OrderPointListDTO'
+                #                additional_services:
+                #                    $ref: '#/components/schemas/OrderAdditionalServiceList'
+                trips:
+                    $ref: '#/components/schemas/TripList'
+                cost:
+                    type: number
+                    format: double
+                currency_code:
+                    type: string
+                    description: "Валюта перевозки"
+                currency_course:
+                    type: integer
+                    format: int32
+                    description: "Курс перевозки"
+                vat:
+                    $ref: '#/components/schemas/VatDTO'
+                comment:
+                    type: string
+                    description: "Комментарий"
+
+        TripList:
+            type: array
+            items:
+                $ref: "#/components/schemas/TripDTO"
+
+        TripDTO:
+            type: object
+            properties:
+                trip_id:
+                    type: integer
+                    format: int32
+                trip_num:
+                    type: string
+                    description: "Номер заказа"
+                trip_status:
+                    type: string
+                    description: "Статус трипа"
+                trip_status_code:
+                    type: string
+                    description: "Код статуса трипа"
+                trip_type:
+                    type: string
+                    description: "Тип заказа"
+                trip_type_code:
+                    type: string
+                    description: "Код типа заказа"
+                contractor:
+                    $ref: '#/components/schemas/ContractorDTO'
+                driver:
+                    $ref: '#/components/schemas/PersonDTO'
+                resource_info:
+                    type: string
+                    description: "Информация по ресурсам в трипе"
+                trip_points:
+                    $ref: '#/components/schemas/TripPointList'
+                contract_name:
+                    type: string
+                    description: "Договор с клиентом"
+                contract_num:
+                    type: string
+                    description: "Номер договора"
+                cost:
+                    type: number
+                    format: double
+                currency_code:
+                    type: string
+                    description: "Валюта перевозки"
+                currency_course:
+                    type: integer
+                    format: int32
+                    description: "Курс перевозки"
+                vat:
+                    $ref: '#/components/schemas/VatDTO'
+                comment:
+                    type: string
+                    description: "Комментарий"
+                truck_body_type_code:
+                    type: string
+                    description: "Тип кузова"
+
+        ContractorResponse:
+            type: array
+            items:
+                $ref: "#/components/schemas/ContractorDTO"
 
         ContractorDTO:
             type: object
             properties:
-                id_contractor:
+                id:
                     type: integer
-                    format: int64
+                    format: int32
                     description: "ID контрагента"
                 full_name:
                     type: string
@@ -283,56 +586,307 @@ components:
                 inn:
                     type: string
                     description: "ИНН"
-                enable_setting_tracking:
-                    type: boolean
-                    description: "флаг влючения настроек трекинга"
-                settings:
-                    type: array
-                    description: "Список настроек трекинга"
-                    items:
-                        $ref: '#/components/schemas/SettingDTO'
 
-        SettingDTO:
+        PersonDTO:
             type: object
-            description: "Настройка трекинга"
+            description: Персональные данные
+            required:
+                - id
+                - first_name
+                - last_name
+                - middle_name
+                - phone
             properties:
-                order_type:
-                    description: "Тип заказа"
+                id:
                     type: integer
-                    format: int64
-                track_source:
-                    description: "Тип трегинга"
+                    format: int32
+                    description: "ID"
+                first_name:
+                    type: string
+                    description: "Имя"
+                last_name:
+                    type: string
+                    description: "Фамилия"
+                middle_name:
+                    type: string
+                    description: "Отчество"
+                phone:
+                    type: string
+                    description: "Телефон"
+
+        # ResourceList:
+        #     type: array
+        #     items:
+        #         $ref: "#/components/schemas/ResourceDTO"
+
+        # ResourceDTO:
+        #     type: object
+        #     properties:
+        #         id:
+        #             type: integer
+        #             format: int32
+        #             description: "ID"
+        #         gnz:
+        #             type: string
+        #         gnz_with_country:
+        #             type: string
+        #         name:
+        #             type: string
+        #         resource_type_id:
+        #             type: string
+
+        TripPointList:
+            type: array
+            items:
+                $ref: "#/components/schemas/TripPointDTO"
+
+        TripPointDTO:
+            type: object
+            properties:
+                additional_service_code:
+                    type: string
+                additional_service_name:
+                    type: string
+                position:
                     type: integer
-                    format: int64
-                id_deleted:
-                    type: boolean
-                    description: "флаг удаления настройки трекинга"
+                    format: int32
+                address:
+                    type: string
+                pick_date:
+                    type: string
+                    format: 'date-time'
+                pick_end_date:
+                    type: string
+                    format: 'date-time'
+                fact_start_date:
+                    type: string
+                    format: 'date-time'
+                fact_end_date:
+                    type: string
+                    format: 'date-time'
+                arrival_date:
+                    type: string
+                    format: 'date-time'
+                arrival_date_corrected:
+                    type: string
+                    format: 'date-time'
+                status:
+                    type: string
+
+        VatDTO:
+            type: object
+            properties:
+                code:
+                    type: string
+                name:
+                    type: string
+                value:
+                    type: integer
+                    format: int32
+
+        OrderPointListDTO:
+            type: array
+            items:
+                $ref: "#/components/schemas/OrderPointDTO"
+
+        OrderPointDTO:
+            type: object
+            description: "Информация о точках погрузки/разгрузки на маршруте"
+            properties:
+                service_type_code:
+                    type: string
+                    enum:
+                        - origin
+                        - destination
+                    description: "Наименование места (погрузки/разгрузки)"
+                address:
+                    type: string
+                    description: "Адрес"
+                position:
+                    type: integer
+                    format: int32
+                    description: "Позиция точки"
+                start_date:
+                    type: string
+                    format: date-time
+                    description: "Плановое время (погрузки/разгрузки)"
+                end_date:
+                    type: string
+                    format: date-time
+                    description: "Плановое время (погрузки/разгрузки)"
+
+        # OrderAdditionalServiceList:
+        #     type: array
+        #     items:
+        #         $ref: "#/components/schemas/OrderAdditionalService"
+
+        # OrderAdditionalService:
+        #     type: object
+        #     description: "Доп услуга заказа"
+        #     properties:
+        #         additional_service_code:
+        #             type: string
+        #         additional_service_kind_code:
+        #             type: string
+        #         additional_service_name:
+        #             type: string
+        #         address:
+        #             type: string
+        #         amount:
+        #             type: string
+        #         buy_cost:
+        #             type: string
+        #         buy_currency_code:
+        #             type: string
+        #         buy_currency_course:
+        #             type: string
+        #         buy_unit_amount:
+        #             type: integer
+        #             format: int32
+        #         buy_unit_price:
+        #             type: string
+        #         contract_id:
+        #             type: integer
+        #             format: int32
+        #         contractor_id:
+        #             type: integer
+        #             format: int32
+        #         currency_code:
+        #             type: string
+        #         currency_course:
+        #             type: string
+        #         id:
+        #             type: integer
+        #             format: int32
+        #         in_price_for_carrier:
+        #             type: boolean
+        #         in_price_for_client:
+        #             type: boolean
+        #         order_id:
+        #             type: integer
+        #             format: int32
+        #         payment_contractor_id:
+        #             type: integer
+        #             format: int32
+        #         pos:
+        #             type: integer
+        #             format: int32
+        #         removal_ban:
+        #             type: boolean
+        #         sale_cost:
+        #             type: string
+        #         sale_unit_amount:
+        #             type: integer
+        #             format: int32
+        #         sale_unit_price:
+        #             type: string
+        #         tariff_service_type_code:
+        #             type: string
+        #         vat_code:
+        #             type: string
 
         Filter:
             type: object
             properties:
-                searchParam:
+                client_ids:
+                    $ref: "#/components/schemas/ClientIds"
+                carrier_ids:
+                    $ref: "#/components/schemas/CarrierIds"
+                date_from:
                     type: string
-                    description: "Параметр поиска по имени или инн"
+                    format: date-time
+                    description: "Значения полей «Дата погрузки с» в рейсе"
+                date_to:
+                    type: string
+                    format: date-time
+                    description: "До какой даты и времени погрузки"
+                order_num:
+                    type: string
+                    description: "Номер заказа клиента"
+                trip_num:
+                    type: string
+                    description: "Номер заказа поставщика"
+                origin_order_num:
+                    type: string
+                    description: "Внешний номер заявки"
+                trip_types:
+                    $ref: "#/components/schemas/TripTypesRequest"
+                trip_statuses:
+                    $ref: "#/components/schemas/TripStatusesCodeRequest"
+                driver_full_name:
+                    type: number
+                    format: integer
+                    description: "Водитель"
                 page:
                     type: integer
                     format: int32
                     default: 1
                     description: "Позиция, с которой отдаются результаты"
-                perPage:
+                per:
                     type: integer
                     format: int32
                     default: 10
                     description: "Количество возвращаемых результатов"
+                sort:
+                    type: array
+                    items:
+                        $ref: "#/components/schemas/SortBy"
 
-        OrdersTypesResponse:
+        SortBy:
+            required:
+                - key
+                - dir
+            properties:
+                key:
+                    $ref: '#/components/schemas/SortByField'
+                dir:
+                    $ref: '#/components/schemas/SortByDirection'
+
+        SortByField:
+            type: string
+            enum:
+                - order_num
+                - trip_num
+                - fact_start_date
+
+        SortByDirection:
+            type: string
+            enum:
+                - asc
+                - desc
+
+        ClientIds:
             type: array
             items:
-                $ref: "#/components/schemas/OrderTypeDTO"
+                type: integer
+            description: "Массив значений id клиентов"
 
-        OrderTypeDTO:
+        CarrierIds:
+            type: array
+            items:
+                type: integer
+            description: "Массив значений id перевозчиков"
+
+        TripTypesRequest:
+            type: array
+            items:
+                type: string
+            description: "Массив значений из справочника типов перевозки"
+
+        TripStatusesCodeRequest:
+            type: array
+            items:
+                type: string
+            description: "Массив значений из справочника статусов"
+
+        TripTypesResponse:
+            type: array
+            items:
+                $ref: "#/components/schemas/TripTypeDTO"
+
+        TripTypeDTO:
             type: object
-            description: "Справочник типов заказов"
+            description: "Справочник типов перевозки"
             properties:
                 id:
                     type: integer
@@ -342,18 +896,40 @@ components:
                 name:
                     type: string
 
-        TrackSourceResponse:
+        isAdvancedRequestResponse:
+            type: object
+            description: "Статус выдачи аванса"
+            properties:
+                isAdvanssed:
+                    type: boolean
+                    description: "Флаг выдачи аванса"
+                isActive:
+                    type: boolean
+                    description: "Доступность выдачи аванса"
+
+        TripStatusesResponse:
             type: array
             items:
-                $ref: "#/components/schemas/TrackSourceDTO"
+                $ref: "#/components/schemas/TripStatusDTO"
 
-        TrackSourceDTO:
+        TripStatusDTO:
             type: object
-            description: "Справочник типов трегинга"
+            description: "Статус перевозки"
             properties:
-                id:
-                    type: integer
-                    format: int32
+                code:
+                    type: string
+                name:
+                    type: string
+
+        DocumentTypesResponse:
+            type: array
+            items:
+                $ref: "#/components/schemas/DocumentTypeDTO"
+
+        DocumentTypeDTO:
+            type: object
+            description: "Тип документа"
+            properties:
                 code:
                     type: string
                 name:

@@ -21,7 +21,7 @@ spring:
                 defaultContext: common
                 format: yaml
     application:
-        name: trip-carrier-advance-api
+        name: trip-carrier-advance-payment-api
 server:
     port: ${LISTEN_PORT:8080}
 logging:

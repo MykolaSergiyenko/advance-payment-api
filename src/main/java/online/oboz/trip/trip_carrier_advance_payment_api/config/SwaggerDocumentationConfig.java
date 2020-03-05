@@ -1,4 +1,4 @@
-package online.oboz.trip.trip_carrier_advance_api.web;
+package online.oboz.trip.trip_carrier_advance_payment_api.config;
 
 
 import com.google.common.collect.Lists;
@@ -29,9 +29,9 @@ public class SwaggerDocumentationConfig {
 
     private static String SECURED_PATHS = "/v1.*";
 
-    private static String TITLE = "admin-setting";
+    private static String TITLE = "trip-carrier-advance-payment-api";
 
-    private static String DESCRIPTION = "Сервис admin-setting";
+    private static String DESCRIPTION = "Сервис trip-carrier-advance-payment-api";
 
     private static String VERSION = "1.0";
 

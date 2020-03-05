@@ -1,4 +1,4 @@
-package online.oboz.trip.trip_carrier_advance_api.config;
+package online.oboz.trip.trip_carrier_advance_payment_api.config;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;

@@ -1,4 +1,4 @@
-package online.oboz.trip.trip_carrier_advance_api;
+package online.oboz.trip.trip_carrier_advance_payment_api;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

@@ -1,4 +1,4 @@
-# online.oboz.trip.trip-carrier-advance-api 
+# online.oboz.trip.trip-carrier-advance-payment-api 
 
 ## Тербования к окружению
 
