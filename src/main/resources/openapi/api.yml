@@ -1,0 +1,381 @@
+openapi: "3.0.1"
+info:
+    title: "trip-carrier-advance-api"
+    version: "1.0"
+    description: "trip-carrier-advance-api"
+servers:
+    - url: "{server}/v1"
+paths:
+
+
+
+    /tracking/settings/search_contractors:
+        post:
+            security:
+                -   bearerAuth: []
+            summary: "Поиск контрагентов"
+            operationId: searchContractors
+            tags:
+                - Settings
+            parameters:
+                -   name: with_settings
+                    in: query
+                    description: "with_settings"
+                    required: false
+                    schema:
+                        type: boolean
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/Filter'
+            responses:
+                200:
+                    description: "OK"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ContractorResponse"
+                default:
+                    description: "Some other error"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                422:
+                    description: "Business error"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+
+    /tracking/settings/delete_contractor_settings/{id}:
+        delete:
+            security:
+                -   bearerAuth: []
+            summary: "Удаление настроек контрагента"
+            operationId: deleteContractorSettings
+            tags:
+                - Settings
+            parameters:
+                -   name: id
+                    in: path
+                    description: "Id контрагента"
+                    required: true
+                    schema:
+                        type: integer
+                        format: int64
+                        minimum: 1
+            responses:
+                200:
+                    description: "OK"
+                default:
+                    description: "Some other error"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                422:
+                    description: "Business error"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+
+    /tracking/contractor_settings/{id}:
+        get:
+            security:
+                -   bearerAuth: []
+            summary: "Получить настройки контрагента"
+            operationId: getContractorSettings
+            tags:
+                - Settings
+            parameters:
+                -   name: id
+                    in: path
+                    description: "Id контрагента"
+                    required: true
+                    schema:
+                        type: integer
+                        format: int64
+                        minimum: 1
+            responses:
+                200:
+                    description: "OK"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ContractorDTO"
+                default:
+                    description: "Some other error"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                422:
+                    description: "Business error"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+
+    /tracking/settings/contractor/add_contractor_settings:
+        post:
+            security:
+                -   bearerAuth: []
+            summary: "Добавить настройки контрагента"
+            operationId: addContractorSettings
+            tags:
+                - Settings
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ContractorDTO'
+            responses:
+                200:
+                    description: "OK"
+                default:
+                    description: "Some other error"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                422:
+                    description: "Business error - Настройки трекинга для данного клиента уже есть"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+
+    /tracking/settings/contractor/change_contractor_settings:
+        put:
+            security:
+                -   bearerAuth: []
+            summary: "Изменить настройки контрагента"
+            operationId: updateContractorSettings
+            tags:
+                - Settings
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ContractorDTO'
+            responses:
+                200:
+                    description: "OK"
+                default:
+                    description: "Some other error"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                422:
+                    description: "Business error - Настройки трекинга для данного клиента уже есть"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+
+    /tracking/dictionaries/order_types:
+        get:
+            security:
+                -   bearerAuth: []
+            summary: "Справочник типов заказов"
+            operationId: getOrderTypesDict
+            tags:
+                - Dictionaries
+            responses:
+                200:
+                    description: "OK"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/OrdersTypesResponse"
+                default:
+                    description: "Some other error"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                422:
+                    description: "Business error"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+
+    /tracking/dictionaries/track_source_dictionary:
+        get:
+            security:
+                -   bearerAuth: []
+            summary: "Справочник типов регинга"
+            operationId: getTrackSourceDict
+            tags:
+                - Dictionaries
+            responses:
+                200:
+                    description: "OK"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/TrackSourceResponse"
+                default:
+                    description: "Some other error"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                422:
+                    description: "Business error"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+
+# Apply the security globally to all operations
+#security:
+#    - bearerAuth: []
+components:
+    #define the security scheme type (HTTP bearer)
+    securitySchemes:
+        bearerAuth:            # arbitrary name for the security scheme
+            type: http
+            scheme: bearer
+            bearerFormat: JWT
+    schemas:
+        Error:
+            required:
+                - status
+                - error_code
+                - error_message
+            properties:
+                status:
+                    type: string
+                error_code:
+                    type: string
+                error_message:
+                    type: string
+
+        ContractorResponse:
+            type: object
+            description: "Список Contractors"
+            properties:
+                total:
+                    type: integer
+                    format: int32
+                    description: "Всего Contractors"
+                contractors:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ContractorDTO'
+
+        ContractorDTO:
+            type: object
+            properties:
+                id_contractor:
+                    type: integer
+                    format: int64
+                    description: "ID контрагента"
+                full_name:
+                    type: string
+                    description: "Наименование"
+                inn:
+                    type: string
+                    description: "ИНН"
+                enable_setting_tracking:
+                    type: boolean
+                    description: "флаг влючения настроек трекинга"
+                settings:
+                    type: array
+                    description: "Список настроек трекинга"
+                    items:
+                        $ref: '#/components/schemas/SettingDTO'
+
+        SettingDTO:
+            type: object
+            description: "Настройка трекинга"
+            properties:
+                order_type:
+                    description: "Тип заказа"
+                    type: integer
+                    format: int64
+                track_source:
+                    description: "Тип трегинга"
+                    type: integer
+                    format: int64
+                id_deleted:
+                    type: boolean
+                    description: "флаг удаления настройки трекинга"
+
+        Filter:
+            type: object
+            properties:
+                searchParam:
+                    type: string
+                    description: "Параметр поиска по имени или инн"
+                page:
+                    type: integer
+                    format: int32
+                    default: 1
+                    description: "Позиция, с которой отдаются результаты"
+                perPage:
+                    type: integer
+                    format: int32
+                    default: 10
+                    description: "Количество возвращаемых результатов"
+
+        OrdersTypesResponse:
+            type: array
+            items:
+                $ref: "#/components/schemas/OrderTypeDTO"
+
+        OrderTypeDTO:
+            type: object
+            description: "Справочник типов заказов"
+            properties:
+                id:
+                    type: integer
+                    format: int32
+                code:
+                    type: string
+                name:
+                    type: string
+
+        TrackSourceResponse:
+            type: array
+            items:
+                $ref: "#/components/schemas/TrackSourceDTO"
+
+        TrackSourceDTO:
+            type: object
+            description: "Справочник типов трегинга"
+            properties:
+                id:
+                    type: integer
+                    format: int32
+                code:
+                    type: string
+                name:
+                    type: string
+
+        Paginator:
+            type: object
+            description: "Пагинация"
+            required:
+                - total
+                - per
+                - page
+            properties:
+                total:
+                    type: integer
+                    format: int32
+                    description: "Общее количество записей"
+                per:
+                    type: integer
+                    format: int32
+                    description:  "Количество записей на страницу"
+                page:
+                    type: integer
+                    format: int32
+                    description: "Номер текущей страницы"

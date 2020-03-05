@@ -1,0 +1,51 @@
+spring:
+    cloud:
+        consul:
+            port: 8500
+            host: localhost
+            discovery:
+                enabled: true
+                service-name: ${spring.application.name}
+                healthCheckPath: /management/health
+                tags:
+                - git-commit=GIT_SNAPSHOT_COMMIT
+                - git-branch=GIT_SNAPSHOT_BRANCH
+                prefer-ip-address: 'true'
+                instanceId: ${spring.application.name}
+            config:
+                profile-separator: '-'
+                enabled: true
+                fail-fast: 'false'
+                watch:
+                    enabled: 'false'
+                defaultContext: common
+                format: yaml
+    application:
+        name: trip-carrier-advance-api
+server:
+    port: ${LISTEN_PORT:8080}
+logging:
+    in-json: ${LOGING_IN_JSON:false}
+management:
+    health:
+        mail:
+            enabled: 'false'
+    endpoints:
+        web:
+            exposure:
+                include:
+                - configprops
+                - env
+                - health
+                - info
+                - threaddump
+                - logfile
+            base-path: /management
+#    endpoint:
+#        health:
+#            show-details: when-authorized
+    info:
+        git:
+            mode: full
+    metrics:
+        enabled: 'false'

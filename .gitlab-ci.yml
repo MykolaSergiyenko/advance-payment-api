@@ -1,0 +1,111 @@
+variables:
+    APP_NAME: ${CI_PROJECT_NAME}
+    RELEASE_NAME: "r14"
+    APP_SCALE: "1"
+
+stages:
+    - build
+    - deploy
+
+build:
+    stage: build
+    image: docker:18-git
+    only:
+        - /^dev$/
+    variables:
+        DOCKER_DRIVER: overlay2
+    services:
+        - docker:18-dind
+    before_script:
+        - apk update
+        - apk add git unzip openjdk8 nss
+        - wget https://downloads.gradle.org/distributions/gradle-5.1.1-bin.zip
+        - unzip gradle*.zip
+        - export PATH=$PATH:/`ls -d1 */ | grep gradle`bin
+        - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN gitlab.oboz.com:6000
+    script:
+        - /bin/busybox sh ./gradlew clean build jibDockerBuild -x test -Ppersist_git_info=true
+        - docker tag `cat gradle.properties | grep rootProject | cut -d '=' -f2`:latest gitlab.oboz.com:6000/${CI_PROJECT_PATH}:latest
+        - docker tag gitlab.oboz.com:6000/${CI_PROJECT_PATH}:latest gitlab.oboz.com:6000/${CI_PROJECT_PATH}:${CI_COMMIT_SHA:0:8}
+        - docker push gitlab.oboz.com:6000/${CI_PROJECT_PATH}:latest
+        - docker push gitlab.oboz.com:6000/${CI_PROJECT_PATH}:${CI_COMMIT_SHA:0:8}
+
+
+deploy_on_dev:
+    stage: deploy
+    environment: development
+    image: alpine:latest
+    variables:
+        ENV: "dev"
+    before_script:
+        - apk update
+        - apk add openssh-client git zip jq curl
+        - mkdir -p ~/.ssh
+        - chmod 700 ~/.ssh
+        - eval $(ssh-agent -s)
+        - echo "$DEVOBOZ_DEPLOYUSER_PRIVKEY" | tr -d '\r' | ssh-add - > /dev/null
+        - ssh-keyscan -H $DEVOBOZ_K8SMASTER_SERVER >> ~/.ssh/known_hosts
+        - chmod 644 ~/.ssh/known_hosts
+        - mkdir -p /usr/local/sbin
+        - wget https://releases.hashicorp.com/consul/1.6.1/consul_1.6.1_linux_amd64.zip && unzip -d /usr/local/sbin consul_1.6.1_linux_amd64.zip
+        - export VAULT_TOKEN=$DEV_VAULT_TOKEN
+        - wget https://gitlab.oboz.com/deploy/common/consul-vault/raw/master/vault && chmod +x vault
+        - sh vault
+    script:
+        - if [ -f ./consulConfig.$ENV/*.yml ]; then cat `ls -1 ./consulConfig.$ENV/*.yml | head -1`|  /usr/local/sbin/consul kv put -http-addr=http://consul.$ENV.oboz config/$APP_NAME/data -; fi
+        - if [ -f ./consulConfig.$ENV/*.txt ]; then cat `ls -1 ./consulConfig.$ENV/*.txt | head -1`| sed s/":"/" "/ | awk '{system("consul kv put -http-addr=http://consul.$ENV.oboz " $1 " " $2 "")}'; fi
+        - ssh $DEVOBOZ_DEPLOYUSER_NAME@$DEVOBOZ_K8SMASTER_SERVER "helm repo add chart-prod-01 http://chart-prod-01.oboz.online; helm repo update"
+        - ssh $DEVOBOZ_DEPLOYUSER_NAME@$DEVOBOZ_K8SMASTER_SERVER "helm delete ${APP_NAME}.${RELEASE_NAME} --purge || echo 'Pod not running!'"
+        - ssh $DEVOBOZ_DEPLOYUSER_NAME@$DEVOBOZ_K8SMASTER_SERVER "helm --debug upgrade --install ${APP_NAME}.${RELEASE_NAME} chart-prod-01/${APP_NAME} --set-string project.env=${ENV} --set-string image.tag=${CI_COMMIT_SHA:0:8} --namespace=${RELEASE_NAME} --wait --timeout=180"
+
+deploy_on_preprod:
+    stage: deploy
+    environment: development
+    only:
+        - /^dev$/
+    when: manual
+    image: gitlab.oboz.com:6000/devops/helm-preprod:latest
+    variables:
+        ENV: "preprod"
+    before_script:
+        - wget https://gitlab.oboz.com/deploy/common/consul-vault/raw/master/vault && chmod +x vault
+        - sh vault
+    script:
+        - if [ -f ./consulConfig.$ENV/*.yml ]; then cat `ls -1 ./consulConfig.$ENV/*.yml | head -1`|  /usr/local/sbin/consul kv put -http-addr=http://consul.$ENV.oboz config/$APP_NAME/data -; fi
+        - if [ -f ./consulConfig.$ENV/*.txt ]; then cat `ls -1 ./consulConfig.$ENV/*.txt | head -1`| sed s/":"/" "/ | awk '{system("consul kv put -http-addr=http://consul.$ENV.oboz " $1 " " $2 "")}'; fi
+        - helm repo add chart-prod-01 http://chart-prod-01.oboz.online
+        - helm repo update
+        - helm delete ${APP_NAME}.${RELEASE_NAME} --purge || echo 'Pod not running!'
+        - helm --debug upgrade --install ${APP_NAME}.${RELEASE_NAME} chart-prod-01/${APP_NAME} --set-string project.env=${ENV} --set-string image.tag=`echo ${CI_COMMIT_SHA:0:8}` --namespace=${RELEASE_NAME} --wait --timeout=180
+        - kubectl scale deploy --replicas=${APP_SCALE} ${APP_NAME} --namespace=${RELEASE_NAME}
+        - yum install mailx -y
+        - echo -e " `TZ='Europe/Moscow' date` \n $CI_PROJECT_NAME \n successfully completed $CI_JOB_NAME by $GITLAB_USER_LOGIN with comment $CI_COMMIT_DESCRIPTION \n commit id - ${CI_COMMIT_SHA:0:8} \n branch - $CI_COMMIT_REF_NAME \n Project url - $CI_PROJECT_URL" | mail  -S 'smtp=mail.oboz.online:25' -r 'root@oboz.com' -v -s "Deploy" deploy2@oboz.com
+        - sleep 15
+        - curl --request POST -d "tag_name=`TZ='Europe/Moscow' date +%F_%H-%M`_${ENV}" -d "ref=${CI_COMMIT_SHA:0:8}" -d "message=$CI_JOB_NAME by $GITLAB_USER_LOGIN from branch $CI_COMMIT_REF_NAME" https://gitlab.oboz.com/api/v4/projects/${CI_PROJECT_ID}/repository/tags?private_token=${TOKEN_DEVPULLUSER_API}
+        - sleep 3
+
+deploy_on_prod:
+    stage: deploy
+    environment: development
+    only:
+        - /^dev$/
+    when: manual
+    image: gitlab.oboz.com:6000/devops/helm-prod:latest
+    variables:
+        ENV: "prod"
+    before_script:
+        - wget https://gitlab.oboz.com/deploy/common/consul-vault/raw/master/vault && chmod +x vault
+        - sh vault
+    script:
+        - if [ -f ./consulConfig.$ENV/*.yml ]; then cat `ls -1 ./consulConfig.$ENV/*.yml | head -1`|  /usr/local/sbin/consul kv put -http-addr=http://consul.$ENV.oboz config/$APP_NAME/data -; fi
+        - if [ -f ./consulConfig.$ENV/*.txt ]; then cat `ls -1 ./consulConfig.$ENV/*.txt | head -1`| sed s/":"/" "/ | awk '{system("consul kv put -http-addr=http://consul.$ENV.oboz " $1 " " $2 "")}'; fi
+        - helm repo add chart-prod-01 http://chart-prod-01.oboz.online
+        - helm repo update
+        - helm delete ${APP_NAME}.${PROD_RELEASE_NAME} --purge || echo 'Pod not running!'
+        - helm --debug upgrade --install ${APP_NAME}.${PROD_RELEASE_NAME} chart-prod-01/${APP_NAME} --set-string project.env=${ENV} --set-string image.tag=`echo ${CI_COMMIT_SHA:0:8}` --namespace=${PROD_RELEASE_NAME} --wait --timeout=180
+        - kubectl scale deploy --replicas=${APP_SCALE} ${APP_NAME} --namespace=${PROD_RELEASE_NAME}
+        - yum install mailx -y
+        - echo -e " `TZ='Europe/Moscow' date` \n $CI_PROJECT_NAME \n successfully completed $CI_JOB_NAME by $GITLAB_USER_LOGIN with comment $CI_COMMIT_DESCRIPTION \n commit id - ${CI_COMMIT_SHA:0:8} \n branch - $CI_COMMIT_REF_NAME \n Project url - $CI_PROJECT_URL" | mail  -S 'smtp=mail.oboz.online:25' -r 'root@oboz.com' -v -s "Deploy" deploy2@oboz.com
+        - sleep 15
+        - curl --request POST -d "tag_name=`TZ='Europe/Moscow' date +%F_%H-%M`_${ENV}" -d "ref=${CI_COMMIT_SHA:0:8}" -d "message=$CI_JOB_NAME by $GITLAB_USER_LOGIN from branch $CI_COMMIT_REF_NAME" https://gitlab.oboz.com/api/v4/projects/${CI_PROJECT_ID}/repository/tags?private_token=${TOKEN_DEVPULLUSER_API}
+        - sleep 3

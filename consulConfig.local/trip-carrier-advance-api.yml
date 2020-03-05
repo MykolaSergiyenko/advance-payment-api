@@ -1,0 +1,15 @@
+spring:
+    security.oauth2.resourceserver.jwt.jwk-set-uri: http://keycloak:8080/auth/realms/master/protocol/openid-connect/certs
+    profiles:
+        active: preprod
+
+    datasource:
+        type: com.zaxxer.hikari.HikariDataSource
+        url: jdbc:postgresql://pg-01-01.preprod.oboz:5432/elp
+        username: elp
+        password: 5HRSkXzk9HBpTxS
+        auto-commit: false
+        poolName: main-pool
+        hikari:
+            poolName: main-pool
+            auto-commit: false

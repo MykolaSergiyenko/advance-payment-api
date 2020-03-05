@@ -1,0 +1,170 @@
+buildscript {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        maven { url "https://repo.spring.io/plugins-release" }
+        maven { url "https://plugins.gradle.org/m2/" }
+    }
+    dependencies {
+        classpath "org.springframework.boot:spring-boot-gradle-plugin:${spring_boot_version}"
+        classpath "io.spring.gradle:propdeps-plugin:0.0.10.RELEASE"
+        classpath "org.openapitools:openapi-generator-gradle-plugin:3.3.4"
+    }
+}
+
+plugins {
+    id "org.sonarqube" version "2.6.2"
+    id "net.ltgt.apt-idea" version "0.21"
+    id "net.ltgt.apt" version "0.21"
+    id "com.gorylenko.gradle-git-properties" version "2.0.0"
+    id "com.github.ManifestClasspath" version "0.1.0-RELEASE"
+}
+
+apply plugin: "maven"
+apply plugin: "war"
+apply plugin: "idea"
+apply plugin: "java"
+apply plugin: 'propdeps'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+
+apply from: 'gradle/docker.gradle'
+apply from: 'gradle/openapi.gradle'
+
+group = "${app_group}"
+version = '0.0.1'
+sourceCompatibility=1.8
+targetCompatibility=1.8
+
+defaultTasks "bootRun"
+
+configurations {
+    providedRuntime
+    compile.exclude module: "spring-boot-starter-tomcat"
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    jcenter()
+    maven {
+        credentials {
+            username = "${nexus_username}"
+            password = "${nexus_password}"
+        }
+        url "${nexus_url}/repository/maven-public/"
+    }
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${spring_cloud_version}"
+        mavenBom "org.springframework.boot:spring-boot-dependencies:${spring_boot_version}"
+    }
+}
+
+dependencies {
+    compile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310"
+    compile "com.fasterxml.jackson.datatype:jackson-datatype-hibernate5"
+    compile "com.fasterxml.jackson.core:jackson-annotations"
+    compile "com.fasterxml.jackson.core:jackson-databind"
+    compile "com.fasterxml.jackson.module:jackson-module-afterburner"
+
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    compile ("org.springframework.boot:spring-boot-starter-web") {
+        exclude module: 'spring-boot-starter-tomcat'
+    }
+    compile "org.springframework.boot:spring-boot-starter-undertow"
+    implementation 'org.springframework.cloud:spring-cloud-starter'
+    implementation 'org.springframework.cloud:spring-cloud-starter-consul-config'
+    implementation "org.springframework.cloud:spring-cloud-starter-consul-discovery"
+    compile "org.springframework.boot:spring-boot-loader-tools"
+    compile "org.springframework.boot:spring-boot-starter-logging"
+    //compile group: 'org.springframework.cloud', name: 'spring-cloud-stream'
+
+    runtimeOnly 'org.postgresql:postgresql'
+
+    compile "org.hibernate:hibernate-core"
+    compile "org.hibernate:hibernate-spatial"
+    compile "com.zaxxer:HikariCP"
+
+    compile "org.modelmapper:modelmapper:2.3.2"
+    compile("io.springfox:springfox-swagger2:2.9.2") {
+        exclude module: 'mapstruct'
+    }
+    compile "io.springfox:springfox-bean-validators:2.9.2"
+    compile("io.springfox:springfox-swagger-ui:2.9.2"){
+        exclude module: 'mapstruct'
+    }
+    compile "io.springfox:springfox-bean-validators:2.9.2"
+    compile "org.mapstruct:mapstruct-jdk8:${mapstruct_version}"
+    compile "io.swagger:swagger-annotations:1.5.21"
+    compile "io.swagger:swagger-models:1.5.21"
+
+    compile "net.logstash.logback:logstash-logback-encoder:6.2"
+
+    compileOnly "org.projectlombok:lombok:${lombok_version}"
+    annotationProcessor "org.projectlombok:lombok:${lombok_version}"
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testCompile(
+        'junit:junit:4.12',
+    )
+    testAnnotationProcessor "org.projectlombok:lombok:${lombok_version}"
+    testCompile("org.projectlombok:lombok:${lombok_version}")
+
+    if (profile == 'local') {
+        compile "org.springframework.boot:spring-boot-devtools"
+    }
+}
+
+springBoot {
+    mainClassName = "${app_main_class}"
+    buildInfo()
+}
+
+bootWar {
+    mainClassName = "${app_main_class}"
+}
+
+war {
+    enabled = true
+    classifier = "original"
+}
+
+wrapper {
+    gradleVersion = '5.1.1'
+}
+
+task cleanResources(type: Delete) {
+    delete "build/resources"
+}
+
+task stage(dependsOn: "bootWar") {
+}
+
+bootWar.dependsOn war
+compileJava.dependsOn processResources
+processResources.dependsOn cleanResources,bootBuildInfo
+bootBuildInfo.mustRunAfter cleanResources
+
+gitProperties {
+    extProperty = "git"
+}
+
+processResources {
+    from(sourceSets["main"].resources.srcDirs) {
+        include("**/bootstrap.yml","**/application.yml","**/banner.txt")
+        filter{ line->
+            def lineReplaced = line.replace("APPLICATION_NAME", "${project.properties.get("rootProject.name")}")
+            if (project.findProperty('persist_git_info') == "true") {
+                return lineReplaced.replace("GIT_SNAPSHOT_COMMIT", project.ext.git["git.commit.id.abbrev"])
+                    .replace("GIT_SNAPSHOT_BRANCH",project.ext.git["git.branch"])
+            } else {
+                return lineReplaced
+            }
+        }
+    }
+    dependsOn("generateGitProperties")
+}

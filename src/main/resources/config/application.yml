@@ -1,0 +1,25 @@
+spring:
+    jpa:
+        show_sql: false
+        properties:
+            hibernate:
+                jdbc:
+                    lob:
+                        non_contextual_creation: true
+    mvc:
+        favicon:
+            enabled: false
+    main:
+        banner-mode: "off"
+        allow-bean-definition-overriding: true
+    profiles:
+        active: local
+server:
+    servlet:
+        session:
+            cookie:
+                http-only: true
+logging:
+    level:
+        root: INFO
+        online.oboz: INFO
