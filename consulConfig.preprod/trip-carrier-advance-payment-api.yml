@@ -13,3 +13,8 @@ spring:
         hikari:
             poolName: main-pool
             auto-commit: false
+
+application:
+    limits:
+        min-trip-count: 5
+        required-download-docs: true

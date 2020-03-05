@@ -5,6 +5,7 @@ info:
     description: "trip-carrier-advance-api"
 servers:
     - url: "{server}/v1"
+#   TODO:   need add cron + sms email notity service
 paths:
     /advance_payment/contract_application:
         get:
