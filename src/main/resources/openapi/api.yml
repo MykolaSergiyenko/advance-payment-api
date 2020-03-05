@@ -6,7 +6,47 @@ info:
 servers:
     - url: "{server}/v1"
 paths:
-    /request_give_advance_payment/{id}:
+    /advance_payment/contract_application:
+        get:
+#            security:
+#                -   bearerAuth: []
+            tags:
+                - contract application
+            summary: "Запрос на получение PDF файла"
+            operationId: downloadFile
+
+            responses:
+                "200":
+                    description: "PDF-файл"
+                    content:
+                        multipart/form-data:
+                            schema:
+                                type: string
+                                format: binary
+        post:
+#            security:
+#                -   bearerAuth: []
+            tags:
+                - contract application
+            summary: "Добавление файла"
+            operationId: uploadFile
+            requestBody:
+                required: true
+                content:
+                    multipart/form-data:
+                        schema:
+                            $ref: "#/components/schemas/RequestFormData"
+            responses:
+                "201":
+                    description: "Данные успешно получены"
+                "422":
+                    description: "Ошибка в процессе валидации файла"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/FileErrorResult"
+
+    /advance_payment/request_give_advance_payment/{id}:
         post:
 #            security:
 #                -   bearerAuth: []
@@ -39,7 +79,7 @@ paths:
                             schema:
                                 $ref: "#/components/schemas/Error"
 
-    /confirm_advance_payment/{id}:
+    /advance_payment/confirm_advance_payment/{id}:
         post:
 #            security:
 #                -   bearerAuth: []
@@ -81,7 +121,7 @@ paths:
                                 $ref: "#/components/schemas/Error"
 
 #TODO вынести в новую админку
-    /add_excluded_contractor/{id}:
+    /advance_payment/add_excluded_contractor/{id}:
         post:
 #            security:
 #                -   bearerAuth: []
@@ -115,7 +155,7 @@ paths:
                                 $ref: "#/components/schemas/Error"
 
     #TODO вынести в новую админку
-    /delete_excluded_contractor/{id}:
+    /advance_payment/delete_excluded_contractor/{id}:
         delete:
 #            security:
 #                -   bearerAuth: []
@@ -148,7 +188,7 @@ paths:
                             schema:
                                 $ref: "#/components/schemas/Error"
 
-    /is_advanced/{id}:
+    /advance_payment/is_advanced/{id}:
         get:
 #            security:
 #                -   bearerAuth: []
@@ -176,7 +216,7 @@ paths:
                             schema:
                                 $ref: "#/components/schemas/Error"
 
-    /orders:
+    /advance_payment/orders:
         post:
 #            security:
 #                -   bearerAuth: []
@@ -209,7 +249,7 @@ paths:
                             schema:
                                 $ref: "#/components/schemas/Error"
 
-    /orders/{order_id}:
+    /advance_payment/orders/{order_id}:
         get:
 #            security:
 #                -   bearerAuth: []
@@ -244,7 +284,7 @@ paths:
                             schema:
                                 $ref: "#/components/schemas/Error"
 
-    /dictionaries/trip_types:
+    /advance_payment/dictionaries/trip_types:
         get:
 #            security:
 #                -   bearerAuth: []
@@ -272,7 +312,7 @@ paths:
                             schema:
                                 $ref: "#/components/schemas/Error"
 
-    /dictionaries/trip_statuses:
+    /advance_payment/dictionaries/trip_statuses:
         get:
 #            security:
 #                -   bearerAuth: []
@@ -300,7 +340,7 @@ paths:
                             schema:
                                 $ref: "#/components/schemas/Error"
 
-    /dictionaries/clients:
+    /advance_payment/dictionaries/clients:
         get:
 #            security:
 #                -   bearerAuth: []
@@ -328,7 +368,7 @@ paths:
                             schema:
                                 $ref: "#/components/schemas/Error"
 
-    /dictionaries/carrier:
+    /advance_payment/dictionaries/carrier:
         get:
 #            security:
 #                -   bearerAuth: []
@@ -356,7 +396,7 @@ paths:
                             schema:
                                 $ref: "#/components/schemas/Error"
 
-    /dictionaries/document_types:
+    /advance_payment/dictionaries/document_types:
         get:
 #            security:
 #                -   bearerAuth: []
@@ -906,6 +946,10 @@ components:
                 isActive:
                     type: boolean
                     description: "Доступность выдачи аванса"
+                tripType:
+                    type: integer
+                    format: int32
+                    description: "Тип заказа нужен фронту для отображения кнопки (пока фронт должен отображать только авто (FTL))"
 
         TripStatusesResponse:
             type: array
@@ -955,3 +999,41 @@ components:
                     type: integer
                     format: int32
                     description: "Номер текущей страницы"
+
+        RequestFormData:
+            title: "Параметры запроса"
+            type: object
+            properties:
+                filename:
+                    type: string
+                    format: binary
+            required:
+                - filename
+        FileErrorResult:
+            title: "Результирующий список сообщений об ошибках в ходе валидации файла"
+            type: object
+            properties:
+                errors:
+                    type: array
+                    description: "Список ошибок"
+                    items:
+                        $ref: "#/components/schemas/FileRowErrorMessage"
+            required:
+                - errors
+
+        FileRowErrorMessage:
+            title: "Сообщение об ошибке в ходе валидации строки файла"
+            type: object
+            properties:
+                row_number:
+                    type: integer
+                    format: int32
+                    description: "Номер строки с ошибкой"
+                    minimum: 1
+                message:
+                    type: string
+                    description: "Описание ошибки"
+                    minLength: 1
+            required:
+                - row_number
+                - message

@@ -1,4 +1,4 @@
-package online.oboz.trip.trip_carrier_advance_ap1i.web;
+package online.oboz.trip.trip_carrier_advance_payment_api.web;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;

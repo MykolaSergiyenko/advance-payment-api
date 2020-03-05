@@ -6,5 +6,5 @@ exec java ${JVM_FLAGS} \
   ${JAVA_OPTS} \
   -Djava.security.egd=file:/dev/./urandom \
   -cp /app/resources/:/app/classes/:/app/libs/* \
-  "online.oboz.trip.trip-carrier-advance-payment-api.MainApplication" \
+  "online.oboz.trip.trip_carrier_advance_payment_api.MainApplication" \
   "$@"

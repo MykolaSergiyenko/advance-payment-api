@@ -8,8 +8,8 @@ openApiGenerate {
     generatorName = "spring"
     inputSpec = "$rootDir/src/main/resources/openapi/api.yml".toString()
     outputDir = "$buildDir/openapi".toString()
-    apiPackage = "online.oboz.trip.trip-carrier-advance-payment-api.web.api.controller"
-    modelPackage = "online.oboz.trip.trip-carrier-advance-payment-api.web.api.dto"
+    apiPackage = "online.oboz.trip.trip_carrier_advance_payment_api.web.api.controller"
+    modelPackage = "online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto"
     apiFilesConstrainedTo = [""]
     modelFilesConstrainedTo = [""]
     supportingFilesConstrainedTo = ["ApiUtil.java"]

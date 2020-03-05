@@ -1,4 +1,4 @@
-package online.oboz.trip.trip_carrier_advance_ap1i.web.dto;
+package online.oboz.trip.trip_carrier_advance_payment_api.web.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;

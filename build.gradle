@@ -81,6 +81,7 @@ dependencies {
     implementation "org.springframework.cloud:spring-cloud-starter-consul-discovery"
     compile "org.springframework.boot:spring-boot-loader-tools"
     compile "org.springframework.boot:spring-boot-starter-logging"
+    compile "org.springframework.boot:spring-boot-starter-oauth2-resource-server"
     //compile group: 'org.springframework.cloud', name: 'spring-cloud-stream'
 
     runtimeOnly 'org.postgresql:postgresql'
