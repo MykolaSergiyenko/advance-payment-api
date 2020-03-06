@@ -5,52 +5,11 @@ info:
     description: "trip-carrier-advance-api"
 servers:
     - url: "{server}/v1"
-#   TODO:   need add cron + sms email notity service
 paths:
-    /advance_payment/contract_application:
-        get:
-#            security:
-#                -   bearerAuth: []
-            tags:
-                - contract application
-            summary: "Запрос на получение PDF файла"
-            operationId: downloadFile
-
-            responses:
-                "200":
-                    description: "PDF-файл"
-                    content:
-                        multipart/form-data:
-                            schema:
-                                type: string
-                                format: binary
-        post:
-#            security:
-#                -   bearerAuth: []
-            tags:
-                - contract application
-            summary: "Добавление файла"
-            operationId: uploadFile
-            requestBody:
-                required: true
-                content:
-                    multipart/form-data:
-                        schema:
-                            $ref: "#/components/schemas/RequestFormData"
-            responses:
-                "201":
-                    description: "Данные успешно получены"
-                "422":
-                    description: "Ошибка в процессе валидации файла"
-                    content:
-                        application/json:
-                            schema:
-                                $ref: "#/components/schemas/FileErrorResult"
-
     /advance_payment/request_give_advance_payment/{id}:
         post:
-#            security:
-#                -   bearerAuth: []
+            security:
+                -   bearerAuth: []
             summary: "запрос на выдачу аванса"
             operationId: requestGiveAdvancePayment
             tags:
@@ -64,6 +23,12 @@ paths:
                         type: integer
                         format: int64
                         minimum: 1
+                -   name: comment
+                    in: query
+                    description: "Комментарий к запросу на авансирование "
+                    required: true
+                    schema:
+                        type: String
             responses:
                 200:
                     description: "OK"
@@ -193,7 +158,7 @@ paths:
         get:
 #            security:
 #                -   bearerAuth: []
-            summary: "Выдать аванс"
+            summary: "Проверить выдан ли аванс"
             operationId: isAdvanced
             tags:
                 - Advance
@@ -217,14 +182,14 @@ paths:
                             schema:
                                 $ref: "#/components/schemas/Error"
 
-    /advance_payment/orders:
+    /advance_payment/search_request:
         post:
 #            security:
 #                -   bearerAuth: []
-            summary: "Просмотр списка заказов"
-            operationId: getOrderList
+            summary: "Просмотр списка запросов на аванс"
+            operationId: getAdvancePayment
             tags:
-                - Orders
+                - AdvancePayment
             requestBody:
                 content:
                     application/json:
@@ -320,42 +285,6 @@ paths:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/Error"
-
-
-#    /advance_payment/orders/{order_id}:
-#        get:
-##            security:
-##                -   bearerAuth: []
-#            summary: "Просмотр заказа"
-#            operationId: getOrderWithInfoById
-#            tags:
-#                - Orders
-#            parameters:
-#                -   name: order_id
-#                    in: path
-#                    schema:
-#                        type: integer
-#                        format: int32
-#                    required: true
-#            responses:
-#                200:
-#                    description: "OK"
-#                    content:
-#                        application/json:
-#                            schema:
-#                                $ref: "#/components/schemas/OrderDTO"
-#                default:
-#                    description: "Some other error"
-#                    content:
-#                        application/json:
-#                            schema:
-#                                $ref: "#/components/schemas/Error"
-#                422:
-#                    description: "Business error"
-#                    content:
-#                        application/json:
-#                            schema:
-#                                $ref: "#/components/schemas/Error"
 
     /advance_payment/dictionaries/trip_types:
         get:
@@ -496,6 +425,46 @@ paths:
 #                        application/json:
 #                            schema:
 #                                $ref: "#/components/schemas/Error"
+    /advance_payment/contract_application:
+        get:
+            #            security:
+            #                -   bearerAuth: []
+            tags:
+                - contract application
+            summary: "Запрос на получение PDF файла"
+            operationId: downloadFile
+
+            responses:
+                "200":
+                    description: "PDF-файл"
+                    content:
+                        multipart/form-data:
+                            schema:
+                                type: string
+                                format: binary
+        post:
+            #            security:
+            #                -   bearerAuth: []
+            tags:
+                - contract application
+            summary: "Добавление файла"
+            operationId: uploadFile
+            requestBody:
+                required: true
+                content:
+                    multipart/form-data:
+                        schema:
+                            $ref: "#/components/schemas/RequestFormData"
+            responses:
+                "201":
+                    description: "Данные успешно получены"
+                "422":
+                    description: "Ошибка в процессе валидации файла"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/FileErrorResult"
+
 
 components:
 #    securitySchemes:

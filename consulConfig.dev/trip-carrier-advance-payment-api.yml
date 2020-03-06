@@ -1,5 +1,5 @@
 spring:
-    security.oauth2.resourceserver.jwt.jwk-set-uri: http://keycloak:8080/auth/realms/master/protocol/openid-connect/certs
+    security.oauth2.resourceserver.jwt.jwk-set-uri: http://keycloak.r14.k.dev.oboz:30080/auth/realms/master/protocol/openid-connect/certs
     profiles:
         active: dev
 
@@ -18,3 +18,7 @@ application:
     limits:
         min-trip-count: 5
         required-download-docs: true
+
+sms-sender:
+    url: 'http://sms-sender.r14.k.dev.oboz:30080'
+

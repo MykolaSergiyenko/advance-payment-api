@@ -18,3 +18,6 @@ application:
     limits:
         min-trip-count: 5
         required-download-docs: true
+
+sms-sender:
+    url: 'http://sms-sender.r14.k.preprod.oboz:30080'

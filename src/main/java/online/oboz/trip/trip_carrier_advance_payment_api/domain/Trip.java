@@ -2,29 +2,25 @@ package online.oboz.trip.trip_carrier_advance_payment_api.domain;
 
 import lombok.Data;
 
-import java.util.List;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
+@Entity
 @Data
+@Table(schema = "orders", name = "trips")
 public class Trip {
-
-    private int tripId;
-    private String tripNum;
-    private String tripStatus;
-    private String tripStatusCode;
-    private String tripType;
-    private String tripTypeCode;
-    private Contractor contractor;
-    private Person driver;
-    private String resourceInfo;
-    //    private Couple couple;
-    private String contractName;
-    private String contractNum;
+    @Id
+    private Long id;
+    private Long contractorId;
+    private Long driverId;
+    private String num;
+    private Long orderId;
     private Double cost;
-    private String currencyCode;
-    private Integer currencyCourse;
-    private Vat vat;
-    private String comment;
-    private String truckBodyTypeCode;
-    private List<TripPoint> tripPoints;
+    private Long paymentContractorId;
+    private String vatCode;
+    private String tripTypeCode;
+    private String resourceTypeCode;
+    private Boolean isAdvancedPayment;
 
 }
