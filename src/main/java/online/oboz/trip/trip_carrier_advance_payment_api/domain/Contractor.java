@@ -5,7 +5,6 @@ import lombok.Data;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import java.math.BigDecimal;
 
 @Entity
 @Data
@@ -16,7 +15,7 @@ public class Contractor {
     private Long id;
     private String fullName;
     private Boolean isVatPayer;
-    private BigDecimal isVerified;
+    private Boolean isVerified;
     private String phone;
     private String email;
     private Boolean isAutoAdvancePayment;

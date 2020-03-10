@@ -7,6 +7,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 
+import static com.google.common.base.Preconditions.checkState;
+
 public final class SecurityUtils {
 
     private SecurityUtils() {
@@ -30,6 +32,12 @@ public final class SecurityUtils {
 
     public static boolean isAuthenticated() {
         return getAuthentication().isAuthenticated();
+    }
+
+    public static Long getAuthPersonId() {
+        checkState(isAuthenticated());
+        Jwt jwt = SecurityUtils.getCurrentToken();
+        return Long.parseLong(jwt.getClaimAsMap("person").get("id").toString());
     }
 
 }

@@ -1,25 +1,24 @@
 package online.oboz.trip.trip_carrier_advance_payment_api.domain;
 
 import lombok.Data;
-import lombok.experimental.Accessors;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.OffsetDateTime;
 
 @Entity
-@Table(name = "contractor_advance_payment_contact", schema = "common")
 @Data
-@Accessors(chain = true)
-public class ContractorAdvancePaymentContact {
+@Table(schema = "common", name = "contractor_advance_exclusion")
+public class ContractorAdvanceExclusion {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
-    private Long contractorId;
-    private String fullName;
-    private String email;
-    private String phone;
+    private Long orderTypeId;
+    private Long carrierId;
+    private String carrierFullName;
+    private Boolean isConfirmAdvance;
+    private Boolean isAutomationAdvancePayment;
     @NotNull
     @Column(name = "created_at", nullable = false)
     private OffsetDateTime createdAt;
@@ -40,5 +39,6 @@ public class ContractorAdvancePaymentContact {
     protected void onUpdate() {
         setUpdatedAt(OffsetDateTime.now());
     }
+
 
 }

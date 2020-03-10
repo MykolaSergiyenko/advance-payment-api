@@ -3,10 +3,7 @@ package online.oboz.trip.trip_carrier_advance_payment_api.domain;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import java.math.BigDecimal;
+import javax.persistence.*;
 import java.time.OffsetDateTime;
 
 @Entity
@@ -16,11 +13,12 @@ import java.time.OffsetDateTime;
 public class AdvancePaymentCost {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
-    private BigDecimal minValue;
-    private BigDecimal maxValue;
-    private BigDecimal advancePaymentSum;
-    private BigDecimal registrationFee;
+    private Double minValue;
+    private Double maxValue;
+    private Double advancePaymentSum;
+    private Double registrationFee;
     private OffsetDateTime createdAt = OffsetDateTime.now();
 
- }
+}
