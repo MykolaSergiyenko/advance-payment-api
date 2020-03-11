@@ -14,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -29,18 +30,21 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
     private final ContractorAdvancePaymentContactRepository contractorAdvancePaymentContactRepository;
     private final TripRepository tripRepository;
     private final ContractorRepository contractorRepository;
+    private final RestTemplate restTemplate;
 
     @Autowired
     public AdvancePaymentDelegateImpl(AdvancePaymentCostRepository advancePaymentCostRepository,
                                       TripRequestAdvancePaymentRepository tripRequestAdvancePaymentRepository,
                                       ContractorAdvancePaymentContactRepository contractorAdvancePaymentContactRepository,
                                       TripRepository tripRepository,
-                                      ContractorRepository contractorRepository) {
+                                      ContractorRepository contractorRepository,
+                                      RestTemplate restTemplate) {
         this.advancePaymentCostRepository = advancePaymentCostRepository;
         this.tripRequestAdvancePaymentRepository = tripRequestAdvancePaymentRepository;
         this.contractorAdvancePaymentContactRepository = contractorAdvancePaymentContactRepository;
         this.tripRepository = tripRepository;
         this.contractorRepository = contractorRepository;
+        this.restTemplate = restTemplate;
     }
 
     @Override
@@ -144,12 +148,36 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
 
     @Override
     public ResponseEntity<Void> confirmAdvancePayment(Long id, Boolean isSuccess) {
-        return null;
+//        Optional<TripRequestAdvancePayment> tripRequestAdvancePayment = tripRequestAdvancePaymentRepository
+//            .findTripRequestAdvancePayment(id);
+//        //todo: проверить и поменять
+//        tripRequestAdvancePayment.orElseThrow(() -> {
+//                Error error = new Error();
+//                error.setErrorMessage("TripRequestAdvancePayment not found");
+//                throw new BusinessLogicException(HttpStatus.UNPROCESSABLE_ENTITY, error);
+//            }
+//        );
+//        tripRequestAdvancePaymentRepository.save(tripRequestAdvancePayment.get());
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @Override
-    public ResponseEntity<IsAdvancedRequestResponse> isAdvanced() {
-        return null;
+    public ResponseEntity<IsAdvancedRequestResponse> isAdvanced(Long id) {
+        Optional<TripRequestAdvancePayment> tripRequestAdvancePayment = tripRequestAdvancePaymentRepository
+            .findTripRequestAdvancePayment(id);
+//        //todo: проверить и поменять
+//        tripRequestAdvancePayment.orElseThrow(() -> {
+//                Error error = new Error();
+//                error.setErrorMessage("TripRequestAdvancePayment not found");
+//                throw new BusinessLogicException(HttpStatus.UNPROCESSABLE_ENTITY, error);
+//            }
+//        );
+//        tripRequestAdvancePaymentRepository.save(tripRequestAdvancePayment.get());
+        IsAdvancedRequestResponse isAdvancedRequestResponse = new IsAdvancedRequestResponse();
+//        isAdvancedRequestResponse.setIsActive();
+//        isAdvancedRequestResponse.setIsAdvanssed();
+//        isAdvancedRequestResponse.setTripType();
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 //    При нажатии на кнопку происходит следующий функционал:   создать таблицу запросов на авансирование orders.trip_request_advance_payment
 //    сделать entity сгенерить таблицу в бд
@@ -270,7 +298,17 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
 
     @Override
     public ResponseEntity<Void> addContactCarrier(CarrierContactDTO carrierContactDTO) {
-        return null;
+        Optional<ContractorAdvancePaymentContact> contractorAdvancePaymentContact =
+            contractorAdvancePaymentContactRepository.findContractorAdvancePaymentContact(carrierContactDTO.getContractorId());
+        //todo: проверить и поменять
+        contractorAdvancePaymentContact.orElseThrow(() -> {
+                Error error = new Error();
+                error.setErrorMessage("addContactCarrier is present");
+                throw new BusinessLogicException(HttpStatus.UNPROCESSABLE_ENTITY, error);
+            }
+        );
+        contractorAdvancePaymentContactRepository.save(contractorAdvancePaymentContact.get());
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @Override
@@ -285,7 +323,17 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
 
     @Override
     public ResponseEntity<Void> updateLoadingComplete(Long id, Boolean loadingComplete) {
-        return null;
+        Optional<TripRequestAdvancePayment> tripRequestAdvancePayment = tripRequestAdvancePaymentRepository
+            .findTripRequestAdvancePayment(id);
+        //todo: проверить и поменять
+        tripRequestAdvancePayment.orElseThrow(() -> {
+                Error error = new Error();
+                error.setErrorMessage("TripRequestAdvancePayment not found");
+                throw new BusinessLogicException(HttpStatus.UNPROCESSABLE_ENTITY, error);
+            }
+        );
+        tripRequestAdvancePaymentRepository.save(tripRequestAdvancePayment.get());
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @Override

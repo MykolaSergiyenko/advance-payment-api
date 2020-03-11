@@ -1,6 +1,6 @@
 spring:
     jpa:
-        show_sql: false
+        show_sql: true
         properties:
             hibernate:
                 jdbc:

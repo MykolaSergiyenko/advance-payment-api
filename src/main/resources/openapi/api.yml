@@ -89,11 +89,20 @@ paths:
     /advance_payment/is_advanced/{id}:
         get:
 #            security:
-#                -   bearerAuth: []
+            #                -   bearerAuth: []
             summary: "Проверить выдан ли аванс"
             operationId: isAdvanced
             tags:
                 - Advance Payment
+            parameters:
+                -   name: id
+                    in: path
+                    description: "Id запроса на аванс"
+                    required: true
+                    schema:
+                        type: integer
+                        format: int64
+                        minimum: 1
             responses:
                 200:
                     description: "OK"
@@ -240,7 +249,7 @@ paths:
                             schema:
                                 $ref: "#/components/schemas/Error"
 
-    /advance_payment/contact/update_loading_complete:
+    /advance_payment/update_loading_complete:
         put:
             #            security:
             #                -   bearerAuth: []
@@ -260,6 +269,44 @@ paths:
                     schema:
                         type: boolean
                     required: true
+            responses:
+                200:
+                    description: "OK"
+                default:
+                    description: "Some other error"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                422:
+                    description: "Business error"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+
+    /advance_payment/unnule_advance_payment:
+        put:
+            #            security:
+            #                -   bearerAuth: []
+            summary: "Аннулировать запрос на аванс "
+            operationId: unnuleAdvancePayment
+            tags:
+                - Advance Payment
+            parameters:
+                -   name: id
+                    in: query
+                    schema:
+                        type: integer
+                        format: int64
+                    required: true
+                    description: "Номер запроса на аванс"
+                -   name: cancel_advance_comment
+                    in: query
+                    schema:
+                        type: boolean
+                    required: true
+                    description: "Комментарий при отмене аванса"
             responses:
                 200:
                     description: "OK"
