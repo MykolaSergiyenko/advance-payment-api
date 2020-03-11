@@ -86,98 +86,6 @@ paths:
                             schema:
                                 $ref: "#/components/schemas/Error"
 
-#TODO вынести в новую админку
-    /advance_payment/add_excluded_contractor/{id}:
-        post:
-#            security:
-#                -   bearerAuth: []
-            summary: "Добавить / удалить контрагента в таблицу исключений"
-            operationId: addExcludedContractor
-            tags:
-                - Cotractor
-            parameters:
-                -   name: id
-                    in: path
-                    description: "ID поставщика"
-                    required: true
-                    schema:
-                        type: integer
-                        format: int64
-                        minimum: 1
-                -   name: isAdvancePaymentSuccess
-                    in: query
-                    description: "Выдать аванс – поле исключений из алгоритма автоматической выдачи аванса"
-                    required: true
-                    schema:
-                        type: boolean
-                -   name: isAutomationAdvancePayment
-                    in: query
-                    description: "Признак автоматического аванса"
-                    required: true
-                    schema:
-                        type: boolean
-            responses:
-                200:
-                    description: "OK"
-                default:
-                    description: "Some other error"
-                    content:
-                        application/json:
-                            schema:
-                                $ref: "#/components/schemas/Error"
-                422:
-                    description: "Business error"
-                    content:
-                        application/json:
-                            schema:
-                                $ref: "#/components/schemas/Error"
-
-    #TODO вынести в новую админку
-    /advance_payment/delete_excluded_contractor/{id}:
-        delete:
-#            security:
-#                -   bearerAuth: []
-            summary: "Добавить / удалить контрагента в таблицу исключений"
-            operationId: deleteExcludedContractor
-            tags:
-                - Cotractor
-            parameters:
-                -   name: id
-                    in: path
-                    description: "Id контрагента"
-                    required: true
-                    schema:
-                        type: integer
-                        format: int64
-                        minimum: 1
-                -   name: isAdvancePayment
-                    in: query
-                    description: "Id контрагента"
-                    required: true
-                    schema:
-                        type: boolean
-                -   name: successAutomationAdvancePayment
-                    in: query
-                    description: "Id контрагента"
-                    required: true
-                    schema:
-                        type: boolean
-            responses:
-                200:
-                    description: "OK"
-                default:
-                    description: "Some other error"
-                    content:
-                        application/json:
-                            schema:
-                                $ref: "#/components/schemas/Error"
-                422:
-                    description: "Business error"
-                    content:
-                        application/json:
-                            schema:
-                                $ref: "#/components/schemas/Error"
-
     /advance_payment/is_advanced/{id}:
         get:
 #            security:
@@ -274,26 +182,22 @@ paths:
                             schema:
                                 $ref: "#/components/schemas/Error"
 
-    /advance_payment/search_contractors:
-        post:
+    /advance_payment/contact/update_contact_carrier:
+        put:
             #            security:
             #                -   bearerAuth: []
-            summary: "Поиск контрагентов"
-            operationId: searchContractors
+            summary: "Обновить контакт контрагента для авансирования"
+            operationId: updateContactCarrier
             tags:
                 - Cotractor
             requestBody:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/Filter'
+                            $ref: "#/components/schemas/CarrierContactDTO"
             responses:
                 200:
                     description: "OK"
-                    content:
-                        application/json:
-                            schema:
-                                $ref: "#/components/schemas/ContractorResponse"
                 default:
                     description: "Some other error"
                     content:
@@ -307,12 +211,12 @@ paths:
                             schema:
                                 $ref: "#/components/schemas/Error"
 
-    /advance_payment/contact/update_contact_carrier:
-        put:
+    /advance_payment/contact/add_contact_carrier:
+        post:
             #            security:
             #                -   bearerAuth: []
-            summary: "Обновить контакт контрагента для авансирования"
-            operationId: updateContactCarrier
+            summary: "Добавить контакт контрагента для авансирования"
+            operationId: addContactCarrier
             tags:
                 - Cotractor
             requestBody:
@@ -372,14 +276,14 @@ paths:
                             schema:
                                 $ref: "#/components/schemas/Error"
 
-    /advance_payment/download_contract_application_template:
+    /advance_payment/download_advance_request_template:
         get:
             #            security:
             #                -   bearerAuth: []
             tags:
                 - Application contract
-            summary: "Запрос на скачивание PDF файла"
-            operationId: downloadAvanceRequest
+            summary: "Запрос на скачивание шаблонной заявки на аванс"
+            operationId: downloadAvanceRequestTemplate
             parameters:
                 -   name: trip_num
                     in: query

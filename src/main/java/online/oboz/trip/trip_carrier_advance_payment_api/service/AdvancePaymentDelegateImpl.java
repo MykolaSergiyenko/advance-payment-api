@@ -264,7 +264,12 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
     }
 
     @Override
-    public ResponseEntity<Resource> downloadAvanceRequest(String tripNum) {
+    public ResponseEntity<Resource> downloadAvanceRequestTemplate(String tripNum) {
+        return null;
+    }
+
+    @Override
+    public ResponseEntity<Void> addContactCarrier(CarrierContactDTO carrierContactDTO) {
         return null;
     }
 
@@ -280,16 +285,6 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
 
     @Override
     public ResponseEntity<Void> updateLoadingComplete(Long id, Boolean loadingComplete) {
-        return null;
-    }
-
-    @Override
-    public ResponseEntity<Void> addExcludedContractor(Long id, Boolean isAdvancePayment, Boolean successAutomationAdvancePayment) {
-        return null;
-    }
-
-    @Override
-    public ResponseEntity<Void> deleteExcludedContractor(Long id, Boolean isAdvancePayment, Boolean successAutomationAdvancePayment) {
         return null;
     }
 
