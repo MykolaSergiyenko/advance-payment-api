@@ -56,19 +56,19 @@ paths:
             parameters:
                 -   name: id
                     in: path
-                    description: "Id контрагента"
+                    description: "ID запроса на авансирование"
                     required: true
                     schema:
                         type: integer
                         format: int64
                         minimum: 1
-                -   name: is_success
-                    in: query
-                    description: "Флаг подтверждения выдачи аванса"
-                    required: false
-                    schema:
-                        type: boolean
-                        default: false
+            #                -   name: is_success
+            #                    in: query
+            #                    description: "Флаг подтверждения выдачи аванса"
+            #                    required: false
+            #                    schema:
+            #                        type: boolean
+            #                        default: false
 
             responses:
                 200:
@@ -86,18 +86,18 @@ paths:
                             schema:
                                 $ref: "#/components/schemas/Error"
 
-    /advance_payment/is_advanced/{id}:
+    /advance_payment/is_advanced/{trip_id}:
         get:
-#            security:
+            #            security:
             #                -   bearerAuth: []
             summary: "Проверить выдан ли аванс"
             operationId: isAdvanced
             tags:
                 - Advance Payment
             parameters:
-                -   name: id
+                -   name: trip_id
                     in: path
-                    description: "Id запроса на аванс"
+                    description: "Id заказа на перевозку"
                     required: true
                     schema:
                         type: integer
@@ -285,12 +285,12 @@ paths:
                             schema:
                                 $ref: "#/components/schemas/Error"
 
-    /advance_payment/unnule_advance_payment:
+    /advance_payment/cancel_advance_payment:
         put:
             #            security:
             #                -   bearerAuth: []
             summary: "Аннулировать запрос на аванс "
-            operationId: unnuleAdvancePayment
+            operationId: cancelAdvancePayment
             tags:
                 - Advance Payment
             parameters:
@@ -651,11 +651,22 @@ components:
                 isAdvanssed:
                     type: boolean
                     description: "Флаг выдачи аванса"
-                isActive:
+                isButtonActive:
                     type: boolean
                     description: "Доступность выдачи аванса"
-                tripType:
+                tripTypeCode:
                     type: string
+                    description: "Тип заказа нужен фронту для отображения кнопки (пока фронт должен отображать только авто (FTL))"
+                authorId:
+                    type: integer
+                    format: int64
+                    description: "Тип заказа нужен фронту для отображения кнопки (пока фронт должен отображать только авто (FTL))"
+                createdAt:
+                    type: string
+                    format: date-time
+                    description: "Время и дата запроса аванса"
+                isAutoRequested:
+                    type: boolean
                     description: "Тип заказа нужен фронту для отображения кнопки (пока фронт должен отображать только авто (FTL))"
 
         RequestFormData:
