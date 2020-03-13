@@ -304,7 +304,7 @@ paths:
                 -   name: cancel_advance_comment
                     in: query
                     schema:
-                        type: boolean
+                        type: string
                     required: true
                     description: "Комментарий при отмене аванса"
             responses:
@@ -515,12 +515,12 @@ components:
                 loading_complete:
                     type: boolean
                     description: "Водитель загрузился"
-                is_downloaded_contract_application:
-                    type: boolean
-                    description: "Признак что Договор-заявка/заявка – загружена «Договор-заявка» или «Заявка» силами логиста или вручную пользователем"
-                is_downloaded_advance_application:
-                    type: boolean
-                    description: "Признак что заявка на авансирование загружена"
+                url_contract_application:
+                    type: string
+                    description: "Ссылка на скачивание «Договор-заявка» или «Заявка»"
+                url_advance_application:
+                    type: string
+                    description: "Ссылка на скачивание заявки на авансирование"
                 is_1C_send_allowed:
                     type: boolean
                     description: "Признак доступности отправки в 1с"

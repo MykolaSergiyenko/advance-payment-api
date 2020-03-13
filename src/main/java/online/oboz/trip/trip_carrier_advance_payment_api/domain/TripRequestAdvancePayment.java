@@ -25,8 +25,8 @@ public class TripRequestAdvancePayment {
     private Double advancePaymentSum;
     private Double registrationFee;
     private Boolean loadingComplete;
-    private Boolean isDownloadedContractApplication;
-    private Boolean isDownloadedAdvanceApplication;
+    private String uuidContractApplicationFile;
+    private String uuidAdvanceApplicationFile;
     @Column(name = "is_1c_send_allowed")
     private Boolean is1CSendAllowed;
     private Boolean cancelAdvance;

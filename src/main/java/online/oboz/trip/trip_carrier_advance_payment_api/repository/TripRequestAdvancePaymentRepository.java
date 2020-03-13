@@ -21,9 +21,9 @@ public interface TripRequestAdvancePaymentRepository extends JpaRepository<TripR
                                                         @Param("driver_id") Long driverId,
                                                         @Param("contractor_id") Long contractorId);
 
-    @Query("select  pc " +
+    @Query("select pc " +
         " from TripRequestAdvancePayment pc " +
-        " where pc.Id = :id ")
+        " where pc.id = :id ")
     Optional<TripRequestAdvancePayment> findTripRequestAdvancePayment(@Param("id") Long id);
 
 }

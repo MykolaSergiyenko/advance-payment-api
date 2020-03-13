@@ -4,11 +4,9 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
-import java.util.List;
-
 @Data
 @JsonIgnoreProperties
-public class TripDocuments {
+public class OrderDocuments {
     @JsonProperty("trip_documents")
-    public List<TripDocument> tripDocuments;
+    public TripDocuments tripDocuments;
 }

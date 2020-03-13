@@ -14,7 +14,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -30,21 +29,18 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
     private final ContractorAdvancePaymentContactRepository contractorAdvancePaymentContactRepository;
     private final TripRepository tripRepository;
     private final ContractorRepository contractorRepository;
-    private final RestTemplate restTemplate;
 
     @Autowired
     public AdvancePaymentDelegateImpl(AdvancePaymentCostRepository advancePaymentCostRepository,
                                       TripRequestAdvancePaymentRepository tripRequestAdvancePaymentRepository,
                                       ContractorAdvancePaymentContactRepository contractorAdvancePaymentContactRepository,
                                       TripRepository tripRepository,
-                                      ContractorRepository contractorRepository,
-                                      RestTemplate restTemplate) {
+                                      ContractorRepository contractorRepository) {
         this.advancePaymentCostRepository = advancePaymentCostRepository;
         this.tripRequestAdvancePaymentRepository = tripRequestAdvancePaymentRepository;
         this.contractorAdvancePaymentContactRepository = contractorAdvancePaymentContactRepository;
         this.tripRepository = tripRepository;
         this.contractorRepository = contractorRepository;
-        this.restTemplate = restTemplate;
     }
 
     @Override
@@ -86,48 +82,44 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
         Pageable pageable = PageRequest.of(filter.getPage() - 1, filter.getPerPage());
         List<FrontAdvancePaymentResponse> responseList =
             tripRequestAdvancePaymentRepository.findTripRequestAdvancePayment(pageable).stream()
-                .map(req -> {
+                .map(reс -> {
                     FrontAdvancePaymentResponse frontAdvancePaymentResponse = new FrontAdvancePaymentResponse();
                     ContractorAdvancePaymentContact contractorAdvancePaymentContact =
-                        contractorAdvancePaymentContactRepository.findContractorAdvancePaymentContact(req.getContractorId())
+                        contractorAdvancePaymentContactRepository.findContractorAdvancePaymentContact(reс.getContractorId())
                             .orElse(new ContractorAdvancePaymentContact());
-                    Contractor contractor = contractorRepository.findById(req.getContractorId()).orElse(new Contractor());
-                    String contractorPaymentName = contractorRepository.getPaymentContractorName(req.getPaymentContractorId());
-                    Trip trip = tripRepository.findById(req.getTripId()).orElse(new Trip());
+                    Contractor contractor = contractorRepository.findById(reс.getContractorId()).orElse(new Contractor());
+                    String contractorPaymentName = contractorRepository.getPaymentContractorName(reс.getPaymentContractorId());
+                    Trip trip = tripRepository.findById(reс.getTripId()).orElse(new Trip());
                     frontAdvancePaymentResponse
-                        .id(req.getId())
-                        .tripId(req.getTripId())
+                        .id(reс.getId())
+                        .tripId(reс.getTripId())
                         .tripNum(trip.getNum())
-                        .tripTypeCode(req.getTripTypeCode())
+                        .tripTypeCode(reс.getTripTypeCode())
                         .createdAt(trip.getCreatedAt())
-                        .reqCreatedAt(req.getCreatedAt())
-                        .contractorId(req.getContractorId())
+                        .reqCreatedAt(reс.getCreatedAt())
+                        .contractorId(reс.getContractorId())
                         .contractorName(contractor.getFullName())
                         .contactFio(contractorAdvancePaymentContact.getFullName())
                         .contactPhone(contractorAdvancePaymentContact.getPhone())
                         .contactEmail(contractorAdvancePaymentContact.getEmail())
                         .paymentContractor(contractorPaymentName)
-                        .isAutomationRequest(req.getIsAutomationRequest())
-                        .tripCostWithVat(req.getTripCost())
-                        .advancePaymentSum(req.getAdvancePaymentSum())
-                        .registrationFee(req.getRegistrationFee())
+                        .isAutomationRequest(reс.getIsAutomationRequest())
+                        .tripCostWithVat(reс.getTripCost())
+                        .advancePaymentSum(reс.getAdvancePaymentSum())
+                        .registrationFee(reс.getRegistrationFee())
                         //проставляется вручную сотрудниками авансирования
-                        .loadingComplete(req.getLoadingComplete())
-                        //TODO: разобраться откуда брать?
-                        .isDownloadedContractApplication(req.getIsDownloadedContractApplication())
-                        //TODO: разобраться откуда брать?
-                        .isDownloadedAdvanceApplication(req.getIsDownloadedAdvanceApplication())
-                        //TODO: разобраться откуда брать?
-                        .is1CSendAllowed(req.getIs1CSendAllowed())
-                        //TODO: разобраться откуда брать Договор заявка, Заявка на авансирование, в 1С
-                        .isUnfSend(req.getIsUnfSend())
-                        .isPaid(req.getIsPaid())
-                        .paidAt(req.getPaidAt())
-                        .comment(req.getComment())
-                        .cancelAdvance(req.getCancelAdvance())
-                        .cancelAdvanceComment(req.getCancelAdvanceComment())
-                        .authorId(req.getAuthorId())
-                        .setPageCarrierUrlIsAccess(req.getPageCarrierUrlIsAccess());
+                        .loadingComplete(reс.getLoadingComplete())
+                        .urlContractApplication(reс.getUuidContractApplicationFile())
+                        .urlAdvanceApplication(reс.getUuidAdvanceApplicationFile())
+                        .is1CSendAllowed(reс.getIs1CSendAllowed())
+                        .isUnfSend(reс.getIsUnfSend())
+                        .isPaid(reс.getIsPaid())
+                        .paidAt(reс.getPaidAt())
+                        .comment(reс.getComment())
+                        .cancelAdvance(reс.getCancelAdvance())
+                        .cancelAdvanceComment(reс.getCancelAdvanceComment())
+                        .authorId(reс.getAuthorId())
+                        .setPageCarrierUrlIsAccess(reс.getPageCarrierUrlIsAccess());
                     return frontAdvancePaymentResponse;
                 })
                 .collect(Collectors.toList());
@@ -300,14 +292,17 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
     public ResponseEntity<Void> addContactCarrier(CarrierContactDTO carrierContactDTO) {
         Optional<ContractorAdvancePaymentContact> contractorAdvancePaymentContact =
             contractorAdvancePaymentContactRepository.findContractorAdvancePaymentContact(carrierContactDTO.getContractorId());
-        //todo: проверить и поменять
-        contractorAdvancePaymentContact.orElseThrow(() -> {
-                Error error = new Error();
-                error.setErrorMessage("addContactCarrier is present");
-                throw new BusinessLogicException(HttpStatus.UNPROCESSABLE_ENTITY, error);
-            }
-        );
-        contractorAdvancePaymentContactRepository.save(contractorAdvancePaymentContact.get());
+        if (contractorAdvancePaymentContact.isPresent()) {
+            Error error = new Error();
+            error.setErrorMessage("ContractorAdvancePaymentContact is present");
+            throw new BusinessLogicException(HttpStatus.UNPROCESSABLE_ENTITY, error);
+        }
+        final ContractorAdvancePaymentContact entity = new ContractorAdvancePaymentContact();
+        entity.setFullName(carrierContactDTO.getFullName());
+        entity.setContractorId(carrierContactDTO.getContractorId());
+        entity.setPhone(carrierContactDTO.getPhoneNumber());
+        entity.setEmail(carrierContactDTO.getEmail());
+        contractorAdvancePaymentContactRepository.save(entity);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -323,38 +318,47 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
 
     @Override
     public ResponseEntity<Void> updateLoadingComplete(Long id, Boolean loadingComplete) {
-        Optional<TripRequestAdvancePayment> tripRequestAdvancePayment = tripRequestAdvancePaymentRepository
-            .findTripRequestAdvancePayment(id);
-        //todo: проверить и поменять
-        tripRequestAdvancePayment.orElseThrow(() -> {
-                Error error = new Error();
-                error.setErrorMessage("TripRequestAdvancePayment not found");
-                throw new BusinessLogicException(HttpStatus.UNPROCESSABLE_ENTITY, error);
-            }
-        );
-        tripRequestAdvancePaymentRepository.save(tripRequestAdvancePayment.get());
+        final TripRequestAdvancePayment entity = getTripRequestAdvancePayment(id);
+        entity.setLoadingComplete(loadingComplete);
+        tripRequestAdvancePaymentRepository.save(entity);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @Override
     public ResponseEntity<Void> updateContactCarrier(CarrierContactDTO carrierContactDTO) {
-        ContractorAdvancePaymentContact contractorAdvancePaymentContact = getContractorAdvancePaymentContact(carrierContactDTO);
-        contractorAdvancePaymentContactRepository.save(contractorAdvancePaymentContact);
+        Optional<ContractorAdvancePaymentContact> contractorAdvancePaymentContact =
+            contractorAdvancePaymentContactRepository.findContractorAdvancePaymentContact(carrierContactDTO.getContractorId());
+        final ContractorAdvancePaymentContact entity = contractorAdvancePaymentContact.orElseThrow(() -> {
+                Error error = new Error();
+                error.setErrorMessage("ContractorAdvancePaymentContact not found");
+                return new BusinessLogicException(HttpStatus.UNPROCESSABLE_ENTITY, error);
+            }
+        );
+        entity.setFullName(carrierContactDTO.getFullName());
+        entity.setContractorId(carrierContactDTO.getContractorId());
+        entity.setPhone(carrierContactDTO.getPhoneNumber());
+        entity.setEmail(carrierContactDTO.getEmail());
+        contractorAdvancePaymentContactRepository.save(entity);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    private ContractorAdvancePaymentContact getContractorAdvancePaymentContact(CarrierContactDTO carrierContactDTO) {
-        ContractorAdvancePaymentContact contractorAdvancePaymentContact =
-            contractorAdvancePaymentContactRepository.findContractorAdvancePaymentContact(carrierContactDTO.getContractorId())
-                .orElseGet(() -> {
-                    ContractorAdvancePaymentContact c = new ContractorAdvancePaymentContact();
-                    c.setContractorId(carrierContactDTO.getContractorId());
-                    return c;
-                });
-        contractorAdvancePaymentContact.setFullName(carrierContactDTO.getFullName());
-        contractorAdvancePaymentContact.setEmail(carrierContactDTO.getEmail());
-        contractorAdvancePaymentContact.setPhone(carrierContactDTO.getPhoneNumber());
-        return contractorAdvancePaymentContact;
+    @Override
+    public ResponseEntity<Void> unnuleAdvancePayment(Long id, String cancelAdvanceComment) {
+        final TripRequestAdvancePayment entity = getTripRequestAdvancePayment(id);
+        entity.setCancelAdvanceComment(cancelAdvanceComment);
+        tripRequestAdvancePaymentRepository.save(entity);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    private TripRequestAdvancePayment getTripRequestAdvancePayment(Long id) {
+        Optional<TripRequestAdvancePayment> tripRequestAdvancePayment = tripRequestAdvancePaymentRepository
+            .findTripRequestAdvancePayment(id);
+        return tripRequestAdvancePayment.orElseThrow(() -> {
+                Error error = new Error();
+                error.setErrorMessage("TripRequestAdvancePayment not found");
+                return new BusinessLogicException(HttpStatus.UNPROCESSABLE_ENTITY, error);
+            }
+        );
     }
 
     @Override
