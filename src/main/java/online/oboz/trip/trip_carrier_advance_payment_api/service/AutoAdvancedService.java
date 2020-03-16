@@ -11,16 +11,15 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.time.OffsetDateTime;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @Service
@@ -108,9 +107,11 @@ public class AutoAdvancedService {
         );
     }
 
-    private Map<String, String> getTripDocuments(Trip trip) {
-        Map<String, String> fileUuidMap = new HashMap<>();
+    public Map<String, String> getTripDocuments(Trip trip) {
+//        TODO ConcurrentHashMap проверить для многопоточки
+        ConcurrentHashMap<String, String> fileUuidMap = new ConcurrentHashMap<>();
         try {
+            //        TODO убрать комментарий  /*trip.getOrderId(), trip.getId()),*/
             TripDocuments tripDocuments = objectMapper.readValue(getDocumentWithUuidFiles(148909l, 174735l),/*trip.getOrderId(), trip.getId()),*/ TripDocuments.class);
             tripDocuments.getTripDocuments().forEach(doc -> {
                 final String fileId = doc.getFileId();
@@ -149,9 +150,9 @@ public class AutoAdvancedService {
     }
 
     //    @Scheduled(cron = "${cron.expression:0 /1 * * * *}")
-    @Scheduled(fixedDelayString = "10000")
+//    @Scheduled(fixedDelayString = "10000")
     void updateAutoAdvanse() {
-        List<Contractor> contractors = contractorRepository.getContractors(applicationProperties.getMinCountTrip(),
+        List<Contractor> contractors = contractorRepository.getContractor(applicationProperties.getMinCountTrip(),
             OffsetDateTime.now().minusWeeks(1000));
         contractors.forEach(c -> c.setIsAutoAdvancePayment(true));
         contractorRepository.saveAll(contractors);

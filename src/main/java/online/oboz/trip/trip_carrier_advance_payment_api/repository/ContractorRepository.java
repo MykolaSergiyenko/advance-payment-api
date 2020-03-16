@@ -14,7 +14,7 @@ public interface ContractorRepository extends JpaRepository<Contractor, Long> {
         "  left join common.payment_contractors pc " +
         "    on c.id = pc.contractor_id" +
         " where pc.id = :paymentContractorId")
-    String getContractors(@Param("paymentContractorId") Long paymentContractorId);
+    String getContractor(@Param("paymentContractorId") Long paymentContractorId);
 
     @Query(nativeQuery = true, value = "select *   " +
         " from common.contractors cc " +
@@ -27,5 +27,5 @@ public interface ContractorRepository extends JpaRepository<Contractor, Long> {
         "      and c.is_auto_advance_payment != true " +
         "    group by c.id " +
         "    having count(t.id) > :x)")
-    List<Contractor> getContractors(@Param("x") int minCountTrip, @Param("a") OffsetDateTime minDateTrip);
+    List<Contractor> getContractor(@Param("x") int minCountTrip, @Param("a") OffsetDateTime minDateTrip);
 }

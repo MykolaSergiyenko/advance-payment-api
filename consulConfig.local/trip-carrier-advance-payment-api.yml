@@ -2,7 +2,22 @@ spring:
     security.oauth2.resourceserver.jwt.jwk-set-uri: http://keycloak.r14.k.dev.oboz:30080/auth/realms/master/protocol/openid-connect/certs
     profiles:
         active: preprod
-
+    mail:
+        host: mail.oboz.com
+        port: 587
+        username: notreply@bu1.loc
+        password: 1qazxsw2
+        properties:
+            mail:
+                smtp:
+                    starttls:
+                        enable: true
+                        required: true
+                    auth: true
+                    connectiontimeout: 10000
+                    timeout: 15000
+                    writetimeout: 15000
+                debug: false
     datasource:
         type: com.zaxxer.hikari.HikariDataSource
         url: jdbc:postgresql://pg-01-01.preprod.oboz:5432/elp
@@ -21,3 +36,15 @@ application:
 
 sms-sender:
     url: 'http://sms-sender.r14.k.preprod.oboz:30080'
+
+cron:
+    expression: 0 /5 * * * *
+
+#    При изменении minCountTrip нужно также поменять minDateTrip наа текущее значение
+auto-advance:
+    min-date-trip: 2017-07-03T21:44:49
+    min-count-trip: 3
+
+notification:
+    sms-enable: true
+    email-enable: true
