@@ -81,7 +81,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
                         contractorAdvancePaymentContactRepository.findContractorAdvancePaymentContact(reс.getContractorId())
                             .orElse(new ContractorAdvancePaymentContact());
                     Contractor contractor = contractorRepository.findById(reс.getContractorId()).orElse(new Contractor());
-                    String contractorPaymentName = contractorRepository.getPaymentContractorName(reс.getPaymentContractorId());
+                    String contractorPaymentName = contractorRepository.getContractors(reс.getPaymentContractorId());
                     Trip trip = tripRepository.findById(reс.getTripId()).orElse(new Trip());
                     frontAdvancePaymentResponse
                         .id(reс.getId())
@@ -135,22 +135,10 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
         tripRepository.save(trip);
         return new ResponseEntity<>(HttpStatus.OK);
     }
-
     @Override
     public ResponseEntity<IsAdvancedRequestResponse> isAdvanced(Long tripId) {
-        Trip trip = tripRepository.findById(tripId).orElseThrow(() -> {
-                Error error = new Error();
-                error.setErrorMessage("trip not found");
-            return new BusinessLogicException(HttpStatus.UNPROCESSABLE_ENTITY, error);
-            }
-        );
-        TripRequestAdvancePayment tripRequestAdvancePayment = tripRequestAdvancePaymentRepository
-            .findTripRequestAdvancePayment(tripId).orElseThrow(() -> {
-                    Error error = new Error();
-                    error.setErrorMessage("TripRequestAdvancePayment not found");
-                return new BusinessLogicException(HttpStatus.UNPROCESSABLE_ENTITY, error);
-                }
-            );
+        Trip trip = getMotorTrip(tripId);
+        TripRequestAdvancePayment tripRequestAdvancePayment = getRequestAdvancePaymentByTrip(tripId);
         IsAdvancedRequestResponse isAdvancedRequestResponse = new IsAdvancedRequestResponse();
         if (tripRequestAdvancePayment.getCancelAdvance()
             || tripRequestAdvancePayment.getIsUnfSend()
@@ -213,10 +201,10 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
     @Override
     public ResponseEntity<Void> requestGiveAdvancePayment(Long tripId, String comment) {
         Double tripCostWithNds = tripRepository.getTripCostWithVat(tripId);
-
         AdvancePaymentCost advancePaymentCost = advancePaymentCostRepository.searchAdvancePaymentCost(tripCostWithNds);
         boolean isUnfSend = sendedUnf();
-        Trip trip = tripRepository.findById(tripId).orElse(new Trip());
+        Trip trip = tripRepository.getMotorTrip(tripId).orElse(new Trip());
+
         if (advancePaymentCost == null || trip.getDriverId() == null || trip.getContractorId() == null) {
             Error error = new Error();
             error.setErrorMessage("");
@@ -237,7 +225,8 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
             advancePaymentCost,
             isUnfSend,
             trip);
-
+        // отключаем доступ в страницу поставщика
+        tripRequestAdvancePayment.setPageCarrierUrlIsAccess(false);
         tripRequestAdvancePaymentRepository.save(tripRequestAdvancePayment);
         return new ResponseEntity<>(HttpStatus.OK);
 
@@ -321,6 +310,26 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
             );
         CarrierContactDTO carrierContactDTO = getCarrierContactDTO(contact);
         return new ResponseEntity<>(carrierContactDTO, HttpStatus.OK);
+    }
+
+
+    private Trip getMotorTrip(Long tripId) {
+        return tripRepository.getMotorTrip(tripId).orElseThrow(() -> {
+                Error error = new Error();
+                error.setErrorMessage("trip not found");
+                return new BusinessLogicException(HttpStatus.UNPROCESSABLE_ENTITY, error);
+            }
+        );
+    }
+
+    private TripRequestAdvancePayment getRequestAdvancePaymentByTrip(Long tripId) {
+        return tripRequestAdvancePaymentRepository
+            .findTripRequestAdvancePayment(tripId).orElseThrow(() -> {
+                    Error error = new Error();
+                    error.setErrorMessage("TripRequestAdvancePayment not found");
+                    return new BusinessLogicException(HttpStatus.UNPROCESSABLE_ENTITY, error);
+                }
+            );
     }
 
     private TripRequestAdvancePayment getTripRequestAdvancePayment(Long tripId, String comment, Double tripCostWithNds, AdvancePaymentCost advancePaymentCost, boolean isUnfSend, Trip trip) {

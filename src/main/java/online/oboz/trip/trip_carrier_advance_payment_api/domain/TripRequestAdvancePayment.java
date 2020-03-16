@@ -36,6 +36,8 @@ public class TripRequestAdvancePayment {
     private OffsetDateTime paidAt;
     private Boolean pageCarrierUrlIsAccess;
     private Boolean isAutomationRequest;
+    private Boolean isDownloadedContractApplication;
+    private Boolean isDownloadedAdvanceApplication;
     private Long authorId;
     private String cancelAdvanceComment;
 

@@ -26,4 +26,10 @@ public interface TripRequestAdvancePaymentRepository extends JpaRepository<TripR
         " where pc.id = :id ")
     Optional<TripRequestAdvancePayment> findTripRequestAdvancePayment(@Param("id") Long id);
 
+    @Query("select pc " +
+        " from TripRequestAdvancePayment pc " +
+        " where pc.uuidAdvanceApplicationFile is null " +
+        "   or pc.uuidContractApplicationFile is null ")
+    List<TripRequestAdvancePayment> findRequestAdvancePaymentWithOutUuidFiles();
+
 }

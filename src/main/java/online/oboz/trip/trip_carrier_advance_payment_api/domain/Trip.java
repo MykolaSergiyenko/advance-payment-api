@@ -20,8 +20,9 @@ public class Trip {
     private Double cost;
     private Long paymentContractorId;
     private String vatCode;
-//    private Double vatCost;
-private String tripTypeCode;
+    //    private Double vatCost;
+    private String tripTypeCode;
+    private String tripStatusCode;
     private String resourceTypeCode;
     private Boolean isAdvancedPayment;
     private OffsetDateTime createdAt;

@@ -3,10 +3,12 @@ package online.oboz.trip.trip_carrier_advance_payment_api.service;
 import lombok.extern.slf4j.Slf4j;
 import online.oboz.trip.trip_carrier_advance_payment_api.config.ApplicationProperties;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.dto.SendSmsRequest;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-//@Service
+@Service
 @Slf4j
 public class Notification {
 
@@ -21,7 +23,7 @@ public class Notification {
     private final RestTemplate restTemplate;
     private final ApplicationProperties applicationProperties;
 
-    //    @Autowired
+        @Autowired
     public Notification(RestTemplate restTemplate,
                         ApplicationProperties applicationProperties) {
         this.restTemplate = restTemplate;
@@ -29,7 +31,7 @@ public class Notification {
     }
 
 
-    private Boolean sendSms(String phoneNumber, String password) {
+    private Boolean sendSms(String phoneNumber) {
         String url = applicationProperties.getSmsSenderUrl();
         try {
             ResponseEntity<String> response = restTemplate.postForEntity(
@@ -47,8 +49,8 @@ public class Notification {
         return true;
     }
 
-    private String getSmsText(String phoneNumber, String password) {
-        return SMS_TEXT_P1 + phoneNumber + SMS_TEXT_P2 + password;
+    private String getSmsText(String phoneNumber) {
+        return SMS_TEXT_P1 + phoneNumber + SMS_TEXT_P2 ;
     }
 
 }

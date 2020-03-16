@@ -3,10 +3,7 @@ package online.oboz.trip.trip_carrier_advance_payment_api.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import online.oboz.trip.trip_carrier_advance_payment_api.config.ApplicationProperties;
-import online.oboz.trip.trip_carrier_advance_payment_api.domain.AdvancePaymentCost;
-import online.oboz.trip.trip_carrier_advance_payment_api.domain.Trip;
-import online.oboz.trip.trip_carrier_advance_payment_api.domain.TripDocuments;
-import online.oboz.trip.trip_carrier_advance_payment_api.domain.TripRequestAdvancePayment;
+import online.oboz.trip.trip_carrier_advance_payment_api.domain.*;
 import online.oboz.trip.trip_carrier_advance_payment_api.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
@@ -19,8 +16,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
+import java.time.OffsetDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -54,13 +54,11 @@ public class AutoAdvancedService {
     }
 
     //    @Scheduled(cron = "${cron.expression:0 /1 * * * *}")
-    @Scheduled(fixedDelayString = "1000")
+//    @Scheduled(fixedDelayString = "10000")
     void createTripRequestAdvancePayment() {
         tripRepository.getAutoApprovedTrips().forEach(trip -> {
-            final Long id = trip.getId();
-            Map<String, String> fileUuidMap = getTripDocuments(trip, id);
-            if (!fileUuidMap.isEmpty()) {
-                //            TODO: advancePaymentCost pакэшировать
+                final Long id = trip.getId();
+                //              advancePaymentCost закэшировать
                 AdvancePaymentCost advancePaymentCost = advancePaymentCostRepository.searchAdvancePaymentCost(trip.getCost());
                 TripRequestAdvancePayment tripRequestAdvancePayment = new TripRequestAdvancePayment();
                 tripRequestAdvancePayment.setTripId(id);
@@ -73,24 +71,47 @@ public class AutoAdvancedService {
                 tripRequestAdvancePayment.setAdvancePaymentSum(advancePaymentCost.getAdvancePaymentSum());
                 tripRequestAdvancePayment.setRegistrationFee(advancePaymentCost.getRegistrationFee());
                 tripRequestAdvancePayment.setLoadingComplete(false);
-                tripRequestAdvancePayment.setUuidAdvanceApplicationFile("7b56c36a-400e-44dd-b2ce-c3357b42219f");
-//            TODO: вернуть uuid file for request
-//            tripRequestAdvancePayment.setUuidContractApplicationFile();
                 tripRequestAdvancePayment.setPageCarrierUrlIsAccess(true);
                 tripRequestAdvancePayment.setIs1CSendAllowed(true);
                 tripRequestAdvancePayment.setCancelAdvance(false);
                 tripRequestAdvancePayment.setIsUnfSend(false);
                 tripRequestAdvancePayment.setIsPaid(false);
+                tripRequestAdvancePaymentRepository.save(tripRequestAdvancePayment);
             }
-
-        });
+        );
     }
 
-    private Map<String, String> getTripDocuments(Trip trip, Long id) {
+    //    @Scheduled(cron = "${cron.expression:0 /1 * * * *}")
+//    @Scheduled(fixedDelayString = "10000")
+    void updateFileUuid() {
+        List<TripRequestAdvancePayment> tripRequestAdvancePayments = tripRequestAdvancePaymentRepository.findRequestAdvancePaymentWithOutUuidFiles();
+        tripRequestAdvancePayments.forEach(tripRequestAdvancePayment -> {
+                final Long tripId = tripRequestAdvancePayment.getTripId();
+                Trip trip = tripRepository.findById(tripId).get();
+                Map<String, String> fileUuidMap = getTripDocuments(trip);
+                if (!fileUuidMap.isEmpty()) {
+                    //tripRequestAdvancePayment.setUuidAdvanceApplicationFile("7b56c36a-400e-44dd-b2ce-c3357b42219f");
+//            TODO: вернуть uuid file for request
+                    String fileUuid = Optional.ofNullable(fileUuidMap.get("request")).orElse(fileUuidMap.get("trip_request"));
+                    if (fileUuid != null) {
+                        tripRequestAdvancePayment.setIsDownloadedContractApplication(true);
+                        tripRequestAdvancePayment.setUuidContractApplicationFile(fileUuid);
+                    }
+                    /*String fileUuid1 = fileUuidMap.get("other");
+                    if (fileUuid1 != null) {
+                        tripRequestAdvancePayment.setIsDownloadedContractApplication(true);
+                        tripRequestAdvancePayment.setUuidContractApplicationFile(fileUuid1);
+                    }*/
+                    tripRequestAdvancePaymentRepository.save(tripRequestAdvancePayment);
+                }
+            }
+        );
+    }
+
+    private Map<String, String> getTripDocuments(Trip trip) {
         Map<String, String> fileUuidMap = new HashMap<>();
         try {
-
-            TripDocuments tripDocuments = objectMapper.readValue(getDocumentWithUuidFiles(trip.getOrderId(), id), TripDocuments.class);
+            TripDocuments tripDocuments = objectMapper.readValue(getDocumentWithUuidFiles(148909l, 174735l),/*trip.getOrderId(), trip.getId()),*/ TripDocuments.class);
             tripDocuments.getTripDocuments().forEach(doc -> {
                 final String fileId = doc.getFileId();
                 if (fileId != null && ("trip_request".equals(doc.documentTypeCode) || "request".equals(doc.documentTypeCode))) {
@@ -98,7 +119,6 @@ public class AutoAdvancedService {
                     log.info(doc.getFileId());
                 }
             });
-
         } catch (IOException e) {
             log.error("can't parse responce", e);
         }
@@ -120,33 +140,6 @@ public class AutoAdvancedService {
             if (response.getStatusCode().value() == 200) {
                 //TODO:
                 return response.getBody();
-//                return "{\n" +
-//                    "    \"trip_documents\": [\n" +
-//                    "        {\n" +
-//                    "            \"id\": 206517,\n" +
-//                    "            \"trip_id\": 174735,\n" +
-//                    "            \"file_id\": \"7d14168b-76f2-49f4-8072-3f4d5d4a9506\",\n" +
-//                    "            \"template_file_id\": null,\n" +
-//                    "            \"document_type_code\": \"request\",\n" +
-//                    "            \"document_properties_values\": null,\n" +
-//                    "            \"name\": \"Заявка\"\n" +
-//                    "        },\n" +
-//                    "        {\n" +
-//                    "            \"id\": 206518,\n" +
-//                    "            \"trip_id\": 174735,\n" +
-//                    "            \"file_id\": \"f62d0a01-6d83-467a-a28e-771c40198259\",\n" +
-//                    "            \"template_file_id\": null,\n" +
-//                    "            \"document_type_code\": \"signed application \",\n" +
-//                    "            \"document_properties_values\": null,\n" +
-//                    "            \"name\": \"Подписанная завка\"\n" +
-//                    "        }\n" +
-//                    "    ],\n" +
-//                    "    \"paginator\": {\n" +
-//                    "        \"total\": 2,\n" +
-//                    "        \"per\": 20,\n" +
-//                    "        \"page\": 1\n" +
-//                    "    }\n" +
-//                    "}";
             }
         } catch (Exception e) {
             log.error("Some Exeption", e);
@@ -154,12 +147,24 @@ public class AutoAdvancedService {
         log.error("server {} returned bad response", url);
         return "";
     }
+
+    //    @Scheduled(cron = "${cron.expression:0 /1 * * * *}")
+    @Scheduled(fixedDelayString = "10000")
+    void updateAutoAdvanse() {
+        List<Contractor> contractors = contractorRepository.getContractors(applicationProperties.getMinCountTrip(),
+            OffsetDateTime.now().minusWeeks(1000));
+        contractors.forEach(c -> c.setIsAutoAdvancePayment(true));
+        contractorRepository.saveAll(contractors);
+    }
+
 //   сделать крон с выборкой трипов с  контракторами  с признаком Автоматическая выдача аванса без записис из orders.trip_request_advance_payment
 //    и Перевозчик не находится в черном списке
 
-//   сделать крон  для установки "Автоматическая выдача аванса" поставщику при суммарном количестве заказов более Х шт из консул.
-
+//   сделать крон  для установки "Автоматическая выдача аванса" поставщику при суммарном количестве заказов более Х шт из консул от даты А из консула.
+//   сделать крон  для установки "ссылок на скачивание файлов" .
 //   сделать крон  для сброса поля page_carrier_url_expired (orders.trip_request_advance_payment) в значение false
+//   сделать крон  для установки флага доступности кнопки в 1С .
+
 //      TODO:   need add cron + sms email notity service
     //TODO: разобраться откуда брать Договор заявка, Заявка на авансирование, в 1С
 
