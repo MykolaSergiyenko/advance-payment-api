@@ -29,11 +29,6 @@ spring:
             poolName: main-pool
             auto-commit: false
 
-application:
-    limits:
-        min-trip-count: 5
-        required-download-docs: true
-
 sms-sender:
     url: 'http://sms-sender.r14.k.preprod.oboz:30080'
 
@@ -44,6 +39,7 @@ cron:
 auto-advance:
     min-date-trip: "2020-01-01T00:00:00+00:00"
     min-count-trip: 3
+    required-download-docs: true
 
 notification:
     sms-enable: true
