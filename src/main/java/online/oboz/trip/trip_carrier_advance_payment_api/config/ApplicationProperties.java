@@ -4,6 +4,8 @@ import lombok.Data;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import java.time.OffsetDateTime;
+
 @ConfigurationProperties(prefix = "application", ignoreInvalidFields = false)
 @Data
 public class ApplicationProperties {
@@ -13,8 +15,9 @@ public class ApplicationProperties {
     @Value("${auto-advance.min-count-trip:3}")
     private Integer minCountTrip;
     //    TODO: add date
-    //@Value("${auto-advance.min-date-trip:2017-07-03T21:44:49}")
-    //private OffsetDateTime minDateTrip;
+    @Value("${auto-advance.min-date-trip:2020-01-01T00:00:00+00:00}")
+    private String strMinDateTrip;
+    private OffsetDateTime minDateTrip;
     @Value("${spring.mail.host}")
     private String mailHost;
     @Value("${spring.mail.port}")
@@ -33,5 +36,9 @@ public class ApplicationProperties {
     private Boolean smsEnable;
     @Value("${email-enable:true}")
     private Boolean mailEnable;
+
+    public OffsetDateTime getMinDateTrip() {
+        return OffsetDateTime.parse(strMinDateTrip);
+    }
 
 }

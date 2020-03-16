@@ -15,11 +15,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
-import java.time.OffsetDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @Service
@@ -89,27 +88,30 @@ public class AutoAdvancedService {
                 Trip trip = tripRepository.findById(tripId).get();
                 Map<String, String> fileUuidMap = getTripDocuments(trip);
                 if (!fileUuidMap.isEmpty()) {
-                    //tripRequestAdvancePayment.setUuidAdvanceApplicationFile("7b56c36a-400e-44dd-b2ce-c3357b42219f");
-//            TODO: вернуть uuid file for request
                     String fileUuid = Optional.ofNullable(fileUuidMap.get("request")).orElse(fileUuidMap.get("trip_request"));
                     if (fileUuid != null) {
                         tripRequestAdvancePayment.setIsDownloadedContractApplication(true);
                         tripRequestAdvancePayment.setUuidContractApplicationFile(fileUuid);
                     }
+                    //            TODO: remove comment when create new type file
+
                     /*String fileUuid1 = fileUuidMap.get("other");
                     if (fileUuid1 != null) {
                         tripRequestAdvancePayment.setIsDownloadedContractApplication(true);
-                        tripRequestAdvancePayment.setUuidContractApplicationFile(fileUuid1);
+                        tripRequestAdvancePayment.setUuidAdvanceApplicationFile(fileUuid1);
                     }*/
-                    tripRequestAdvancePaymentRepository.save(tripRequestAdvancePayment);
+                    if (tripRequestAdvancePayment.getUuidContractApplicationFile() != null &&
+                        tripRequestAdvancePayment.getUuidAdvanceApplicationFile() != null) {
+                        tripRequestAdvancePayment.setIs1CSendAllowed(true);
+                    }
                 }
             }
         );
+        tripRequestAdvancePaymentRepository.saveAll(tripRequestAdvancePayments);
     }
 
     public Map<String, String> getTripDocuments(Trip trip) {
-//        TODO ConcurrentHashMap проверить для многопоточки
-        ConcurrentHashMap<String, String> fileUuidMap = new ConcurrentHashMap<>();
+        Map<String, String> fileUuidMap = new HashMap<>();
         try {
             //        TODO убрать комментарий  /*trip.getOrderId(), trip.getId()),*/
             TripDocuments tripDocuments = objectMapper.readValue(getDocumentWithUuidFiles(148909l, 174735l),/*trip.getOrderId(), trip.getId()),*/ TripDocuments.class);
@@ -127,19 +129,15 @@ public class AutoAdvancedService {
     }
 
     private String getDocumentWithUuidFiles(Long orderId, Long tripId) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJtZWwxMDZWemFlZGpmU3ctUVRtblVLa3ZuQUlfdXB3TGdRZHY4Vm85SEk4In0.eyJqdGkiOiI4ZmY5MzA0Zi05Mjc0LTQ0ZmItOWMxMC0wZGE1YmRlMmQ3MTAiLCJleHAiOjE2MTU1NjYyMjcsIm5iZiI6MCwiaWF0IjoxNTg0MDMwMjI3LCJpc3MiOiJodHRwczovL2Rldi5vYm96Lm9ubGluZS9hdXRoL3JlYWxtcy9tYXN0ZXIiLCJhdWQiOiJlbHAiLCJzdWIiOiJmOmZjYzAzMzZjLWU2ZjItNGVlNy1iOWViLWMyNTY0NjczYjAzNjo0MjYyNyIsInR5cCI6IkJlYXJlciIsImF6cCI6ImVscCIsImF1dGhfdGltZSI6MCwic2Vzc2lvbl9zdGF0ZSI6ImRkZWU2NTZiLWFhZTMtNGRlYS1iNWFlLWQyMGUzODhlZjY0ZCIsImFjciI6IjEiLCJjbGllbnRfc2Vzc2lvbiI6IjUzODgzY2YzLTVkZjgtNDFkOS1hMDc2LWFlZmQ2ZDFlZjAzZSIsImFsbG93ZWQtb3JpZ2lucyI6WyIqIl0sInJlYWxtX2FjY2VzcyI6eyJyb2xlcyI6WyJjcmVhdGUtcmVhbG0iLCJjYXJyaWVyIiwiZWxwLWFkbWluIiwic2VuZGVyIiwiYWRtaW4iLCJ1bWFfYXV0aG9yaXphdGlvbiIsImRpc3BhdGNoZXIiXX0sInJlc291cmNlX2FjY2VzcyI6eyJkcml2ZXItYXBwLXJlYWxtIjp7InJvbGVzIjpbInZpZXctcmVhbG0iLCJ2aWV3LWlkZW50aXR5LXByb3ZpZGVycyIsIm1hbmFnZS1pZGVudGl0eS1wcm92aWRlcnMiLCJpbXBlcnNvbmF0aW9uIiwiY3JlYXRlLWNsaWVudCIsIm1hbmFnZS11c2VycyIsInZpZXctYXV0aG9yaXphdGlvbiIsIm1hbmFnZS1ldmVudHMiLCJtYW5hZ2UtcmVhbG0iLCJ2aWV3LWV2ZW50cyIsInZpZXctdXNlcnMiLCJ2aWV3LWNsaWVudHMiLCJtYW5hZ2UtYXV0aG9yaXphdGlvbiIsIm1hbmFnZS1jbGllbnRzIl19LCJkcml2ZXItYXBwLXJlZ2lzdHJhdGlvbi1yZWFsbSI6eyJyb2xlcyI6WyJ2aWV3LXJlYWxtIiwidmlldy1pZGVudGl0eS1wcm92aWRlcnMiLCJtYW5hZ2UtaWRlbnRpdHktcHJvdmlkZXJzIiwiaW1wZXJzb25hdGlvbiIsImNyZWF0ZS1jbGllbnQiLCJtYW5hZ2UtdXNlcnMiLCJ2aWV3LWF1dGhvcml6YXRpb24iLCJtYW5hZ2UtZXZlbnRzIiwibWFuYWdlLXJlYWxtIiwidmlldy1ldmVudHMiLCJ2aWV3LXVzZXJzIiwidmlldy1jbGllbnRzIiwibWFuYWdlLWF1dGhvcml6YXRpb24iLCJtYW5hZ2UtY2xpZW50cyJdfSwiZG1zLXJlYWxtIjp7InJvbGVzIjpbInZpZXctcmVhbG0iLCJ2aWV3LWlkZW50aXR5LXByb3ZpZGVycyIsIm1hbmFnZS1pZGVudGl0eS1wcm92aWRlcnMiLCJpbXBlcnNvbmF0aW9uIiwiY3JlYXRlLWNsaWVudCIsIm1hbmFnZS11c2VycyIsInZpZXctYXV0aG9yaXphdGlvbiIsIm1hbmFnZS1ldmVudHMiLCJtYW5hZ2UtcmVhbG0iLCJ2aWV3LWV2ZW50cyIsInZpZXctdXNlcnMiLCJ2aWV3LWNsaWVudHMiLCJtYW5hZ2UtYXV0aG9yaXphdGlvbiIsIm1hbmFnZS1jbGllbnRzIl19LCJwdWJsaWMtcmVhbG0iOnsicm9sZXMiOlsidmlldy1yZWFsbSIsInZpZXctaWRlbnRpdHktcHJvdmlkZXJzIiwibWFuYWdlLWlkZW50aXR5LXByb3ZpZGVycyIsImltcGVyc29uYXRpb24iLCJjcmVhdGUtY2xpZW50IiwibWFuYWdlLXVzZXJzIiwidmlldy1hdXRob3JpemF0aW9uIiwibWFuYWdlLWV2ZW50cyIsIm1hbmFnZS1yZWFsbSIsInZpZXctZXZlbnRzIiwidmlldy11c2VycyIsInZpZXctY2xpZW50cyIsIm1hbmFnZS1hdXRob3JpemF0aW9uIiwibWFuYWdlLWNsaWVudHMiXX0sIm1hc3Rlci1yZWFsbSI6eyJyb2xlcyI6WyJ2aWV3LXJlYWxtIiwidmlldy1pZGVudGl0eS1wcm92aWRlcnMiLCJtYW5hZ2UtaWRlbnRpdHktcHJvdmlkZXJzIiwiaW1wZXJzb25hdGlvbiIsImNyZWF0ZS1jbGllbnQiLCJtYW5hZ2UtdXNlcnMiLCJ2aWV3LWF1dGhvcml6YXRpb24iLCJtYW5hZ2UtZXZlbnRzIiwibWFuYWdlLXJlYWxtIiwidmlldy1ldmVudHMiLCJ2aWV3LXVzZXJzIiwidmlldy1jbGllbnRzIiwibWFuYWdlLWF1dGhvcml6YXRpb24iLCJtYW5hZ2UtY2xpZW50cyJdfSwiYWNjb3VudCI6eyJyb2xlcyI6WyJtYW5hZ2UtYWNjb3VudCIsIm1hbmFnZS1hY2NvdW50LWxpbmtzIiwidmlldy1wcm9maWxlIl19fSwiY29udHJhY3RvciI6eyJpZCI6IjYwOSJ9LCJwZXJzb24iOnsiaWQiOiI0MjYyNyJ9LCJuYW1lIjoi0JPQtdC90L3QsNC00LjQuSDQnNCw0LrQsNGA0L7QsiIsInByZWZlcnJlZF91c2VybmFtZSI6IjAwMDAwMDEwMDUiLCJnaXZlbl9uYW1lIjoi0JPQtdC90L3QsNC00LjQuSIsImZhbWlseV9uYW1lIjoi0JzQsNC60LDRgNC-0LIiLCJlbWFpbCI6ImdtYWthcm92QG9ib3ouY29tIn0.BpfwljwBvtUVDSeXlx_5lmfehVRlGSuk83DsmPNOP4Clzx0E61pg1rDt-7w77S-Al6Yc58AvOMHNgsdKQhIpmThd_W76jBCd71YbdtIt6iOQYqwTrzSzn42Ks7NjwUWlJFdS5829q8y8ec9IsTBWSyy-4JggEedncEeWuEs8XfLZhfw0QLTcgkoPr_h5T6Lk2_aEQ5dvhUmuKtVll3tanzl2pgg02oaEHLWDhRf267xjhefntW8wISZd8-Pe-tamlZkeb8RS8GABb-iTDCdtm4E_p7X1cHfPyhW8EIa8qwkk8dkFKoO2apKUJ-z_rNSoNRNKrWx7AEoS46v-g4h5Uw");
-        HttpEntity request = new HttpEntity(headers);
         String url = "https://preprod.oboz.online/api/orders/dispatcher/orders/" + orderId + "/trips/" + tripId + "/documents";
-        ResponseEntity<String> response = new RestTemplate().exchange(url, HttpMethod.GET, request, String.class);
-
         try {
-//            ResponseEntity<String> response = restTemplate.getForEntity(
-//                url,
-//                String.class
-//            );
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Authorization", "Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJtZWwxMDZWemFlZGpmU3ctUVRtblVLa3ZuQUlfdXB3TGdRZHY4Vm85SEk4In0.eyJqdGkiOiI4ZmY5MzA0Zi05Mjc0LTQ0ZmItOWMxMC0wZGE1YmRlMmQ3MTAiLCJleHAiOjE2MTU1NjYyMjcsIm5iZiI6MCwiaWF0IjoxNTg0MDMwMjI3LCJpc3MiOiJodHRwczovL2Rldi5vYm96Lm9ubGluZS9hdXRoL3JlYWxtcy9tYXN0ZXIiLCJhdWQiOiJlbHAiLCJzdWIiOiJmOmZjYzAzMzZjLWU2ZjItNGVlNy1iOWViLWMyNTY0NjczYjAzNjo0MjYyNyIsInR5cCI6IkJlYXJlciIsImF6cCI6ImVscCIsImF1dGhfdGltZSI6MCwic2Vzc2lvbl9zdGF0ZSI6ImRkZWU2NTZiLWFhZTMtNGRlYS1iNWFlLWQyMGUzODhlZjY0ZCIsImFjciI6IjEiLCJjbGllbnRfc2Vzc2lvbiI6IjUzODgzY2YzLTVkZjgtNDFkOS1hMDc2LWFlZmQ2ZDFlZjAzZSIsImFsbG93ZWQtb3JpZ2lucyI6WyIqIl0sInJlYWxtX2FjY2VzcyI6eyJyb2xlcyI6WyJjcmVhdGUtcmVhbG0iLCJjYXJyaWVyIiwiZWxwLWFkbWluIiwic2VuZGVyIiwiYWRtaW4iLCJ1bWFfYXV0aG9yaXphdGlvbiIsImRpc3BhdGNoZXIiXX0sInJlc291cmNlX2FjY2VzcyI6eyJkcml2ZXItYXBwLXJlYWxtIjp7InJvbGVzIjpbInZpZXctcmVhbG0iLCJ2aWV3LWlkZW50aXR5LXByb3ZpZGVycyIsIm1hbmFnZS1pZGVudGl0eS1wcm92aWRlcnMiLCJpbXBlcnNvbmF0aW9uIiwiY3JlYXRlLWNsaWVudCIsIm1hbmFnZS11c2VycyIsInZpZXctYXV0aG9yaXphdGlvbiIsIm1hbmFnZS1ldmVudHMiLCJtYW5hZ2UtcmVhbG0iLCJ2aWV3LWV2ZW50cyIsInZpZXctdXNlcnMiLCJ2aWV3LWNsaWVudHMiLCJtYW5hZ2UtYXV0aG9yaXphdGlvbiIsIm1hbmFnZS1jbGllbnRzIl19LCJkcml2ZXItYXBwLXJlZ2lzdHJhdGlvbi1yZWFsbSI6eyJyb2xlcyI6WyJ2aWV3LXJlYWxtIiwidmlldy1pZGVudGl0eS1wcm92aWRlcnMiLCJtYW5hZ2UtaWRlbnRpdHktcHJvdmlkZXJzIiwiaW1wZXJzb25hdGlvbiIsImNyZWF0ZS1jbGllbnQiLCJtYW5hZ2UtdXNlcnMiLCJ2aWV3LWF1dGhvcml6YXRpb24iLCJtYW5hZ2UtZXZlbnRzIiwibWFuYWdlLXJlYWxtIiwidmlldy1ldmVudHMiLCJ2aWV3LXVzZXJzIiwidmlldy1jbGllbnRzIiwibWFuYWdlLWF1dGhvcml6YXRpb24iLCJtYW5hZ2UtY2xpZW50cyJdfSwiZG1zLXJlYWxtIjp7InJvbGVzIjpbInZpZXctcmVhbG0iLCJ2aWV3LWlkZW50aXR5LXByb3ZpZGVycyIsIm1hbmFnZS1pZGVudGl0eS1wcm92aWRlcnMiLCJpbXBlcnNvbmF0aW9uIiwiY3JlYXRlLWNsaWVudCIsIm1hbmFnZS11c2VycyIsInZpZXctYXV0aG9yaXphdGlvbiIsIm1hbmFnZS1ldmVudHMiLCJtYW5hZ2UtcmVhbG0iLCJ2aWV3LWV2ZW50cyIsInZpZXctdXNlcnMiLCJ2aWV3LWNsaWVudHMiLCJtYW5hZ2UtYXV0aG9yaXphdGlvbiIsIm1hbmFnZS1jbGllbnRzIl19LCJwdWJsaWMtcmVhbG0iOnsicm9sZXMiOlsidmlldy1yZWFsbSIsInZpZXctaWRlbnRpdHktcHJvdmlkZXJzIiwibWFuYWdlLWlkZW50aXR5LXByb3ZpZGVycyIsImltcGVyc29uYXRpb24iLCJjcmVhdGUtY2xpZW50IiwibWFuYWdlLXVzZXJzIiwidmlldy1hdXRob3JpemF0aW9uIiwibWFuYWdlLWV2ZW50cyIsIm1hbmFnZS1yZWFsbSIsInZpZXctZXZlbnRzIiwidmlldy11c2VycyIsInZpZXctY2xpZW50cyIsIm1hbmFnZS1hdXRob3JpemF0aW9uIiwibWFuYWdlLWNsaWVudHMiXX0sIm1hc3Rlci1yZWFsbSI6eyJyb2xlcyI6WyJ2aWV3LXJlYWxtIiwidmlldy1pZGVudGl0eS1wcm92aWRlcnMiLCJtYW5hZ2UtaWRlbnRpdHktcHJvdmlkZXJzIiwiaW1wZXJzb25hdGlvbiIsImNyZWF0ZS1jbGllbnQiLCJtYW5hZ2UtdXNlcnMiLCJ2aWV3LWF1dGhvcml6YXRpb24iLCJtYW5hZ2UtZXZlbnRzIiwibWFuYWdlLXJlYWxtIiwidmlldy1ldmVudHMiLCJ2aWV3LXVzZXJzIiwidmlldy1jbGllbnRzIiwibWFuYWdlLWF1dGhvcml6YXRpb24iLCJtYW5hZ2UtY2xpZW50cyJdfSwiYWNjb3VudCI6eyJyb2xlcyI6WyJtYW5hZ2UtYWNjb3VudCIsIm1hbmFnZS1hY2NvdW50LWxpbmtzIiwidmlldy1wcm9maWxlIl19fSwiY29udHJhY3RvciI6eyJpZCI6IjYwOSJ9LCJwZXJzb24iOnsiaWQiOiI0MjYyNyJ9LCJuYW1lIjoi0JPQtdC90L3QsNC00LjQuSDQnNCw0LrQsNGA0L7QsiIsInByZWZlcnJlZF91c2VybmFtZSI6IjAwMDAwMDEwMDUiLCJnaXZlbl9uYW1lIjoi0JPQtdC90L3QsNC00LjQuSIsImZhbWlseV9uYW1lIjoi0JzQsNC60LDRgNC-0LIiLCJlbWFpbCI6ImdtYWthcm92QG9ib3ouY29tIn0.BpfwljwBvtUVDSeXlx_5lmfehVRlGSuk83DsmPNOP4Clzx0E61pg1rDt-7w77S-Al6Yc58AvOMHNgsdKQhIpmThd_W76jBCd71YbdtIt6iOQYqwTrzSzn42Ks7NjwUWlJFdS5829q8y8ec9IsTBWSyy-4JggEedncEeWuEs8XfLZhfw0QLTcgkoPr_h5T6Lk2_aEQ5dvhUmuKtVll3tanzl2pgg02oaEHLWDhRf267xjhefntW8wISZd8-Pe-tamlZkeb8RS8GABb-iTDCdtm4E_p7X1cHfPyhW8EIa8qwkk8dkFKoO2apKUJ-z_rNSoNRNKrWx7AEoS46v-g4h5Uw");
+            HttpEntity request = new HttpEntity(headers);
+            ResponseEntity<String> response = new RestTemplate().exchange(url, HttpMethod.GET, request, String.class);
+
+
             if (response.getStatusCode().value() == 200) {
-                //TODO:
                 return response.getBody();
             }
         } catch (Exception e) {
@@ -153,18 +151,16 @@ public class AutoAdvancedService {
 //    @Scheduled(fixedDelayString = "10000")
     void updateAutoAdvanse() {
         List<Contractor> contractors = contractorRepository.getContractor(applicationProperties.getMinCountTrip(),
-            OffsetDateTime.now().minusWeeks(1000));
+            applicationProperties.getMinDateTrip());
         contractors.forEach(c -> c.setIsAutoAdvancePayment(true));
         contractorRepository.saveAll(contractors);
+
+
     }
 
-//   сделать крон с выборкой трипов с  контракторами  с признаком Автоматическая выдача аванса без записис из orders.trip_request_advance_payment
-//    и Перевозчик не находится в черном списке
 
-//   сделать крон  для установки "Автоматическая выдача аванса" поставщику при суммарном количестве заказов более Х шт из консул от даты А из консула.
-//   сделать крон  для установки "ссылок на скачивание файлов" .
+    //TODO: выяснь у Александра при каких условиях проаадатт доступ к ЛК перевозчика
 //   сделать крон  для сброса поля page_carrier_url_expired (orders.trip_request_advance_payment) в значение false
-//   сделать крон  для установки флага доступности кнопки в 1С .
 
 //      TODO:   need add cron + sms email notity service
     //TODO: разобраться откуда брать Договор заявка, Заявка на авансирование, в 1С

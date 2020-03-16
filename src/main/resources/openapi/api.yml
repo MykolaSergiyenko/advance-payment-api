@@ -492,7 +492,6 @@ components:
                 payment_contractor:
                     type: string
                     description: "От кого везём"
-                #     TODO:     что  за поле   Время запроса аванса
                 req_created_at:
                     type: string
                     format: date-time
@@ -660,11 +659,23 @@ components:
                 authorId:
                     type: integer
                     format: int64
-                    description: "Тип заказа нужен фронту для отображения кнопки (пока фронт должен отображать только авто (FTL))"
+                    description: "Id того кто нажал кнопку \"Выдать аванс\""
+                firstName:
+                    type: string
+                    description: "Имя того кто нажал кнопку \"Выдать аванс\""
+                lastName:
+                    type: string
+                    description: "Фамилия того кто нажал кнопку \"Выдать аванс\""
+                middleName:
+                    type: string
+                    description: "Отчество того кто нажал кнопку \"Выдать аванс\""
                 createdAt:
                     type: string
                     format: date-time
                     description: "Время и дата запроса аванса"
+                comment:
+                    type: string
+                    description: "Комментарий"
                 isAutoRequested:
                     type: boolean
                     description: "Тип заказа нужен фронту для отображения кнопки (пока фронт должен отображать только авто (FTL))"

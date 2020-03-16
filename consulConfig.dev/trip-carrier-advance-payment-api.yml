@@ -42,7 +42,7 @@ cron:
 
 #    При изменении minCountTrip нужно также поменять minDateTrip наа текущее значение
 auto-advance:
-    min-date-trip: 2017-07-03T21:44:49
+    min-date-trip: "2020-01-01T00:00:00+00:00"
     min-count-trip: 3
 
 notification:
