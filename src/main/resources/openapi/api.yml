@@ -23,12 +23,6 @@ paths:
                         type: integer
                         format: int64
                         minimum: 1
-                -   name: comment
-                    in: query
-                    description: "Комментарий к запросу на авансирование "
-                    required: true
-                    schema:
-                        type: String
             responses:
                 200:
                     description: "OK"
@@ -143,6 +137,46 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/ResponseAdvancePayment'
+                default:
+                    description: "Some other error"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                422:
+                    description: "Business error"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+
+    /advance_payment/search_request/{uuid}:
+        #        без авторизации
+        get:
+            summary: "Просмотр запроса на аванс для экрана поставщика "
+            operationId: searchAdvancePaymentRequestByUuid
+            tags:
+                - Advance Payment
+            parameters:
+                -   name: uuid
+                    in: path
+                    description: "uuid заказа на аванс"
+                    required: true
+                    schema:
+                        type: string
+                        format: uuid
+            #        requestBody:
+            #            content:
+            #                application/json:
+            #                    schema:
+            #                        $ref: '#/components/schemas/Filter'
+            responses:
+                200:
+                    description: "OK"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/FrontAdvancePaymentResponse'
                 default:
                     description: "Some other error"
                     content:
@@ -348,6 +382,30 @@ paths:
                 "422":
                     description: "Ошибка в процессе скачивания файла"
 
+    /advance_payment/download_advance_request_template_for_carrier:
+        get:
+            #             без авторизации
+            tags:
+                - Application contract
+            summary: "Запрос на скачивание шаблонной заявки на аванс"
+            operationId: downloadAvanceRequestTemplateForCarrier
+            parameters:
+                -   name: trip_num
+                    in: query
+                    schema:
+                        type: string
+                    description: "Номер заказа поставщика"
+            responses:
+                "200":
+                    description: "PDF-файл"
+                    content:
+                        application/pdf:
+                            schema:
+                                type: string
+                                format: binary
+                "422":
+                    description: "Ошибка в процессе скачивания файла"
+
     /advance_payment/download_request:
         get:
             #            security:
@@ -406,6 +464,37 @@ paths:
                 - Application contract
             summary: "Добавление подписанного PDF файла заявки на аванс"
             operationId: uploadRequestAvance
+            parameters:
+                -   name: trip_num
+                    in: query
+                    schema:
+                        type: string
+                    description: "Номер заказа поставщика"
+            requestBody:
+                required: true
+                content:
+                    multipart/form-data:
+                        schema:
+                            $ref: "#/components/schemas/RequestFormData"
+            responses:
+                "201":
+                    description: "Данные успешно получены"
+                "422":
+                    description: "Ошибка в процессе получения файла"
+
+    /advance_payment/upload_request_avance_for_carrier:
+        #  без авторизации
+        post:
+            tags:
+                - Application contract
+            summary: "Добавление подписанного PDF файла заявки на аванс"
+            operationId: uploadRequestAvanceForCarrier
+            parameters:
+                -   name: trip_num
+                    in: query
+                    schema:
+                        type: string
+                    description: "Номер заказа поставщика"
             requestBody:
                 required: true
                 content:

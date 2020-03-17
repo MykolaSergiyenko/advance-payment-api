@@ -14,11 +14,11 @@ public class ApplicationProperties {
     private String smsSenderUrl;
     @Value("${auto-advance.min-count-trip:3}")
     private Integer minCountTrip;
-    //    TODO: add date
     @Value("${auto-advance.min-date-trip:2020-01-01T00:00:00+00:00}")
     private String strMinDateTrip;
     private OffsetDateTime minDateTrip;
-    @Value("${spring.mail.host}")
+    @Value("${required-download-docs:true}")
+    private Boolean requiredDownloadDocs;
     private String mailHost;
     @Value("${spring.mail.port}")
     private int mailPort = 587;

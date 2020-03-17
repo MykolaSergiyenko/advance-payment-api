@@ -21,6 +21,7 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -57,11 +58,6 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
         this.notificationService = notificationService;
         this.personRepository = personRepository;
         this.restTemplate = restTemplate;
-    }
-
-    @Override
-    public ResponseEntity<Void> uploadRequestAvance(MultipartFile filename) {
-        return null;
     }
 
     //   c filter c pagable   select from orders.trip_request_advance_payment
@@ -150,6 +146,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
 //        tripRequestAdvancePaymentRepository.save(tripRequestAdvancePayment.get());
         trip.setIsAdvancedPayment(true);
         tripRepository.save(trip);
+        //TODO: проверить наличие записи контрактора в таблице исключений  при  отсутствии  добавить запись
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -238,7 +235,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
 //Кнопка «Выдать аванс» недоступна, пока не подгружен любой из документов: «Заявка» или «Договор-заявка» в «Заказе поставщика». Данное исключение нужно сделать с возможностью отключения в АРМА, описание в пункте 8.
 
     @Override
-    public ResponseEntity<Void> requestGiveAdvancePayment(Long tripId, String comment) {
+    public ResponseEntity<Void> requestGiveAdvancePayment(Long tripId) {
         Double tripCostWithNds = tripRepository.getTripCostWithVat(tripId);
         AdvancePaymentCost advancePaymentCost = advancePaymentCostRepository.searchAdvancePaymentCost(tripCostWithNds);
         boolean isUnfSend = sendedUnf();
@@ -264,7 +261,6 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
         String paymentContractor = contractorRepository.getContractor(trip.getPaymentContractorId());
         tripRequestAdvancePayment = getTripRequestAdvancePayment(tripId,
             contractor,
-            comment,
             tripCostWithNds,
             advancePaymentCost,
             isUnfSend,
@@ -286,12 +282,26 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
 
     @Override
     public ResponseEntity<Resource> downloadAvanceRequestTemplate(String tripNum) {
-        String url = "https://reports.oboz.com/reportserver/reportserver/httpauthexport?key=unified_contract_request&user=bertathar&apikey=nzybc16h&p_trip_num=" + tripNum + "&format=PDF";
-        ResponseEntity<Resource> response = getResourceResponseEntity(url, new HttpHeaders());
-        if (response != null) return response;
-        log.error("server {} returned bad response", url);
+        StringBuilder url = new StringBuilder();
+        ResponseEntity<Resource> response;
+        url.append("https://reports.oboz.com/reportserver/reportserver/httpauthexport?key=avance_request&user=bertathar&apikey=nzybc16h&p_trip_num=");
+        TripRequestAdvancePayment tripRequestAdvancePayment = tripRequestAdvancePaymentRepository.findRequestAdvancePaymentByTripNum(tripNum);
+        if (tripRequestAdvancePayment != null) {
+            url.append(tripNum)
+                .append("&p_avance_sum=")
+                .append(tripRequestAdvancePayment.getAdvancePaymentSum().toString())
+                .append("&p_avance_comission=")
+                .append(tripRequestAdvancePayment.getRegistrationFee().toString())
+                .append("&format=PDF");
+            response = getResourceResponseEntity(url.toString(), new HttpHeaders());
+            if (response != null) {
+                return response;
+            }
+            log.error("server {} returned bad response", url);
+        }
         return null;
     }
+
 
     @Override
     public ResponseEntity<Resource> downloadAvanseRequest(String tripNum) {
@@ -314,6 +324,31 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
         ResponseEntity<Resource> response = getResourceResponseEntity(url, headers);
         if (response != null) return response;
         log.error("server {} returned bad response", url);
+        return null;
+    }
+
+    @Override
+    public ResponseEntity<Resource> downloadAvanceRequestTemplateForCarrier(String tripNum) {
+        log.info("downloadAvanceRequestTemplate success");
+        return downloadAvanceRequestTemplate(tripNum);
+    }
+
+    @Override
+    public ResponseEntity<Void> uploadRequestAvance(MultipartFile filename, String trip_num) {
+// post bstor https://preprod.oboz.online/api/bstore/pdf/
+//        get response {
+//    "file_uuid": "7c31174d-499b-4424-975e-7852e55fb176",
+//    "name": "attachment.pdf",
+//    "link": "http://preprod.oboz.online/api/bstore/7c31174d-499b-4424-975e-7852e55fb176"
+//}
+// post oboz
+//
+        return null;
+    }
+
+    @Override
+    public ResponseEntity<Void> uploadRequestAvanceForCarrier(MultipartFile filename, String trip_num) {
+
         return null;
     }
 
@@ -383,6 +418,11 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
         return new ResponseEntity<>(carrierContactDTO, HttpStatus.OK);
     }
 
+    @Override
+    public ResponseEntity<FrontAdvancePaymentResponse> searchAdvancePaymentRequestByUuid(UUID uuid) {
+        return null;
+    }
+
     private MessageDto getMessageDto(TripRequestAdvancePayment tripRequestAdvancePayment,
                                      ContractorAdvancePaymentContact contact,
                                      String paymentContractorFullName) {
@@ -442,7 +482,6 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
 
     private TripRequestAdvancePayment getTripRequestAdvancePayment(Long tripId,
                                                                    Contractor contractor,
-                                                                   String comment,
                                                                    Double tripCostWithNds,
                                                                    AdvancePaymentCost advancePaymentCost,
                                                                    boolean isUnfSend,
@@ -456,7 +495,6 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
         tripRequestAdvancePayment.setAdvancePaymentSum(advancePaymentCost.getAdvancePaymentSum());
         tripRequestAdvancePayment.setRegistrationFee(advancePaymentCost.getRegistrationFee());
         tripRequestAdvancePayment.setCancelAdvance(false);
-        tripRequestAdvancePayment.setComment(comment);
         tripRequestAdvancePayment.setContractorId(trip.getContractorId());
         tripRequestAdvancePayment.setDriverId(trip.getDriverId());
         tripRequestAdvancePayment.setCreatedAt(OffsetDateTime.now());
@@ -476,9 +514,10 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
     }
 
     Boolean sendedUnf() {
+
+//        TODO : реализовать вызов метода Паши
         return true;
     }
-
 
     private TripRequestAdvancePayment getTripRequestAdvancePayment(Long id) {
         Optional<TripRequestAdvancePayment> tripRequestAdvancePayment = tripRequestAdvancePaymentRepository

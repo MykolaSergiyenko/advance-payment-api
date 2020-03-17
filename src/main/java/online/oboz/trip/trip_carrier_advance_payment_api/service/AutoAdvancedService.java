@@ -110,6 +110,15 @@ public class AutoAdvancedService {
         tripRequestAdvancePaymentRepository.saveAll(tripRequestAdvancePayments);
     }
 
+    //    @Scheduled(cron = "${cron.expression:0 /1 * * * *}")
+//    @Scheduled(fixedDelayString = "10000")
+    void updateAutoAdvanse() {
+        List<Contractor> contractors = contractorRepository.getContractor(applicationProperties.getMinCountTrip(),
+            applicationProperties.getMinDateTrip());
+        contractors.forEach(c -> c.setIsAutoAdvancePayment(true));
+        contractorRepository.saveAll(contractors);
+    }
+
     public Map<String, String> getTripDocuments(Trip trip) {
         Map<String, String> fileUuidMap = new HashMap<>();
         try {
@@ -147,22 +156,10 @@ public class AutoAdvancedService {
         return "";
     }
 
-    //    @Scheduled(cron = "${cron.expression:0 /1 * * * *}")
-//    @Scheduled(fixedDelayString = "10000")
-    void updateAutoAdvanse() {
-        List<Contractor> contractors = contractorRepository.getContractor(applicationProperties.getMinCountTrip(),
-            applicationProperties.getMinDateTrip());
-        contractors.forEach(c -> c.setIsAutoAdvancePayment(true));
-        contractorRepository.saveAll(contractors);
-
-
-    }
-
-
-    //TODO: выяснь у Александра при каких условиях проаадатт доступ к ЛК перевозчика
+    //TODO: выяснить у Александра при каких условиях пропадает доступ к ЛК перевозчика
 //   сделать крон  для сброса поля page_carrier_url_expired (orders.trip_request_advance_payment) в значение false
 
-//      TODO:   need add cron + sms email notity service
+//      TODO:   need add cron + sms email notity service for auto + push button
     //TODO: разобраться откуда брать Договор заявка, Заявка на авансирование, в 1С
 
 }
