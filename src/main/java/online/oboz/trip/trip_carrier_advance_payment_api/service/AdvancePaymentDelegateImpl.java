@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.transaction.Transactional;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +33,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
     private final AdvancePaymentCostRepository advancePaymentCostRepository;
     private final TripRequestAdvancePaymentRepository tripRequestAdvancePaymentRepository;
     private final ContractorAdvancePaymentContactRepository contractorAdvancePaymentContactRepository;
+    private final ContractorAdvanceExclusionRepository contractorAdvanceExclusionRepository;
     private final TripRepository tripRepository;
     private final ContractorRepository contractorRepository;
     private final AutoAdvancedService autoAdvancedService;
@@ -44,14 +46,17 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
     public AdvancePaymentDelegateImpl(AdvancePaymentCostRepository advancePaymentCostRepository,
                                       TripRequestAdvancePaymentRepository tripRequestAdvancePaymentRepository,
                                       ContractorAdvancePaymentContactRepository contractorAdvancePaymentContactRepository,
+                                      ContractorAdvanceExclusionRepository contractorAdvanceExclusionRepository,
                                       TripRepository tripRepository,
                                       ContractorRepository contractorRepository,
                                       AutoAdvancedService autoAdvancedService,
                                       NotificationService notificationService,
-                                      PersonRepository personRepository, RestTemplate restTemplate) {
+                                      PersonRepository personRepository,
+                                      RestTemplate restTemplate) {
         this.advancePaymentCostRepository = advancePaymentCostRepository;
         this.tripRequestAdvancePaymentRepository = tripRequestAdvancePaymentRepository;
         this.contractorAdvancePaymentContactRepository = contractorAdvancePaymentContactRepository;
+        this.contractorAdvanceExclusionRepository = contractorAdvanceExclusionRepository;
         this.tripRepository = tripRepository;
         this.contractorRepository = contractorRepository;
         this.autoAdvancedService = autoAdvancedService;
@@ -135,6 +140,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
     }
 
     @Override
+    @Transactional
     public ResponseEntity<Void> confirmAdvancePayment(Long requestAdvansePaymentId) {
         TripRequestAdvancePayment tripRequestAdvancePayment = getTripRequestAdvancePayment(requestAdvansePaymentId);
         Trip trip = tripRepository.findById(tripRequestAdvancePayment.getId()).orElseThrow(() -> {
@@ -143,11 +149,20 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
                 return new BusinessLogicException(HttpStatus.UNPROCESSABLE_ENTITY, error);
             }
         );
-//        tripRequestAdvancePaymentRepository.save(tripRequestAdvancePayment.get());
-        trip.setIsAdvancedPayment(true);
-        tripRepository.save(trip);
-        //TODO: проверить наличие записи контрактора в таблице исключений  при  отсутствии  добавить запись
-        return new ResponseEntity<>(HttpStatus.OK);
+        if (confirmRequestToUnf()) {
+            ContractorAdvanceExclusion contractorAdvanceExclusion = contractorAdvanceExclusionRepository
+                .findByContractorId(trip.getContractorId()).orElse(new ContractorAdvanceExclusion());
+            tripRequestAdvancePayment.setIsUnfSend(true);
+            tripRequestAdvancePayment.setPageCarrierUrlIsAccess(false);
+            trip.setIsAdvancedPayment(true);
+            tripRepository.save(trip);
+            tripRequestAdvancePaymentRepository.save(tripRequestAdvancePayment);
+            //TODO: проверить наличие записи контрактора в таблице исключений  при  отсутствии  добавить запись
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+        Error error = new Error();
+        error.setErrorMessage("tripRequestAdvancePayment not found");
+        throw new BusinessLogicException(HttpStatus.UNPROCESSABLE_ENTITY, error);
     }
 
     @Override
@@ -159,10 +174,15 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
                 return new BusinessLogicException(HttpStatus.UNPROCESSABLE_ENTITY, error);
             }
         );
-
         TripRequestAdvancePayment tripRequestAdvancePayment = tripRequestAdvancePaymentRepository
             .findRequestAdvancePayment(tripId, trip.getDriverId(), trip.getContractorId());
         IsAdvancedRequestResponse isAdvancedRequestResponse = new IsAdvancedRequestResponse();
+        if (tripRequestAdvancePayment == null) {
+            isAdvancedRequestResponse.setIsAdvanssed(false);
+            checkButtonAccess(trip, contractor, tripRequestAdvancePayment, isAdvancedRequestResponse);
+            log.info("isAdvancedRequestResponse not found for tripId: {} , DriverId: {} , ContractorId {}", tripId, trip.getDriverId(), trip.getContractorId());
+            return new ResponseEntity<>(isAdvancedRequestResponse, HttpStatus.OK);
+        }
         final Long authorId = tripRequestAdvancePayment.getAuthorId();
         if (authorId != null) {
             Person author = personRepository.findById(authorId).orElse(new Person());
@@ -171,12 +191,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
             isAdvancedRequestResponse.setMiddleName(author.getMiddleName());
             isAdvancedRequestResponse.setAuthorId(authorId);
         }
-        if (tripRequestAdvancePayment.getCancelAdvance() ||
-            contractor.getIsAutoAdvancePayment() ||
-            tripRequestAdvancePayment.getIsUnfSend() ||
-            !trip.getDriverId().equals(tripRequestAdvancePayment.getDriverId())) {
-            isAdvancedRequestResponse.setIsButtonActive(false);
-        }
+        checkButtonAccess(trip, contractor, tripRequestAdvancePayment, isAdvancedRequestResponse);
         final Boolean isAutomationRequest = tripRequestAdvancePayment.getIsAutomationRequest();
         if (isAutomationRequest) {
             isAdvancedRequestResponse.setComment(COMMENT);
@@ -187,6 +202,16 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
         isAdvancedRequestResponse.setCreatedAt(tripRequestAdvancePayment.getCreatedAt());
         isAdvancedRequestResponse.setIsAutoRequested(isAutomationRequest);
         return new ResponseEntity<>(isAdvancedRequestResponse, HttpStatus.OK);
+    }
+
+    private void checkButtonAccess(Trip trip, Contractor contractor, TripRequestAdvancePayment tripRequestAdvancePayment, IsAdvancedRequestResponse isAdvancedRequestResponse) {
+        if (tripRequestAdvancePayment == null ||
+            tripRequestAdvancePayment.getCancelAdvance() ||
+            contractor.getIsAutoAdvancePayment() ||
+            tripRequestAdvancePayment.getIsUnfSend() ||
+            !trip.getDriverId().equals(tripRequestAdvancePayment.getDriverId())) {
+            isAdvancedRequestResponse.setIsButtonActive(false);
+        }
     }
 //    При нажатии на кнопку происходит следующий функционал:   создать таблицу запросов на авансирование orders.trip_request_advance_payment
 //    сделать entity сгенерить таблицу в бд
@@ -238,7 +263,6 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
     public ResponseEntity<Void> requestGiveAdvancePayment(Long tripId) {
         Double tripCostWithNds = tripRepository.getTripCostWithVat(tripId);
         AdvancePaymentCost advancePaymentCost = advancePaymentCostRepository.searchAdvancePaymentCost(tripCostWithNds);
-        boolean isUnfSend = sendedUnf();
         Trip trip = tripRepository.getMotorTrip(tripId).orElse(new Trip());
 
 
@@ -263,7 +287,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
             contractor,
             tripCostWithNds,
             advancePaymentCost,
-            isUnfSend,
+            tripRequestAdvancePayment.getIsUnfSend(),
             trip);
         ContractorAdvancePaymentContact contact = getAdvancePaymentContact(trip.getContractorId());
         if (contact != null && contact.getEmail() != null) {
@@ -513,7 +537,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
         return tripRequestAdvancePayment;
     }
 
-    Boolean sendedUnf() {
+    Boolean confirmRequestToUnf() {
 
 //        TODO : реализовать вызов метода Паши
         return true;

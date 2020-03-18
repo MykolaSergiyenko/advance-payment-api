@@ -36,6 +36,16 @@ public class ApplicationProperties {
     private Boolean smsEnable;
     @Value("${email-enable:true}")
     private Boolean mailEnable;
+    @Value("${services.keycloak.auth.username}")
+    private String username;
+    @Value("${services.keycloak.auth.password}")
+    private String password;
+    @Value("${services.bstore-url}")
+    private String bStoreUrl;
+    @Value("${services.orders-api-url}")
+    private String ordersApiUrl;
+    @Value("${services.report-server-url}")
+    private String reportServerUrl;
 
     public OffsetDateTime getMinDateTrip() {
         return OffsetDateTime.parse(strMinDateTrip);

@@ -37,6 +37,7 @@ public class NotificationService {
 //    }
 
     public void sendSms(MessageDto messageDto) {
+        //        TODO add to autoadvance
         String url = applicationProperties.getSmsSenderUrl();
         try {
             ResponseEntity<String> response = restTemplate.postForEntity(
@@ -53,6 +54,7 @@ public class NotificationService {
     }
 
     public void sendEmail(MessageDto messageDto) {
+//        TODO add to autoadvance
         if (applicationProperties.getMailEnable()) {
             SimpleMailMessage message = new SimpleMailMessage();
             message.setFrom(applicationProperties.getMailUsername());
