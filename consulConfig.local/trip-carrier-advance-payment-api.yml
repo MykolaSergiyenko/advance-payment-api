@@ -46,11 +46,11 @@ notification:
     email-enable: true
 
 services:
-    bstore-url: https://preprod.oboz.online/api/bstore
-    orders-api-url: https://preprod.oboz.online/api/orders/dispatcher/orders
+    bstore-url: https://dev.oboz.online/api/bstore
+    orders-api-url: https://dev.oboz.online/api/orders/dispatcher/orders
     report-server-url: https://reports.oboz.com/reportserver/reportserver/httpauthexport?key=avance_request&user=bertathar&apikey=nzybc16h&p_trip_num=
     keycloak:
         url: http://keycloak.r14.k.dev.oboz:30080/auth/realms/master/protocol/openid-connect
-    auth:
-        username: ADVANCE_USER
-        password: ADVANCE_PASSWORD
+        auth:
+            username: ADVANCE_USER
+            password: ADVANCE_PASSWORD

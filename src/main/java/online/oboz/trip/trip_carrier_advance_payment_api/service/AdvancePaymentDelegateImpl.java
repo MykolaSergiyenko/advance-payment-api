@@ -1,6 +1,7 @@
 package online.oboz.trip.trip_carrier_advance_payment_api.service;
 
 import lombok.extern.slf4j.Slf4j;
+import online.oboz.trip.trip_carrier_advance_payment_api.config.ApplicationProperties;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.*;
 import online.oboz.trip.trip_carrier_advance_payment_api.error.BusinessLogicException;
 import online.oboz.trip.trip_carrier_advance_payment_api.repository.*;
@@ -40,6 +41,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
     private final NotificationService notificationService;
     private final PersonRepository personRepository;
     private final RestTemplate restTemplate;
+    private final ApplicationProperties applicationProperties;
 
 
     @Autowired
@@ -52,7 +54,8 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
                                       AutoAdvancedService autoAdvancedService,
                                       NotificationService notificationService,
                                       PersonRepository personRepository,
-                                      RestTemplate restTemplate) {
+                                      RestTemplate restTemplate,
+                                      ApplicationProperties applicationProperties) {
         this.advancePaymentCostRepository = advancePaymentCostRepository;
         this.tripRequestAdvancePaymentRepository = tripRequestAdvancePaymentRepository;
         this.contractorAdvancePaymentContactRepository = contractorAdvancePaymentContactRepository;
@@ -63,6 +66,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
         this.notificationService = notificationService;
         this.personRepository = personRepository;
         this.restTemplate = restTemplate;
+        this.applicationProperties = applicationProperties;
     }
 
     //   c filter c pagable   select from orders.trip_request_advance_payment
@@ -149,7 +153,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
                 return new BusinessLogicException(HttpStatus.UNPROCESSABLE_ENTITY, error);
             }
         );
-        if (confirmRequestToUnf()) {
+        if (isDownloadAllDocuments(trip) && confirmRequestToUnf()) {
             ContractorAdvanceExclusion contractorAdvanceExclusion = contractorAdvanceExclusionRepository
                 .findByContractorId(trip.getContractorId()).orElse(new ContractorAdvanceExclusion());
             tripRequestAdvancePayment.setIsUnfSend(true);
@@ -157,12 +161,11 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
             trip.setIsAdvancedPayment(true);
             tripRepository.save(trip);
             tripRequestAdvancePaymentRepository.save(tripRequestAdvancePayment);
+
             //TODO: проверить наличие записи контрактора в таблице исключений  при  отсутствии  добавить запись
             return new ResponseEntity<>(HttpStatus.OK);
         }
-        Error error = new Error();
-        error.setErrorMessage("tripRequestAdvancePayment not found");
-        throw new BusinessLogicException(HttpStatus.UNPROCESSABLE_ENTITY, error);
+        return getVoidResponseEntity("tripRequestAdvancePayment not found");
     }
 
     @Override
@@ -179,7 +182,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
         IsAdvancedRequestResponse isAdvancedRequestResponse = new IsAdvancedRequestResponse();
         if (tripRequestAdvancePayment == null) {
             isAdvancedRequestResponse.setIsAdvanssed(false);
-            checkButtonAccess(trip, contractor, tripRequestAdvancePayment, isAdvancedRequestResponse);
+
             log.info("isAdvancedRequestResponse not found for tripId: {} , DriverId: {} , ContractorId {}", tripId, trip.getDriverId(), trip.getContractorId());
             return new ResponseEntity<>(isAdvancedRequestResponse, HttpStatus.OK);
         }
@@ -191,25 +194,39 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
             isAdvancedRequestResponse.setMiddleName(author.getMiddleName());
             isAdvancedRequestResponse.setAuthorId(authorId);
         }
-        checkButtonAccess(trip, contractor, tripRequestAdvancePayment, isAdvancedRequestResponse);
+        ContractorAdvanceExclusion contractorAdvanceExclusion = contractorAdvanceExclusionRepository
+            .findByContractorId(trip.getContractorId()).orElse(new ContractorAdvanceExclusion());
+        setButtonAccessGetAdvance(trip, contractor, tripRequestAdvancePayment, isAdvancedRequestResponse);
         final Boolean isAutomationRequest = tripRequestAdvancePayment.getIsAutomationRequest();
         if (isAutomationRequest) {
             isAdvancedRequestResponse.setComment(COMMENT);
         }
-        checkDownloadDocuments(trip);
         isAdvancedRequestResponse.setIsAdvanssed(tripRequestAdvancePayment.getIsUnfSend());
         isAdvancedRequestResponse.setTripTypeCode(tripRequestAdvancePayment.getTripTypeCode());
         isAdvancedRequestResponse.setCreatedAt(tripRequestAdvancePayment.getCreatedAt());
         isAdvancedRequestResponse.setIsAutoRequested(isAutomationRequest);
+        if (!contractorAdvanceExclusion.getIsConfirmAdvance() && contractorAdvanceExclusion.getDeletedAt() != null) {
+            isAdvancedRequestResponse.setIsContractorLock(true);
+        }
         return new ResponseEntity<>(isAdvancedRequestResponse, HttpStatus.OK);
     }
 
-    private void checkButtonAccess(Trip trip, Contractor contractor, TripRequestAdvancePayment tripRequestAdvancePayment, IsAdvancedRequestResponse isAdvancedRequestResponse) {
-        if (tripRequestAdvancePayment == null ||
+    private void setButtonAccessGetAdvance(Trip trip,
+                                           Contractor contractor,
+                                           TripRequestAdvancePayment tripRequestAdvancePayment,
+                                           IsAdvancedRequestResponse isAdvancedRequestResponse) {
+        final Boolean isAutoAdvancePayment = contractor.getIsAutoAdvancePayment();
+        Map<String, String> downloadedDocuments = autoAdvancedService.findTripRequestDocs(trip);
+        if (tripRequestAdvancePayment == null &&
+            !isAutoAdvancePayment &&
+            !downloadedDocuments.isEmpty()
+        ) {
+            isAdvancedRequestResponse.setIsButtonActive(true);
+        } else if (tripRequestAdvancePayment != null && (
             tripRequestAdvancePayment.getCancelAdvance() ||
-            contractor.getIsAutoAdvancePayment() ||
-            tripRequestAdvancePayment.getIsUnfSend() ||
-            !trip.getDriverId().equals(tripRequestAdvancePayment.getDriverId())) {
+                isAutoAdvancePayment ||
+                tripRequestAdvancePayment.getIsUnfSend() ||
+                !trip.getDriverId().equals(tripRequestAdvancePayment.getDriverId()))) {
             isAdvancedRequestResponse.setIsButtonActive(false);
         }
     }
@@ -267,19 +284,18 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
 
 
         if (advancePaymentCost == null || trip.getDriverId() == null || trip.getContractorId() == null) {
-            Error error = new Error();
-            error.setErrorMessage("Не назначены необходимы поля: advancePaymentCost DriverId ContractorId");
-            throw new BusinessLogicException(HttpStatus.UNPROCESSABLE_ENTITY, error);
+            return getVoidResponseEntity("Не назначены необходимы поля: advancePaymentCost DriverId ContractorId");
         }
-        checkDownloadDocuments(trip);
+        if (autoAdvancedService.findTripRequestDocs(trip).isEmpty()) {
+            getVoidResponseEntity("Не загружены Договор заявка / заявка ");
+        }
+
         TripRequestAdvancePayment tripRequestAdvancePayment = tripRequestAdvancePaymentRepository
             .findRequestAdvancePayment(tripId,
                 trip.getDriverId(),
                 trip.getContractorId());
         if (tripRequestAdvancePayment != null) {
-            Error error = new Error();
-            error.setErrorMessage("tripRequestAdvancePayment is present");
-            throw new BusinessLogicException(HttpStatus.UNPROCESSABLE_ENTITY, error);
+            getVoidResponseEntity("tripRequestAdvancePayment is present");
         }
         Contractor contractor = contractorRepository.findById(trip.getContractorId()).orElse(new Contractor());
         String paymentContractor = contractorRepository.getContractor(trip.getPaymentContractorId());
@@ -302,6 +318,12 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
         tripRequestAdvancePaymentRepository.save(tripRequestAdvancePayment);
         return new ResponseEntity<>(HttpStatus.OK);
 
+    }
+
+    private ResponseEntity<Void> getVoidResponseEntity(String s) {
+        Error error = new Error();
+        error.setErrorMessage(s);
+        throw new BusinessLogicException(HttpStatus.UNPROCESSABLE_ENTITY, error);
     }
 
     @Override
@@ -358,7 +380,21 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
     }
 
     @Override
-    public ResponseEntity<Void> uploadRequestAvance(MultipartFile filename, String trip_num) {
+    public ResponseEntity<Void> uploadRequestAvance(MultipartFile filename, String tripNum) {
+        String url = applicationProperties.getBStoreUrl();
+        ResponseEntity<Resource> response;
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJtZWwxMDZWemFlZGpmU3ctUVRtblVLa3ZuQUlfdXB3TGdRZHY4Vm85SEk4In0.eyJqdGkiOiJmMGY4OTBmMi03OTZiLTQwMDEtYjg2Yi0zY2YzMGM1NTRhYWQiLCJleHAiOjE2MTU0NTkzNjgsIm5iZiI6MCwiaWF0IjoxNTgzOTIzMzY4LCJpc3MiOiJodHRwczovL3ByZXByb2Qub2Jvei5vbmxpbmUvYXV0aC9yZWFsbXMvbWFzdGVyIiwiYXVkIjoiZWxwIiwic3ViIjoiZjpmY2MwMzM2Yy1lNmYyLTRlZTctYjllYi1jMjU2NDY3M2IwMzY6NDI2MjciLCJ0eXAiOiJCZWFyZXIiLCJhenAiOiJlbHAiLCJhdXRoX3RpbWUiOjAsInNlc3Npb25fc3RhdGUiOiI3ZTY1NGMzYi04OTMwLTQwMDctOGQ2Zi01N2JlYzQyNzU1OTAiLCJhY3IiOiIxIiwiY2xpZW50X3Nlc3Npb24iOiJhYTRlZjg4ZC02MjYxLTRkZTItYWQ2MS1mNDQ4OTg3MWJjOGMiLCJhbGxvd2VkLW9yaWdpbnMiOlsiKiJdLCJyZWFsbV9hY2Nlc3MiOnsicm9sZXMiOlsiY3JlYXRlLXJlYWxtIiwiY2FycmllciIsImVscC1hZG1pbiIsInNlbmRlciIsImFkbWluIiwidW1hX2F1dGhvcml6YXRpb24iLCJkaXNwYXRjaGVyIl19LCJyZXNvdXJjZV9hY2Nlc3MiOnsiZHJpdmVyLWFwcC1yZWFsbSI6eyJyb2xlcyI6WyJ2aWV3LWlkZW50aXR5LXByb3ZpZGVycyIsInZpZXctcmVhbG0iLCJtYW5hZ2UtaWRlbnRpdHktcHJvdmlkZXJzIiwiaW1wZXJzb25hdGlvbiIsImNyZWF0ZS1jbGllbnQiLCJtYW5hZ2UtdXNlcnMiLCJ2aWV3LWF1dGhvcml6YXRpb24iLCJtYW5hZ2UtZXZlbnRzIiwibWFuYWdlLXJlYWxtIiwidmlldy1ldmVudHMiLCJ2aWV3LXVzZXJzIiwidmlldy1jbGllbnRzIiwibWFuYWdlLWF1dGhvcml6YXRpb24iLCJtYW5hZ2UtY2xpZW50cyJdfSwiZHJpdmVyLWFwcC1yZWdpc3RyYXRpb24tcmVhbG0iOnsicm9sZXMiOlsidmlldy1yZWFsbSIsInZpZXctaWRlbnRpdHktcHJvdmlkZXJzIiwibWFuYWdlLWlkZW50aXR5LXByb3ZpZGVycyIsImltcGVyc29uYXRpb24iLCJjcmVhdGUtY2xpZW50IiwibWFuYWdlLXVzZXJzIiwidmlldy1hdXRob3JpemF0aW9uIiwibWFuYWdlLWV2ZW50cyIsIm1hbmFnZS1yZWFsbSIsInZpZXctZXZlbnRzIiwidmlldy11c2VycyIsInZpZXctY2xpZW50cyIsIm1hbmFnZS1hdXRob3JpemF0aW9uIiwibWFuYWdlLWNsaWVudHMiXX0sImRtcy1yZWFsbSI6eyJyb2xlcyI6WyJ2aWV3LWlkZW50aXR5LXByb3ZpZGVycyIsInZpZXctcmVhbG0iLCJtYW5hZ2UtaWRlbnRpdHktcHJvdmlkZXJzIiwiaW1wZXJzb25hdGlvbiIsImNyZWF0ZS1jbGllbnQiLCJtYW5hZ2UtdXNlcnMiLCJ2aWV3LWF1dGhvcml6YXRpb24iLCJtYW5hZ2UtZXZlbnRzIiwibWFuYWdlLXJlYWxtIiwidmlldy1ldmVudHMiLCJ2aWV3LXVzZXJzIiwidmlldy1jbGllbnRzIiwibWFuYWdlLWF1dGhvcml6YXRpb24iLCJtYW5hZ2UtY2xpZW50cyJdfSwicHVibGljLXJlYWxtIjp7InJvbGVzIjpbInZpZXctcmVhbG0iLCJ2aWV3LWlkZW50aXR5LXByb3ZpZGVycyIsIm1hbmFnZS1pZGVudGl0eS1wcm92aWRlcnMiLCJpbXBlcnNvbmF0aW9uIiwiY3JlYXRlLWNsaWVudCIsIm1hbmFnZS11c2VycyIsInZpZXctYXV0aG9yaXphdGlvbiIsIm1hbmFnZS1ldmVudHMiLCJtYW5hZ2UtcmVhbG0iLCJ2aWV3LWV2ZW50cyIsInZpZXctdXNlcnMiLCJ2aWV3LWNsaWVudHMiLCJtYW5hZ2UtYXV0aG9yaXphdGlvbiIsIm1hbmFnZS1jbGllbnRzIl19LCJtYXN0ZXItcmVhbG0iOnsicm9sZXMiOlsidmlldy1yZWFsbSIsInZpZXctaWRlbnRpdHktcHJvdmlkZXJzIiwibWFuYWdlLWlkZW50aXR5LXByb3ZpZGVycyIsImltcGVyc29uYXRpb24iLCJjcmVhdGUtY2xpZW50IiwibWFuYWdlLXVzZXJzIiwidmlldy1hdXRob3JpemF0aW9uIiwibWFuYWdlLWV2ZW50cyIsIm1hbmFnZS1yZWFsbSIsInZpZXctZXZlbnRzIiwidmlldy11c2VycyIsInZpZXctY2xpZW50cyIsIm1hbmFnZS1hdXRob3JpemF0aW9uIiwibWFuYWdlLWNsaWVudHMiXX0sImFjY291bnQiOnsicm9sZXMiOlsibWFuYWdlLWFjY291bnQiLCJtYW5hZ2UtYWNjb3VudC1saW5rcyIsInZpZXctcHJvZmlsZSJdfX0sImNvbnRyYWN0b3IiOnsiaWQiOiI2MDkifSwicGVyc29uIjp7ImlkIjoiNDI2MjcifSwibmFtZSI6ItCT0LXQvdC90LDQtNC40Lkg0JzQsNC60LDRgNC-0LIiLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiIwMDAwMDAxMDA1IiwiZ2l2ZW5fbmFtZSI6ItCT0LXQvdC90LDQtNC40LkiLCJmYW1pbHlfbmFtZSI6ItCc0LDQutCw0YDQvtCyIiwiZW1haWwiOiJnbWFrYXJvdkBvYm96LmNvbSJ9.Mm9jTH1B-n-awgofxTy7aNJLhu83J4-mG98nhWkrzBq8oGCQbEzAranSO1r_LsgARg8-bqb0ek4AC9Fa_CCwNNEPlCQB1ufOA3CVDNttm1o5I2HuYk1jlcmQBInePxBqQJqkAyeAYVkwn5AT_21Rv0VJRkH9VkXPeDV9vseBp5P_N1bYjoWLRlhPwqjqwSnzpCukduFzTerws5ngf54H1CVVTaBR9FS7w_y3ql5RSeECE-Z3_4-lkSgC7WjzPxEUfxz-1I1f7fqQn9NZKW4FdFOdVUoUW-tOqVYWfJ_erDWcRvt0VXw-1iKX_r7g50-ACV0VYFscPzEziSKihtw8sA");
+        HttpEntity request = new HttpEntity(headers);
+        response = new RestTemplate().exchange(url, HttpMethod.POST, request, Resource.class);
+        if (response.getStatusCode().value() == 200 || response.getStatusCode() == HttpStatus.MOVED_PERMANENTLY) {
+            Error error = new Error();
+            error.setErrorMessage("Trip not found for tripNum: " + tripNum);
+        }
+
+        return null;
+    }
+
 // post bstor https://preprod.oboz.online/api/bstore/pdf/
 //        get response {
 //    "file_uuid": "7c31174d-499b-4424-975e-7852e55fb176",
@@ -367,8 +403,6 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
 //}
 // post oboz
 //
-        return null;
-    }
 
     @Override
     public ResponseEntity<Void> uploadRequestAvanceForCarrier(MultipartFile filename, String trip_num) {
@@ -381,9 +415,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
         Optional<ContractorAdvancePaymentContact> contractorAdvancePaymentContact =
             contractorAdvancePaymentContactRepository.findContractorAdvancePaymentContact(carrierContactDTO.getContractorId());
         if (contractorAdvancePaymentContact.isPresent()) {
-            Error error = new Error();
-            error.setErrorMessage("ContractorAdvancePaymentContact is present");
-            throw new BusinessLogicException(HttpStatus.UNPROCESSABLE_ENTITY, error);
+            getVoidResponseEntity("ContractorAdvancePaymentContact is present");
         }
         final ContractorAdvancePaymentContact entity = new ContractorAdvancePaymentContact();
         entity.setFullName(carrierContactDTO.getFullName());
@@ -474,24 +506,14 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
         return null;
     }
 
-    private void checkDownloadDocuments(Trip trip) {
-        Map<String, String> fileUuidMap = autoAdvancedService.getTripDocuments(trip);
-        String fileUuid = Optional.ofNullable(fileUuidMap.get("request")).orElse(fileUuidMap.get("trip_request"));
-//            TODO включить при добавлении нового загруженного типа документа
-        if (fileUuid == null /*|| fileUuidMap.get("other").isEmpty()*/) {
-            Error error = new Error();
-            error.setErrorMessage("Не загружены документы заявка / договор заявка  ");
-            throw new BusinessLogicException(HttpStatus.UNPROCESSABLE_ENTITY, error);
-        }
-    }
-
-    private Trip getMotorTrip(Long tripId) {
-        return tripRepository.getMotorTrip(tripId).orElseThrow(() -> {
-                Error error = new Error();
-                error.setErrorMessage("trip not found");
-                return new BusinessLogicException(HttpStatus.UNPROCESSABLE_ENTITY, error);
-            }
-        );
+    private Boolean isDownloadAllDocuments(Trip trip) {
+//        TODO должна использоваться только в confirm
+        Map<String, String> fileRequestUuidMap = autoAdvancedService.findTripRequestDocs(trip);
+        Map<String, String> fileAdvanceRequestUuidMap = autoAdvancedService.findAdvanceRequestDocs(trip);
+        String requestFileUuid = Optional.ofNullable(fileRequestUuidMap.get("request")).orElse(fileRequestUuidMap.get("trip_request"));
+        String advanceRequestFileUuid = fileAdvanceRequestUuidMap.get("assignment_advance_request");
+//         log.info("Не загружены документы заявка / договор заявка  ");
+        return requestFileUuid != null && advanceRequestFileUuid.isEmpty();
     }
 
     private TripRequestAdvancePayment getRequestAdvancePaymentByTrip(Long id) {
@@ -503,6 +525,16 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
                 }
             );
     }
+
+    private Trip getMotorTrip(Long tripId) {
+        return tripRepository.getMotorTrip(tripId).orElseThrow(() -> {
+                Error error = new Error();
+                error.setErrorMessage("trip not found");
+                return new BusinessLogicException(HttpStatus.UNPROCESSABLE_ENTITY, error);
+            }
+        );
+    }
+
 
     private TripRequestAdvancePayment getTripRequestAdvancePayment(Long tripId,
                                                                    Contractor contractor,

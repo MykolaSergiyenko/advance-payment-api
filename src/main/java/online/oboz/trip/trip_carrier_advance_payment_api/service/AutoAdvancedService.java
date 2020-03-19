@@ -51,7 +51,7 @@ public class AutoAdvancedService {
         this.objectMapper = objectMapper;
     }
 
-    //    @Scheduled(cron = "${cron.expression:0 /1 * * * *}")
+//        @Scheduled(cron = "${cron.expression:0 /1 * * * *}")
 //    @Scheduled(fixedDelayString = "10000")
     void createTripRequestAdvancePayment() {
         tripRepository.getAutoApprovedTrips().forEach(trip -> {
@@ -86,7 +86,7 @@ public class AutoAdvancedService {
         tripRequestAdvancePayments.forEach(tripRequestAdvancePayment -> {
                 final Long tripId = tripRequestAdvancePayment.getTripId();
                 Trip trip = tripRepository.findById(tripId).get();
-                Map<String, String> fileUuidMap = getTripDocuments(trip);
+            Map<String, String> fileUuidMap = findTripRequestDocs(trip);
                 if (!fileUuidMap.isEmpty()) {
                     String fileUuid = Optional.ofNullable(fileUuidMap.get("request")).orElse(fileUuidMap.get("trip_request"));
                     if (fileUuid != null) {
@@ -119,7 +119,7 @@ public class AutoAdvancedService {
         contractorRepository.saveAll(contractors);
     }
 
-    public Map<String, String> getTripDocuments(Trip trip) {
+    public Map<String, String> findTripRequestDocs(Trip trip) {
         Map<String, String> fileUuidMap = new HashMap<>();
         try {
             //        TODO убрать комментарий  /*trip.getOrderId(), trip.getId()),*/
@@ -132,7 +132,25 @@ public class AutoAdvancedService {
                 }
             });
         } catch (IOException e) {
-            log.error("can't parse responce", e);
+            log.error("can't parse response", e);
+        }
+        return fileUuidMap;
+    }
+
+    public Map<String, String> findAdvanceRequestDocs(Trip trip) {
+        Map<String, String> fileUuidMap = new HashMap<>();
+        try {
+            //        TODO убрать комментарий  /*trip.getOrderId(), trip.getId()),*/
+            TripDocuments tripDocuments = objectMapper.readValue(getDocumentWithUuidFiles(148909l, 174735l),/*trip.getOrderId(), trip.getId()),*/ TripDocuments.class);
+            tripDocuments.getTripDocuments().forEach(doc -> {
+                final String fileId = doc.getFileId();
+                if (fileId != null && "assignment_advance_request".equals(doc.documentTypeCode)) {
+                    fileUuidMap.put(doc.documentTypeCode, fileId);
+                    log.info(doc.getFileId());
+                }
+            });
+        } catch (IOException e) {
+            log.error("can't parse response", e);
         }
         return fileUuidMap;
     }

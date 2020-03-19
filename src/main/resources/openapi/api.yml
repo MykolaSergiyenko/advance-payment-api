@@ -672,9 +672,9 @@ components:
                     description: "Фамилия Имя Отчество"
                 phone_number:
                     type: string
-                    pattern: "^[0-9]*$"
+#                    pattern: "^+),-,0-9*$"
                     minLength: 8
-                    maxLength: 10
+                    maxLength: 19
                     example: "9851112233"
                     description: "Номер телефона"
                 email:
@@ -742,6 +742,9 @@ components:
                 isButtonActive:
                     type: boolean
                     description: "Доступность выдачи аванса"
+                isContractorLock:
+                    type: boolean
+                    description: "Признак блокировки контрагента "
                 tripTypeCode:
                     type: string
                     description: "Тип заказа нужен фронту для отображения кнопки (пока фронт должен отображать только авто (FTL))"

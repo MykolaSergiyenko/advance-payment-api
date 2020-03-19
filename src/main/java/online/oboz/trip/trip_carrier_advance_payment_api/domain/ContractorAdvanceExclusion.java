@@ -19,6 +19,8 @@ public class ContractorAdvanceExclusion {
     private String carrierFullName;
     private Boolean isConfirmAdvance;
     private Boolean isAutomationAdvancePayment;
+    private OffsetDateTime deletedAt;
+
     @NotNull
     @Column(name = "created_at", nullable = false)
     private OffsetDateTime createdAt;
