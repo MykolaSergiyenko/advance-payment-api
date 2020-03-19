@@ -180,11 +180,25 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
         TripRequestAdvancePayment tripRequestAdvancePayment = tripRequestAdvancePaymentRepository
             .findRequestAdvancePayment(tripId, trip.getDriverId(), trip.getContractorId());
         IsAdvancedRequestResponse isAdvancedRequestResponse = new IsAdvancedRequestResponse();
+
+        setButtonAccessGetAdvance(trip, contractor, tripRequestAdvancePayment, isAdvancedRequestResponse);
+
+        ContractorAdvanceExclusion contractorAdvanceExclusion = contractorAdvanceExclusionRepository
+            .findByContractorId(trip.getContractorId()).orElse(new ContractorAdvanceExclusion());
+        if (!contractorAdvanceExclusion.getIsConfirmAdvance() &&
+            contractorAdvanceExclusion.getDeletedAt() != null) {
+            isAdvancedRequestResponse.setIsContractorLock(true);
+        }
         if (tripRequestAdvancePayment == null) {
             isAdvancedRequestResponse.setIsAdvanssed(false);
 
             log.info("isAdvancedRequestResponse not found for tripId: {} , DriverId: {} , ContractorId {}", tripId, trip.getDriverId(), trip.getContractorId());
             return new ResponseEntity<>(isAdvancedRequestResponse, HttpStatus.OK);
+        }
+        final Boolean isAutomationRequest = tripRequestAdvancePayment.getIsAutomationRequest();
+        if (isAutomationRequest) {
+            isAdvancedRequestResponse.setIsAutoRequested(true);
+            isAdvancedRequestResponse.setComment(COMMENT);
         }
         final Long authorId = tripRequestAdvancePayment.getAuthorId();
         if (authorId != null) {
@@ -194,20 +208,12 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
             isAdvancedRequestResponse.setMiddleName(author.getMiddleName());
             isAdvancedRequestResponse.setAuthorId(authorId);
         }
-        ContractorAdvanceExclusion contractorAdvanceExclusion = contractorAdvanceExclusionRepository
-            .findByContractorId(trip.getContractorId()).orElse(new ContractorAdvanceExclusion());
-        setButtonAccessGetAdvance(trip, contractor, tripRequestAdvancePayment, isAdvancedRequestResponse);
-        final Boolean isAutomationRequest = tripRequestAdvancePayment.getIsAutomationRequest();
-        if (isAutomationRequest) {
-            isAdvancedRequestResponse.setComment(COMMENT);
-        }
+
+
         isAdvancedRequestResponse.setIsAdvanssed(tripRequestAdvancePayment.getIsUnfSend());
         isAdvancedRequestResponse.setTripTypeCode(tripRequestAdvancePayment.getTripTypeCode());
         isAdvancedRequestResponse.setCreatedAt(tripRequestAdvancePayment.getCreatedAt());
-        isAdvancedRequestResponse.setIsAutoRequested(isAutomationRequest);
-        if (!contractorAdvanceExclusion.getIsConfirmAdvance() && contractorAdvanceExclusion.getDeletedAt() != null) {
-            isAdvancedRequestResponse.setIsContractorLock(true);
-        }
+
         return new ResponseEntity<>(isAdvancedRequestResponse, HttpStatus.OK);
     }
 
@@ -463,14 +469,10 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
 
     @Override
     public ResponseEntity<CarrierContactDTO> getContactCarrier(Long contractorId) {
+        CarrierContactDTO carrierContactDTO;
         ContractorAdvancePaymentContact contact = contractorAdvancePaymentContactRepository.findContractorAdvancePaymentContact(contractorId)
-            .orElseThrow(() -> {
-                    Error error = new Error();
-                    error.setErrorMessage("carrierContact not found");
-                    return new BusinessLogicException(HttpStatus.UNPROCESSABLE_ENTITY, error);
-                }
-            );
-        CarrierContactDTO carrierContactDTO = getCarrierContactDTO(contact);
+            .orElseGet(ContractorAdvancePaymentContact::new);
+        carrierContactDTO = getCarrierContactDTO(contact);
         return new ResponseEntity<>(carrierContactDTO, HttpStatus.OK);
     }
 
