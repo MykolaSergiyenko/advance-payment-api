@@ -1,5 +1,7 @@
 package online.oboz.trip.trip_carrier_advance_payment_api.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import online.oboz.trip.trip_carrier_advance_payment_api.config.ApplicationProperties;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.*;
@@ -15,10 +17,13 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
+import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
@@ -42,6 +47,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
     private final PersonRepository personRepository;
     private final RestTemplate restTemplate;
     private final ApplicationProperties applicationProperties;
+    private final ObjectMapper objectMapper;
 
 
     @Autowired
@@ -55,7 +61,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
                                       NotificationService notificationService,
                                       PersonRepository personRepository,
                                       RestTemplate restTemplate,
-                                      ApplicationProperties applicationProperties) {
+                                      ApplicationProperties applicationProperties, ObjectMapper objectMapper) {
         this.advancePaymentCostRepository = advancePaymentCostRepository;
         this.tripRequestAdvancePaymentRepository = tripRequestAdvancePaymentRepository;
         this.contractorAdvancePaymentContactRepository = contractorAdvancePaymentContactRepository;
@@ -67,30 +73,9 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
         this.personRepository = personRepository;
         this.restTemplate = restTemplate;
         this.applicationProperties = applicationProperties;
+        this.objectMapper = objectMapper;
     }
 
-    //   c filter c pagable   select from orders.trip_request_advance_payment
-    // При попадании заявки на авансирование на рабочий стол должны заполняться
-    // поля «Сумма аванса с НДС» и «Сбор за оформление документов» автоматически.
-//    • Номер заказа поставщика – номер заказа поставщика из ОБОЗа
-//    • Дата заявки - дата попадания данных в рабочий стол по авансированию (возможно присваивание «выдан аванс» в БД)
-//    • Исполнитель - Наименование перевозчика
-//    • Контактные данные исполнителя – Имя и телефон из карточки контрагента из «контактов для авансирования» (раздел 7)
-//    • От кого везем - Юр. лицо для взаиморасчетов
-//    • Время нажатия кнопки в ОБОЗ "Выдать аванс" – время нажатия кнопки в ОБОЗе или перевозчиком
-//    • Стоимость перевозки с НДС
-//    • Сумма аванса с НДС
-//    • Сбор за оформление документов
-//    • Аннулировать аванс – кнопка, при нажатии которой статус строки становится «аннулирован»
-//    • Комментарий к аннулированию аванса – текстовое поле без ограничения по знакам
-//    • Загрузился водитель – признак загрузки водителя (поле со значением да/нет)
-//    • Загрузили документы – от поставщика поступил скан документа «Заявка на аванс»
-//    • В 1С – заявка отправлена в УНФ
-//    • Загружен в бухгалтерию -
-//    • Оплачен – признак оплаты из УНФ
-//    • Дата оплаты – дата оплаты из УНФ
-//    • Комментарий – текстовое поле без ограничения по знакам
-//    • Отозванная заявка – заявка, которую отозвали по ряду причин (смотреть раздел 9)
     @Override
     public ResponseEntity<ResponseAdvancePayment> searchAdvancePaymentRequest(Filter filter) {
 //TODO:
@@ -105,36 +90,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
                     Contractor contractor = contractorRepository.findById(reс.getContractorId()).orElse(new Contractor());
                     String contractorPaymentName = contractorRepository.getContractor(reс.getPaymentContractorId());
                     Trip trip = tripRepository.findById(reс.getTripId()).orElse(new Trip());
-                    frontAdvancePaymentResponse
-                        .id(reс.getId())
-                        .tripId(reс.getTripId())
-                        .tripNum(trip.getNum())
-                        .tripTypeCode(reс.getTripTypeCode())
-                        .createdAt(trip.getCreatedAt())
-                        .reqCreatedAt(reс.getCreatedAt())
-                        .contractorId(reс.getContractorId())
-                        .contractorName(contractor.getFullName())
-                        .contactFio(contractorAdvancePaymentContact.getFullName())
-                        .contactPhone(contractorAdvancePaymentContact.getPhone())
-                        .contactEmail(contractorAdvancePaymentContact.getEmail())
-                        .paymentContractor(contractorPaymentName)
-                        .isAutomationRequest(reс.getIsAutomationRequest())
-                        .tripCostWithVat(reс.getTripCost())
-                        .advancePaymentSum(reс.getAdvancePaymentSum())
-                        .registrationFee(reс.getRegistrationFee())
-                        //проставляется вручную сотрудниками авансирования
-                        .loadingComplete(reс.getLoadingComplete())
-                        .urlContractApplication(reс.getUuidContractApplicationFile())
-                        .urlAdvanceApplication(reс.getUuidAdvanceApplicationFile())
-                        .is1CSendAllowed(reс.getIs1CSendAllowed())
-                        .isUnfSend(reс.getIsUnfSend())
-                        .isPaid(reс.getIsPaid())
-                        .paidAt(reс.getPaidAt())
-                        .comment(reс.getComment())
-                        .cancelAdvance(reс.getCancelAdvance())
-                        .cancelAdvanceComment(reс.getCancelAdvanceComment())
-                        .authorId(reс.getAuthorId())
-                        .setPageCarrierUrlIsAccess(reс.getPageCarrierUrlIsAccess());
+                    AdvancePaymentDelegateImpl.this.getFrontAdvancePaymentResponse(reс, frontAdvancePaymentResponse, contractorAdvancePaymentContact, contractor, contractorPaymentName, trip);
                     return frontAdvancePaymentResponse;
                 })
                 .collect(Collectors.toList());
@@ -142,6 +98,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
         responseAdvancePayment.setRequestAdvancePayment(responseList);
         return new ResponseEntity<>(responseAdvancePayment, HttpStatus.OK);
     }
+
 
     @Override
     @Transactional
@@ -185,7 +142,8 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
 
         ContractorAdvanceExclusion contractorAdvanceExclusion = contractorAdvanceExclusionRepository
             .findByContractorId(trip.getContractorId()).orElse(new ContractorAdvanceExclusion());
-        if (!contractorAdvanceExclusion.getIsConfirmAdvance() &&
+        if (contractorAdvanceExclusion.getIsConfirmAdvance() != null &&
+            !contractorAdvanceExclusion.getIsConfirmAdvance() &&
             contractorAdvanceExclusion.getDeletedAt() != null) {
             isAdvancedRequestResponse.setIsContractorLock(true);
         }
@@ -216,71 +174,6 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
 
         return new ResponseEntity<>(isAdvancedRequestResponse, HttpStatus.OK);
     }
-
-    private void setButtonAccessGetAdvance(Trip trip,
-                                           Contractor contractor,
-                                           TripRequestAdvancePayment tripRequestAdvancePayment,
-                                           IsAdvancedRequestResponse isAdvancedRequestResponse) {
-        final Boolean isAutoAdvancePayment = contractor.getIsAutoAdvancePayment();
-        Map<String, String> downloadedDocuments = autoAdvancedService.findTripRequestDocs(trip);
-        if (tripRequestAdvancePayment == null &&
-            !isAutoAdvancePayment &&
-            !downloadedDocuments.isEmpty()
-        ) {
-            isAdvancedRequestResponse.setIsButtonActive(true);
-        } else if (tripRequestAdvancePayment != null && (
-            tripRequestAdvancePayment.getCancelAdvance() ||
-                isAutoAdvancePayment ||
-                tripRequestAdvancePayment.getIsUnfSend() ||
-                !trip.getDriverId().equals(tripRequestAdvancePayment.getDriverId()))) {
-            isAdvancedRequestResponse.setIsButtonActive(false);
-        }
-    }
-//    При нажатии на кнопку происходит следующий функционал:   создать таблицу запросов на авансирование orders.trip_request_advance_payment
-//    сделать entity сгенерить таблицу в бд
-//        создать репозиторий , заполнить ентити по списку ниже , вызвать save
-//    insert
-//        • На рабочем столе «Авансирования» появляется строка с данными из «Заказа поставщика», алгоритм заполнения полей авансирования следующий:
-//        ◦ Номер заказа поставщика – берется номер «Заказа поставщика», например 176438-1
-//        ◦ Дата заявки – дата создания «Заказа поставщика» в ОБОЗ
-//        ◦ Исполнитель – название назначенного «Поставщика» в «Заказе поставщика» - contractor_id
-//        ◦ Контактные данные исполнителя – ФИО и телефон из карточки «Поставщика» из полей «Контакты для авансирования»  - новая таблица - contractor_advance_contact
-//        ◦ От кого везем – Юр. лицо для взаиморасчетов из ОБОЗа   -   наверное с трипа
-//        ◦ Время нажатия кнопки в ОБОЗ "Выдать аванс" – время нажатия пользователем кнопки «Выдать аванс» в ОБОЗе - используем now() - UTC
-//        ◦ Стоимость перевозки с НДС – Стоимость для поставщика с НДС - cost from trip with add NDS
-//        ◦ Сумма аванса с НДС – рассчитывается по алгоритму - Заводим таблицу в бд ид ,min , max,аванс,сбор + запрос на получение аванс, сбор по "Стоимость для поставщика с НДС"
-//        ◦ Сбор за оформление документов – рассчитывается по алгоритму (описан выше)
-//        ◦ Загрузился водитель – изменяемое поле (да/нет) вручную пользователем - условие для запроса, что у трипа назначен водитель
-
-//        ◦ Загрузили доки – в систему загружены 2 документа
-//        (Заявка или Договор-заявка из «Заказа поставщика» и «Заявка на авансирование»
-//        загруженная перевозчиком (на 1 этапе сделал бы возможность загружать их вручную при нажатии на данную ячейку) - проверка что к трипу есть два дока
-
-//        ◦ В 1С – кнопка, становится активной, когда загружены документы («Заявка» или «Договор-заявка» и «Заявка на авансирование» это в другой функции
-//        ◦ Загружен в бухгалтерию – заявка загружена в УНФ это в другой функции
-//        ◦ Оплачен – заявка оплачена в бухгалтерии это в другой функции
-//        ◦ Дата оплаты – дата оплаты в бухгалтерии это в другой функции
-//        ◦ Комментарий – текстовое поле без ограничений по знакам это в другой функции
-//        ◦ Аннулировать аванс – кнопка, которая проставляет признак «аннулирован», при нажатии на кнопку появляется признак, т.е. есть 2 варианта или кнопка или признак   это в другой функции
-//                                                                             ◦ Комментарий к аннулированию аванса – текстовое поле без ограничений по знакам       это в другой функции
-//                                                                             ◦ Отозванная заявка – признак «да/нет»  это в другой функции
-
-//  как отправить СМС? время не известно предлагаю не отправлять перевозчикам из черного списка
-//  как отправить email ? время 1день предлагаю не отправлять перевозчикам из черного списка
-    //
-
-//        • Поставщику уходит на почту и смс на телефон описание в разделе 6.
-//
-//Данную кнопку можно нажать 1 раз. - проверить что нет записи по уникальным полям в таблице orders.trip_request_advance_payment  возвращаем ошибку
-// При нажатии на копку записывается дата и время нажатия + ФИО кто нажал.  -   записываем person_id в orders.trip_request_advance_payment.
-//
-// При наведении на кнопку всплывает диалоговое окно с информацией (дата, время, ФИО). это в другой функции
-//Если запрос на аванс ушел автоматически – кнопка будет серая, при наведении на нее всплывает диалоговое окно с текстом «Данному поставщику отправлен запрос на аванс в автоматическом режиме + дата и время отправки запроса»  это в другой функции
-//После смены перевозчика в «Заказе поставщика» кнопка становится снова активной (статус с «Назначен» поменялся на следующие: «Подтвержден перевозчиком», «Ожидание подтверждения водителем», «Отказ перевозчика»)  это в другой функции
-//Исключением является назначение перевозчика и поставщика, которому уже выдали аванс, т. е. у одного заказа не могут быть несколько заявок на аванс с одним и тем же перевозчиком и водителем.
-//
-//Если контрагент в списке исключений, т. е. в АРМА в столбике «Выдавать аванс» стоит «нет» (раздел 8), кнопка не активна, при наведении всплывает рядом с кнопкой окно с текстом «Данный контрагент находится в списке исключений для авансирования».
-//Кнопка «Выдать аванс» недоступна, пока не подгружен любой из документов: «Заявка» или «Договор-заявка» в «Заказе поставщика». Данное исключение нужно сделать с возможностью отключения в АРМА, описание в пункте 8.
 
     @Override
     public ResponseEntity<Void> requestGiveAdvancePayment(Long tripId) {
@@ -324,12 +217,6 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
         tripRequestAdvancePaymentRepository.save(tripRequestAdvancePayment);
         return new ResponseEntity<>(HttpStatus.OK);
 
-    }
-
-    private ResponseEntity<Void> getVoidResponseEntity(String s) {
-        Error error = new Error();
-        error.setErrorMessage(s);
-        throw new BusinessLogicException(HttpStatus.UNPROCESSABLE_ENTITY, error);
     }
 
     @Override
@@ -386,19 +273,30 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
     }
 
     @Override
-    public ResponseEntity<Void> uploadRequestAvance(MultipartFile filename, String tripNum) {
-        String url = applicationProperties.getBStoreUrl();
-        ResponseEntity<Resource> response;
+    public ResponseEntity<Void> uploadRequestAdvance(MultipartFile filename, String tripNum) {
+        String url = "https://preprod.oboz.online/api/bstore/pdf/";// applicationProperties.getBStoreUrl();
+//        ResponseEntity<Resource> response;
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJtZWwxMDZWemFlZGpmU3ctUVRtblVLa3ZuQUlfdXB3TGdRZHY4Vm85SEk4In0.eyJqdGkiOiJmMGY4OTBmMi03OTZiLTQwMDEtYjg2Yi0zY2YzMGM1NTRhYWQiLCJleHAiOjE2MTU0NTkzNjgsIm5iZiI6MCwiaWF0IjoxNTgzOTIzMzY4LCJpc3MiOiJodHRwczovL3ByZXByb2Qub2Jvei5vbmxpbmUvYXV0aC9yZWFsbXMvbWFzdGVyIiwiYXVkIjoiZWxwIiwic3ViIjoiZjpmY2MwMzM2Yy1lNmYyLTRlZTctYjllYi1jMjU2NDY3M2IwMzY6NDI2MjciLCJ0eXAiOiJCZWFyZXIiLCJhenAiOiJlbHAiLCJhdXRoX3RpbWUiOjAsInNlc3Npb25fc3RhdGUiOiI3ZTY1NGMzYi04OTMwLTQwMDctOGQ2Zi01N2JlYzQyNzU1OTAiLCJhY3IiOiIxIiwiY2xpZW50X3Nlc3Npb24iOiJhYTRlZjg4ZC02MjYxLTRkZTItYWQ2MS1mNDQ4OTg3MWJjOGMiLCJhbGxvd2VkLW9yaWdpbnMiOlsiKiJdLCJyZWFsbV9hY2Nlc3MiOnsicm9sZXMiOlsiY3JlYXRlLXJlYWxtIiwiY2FycmllciIsImVscC1hZG1pbiIsInNlbmRlciIsImFkbWluIiwidW1hX2F1dGhvcml6YXRpb24iLCJkaXNwYXRjaGVyIl19LCJyZXNvdXJjZV9hY2Nlc3MiOnsiZHJpdmVyLWFwcC1yZWFsbSI6eyJyb2xlcyI6WyJ2aWV3LWlkZW50aXR5LXByb3ZpZGVycyIsInZpZXctcmVhbG0iLCJtYW5hZ2UtaWRlbnRpdHktcHJvdmlkZXJzIiwiaW1wZXJzb25hdGlvbiIsImNyZWF0ZS1jbGllbnQiLCJtYW5hZ2UtdXNlcnMiLCJ2aWV3LWF1dGhvcml6YXRpb24iLCJtYW5hZ2UtZXZlbnRzIiwibWFuYWdlLXJlYWxtIiwidmlldy1ldmVudHMiLCJ2aWV3LXVzZXJzIiwidmlldy1jbGllbnRzIiwibWFuYWdlLWF1dGhvcml6YXRpb24iLCJtYW5hZ2UtY2xpZW50cyJdfSwiZHJpdmVyLWFwcC1yZWdpc3RyYXRpb24tcmVhbG0iOnsicm9sZXMiOlsidmlldy1yZWFsbSIsInZpZXctaWRlbnRpdHktcHJvdmlkZXJzIiwibWFuYWdlLWlkZW50aXR5LXByb3ZpZGVycyIsImltcGVyc29uYXRpb24iLCJjcmVhdGUtY2xpZW50IiwibWFuYWdlLXVzZXJzIiwidmlldy1hdXRob3JpemF0aW9uIiwibWFuYWdlLWV2ZW50cyIsIm1hbmFnZS1yZWFsbSIsInZpZXctZXZlbnRzIiwidmlldy11c2VycyIsInZpZXctY2xpZW50cyIsIm1hbmFnZS1hdXRob3JpemF0aW9uIiwibWFuYWdlLWNsaWVudHMiXX0sImRtcy1yZWFsbSI6eyJyb2xlcyI6WyJ2aWV3LWlkZW50aXR5LXByb3ZpZGVycyIsInZpZXctcmVhbG0iLCJtYW5hZ2UtaWRlbnRpdHktcHJvdmlkZXJzIiwiaW1wZXJzb25hdGlvbiIsImNyZWF0ZS1jbGllbnQiLCJtYW5hZ2UtdXNlcnMiLCJ2aWV3LWF1dGhvcml6YXRpb24iLCJtYW5hZ2UtZXZlbnRzIiwibWFuYWdlLXJlYWxtIiwidmlldy1ldmVudHMiLCJ2aWV3LXVzZXJzIiwidmlldy1jbGllbnRzIiwibWFuYWdlLWF1dGhvcml6YXRpb24iLCJtYW5hZ2UtY2xpZW50cyJdfSwicHVibGljLXJlYWxtIjp7InJvbGVzIjpbInZpZXctcmVhbG0iLCJ2aWV3LWlkZW50aXR5LXByb3ZpZGVycyIsIm1hbmFnZS1pZGVudGl0eS1wcm92aWRlcnMiLCJpbXBlcnNvbmF0aW9uIiwiY3JlYXRlLWNsaWVudCIsIm1hbmFnZS11c2VycyIsInZpZXctYXV0aG9yaXphdGlvbiIsIm1hbmFnZS1ldmVudHMiLCJtYW5hZ2UtcmVhbG0iLCJ2aWV3LWV2ZW50cyIsInZpZXctdXNlcnMiLCJ2aWV3LWNsaWVudHMiLCJtYW5hZ2UtYXV0aG9yaXphdGlvbiIsIm1hbmFnZS1jbGllbnRzIl19LCJtYXN0ZXItcmVhbG0iOnsicm9sZXMiOlsidmlldy1yZWFsbSIsInZpZXctaWRlbnRpdHktcHJvdmlkZXJzIiwibWFuYWdlLWlkZW50aXR5LXByb3ZpZGVycyIsImltcGVyc29uYXRpb24iLCJjcmVhdGUtY2xpZW50IiwibWFuYWdlLXVzZXJzIiwidmlldy1hdXRob3JpemF0aW9uIiwibWFuYWdlLWV2ZW50cyIsIm1hbmFnZS1yZWFsbSIsInZpZXctZXZlbnRzIiwidmlldy11c2VycyIsInZpZXctY2xpZW50cyIsIm1hbmFnZS1hdXRob3JpemF0aW9uIiwibWFuYWdlLWNsaWVudHMiXX0sImFjY291bnQiOnsicm9sZXMiOlsibWFuYWdlLWFjY291bnQiLCJtYW5hZ2UtYWNjb3VudC1saW5rcyIsInZpZXctcHJvZmlsZSJdfX0sImNvbnRyYWN0b3IiOnsiaWQiOiI2MDkifSwicGVyc29uIjp7ImlkIjoiNDI2MjcifSwibmFtZSI6ItCT0LXQvdC90LDQtNC40Lkg0JzQsNC60LDRgNC-0LIiLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiIwMDAwMDAxMDA1IiwiZ2l2ZW5fbmFtZSI6ItCT0LXQvdC90LDQtNC40LkiLCJmYW1pbHlfbmFtZSI6ItCc0LDQutCw0YDQvtCyIiwiZW1haWwiOiJnbWFrYXJvdkBvYm96LmNvbSJ9.Mm9jTH1B-n-awgofxTy7aNJLhu83J4-mG98nhWkrzBq8oGCQbEzAranSO1r_LsgARg8-bqb0ek4AC9Fa_CCwNNEPlCQB1ufOA3CVDNttm1o5I2HuYk1jlcmQBInePxBqQJqkAyeAYVkwn5AT_21Rv0VJRkH9VkXPeDV9vseBp5P_N1bYjoWLRlhPwqjqwSnzpCukduFzTerws5ngf54H1CVVTaBR9FS7w_y3ql5RSeECE-Z3_4-lkSgC7WjzPxEUfxz-1I1f7fqQn9NZKW4FdFOdVUoUW-tOqVYWfJ_erDWcRvt0VXw-1iKX_r7g50-ACV0VYFscPzEziSKihtw8sA");
-        HttpEntity request = new HttpEntity(headers);
-        response = new RestTemplate().exchange(url, HttpMethod.POST, request, Resource.class);
-        if (response.getStatusCode().value() == 200 || response.getStatusCode() == HttpStatus.MOVED_PERMANENTLY) {
-            Error error = new Error();
-            error.setErrorMessage("Trip not found for tripNum: " + tripNum);
+        headers.add("Content-Type", "multipart/form-data;");
+        final String bearer = "Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJtZWwxMDZWemFlZGpmU3ctUVRtblVLa3ZuQUlfdXB3TGdRZHY4Vm85SEk4In0.eyJqdGkiOiJmMGY4OTBmMi03OTZiLTQwMDEtYjg2Yi0zY2YzMGM1NTRhYWQiLCJleHAiOjE2MTU0NTkzNjgsIm5iZiI6MCwiaWF0IjoxNTgzOTIzMzY4LCJpc3MiOiJodHRwczovL3ByZXByb2Qub2Jvei5vbmxpbmUvYXV0aC9yZWFsbXMvbWFzdGVyIiwiYXVkIjoiZWxwIiwic3ViIjoiZjpmY2MwMzM2Yy1lNmYyLTRlZTctYjllYi1jMjU2NDY3M2IwMzY6NDI2MjciLCJ0eXAiOiJCZWFyZXIiLCJhenAiOiJlbHAiLCJhdXRoX3RpbWUiOjAsInNlc3Npb25fc3RhdGUiOiI3ZTY1NGMzYi04OTMwLTQwMDctOGQ2Zi01N2JlYzQyNzU1OTAiLCJhY3IiOiIxIiwiY2xpZW50X3Nlc3Npb24iOiJhYTRlZjg4ZC02MjYxLTRkZTItYWQ2MS1mNDQ4OTg3MWJjOGMiLCJhbGxvd2VkLW9yaWdpbnMiOlsiKiJdLCJyZWFsbV9hY2Nlc3MiOnsicm9sZXMiOlsiY3JlYXRlLXJlYWxtIiwiY2FycmllciIsImVscC1hZG1pbiIsInNlbmRlciIsImFkbWluIiwidW1hX2F1dGhvcml6YXRpb24iLCJkaXNwYXRjaGVyIl19LCJyZXNvdXJjZV9hY2Nlc3MiOnsiZHJpdmVyLWFwcC1yZWFsbSI6eyJyb2xlcyI6WyJ2aWV3LWlkZW50aXR5LXByb3ZpZGVycyIsInZpZXctcmVhbG0iLCJtYW5hZ2UtaWRlbnRpdHktcHJvdmlkZXJzIiwiaW1wZXJzb25hdGlvbiIsImNyZWF0ZS1jbGllbnQiLCJtYW5hZ2UtdXNlcnMiLCJ2aWV3LWF1dGhvcml6YXRpb24iLCJtYW5hZ2UtZXZlbnRzIiwibWFuYWdlLXJlYWxtIiwidmlldy1ldmVudHMiLCJ2aWV3LXVzZXJzIiwidmlldy1jbGllbnRzIiwibWFuYWdlLWF1dGhvcml6YXRpb24iLCJtYW5hZ2UtY2xpZW50cyJdfSwiZHJpdmVyLWFwcC1yZWdpc3RyYXRpb24tcmVhbG0iOnsicm9sZXMiOlsidmlldy1yZWFsbSIsInZpZXctaWRlbnRpdHktcHJvdmlkZXJzIiwibWFuYWdlLWlkZW50aXR5LXByb3ZpZGVycyIsImltcGVyc29uYXRpb24iLCJjcmVhdGUtY2xpZW50IiwibWFuYWdlLXVzZXJzIiwidmlldy1hdXRob3JpemF0aW9uIiwibWFuYWdlLWV2ZW50cyIsIm1hbmFnZS1yZWFsbSIsInZpZXctZXZlbnRzIiwidmlldy11c2VycyIsInZpZXctY2xpZW50cyIsIm1hbmFnZS1hdXRob3JpemF0aW9uIiwibWFuYWdlLWNsaWVudHMiXX0sImRtcy1yZWFsbSI6eyJyb2xlcyI6WyJ2aWV3LWlkZW50aXR5LXByb3ZpZGVycyIsInZpZXctcmVhbG0iLCJtYW5hZ2UtaWRlbnRpdHktcHJvdmlkZXJzIiwiaW1wZXJzb25hdGlvbiIsImNyZWF0ZS1jbGllbnQiLCJtYW5hZ2UtdXNlcnMiLCJ2aWV3LWF1dGhvcml6YXRpb24iLCJtYW5hZ2UtZXZlbnRzIiwibWFuYWdlLXJlYWxtIiwidmlldy1ldmVudHMiLCJ2aWV3LXVzZXJzIiwidmlldy1jbGllbnRzIiwibWFuYWdlLWF1dGhvcml6YXRpb24iLCJtYW5hZ2UtY2xpZW50cyJdfSwicHVibGljLXJlYWxtIjp7InJvbGVzIjpbInZpZXctcmVhbG0iLCJ2aWV3LWlkZW50aXR5LXByb3ZpZGVycyIsIm1hbmFnZS1pZGVudGl0eS1wcm92aWRlcnMiLCJpbXBlcnNvbmF0aW9uIiwiY3JlYXRlLWNsaWVudCIsIm1hbmFnZS11c2VycyIsInZpZXctYXV0aG9yaXphdGlvbiIsIm1hbmFnZS1ldmVudHMiLCJtYW5hZ2UtcmVhbG0iLCJ2aWV3LWV2ZW50cyIsInZpZXctdXNlcnMiLCJ2aWV3LWNsaWVudHMiLCJtYW5hZ2UtYXV0aG9yaXphdGlvbiIsIm1hbmFnZS1jbGllbnRzIl19LCJtYXN0ZXItcmVhbG0iOnsicm9sZXMiOlsidmlldy1yZWFsbSIsInZpZXctaWRlbnRpdHktcHJvdmlkZXJzIiwibWFuYWdlLWlkZW50aXR5LXByb3ZpZGVycyIsImltcGVyc29uYXRpb24iLCJjcmVhdGUtY2xpZW50IiwibWFuYWdlLXVzZXJzIiwidmlldy1hdXRob3JpemF0aW9uIiwibWFuYWdlLWV2ZW50cyIsIm1hbmFnZS1yZWFsbSIsInZpZXctZXZlbnRzIiwidmlldy11c2VycyIsInZpZXctY2xpZW50cyIsIm1hbmFnZS1hdXRob3JpemF0aW9uIiwibWFuYWdlLWNsaWVudHMiXX0sImFjY291bnQiOnsicm9sZXMiOlsibWFuYWdlLWFjY291bnQiLCJtYW5hZ2UtYWNjb3VudC1saW5rcyIsInZpZXctcHJvZmlsZSJdfX0sImNvbnRyYWN0b3IiOnsiaWQiOiI2MDkifSwicGVyc29uIjp7ImlkIjoiNDI2MjcifSwibmFtZSI6ItCT0LXQvdC90LDQtNC40Lkg0JzQsNC60LDRgNC-0LIiLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiIwMDAwMDAxMDA1IiwiZ2l2ZW5fbmFtZSI6ItCT0LXQvdC90LDQtNC40LkiLCJmYW1pbHlfbmFtZSI6ItCc0LDQutCw0YDQvtCyIiwiZW1haWwiOiJnbWFrYXJvdkBvYm96LmNvbSJ9.Mm9jTH1B-n-awgofxTy7aNJLhu83J4-mG98nhWkrzBq8oGCQbEzAranSO1r_LsgARg8-bqb0ek4AC9Fa_CCwNNEPlCQB1ufOA3CVDNttm1o5I2HuYk1jlcmQBInePxBqQJqkAyeAYVkwn5AT_21Rv0VJRkH9VkXPeDV9vseBp5P_N1bYjoWLRlhPwqjqwSnzpCukduFzTerws5ngf54H1CVVTaBR9FS7w_y3ql5RSeECE-Z3_4-lkSgC7WjzPxEUfxz-1I1f7fqQn9NZKW4FdFOdVUoUW-tOqVYWfJ_erDWcRvt0VXw-1iKX_r7g50-ACV0VYFscPzEziSKihtw8sA";
+        headers.add("Authorization", bearer);
+        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+        body.add("file", filename.getResource());
+        HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<>(body, headers);
+        ResponseEntity<String> response = new RestTemplate().exchange(url, HttpMethod.POST, request, String.class);
+        if (response.getStatusCode().value() == 200) {
+            try {
+                JsonNode jsonNode = objectMapper.readTree(response.getBody());
+                String fileUuid = jsonNode.get("file_uuid").asText();
+                return saveTripDocuments(tripNum, fileUuid, bearer);
+            } catch (IOException e) {
+                log.error("", e);
+            }
         }
-
-        return null;
+        Error error = new Error();
+        log.error("uploadRequestAvance fail. http code {}", response.getStatusCode().value());
+        error.setErrorMessage("uploadRequestAvance fail. http code " + response.getStatusCode().value());
+        throw new BusinessLogicException(HttpStatus.UNPROCESSABLE_ENTITY, error);
     }
 
 // post bstor https://preprod.oboz.online/api/bstore/pdf/
@@ -481,6 +379,12 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
         return null;
     }
 
+    private ResponseEntity<Void> getVoidResponseEntity(String s) {
+        Error error = new Error();
+        error.setErrorMessage(s);
+        throw new BusinessLogicException(HttpStatus.UNPROCESSABLE_ENTITY, error);
+    }
+
     private MessageDto getMessageDto(TripRequestAdvancePayment tripRequestAdvancePayment,
                                      ContractorAdvancePaymentContact contact,
                                      String paymentContractorFullName) {
@@ -495,6 +399,82 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
         return messageDto;
     }
 
+    private void setButtonAccessGetAdvance(Trip trip,
+                                           Contractor contractor,
+                                           TripRequestAdvancePayment tripRequestAdvancePayment,
+                                           IsAdvancedRequestResponse isAdvancedRequestResponse) {
+        final Boolean isAutoAdvancePayment = contractor.getIsAutoAdvancePayment();
+        Map<String, String> downloadedDocuments = autoAdvancedService.findTripRequestDocs(trip);
+        if (tripRequestAdvancePayment == null &&
+            !isAutoAdvancePayment &&
+            !downloadedDocuments.isEmpty()
+        ) {
+            isAdvancedRequestResponse.setIsButtonActive(true);
+        } else if (tripRequestAdvancePayment != null && (
+            tripRequestAdvancePayment.getCancelAdvance() ||
+                isAutoAdvancePayment ||
+                tripRequestAdvancePayment.getIsUnfSend() ||
+                !trip.getDriverId().equals(tripRequestAdvancePayment.getDriverId()))) {
+            isAdvancedRequestResponse.setIsButtonActive(false);
+        }
+    }
+
+    private void getFrontAdvancePaymentResponse(TripRequestAdvancePayment reс, FrontAdvancePaymentResponse frontAdvancePaymentResponse, ContractorAdvancePaymentContact contractorAdvancePaymentContact, Contractor contractor, String contractorPaymentName, Trip trip) {
+        frontAdvancePaymentResponse
+            .id(reс.getId())
+            .tripId(reс.getTripId())
+            .tripNum(trip.getNum())
+            .tripTypeCode(reс.getTripTypeCode())
+            .createdAt(trip.getCreatedAt())
+            .reqCreatedAt(reс.getCreatedAt())
+            .contractorId(reс.getContractorId())
+            .contractorName(contractor.getFullName())
+            .contactFio(contractorAdvancePaymentContact.getFullName())
+            .contactPhone(contractorAdvancePaymentContact.getPhone())
+            .contactEmail(contractorAdvancePaymentContact.getEmail())
+            .paymentContractor(contractorPaymentName)
+            .isAutomationRequest(reс.getIsAutomationRequest())
+            .tripCostWithVat(reс.getTripCost())
+            .advancePaymentSum(reс.getAdvancePaymentSum())
+            .registrationFee(reс.getRegistrationFee())
+            //проставляется вручную сотрудниками авансирования
+            .loadingComplete(reс.getLoadingComplete())
+            .urlContractApplication(reс.getUuidContractApplicationFile())
+            .urlAdvanceApplication(reс.getUuidAdvanceApplicationFile())
+            .is1CSendAllowed(reс.getIs1CSendAllowed())
+            .isUnfSend(reс.getIsUnfSend())
+            .isPaid(reс.getIsPaid())
+            .paidAt(reс.getPaidAt())
+            .comment(reс.getComment())
+            .cancelAdvance(reс.getCancelAdvance())
+            .cancelAdvanceComment(reс.getCancelAdvanceComment())
+            .authorId(reс.getAuthorId())
+            .setPageCarrierUrlIsAccess(reс.getPageCarrierUrlIsAccess());
+    }
+
+    private ResponseEntity<Void> saveTripDocuments(String tripNum, String fileUuid, String bearer) {
+        String url = "https://preprod.oboz.online/api/orders/dispatcher/orders/%d/trips/%d/documents";// applicationProperties.getBaseUrl();
+        Trip trip = tripRepository.getTripByNum(tripNum).orElseThrow(() -> {
+                Error error = new Error();
+                error.setErrorMessage("trip not found");
+                return new BusinessLogicException(HttpStatus.UNPROCESSABLE_ENTITY, error);
+            }
+        );
+        url = String.format(url, trip.getOrderId(), trip.getId());
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.add("Authorization", bearer);
+        final String s = "{\"trip_document\":{\"id\":null,\"file_id\":\"%s\",\"document_type_code\":\"trip_request\",\"name\":\"Договор-заявка\"}}";
+        HttpEntity<String> request = new HttpEntity<>(String.format(s, fileUuid), headers);
+        ResponseEntity<Void> response = new RestTemplate().exchange(url, HttpMethod.POST, request, Void.class);
+        if (response.getStatusCode().value() == 200) {
+            log.info("saveTripDocuments ok");
+        } else {
+            log.error("saveTripDocuments fail. http code {}", response.getStatusCode().value());
+        }
+        return response;
+    }
+
     private ResponseEntity<Resource> getResourceResponseEntity(String url, HttpHeaders headers) {
         try {
             HttpEntity request = new HttpEntity(headers);
@@ -503,13 +483,13 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
                 return response;
             }
         } catch (Exception e) {
-            log.error("Some Exeption", e);
+            log.error("Some Exception", e);
         }
         return null;
     }
 
     private Boolean isDownloadAllDocuments(Trip trip) {
-//        TODO должна использоваться только в confirm
+//        использовать только в confirm
         Map<String, String> fileRequestUuidMap = autoAdvancedService.findTripRequestDocs(trip);
         Map<String, String> fileAdvanceRequestUuidMap = autoAdvancedService.findAdvanceRequestDocs(trip);
         String requestFileUuid = Optional.ofNullable(fileRequestUuidMap.get("request")).orElse(fileRequestUuidMap.get("trip_request"));
@@ -537,7 +517,6 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
         );
     }
 
-
     private TripRequestAdvancePayment getTripRequestAdvancePayment(Long tripId,
                                                                    Contractor contractor,
                                                                    Double tripCostWithNds,
@@ -562,7 +541,6 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
         tripRequestAdvancePayment.setPaymentContractorId(trip.getPaymentContractorId());
         // отключаем доступ в страницу поставщика
         tripRequestAdvancePayment.setPageCarrierUrlIsAccess(false);
-        //TODO: new fields
         tripRequestAdvancePayment.setIsPaid(false);
         tripRequestAdvancePayment.setPaidAt(OffsetDateTime.now());
         tripRequestAdvancePayment.setCancelAdvanceComment("");
@@ -572,7 +550,6 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
     }
 
     Boolean confirmRequestToUnf() {
-
 //        TODO : реализовать вызов метода Паши
         return true;
     }
@@ -598,8 +575,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
     }
 
     private ContractorAdvancePaymentContact getAdvancePaymentContact(Long contractorId) {
-        ContractorAdvancePaymentContact contact = contractorAdvancePaymentContactRepository
+        return contractorAdvancePaymentContactRepository
             .findContractorAdvancePaymentContact(contractorId).orElse(new ContractorAdvancePaymentContact());
-        return contact;
     }
 }

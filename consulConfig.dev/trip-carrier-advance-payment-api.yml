@@ -42,7 +42,7 @@ auto-advance:
     required-download-docs: true
 
 notification:
-    sms-enable: true
+    sms-enable: false
     email-enable: true
 
 services:

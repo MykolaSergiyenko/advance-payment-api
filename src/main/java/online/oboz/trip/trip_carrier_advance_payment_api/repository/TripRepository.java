@@ -52,6 +52,6 @@ public interface TripRepository extends JpaRepository<Trip, Long> {
     @Query("select t from Trip t where t.tripTypeCode = 'motor' and t.tripStatusCode = 'assigned' and t.id = :tripId ")
     Optional<Trip> getMotorTrip(@Param("tripId") Long tripId);
 
-    @Query("select t from Trip t where t.num =: num ")
+    @Query("select t from Trip t where t.num = :num")
     Optional<Trip> getTripByNum(@Param("num") String num);
 }

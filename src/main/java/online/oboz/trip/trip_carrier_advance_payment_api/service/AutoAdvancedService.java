@@ -88,18 +88,16 @@ public class AutoAdvancedService {
                 Trip trip = tripRepository.findById(tripId).get();
             Map<String, String> fileUuidMap = findTripRequestDocs(trip);
                 if (!fileUuidMap.isEmpty()) {
-                    String fileUuid = Optional.ofNullable(fileUuidMap.get("request")).orElse(fileUuidMap.get("trip_request"));
-                    if (fileUuid != null) {
+                    String fileContractRequestUuid = Optional.ofNullable(fileUuidMap.get("request")).orElse(fileUuidMap.get("trip_request"));
+                    if (fileContractRequestUuid != null) {
                         tripRequestAdvancePayment.setIsDownloadedContractApplication(true);
-                        tripRequestAdvancePayment.setUuidContractApplicationFile(fileUuid);
+                        tripRequestAdvancePayment.setUuidContractApplicationFile(fileContractRequestUuid);
                     }
-                    //            TODO: remove comment when create new type file
-
-                    /*String fileUuid1 = fileUuidMap.get("other");
-                    if (fileUuid1 != null) {
+                    String fileAdvanceRequestUuid = fileUuidMap.get("assignment_advance_request");
+                    if (fileAdvanceRequestUuid != null) {
                         tripRequestAdvancePayment.setIsDownloadedContractApplication(true);
-                        tripRequestAdvancePayment.setUuidAdvanceApplicationFile(fileUuid1);
-                    }*/
+                        tripRequestAdvancePayment.setUuidAdvanceApplicationFile(fileAdvanceRequestUuid);
+                    }
                     if (tripRequestAdvancePayment.getUuidContractApplicationFile() != null &&
                         tripRequestAdvancePayment.getUuidAdvanceApplicationFile() != null) {
                         tripRequestAdvancePayment.setIs1CSendAllowed(true);
@@ -122,8 +120,7 @@ public class AutoAdvancedService {
     public Map<String, String> findTripRequestDocs(Trip trip) {
         Map<String, String> fileUuidMap = new HashMap<>();
         try {
-            //        TODO убрать комментарий  /*trip.getOrderId(), trip.getId()),*/
-            TripDocuments tripDocuments = objectMapper.readValue(getDocumentWithUuidFiles(148909l, 174735l),/*trip.getOrderId(), trip.getId()),*/ TripDocuments.class);
+            TripDocuments tripDocuments = objectMapper.readValue(getDocumentWithUuidFiles(trip.getOrderId(), trip.getId()), TripDocuments.class);
             tripDocuments.getTripDocuments().forEach(doc -> {
                 final String fileId = doc.getFileId();
                 if (fileId != null && ("trip_request".equals(doc.documentTypeCode) || "request".equals(doc.documentTypeCode))) {
@@ -140,8 +137,7 @@ public class AutoAdvancedService {
     public Map<String, String> findAdvanceRequestDocs(Trip trip) {
         Map<String, String> fileUuidMap = new HashMap<>();
         try {
-            //        TODO убрать комментарий  /*trip.getOrderId(), trip.getId()),*/
-            TripDocuments tripDocuments = objectMapper.readValue(getDocumentWithUuidFiles(148909l, 174735l),/*trip.getOrderId(), trip.getId()),*/ TripDocuments.class);
+            TripDocuments tripDocuments = objectMapper.readValue(getDocumentWithUuidFiles(trip.getOrderId(), trip.getId()), TripDocuments.class);
             tripDocuments.getTripDocuments().forEach(doc -> {
                 final String fileId = doc.getFileId();
                 if (fileId != null && "assignment_advance_request".equals(doc.documentTypeCode)) {
@@ -174,7 +170,7 @@ public class AutoAdvancedService {
         return "";
     }
 
-    //TODO: выяснить у Александра при каких условиях пропадает доступ к ЛК перевозчика
+
 //   сделать крон  для сброса поля page_carrier_url_expired (orders.trip_request_advance_payment) в значение false
 
 //      TODO:   need add cron + sms email notity service for auto + push button

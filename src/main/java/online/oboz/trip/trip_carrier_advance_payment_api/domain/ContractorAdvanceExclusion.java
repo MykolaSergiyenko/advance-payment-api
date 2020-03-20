@@ -18,7 +18,6 @@ public class ContractorAdvanceExclusion {
     private Long carrierId;
     private String carrierFullName;
     private Boolean isConfirmAdvance;
-    private Boolean isAutomationAdvancePayment;
     private OffsetDateTime deletedAt;
 
     @NotNull

@@ -9,15 +9,6 @@ import java.util.Optional;
 
 
 public interface ContractorAdvanceExclusionRepository extends JpaRepository<ContractorAdvanceExclusion, Long> {
-    @Query(nativeQuery = true, value = " select id, " +
-        "       carrier_full_name, " +
-        "       carrier_id, " +
-        "       is_automation_advance_payment, " +
-        "       is_confirm_advance, " +
-        "       order_type_id, " +
-        "       created_at, " +
-        "       updated_at, " +
-        "       deleted_at " +
-        "from common.contractor_advance_exclusion where carrier_id=:contractorId;")
-    Optional<ContractorAdvanceExclusion> findByContractorId(@Param("contractorId") Long contractorId);
+    @Query(" select ce from ContractorAdvanceExclusion ce where ce.carrierId =:contractor_id ")
+    Optional<ContractorAdvanceExclusion> findByContractorId(@Param("contractor_id") Long contractorId);
 }
