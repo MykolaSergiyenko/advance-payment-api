@@ -33,6 +33,7 @@ public class AutoAdvancedService {
     private final RestTemplate restTemplate;
     private final ApplicationProperties applicationProperties;
     private final ObjectMapper objectMapper;
+    private final AdvancePaymentContactService advancePaymentContactService;
 
     @Autowired
     public AutoAdvancedService(AdvancePaymentCostRepository advancePaymentCostRepository,
@@ -40,7 +41,7 @@ public class AutoAdvancedService {
                                ContractorAdvancePaymentContactRepository contractorAdvancePaymentContactRepository,
                                TripRepository tripRepository,
                                ContractorRepository contractorRepository,
-                               RestTemplate restTemplate, ApplicationProperties applicationProperties, ObjectMapper objectMapper) {
+                               RestTemplate restTemplate, ApplicationProperties applicationProperties, ObjectMapper objectMapper, AdvancePaymentContactService advancePaymentContactService) {
         this.advancePaymentCostRepository = advancePaymentCostRepository;
         this.tripRequestAdvancePaymentRepository = tripRequestAdvancePaymentRepository;
         this.contractorAdvancePaymentContactRepository = contractorAdvancePaymentContactRepository;
@@ -49,6 +50,7 @@ public class AutoAdvancedService {
         this.restTemplate = restTemplate;
         this.applicationProperties = applicationProperties;
         this.objectMapper = objectMapper;
+        this.advancePaymentContactService = advancePaymentContactService;
     }
 
 //        @Scheduled(cron = "${cron.expression:0 /1 * * * *}")
@@ -74,7 +76,16 @@ public class AutoAdvancedService {
                 tripRequestAdvancePayment.setCancelAdvance(false);
                 tripRequestAdvancePayment.setIsUnfSend(false);
                 tripRequestAdvancePayment.setIsPaid(false);
+
+// TODO заполнить        push_button_at:
+//        description: "Дата и время нажатия на кнопку"
+//        first_loading_address:
+//        description: "Адрес первой погрузки"
+//        last_unloading_address:
+//        description: "Адрес последней разгрузки"
+                ContractorAdvancePaymentContact contact = advancePaymentContactService.getAdvancePaymentContact(trip.getContractorId());
                 tripRequestAdvancePaymentRepository.save(tripRequestAdvancePayment);
+//// TODO send email + sms
             }
         );
     }

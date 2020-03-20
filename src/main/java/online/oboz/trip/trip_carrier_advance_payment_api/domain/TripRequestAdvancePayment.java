@@ -6,6 +6,7 @@ import lombok.experimental.Accessors;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.OffsetDateTime;
+import java.util.UUID;
 
 @Entity
 @Table(name = "trip_request_advance_payment", schema = "orders")
@@ -40,6 +41,8 @@ public class TripRequestAdvancePayment {
     private Boolean isDownloadedAdvanceApplication;
     private Long authorId;
     private String cancelAdvanceComment;
+    private OffsetDateTime pushButtonAt;
+    private UUID uuidRequest;
 
     @NotNull
     @Column(name = "created_at", nullable = false)

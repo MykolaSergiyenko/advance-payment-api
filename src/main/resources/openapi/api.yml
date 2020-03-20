@@ -8,7 +8,7 @@ servers:
 paths:
     /advance_payment/request_give_advance_payment/{id}:
         post:
-#            security:
+#            security:give
             #                -   bearerAuth: []
             summary: "Запрос на выдачу аванса"
             operationId: requestGiveAdvancePayment
@@ -39,10 +39,42 @@ paths:
                             schema:
                                 $ref: "#/components/schemas/Error"
 
+    /advance_payment/request_give_advance_payment_for_carrier/{id}:
+        #     без авторизации
+        post:
+            summary: "Запрос на выдачу аванса"
+            operationId: requestGiveAdvancePaymentForCarrier
+            tags:
+                - Advance Payment
+            parameters:
+                -   name: id
+                    in: path
+                    description: "ID перевозки"
+                    required: true
+                    schema:
+                        type: integer
+                        format: int64
+                        minimum: 1
+            responses:
+                200:
+                    description: "OK"
+                default:
+                    description: "Some other error"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                422:
+                    description: "Business error"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+
     /advance_payment/confirm_advance_payment/{id}:
         post:
-#            security:
-#                -   bearerAuth: []
+            #            security:
+            #                -   bearerAuth: []
             summary: "Подтверждение аванса / отказ на выдачу аванса "
             operationId: confirmAdvancePayment
             tags:
@@ -119,8 +151,8 @@ paths:
 
     /advance_payment/search_request:
         post:
-#            security:
-#                -   bearerAuth: []
+            #            security:
+            #                -   bearerAuth: []
             summary: "Просмотр списка запросов на аванс"
             operationId: searchAdvancePaymentRequest
             tags:
@@ -165,11 +197,6 @@ paths:
                     schema:
                         type: string
                         format: uuid
-            #        requestBody:
-            #            content:
-            #                application/json:
-            #                    schema:
-            #                        $ref: '#/components/schemas/Filter'
             responses:
                 200:
                     description: "OK"
@@ -558,6 +585,10 @@ components:
                     type: string
                     format: date-time
                     description: "Дата создания заказа поставщика"
+                push_button_at:
+                    type: string
+                    format: date-time
+                    description: "Дата и время нажатия на кнопку"
                 author_id:
                     type: integer
                     format: int64
@@ -634,6 +665,12 @@ components:
                 page_carrier_url_is_access:
                     type: boolean
                     description: "Признак доступности ссылки в кабинет перевозчика "
+                first_loading_address:
+                    type: string
+                    description: "Адрес первой погрузки"
+                last_unloading_address:
+                    type: string
+                    description: "Адрес последней разгрузки"
 
         ContractorResponse:
             type: array
@@ -688,33 +725,6 @@ components:
             properties:
                 contractor_ids:
                     $ref: "#/components/schemas/ContractorIds"
-                #                carrier_ids:
-                #                    $ref: "#/components/schemas/CarrierIds"
-                #                date_from:
-                #                    type: string
-                #                    format: date-time
-                #                    description: "Значения полей «Дата погрузки с» в рейсе"
-                #                date_to:
-                #                    type: string
-                #                    format: date-time
-                #                    description: "До какой даты и времени погрузки"
-                #                order_num:
-                #                    type: string
-                #                    description: "Номер заказа клиента"
-                #                trip_num:
-                #                    type: string
-                #                    description: "Номер заказа поставщика"
-                #                origin_order_num:
-                #                    type: string
-                #                    description: "Внешний номер заявки"
-                #                trip_types:
-                #                    $ref: "#/components/schemas/TripTypesRequest"
-                #                trip_statuses:
-                #                    $ref: "#/components/schemas/TripStatusesCodeRequest"
-                #                driver_full_name:
-                #                    type: number
-                #                    format: integer
-                #                    description: "Водитель"
                 page:
                     type: integer
                     format: int32
