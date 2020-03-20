@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public interface TripRequestAdvancePaymentRepository extends JpaRepository<TripRequestAdvancePayment, Long> {
     @Query(" select ap from TripRequestAdvancePayment ap ")
@@ -25,6 +26,11 @@ public interface TripRequestAdvancePaymentRepository extends JpaRepository<TripR
         " from TripRequestAdvancePayment pc " +
         " where pc.id = :id ")
     Optional<TripRequestAdvancePayment> findTripRequestAdvancePayment(@Param("id") Long id);
+
+    @Query("select pc " +
+        " from TripRequestAdvancePayment pc " +
+        " where pc.uuidRequest = :uuid ")
+    Optional<TripRequestAdvancePayment> findTripRequestAdvancePayment(@Param("uuid") UUID uuid);
 
     @Query("select pc " +
         " from TripRequestAdvancePayment pc " +

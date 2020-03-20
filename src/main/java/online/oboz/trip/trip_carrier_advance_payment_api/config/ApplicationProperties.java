@@ -34,7 +34,9 @@ public class ApplicationProperties {
     private String mailAuth;
     @Value("${notification.sms-enable:true}")
     private Boolean smsEnable;
-    @Value("${email-enable:true}")
+    @Value("${notification.lk-url}")
+    private String lkUrl;
+    @Value("${notification.email-enable:true}")
     private Boolean mailEnable;
     @Value("${services.keycloak.auth.username}")
     private String username;

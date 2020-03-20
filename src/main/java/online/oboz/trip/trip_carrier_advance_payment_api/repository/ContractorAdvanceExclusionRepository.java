@@ -9,6 +9,7 @@ import java.util.Optional;
 
 
 public interface ContractorAdvanceExclusionRepository extends JpaRepository<ContractorAdvanceExclusion, Long> {
-    @Query(" select ce from ContractorAdvanceExclusion ce where ce.carrierId =:contractor_id ")
-    Optional<ContractorAdvanceExclusion> findByContractorId(@Param("contractor_id") Long contractorId);
+//    TODO change Optional<ContractorAdvanceExclusion> to List<ContractorAdvanceExclusion>
+@Query(" select ce from ContractorAdvanceExclusion ce where ce.carrierId =:contractor_id ")
+Optional<ContractorAdvanceExclusion> findByContractorId(@Param("contractor_id") Long contractorId);
 }

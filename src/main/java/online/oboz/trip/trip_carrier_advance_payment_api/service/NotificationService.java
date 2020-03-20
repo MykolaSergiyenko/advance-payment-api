@@ -3,7 +3,7 @@ package online.oboz.trip.trip_carrier_advance_payment_api.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import online.oboz.trip.trip_carrier_advance_payment_api.config.ApplicationProperties;
-import online.oboz.trip.trip_carrier_advance_payment_api.domain.MessageDto;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.dto.MessageDto;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.dto.SendSmsRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
@@ -37,7 +37,6 @@ public class NotificationService {
 //    }
 
     public void sendSms(MessageDto messageDto) {
-        //        TODO add to autoadvance
         String url = applicationProperties.getSmsSenderUrl();
         try {
             ResponseEntity<String> response = restTemplate.postForEntity(
@@ -54,7 +53,6 @@ public class NotificationService {
     }
 
     public void sendEmail(MessageDto messageDto) {
-//        TODO add to autoadvance
         if (applicationProperties.getMailEnable()) {
             SimpleMailMessage message = new SimpleMailMessage();
             message.setFrom(applicationProperties.getMailUsername());

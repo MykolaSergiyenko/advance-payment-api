@@ -44,6 +44,7 @@ auto-advance:
 notification:
     sms-enable: false
     email-enable: true
+    lk-url: https://dev.oboz.online/carrier-advance/
 
 services:
     bstore-url: https://dev.oboz.online/api/bstore/pdf

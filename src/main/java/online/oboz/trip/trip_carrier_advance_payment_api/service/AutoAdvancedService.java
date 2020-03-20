@@ -34,6 +34,8 @@ public class AutoAdvancedService {
     private final ApplicationProperties applicationProperties;
     private final ObjectMapper objectMapper;
     private final AdvancePaymentContactService advancePaymentContactService;
+    private final NotificationService notificationService;
+//    private final AdvancePaymentDelegateImpl advancePaymentDelegate;
 
     @Autowired
     public AutoAdvancedService(AdvancePaymentCostRepository advancePaymentCostRepository,
@@ -41,7 +43,12 @@ public class AutoAdvancedService {
                                ContractorAdvancePaymentContactRepository contractorAdvancePaymentContactRepository,
                                TripRepository tripRepository,
                                ContractorRepository contractorRepository,
-                               RestTemplate restTemplate, ApplicationProperties applicationProperties, ObjectMapper objectMapper, AdvancePaymentContactService advancePaymentContactService) {
+                               RestTemplate restTemplate,
+                               ApplicationProperties applicationProperties,
+                               ObjectMapper objectMapper,
+                               AdvancePaymentContactService advancePaymentContactService,
+                               NotificationService notificationService/*,
+                               AdvancePaymentDelegateImpl advancePaymentDelegate*/) {
         this.advancePaymentCostRepository = advancePaymentCostRepository;
         this.tripRequestAdvancePaymentRepository = tripRequestAdvancePaymentRepository;
         this.contractorAdvancePaymentContactRepository = contractorAdvancePaymentContactRepository;
@@ -51,9 +58,12 @@ public class AutoAdvancedService {
         this.applicationProperties = applicationProperties;
         this.objectMapper = objectMapper;
         this.advancePaymentContactService = advancePaymentContactService;
+        this.notificationService = notificationService;
+//        this.advancePaymentDelegate = advancePaymentDelegate;
+
     }
 
-//        @Scheduled(cron = "${cron.expression:0 /1 * * * *}")
+    //        @Scheduled(cron = "${cron.expression:0 /1 * * * *}")
 //    @Scheduled(fixedDelayString = "10000")
     void createTripRequestAdvancePayment() {
         tripRepository.getAutoApprovedTrips().forEach(trip -> {
@@ -76,16 +86,20 @@ public class AutoAdvancedService {
                 tripRequestAdvancePayment.setCancelAdvance(false);
                 tripRequestAdvancePayment.setIsUnfSend(false);
                 tripRequestAdvancePayment.setIsPaid(false);
-
-// TODO заполнить        push_button_at:
-//        description: "Дата и время нажатия на кнопку"
-//        first_loading_address:
-//        description: "Адрес первой погрузки"
-//        last_unloading_address:
-//        description: "Адрес последней разгрузки"
+// TODO Спросить у Сергея если нажали кнопку в обозе  то вв кабинете перевозчика  что делать с кнопкой push_button_at: это разные кнопки
                 ContractorAdvancePaymentContact contact = advancePaymentContactService.getAdvancePaymentContact(trip.getContractorId());
                 tripRequestAdvancePaymentRepository.save(tripRequestAdvancePayment);
-//// TODO send email + sms
+//                TODO не инжектится
+//                if (contact != null && contact.getEmail() != null) {
+//                    String paymentContractor = contractorRepository.getContractor(trip.getPaymentContractorId());
+//                    MessageDto messageDto = advancePaymentDelegate.getMessageDto(tripRequestAdvancePayment, contact, paymentContractor);
+//                    if (contact.getEmail() != null) {
+//                        notificationService.sendEmail(messageDto);
+//                    }
+//                    if (contact.getPhone() != null) {
+//                        notificationService.sendSms(messageDto);
+//                    }
+//                }
             }
         );
     }
@@ -96,7 +110,7 @@ public class AutoAdvancedService {
         List<TripRequestAdvancePayment> tripRequestAdvancePayments = tripRequestAdvancePaymentRepository.findRequestAdvancePaymentWithOutUuidFiles();
         tripRequestAdvancePayments.forEach(tripRequestAdvancePayment -> {
                 final Long tripId = tripRequestAdvancePayment.getTripId();
-                Trip trip = tripRepository.findById(tripId).get();
+            Trip trip = tripRepository.findById(tripId).get();
             Map<String, String> fileUuidMap = findTripRequestDocs(trip);
                 if (!fileUuidMap.isEmpty()) {
                     String fileContractRequestUuid = Optional.ofNullable(fileUuidMap.get("request")).orElse(fileUuidMap.get("trip_request"));
@@ -170,7 +184,6 @@ public class AutoAdvancedService {
             HttpEntity request = new HttpEntity(headers);
             ResponseEntity<String> response = new RestTemplate().exchange(url, HttpMethod.GET, request, String.class);
 
-
             if (response.getStatusCode().value() == 200) {
                 return response.getBody();
             }
@@ -180,11 +193,5 @@ public class AutoAdvancedService {
         log.error("server {} returned bad response", url);
         return "";
     }
-
-
-//   сделать крон  для сброса поля page_carrier_url_expired (orders.trip_request_advance_payment) в значение false
-
-//      TODO:   need add cron + sms email notity service for auto + push button
-    //TODO: разобраться откуда брать Договор заявка, Заявка на авансирование, в 1С
 
 }

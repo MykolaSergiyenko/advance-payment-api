@@ -39,7 +39,7 @@ paths:
                             schema:
                                 $ref: "#/components/schemas/Error"
 
-    /advance_payment/request_give_advance_payment_for_carrier/{id}:
+    /advance_payment/request_by_carrier/{uuid}:
         #     без авторизации
         post:
             summary: "Запрос на выдачу аванса"
@@ -47,14 +47,13 @@ paths:
             tags:
                 - Advance Payment
             parameters:
-                -   name: id
+                -   name: uuid
                     in: path
-                    description: "ID перевозки"
+                    description: "uuid заказа на аванс"
                     required: true
                     schema:
-                        type: integer
-                        format: int64
-                        minimum: 1
+                        type: string
+                        format: uuid
             responses:
                 200:
                     description: "OK"
@@ -491,6 +490,32 @@ paths:
                 - Application contract
             summary: "Добавление подписанного PDF файла заявки на аванс"
             operationId: uploadRequestAdvance
+            parameters:
+                -   name: trip_num
+                    in: query
+                    schema:
+                        type: string
+                    description: "Номер заказа поставщика"
+            requestBody:
+                required: true
+                content:
+                    multipart/form-data:
+                        schema:
+                            $ref: "#/components/schemas/RequestFormData"
+            responses:
+                "201":
+                    description: "Данные успешно получены"
+                "422":
+                    description: "Ошибка в процессе получения файла"
+
+    /advance_payment/delete_request_avance:
+        delete:
+            #            security:
+            #                -   bearerAuth: []
+            tags:
+                - Application contract
+            summary: "Добавление подписанного PDF файла заявки на аванс"
+            operationId: deleteRequestAdvance
             parameters:
                 -   name: trip_num
                     in: query

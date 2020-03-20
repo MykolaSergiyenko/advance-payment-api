@@ -1,11 +1,11 @@
 package online.oboz.trip.trip_carrier_advance_payment_api.repository;
 
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.Trip;
-import online.oboz.trip.trip_carrier_advance_payment_api.domain.TripPointDto;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import javax.persistence.Tuple;
 import java.util.List;
 import java.util.Optional;
 
@@ -56,12 +56,17 @@ public interface TripRepository extends JpaRepository<Trip, Long> {
     @Query("select t from Trip t where t.num = :num")
     Optional<Trip> getTripByNum(@Param("num") String num);
 
-    @Query(nativeQuery = true, value = " select tp.trip_id , position, tpas.additional_service_code " +
-        "from orders.trip_points tp " +
-        "   inner join orders.trip_point_services tps on tp.id = tps.trip_point_id " +
-        "   inner join  orders.order_additional_services tpas on tps.order_additional_service_id = tpas.id " +
-        "    and tpas.additional_service_code in ('loading', 'unloading') " +
-        "order by tp.trip_id, position")
-    List<TripPointDto> getTripPointAddress();
+    @Query(nativeQuery = true, value = " select t.id as tripId, " +
+        "       cl.address as address, " +
+        "       tpas.additional_service_code as additionalServiceCode, " +
+        "       t.num as num " +
+        "from orders.trips t " +
+        "         inner join orders.trip_points tp on t.id = tp.trip_id " +
+        "         inner join orders.trip_point_services tps on tp.id = tps.trip_point_id " +
+        "         inner join orders.order_additional_services tpas on tps.order_additional_service_id = tpas.id " +
+        "         inner join common.locations cl on tp.location_id = cl.id " +
+        "    and tpas.additional_service_code in ('loading', 'unloading') where t.id = :tripId " +
+        "order by t.id, position")
+    List<Tuple> getTripPointAddress(@Param("tripId") Long tripId);
 
 }

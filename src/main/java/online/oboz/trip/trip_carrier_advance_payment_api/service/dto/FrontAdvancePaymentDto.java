@@ -1,4 +1,4 @@
-package online.oboz.trip.trip_carrier_advance_payment_api.domain;
+package online.oboz.trip.trip_carrier_advance_payment_api.service.dto;
 
 import lombok.Data;
 
