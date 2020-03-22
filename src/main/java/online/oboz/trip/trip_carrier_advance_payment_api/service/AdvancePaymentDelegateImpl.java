@@ -111,13 +111,16 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
     @Transactional
     public ResponseEntity<Void> confirmAdvancePayment(Long requestAdvansePaymentId) {
         TripRequestAdvancePayment tripRequestAdvancePayment = getTripRequestAdvancePayment(requestAdvansePaymentId);
-        Trip trip = tripRepository.findById(tripRequestAdvancePayment.getId()).orElseThrow(() -> {
+        Trip trip = tripRepository.findById(tripRequestAdvancePayment.getTripId()).orElseThrow(() -> {
                 Error error = new Error();
-                error.setErrorMessage("tripRequestAdvancePayment not found");
+                error.setErrorMessage("trip not found");
                 return new BusinessLogicException(HttpStatus.UNPROCESSABLE_ENTITY, error);
             }
         );
-        if (isDownloadAllDocuments(trip) && confirmRequestToUnf()) {
+        final boolean downloadAllDocuments = isDownloadAllDocuments(trip);
+        final Boolean cancelAdvance = tripRequestAdvancePayment.getCancelAdvance();
+        if (downloadAllDocuments && !tripRequestAdvancePayment.getIsUnfSend() && !cancelAdvance) {
+            confirmRequestToUnf();
             tripRequestAdvancePayment.setIsUnfSend(true);
             tripRequestAdvancePayment.setPageCarrierUrlIsAccess(false);
             trip.setIsAdvancedPayment(true);
@@ -126,7 +129,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
             final Long orderTypeId = orderRepository.findById(trip.getOrderId()).get().getOrderTypeId();
             ContractorAdvanceExclusion contractorAdvanceExclusion = contractorAdvanceExclusionRepository
                 .findByContractorId(trip.getContractorId()).orElse(new ContractorAdvanceExclusion());
-            //проверить наличие записи контрактора в таблице исключений по типу заказа при  отсутствии  добавить запись
+            //проверяем наличие записи контрактора в таблице исключений по типу заказа при  отсутствии  добавляем запись
             if (orderTypeId == contractorAdvanceExclusion.getOrderTypeId()) {
                 contractorAdvanceExclusion = new ContractorAdvanceExclusion();
                 contractorAdvanceExclusion.setCarrierId(trip.getContractorId());
@@ -137,7 +140,13 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
             }
             return new ResponseEntity<>(HttpStatus.OK);
         }
-        return getVoidResponseEntity("tripRequestAdvancePayment not found");
+        if (!downloadAllDocuments) {
+            return getVoidResponseEntity("no download All Documents");
+        } else if (cancelAdvance) {
+            return getVoidResponseEntity("cancelAdvance is true");
+        } else {
+            return getVoidResponseEntity("unf already send");
+        }
     }
 
     @Override
@@ -152,7 +161,6 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
         TripRequestAdvancePayment tripRequestAdvancePayment = tripRequestAdvancePaymentRepository
             .findRequestAdvancePayment(tripId, trip.getDriverId(), trip.getContractorId());
         IsAdvancedRequestResponse isAdvancedRequestResponse = new IsAdvancedRequestResponse();
-
         setButtonAccessGetAdvance(trip, contractor, tripRequestAdvancePayment, isAdvancedRequestResponse);
 
         ContractorAdvanceExclusion contractorAdvanceExclusion = contractorAdvanceExclusionRepository
@@ -167,27 +175,27 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
 
             log.info("isAdvancedRequestResponse not found for tripId: {} , DriverId: {} , ContractorId {}", tripId, trip.getDriverId(), trip.getContractorId());
             return new ResponseEntity<>(isAdvancedRequestResponse, HttpStatus.OK);
-        }
-        final Boolean isAutomationRequest = tripRequestAdvancePayment.getIsAutomationRequest();
-        if (isAutomationRequest) {
-            isAdvancedRequestResponse.setIsAutoRequested(true);
-            isAdvancedRequestResponse.setComment(COMMENT);
-        }
-        final Long authorId = tripRequestAdvancePayment.getAuthorId();
-        if (authorId != null) {
-            Person author = personRepository.findById(authorId).orElse(new Person());
-            isAdvancedRequestResponse.setFirstName(author.getFirstName());
-            isAdvancedRequestResponse.setLastName(author.getLastName());
-            isAdvancedRequestResponse.setMiddleName(author.getMiddleName());
-            isAdvancedRequestResponse.setAuthorId(authorId);
-        }
+        } else {
+            isAdvancedRequestResponse.setIsAdvanssed(true);
 
+            final Boolean isAutomationRequest = tripRequestAdvancePayment.getIsAutomationRequest();
+            if (isAutomationRequest) {
+                isAdvancedRequestResponse.setIsAutoRequested(true);
+                isAdvancedRequestResponse.setComment(COMMENT);
+            }
+            final Long authorId = tripRequestAdvancePayment.getAuthorId();
+            if (authorId != null) {
+                Person author = personRepository.findById(authorId).orElse(new Person());
+                isAdvancedRequestResponse.setFirstName(author.getFirstName());
+                isAdvancedRequestResponse.setLastName(author.getLastName());
+                isAdvancedRequestResponse.setMiddleName(author.getMiddleName());
+                isAdvancedRequestResponse.setAuthorId(authorId);
+            }
 
-        isAdvancedRequestResponse.setIsAdvanssed(tripRequestAdvancePayment.getIsUnfSend());
-        isAdvancedRequestResponse.setTripTypeCode(tripRequestAdvancePayment.getTripTypeCode());
-        isAdvancedRequestResponse.setCreatedAt(tripRequestAdvancePayment.getCreatedAt());
-
-        return new ResponseEntity<>(isAdvancedRequestResponse, HttpStatus.OK);
+            isAdvancedRequestResponse.setTripTypeCode(tripRequestAdvancePayment.getTripTypeCode());
+            isAdvancedRequestResponse.setCreatedAt(tripRequestAdvancePayment.getCreatedAt());
+            return new ResponseEntity<>(isAdvancedRequestResponse, HttpStatus.OK);
+        }
     }
 
     @Override
@@ -216,8 +224,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
             contractor,
             tripCostWithNds,
             advancePaymentCost,
-            //Todo NPE
-            tripRequestAdvancePayment.getIsUnfSend(),
+            false,
             trip);
         ContractorAdvancePaymentContact contact = getAdvancePaymentContact(trip.getContractorId());
         if (contact != null && contact.getEmail() != null) {
@@ -241,7 +248,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
     public ResponseEntity<Resource> downloadAvanceRequestTemplate(String tripNum) {
         StringBuilder url = new StringBuilder();
         ResponseEntity<Resource> response;
-        url.append("https://reports.oboz.com/reportserver/reportserver/httpauthexport?key=avance_request&user=bertathar&apikey=nzybc16h&p_trip_num=");
+        url.append(applicationProperties.getReportServerUrl());
         TripRequestAdvancePayment tripRequestAdvancePayment = tripRequestAdvancePaymentRepository.findRequestAdvancePaymentByTripNum(tripNum);
         if (tripRequestAdvancePayment != null) {
             url.append(tripNum)
@@ -263,9 +270,9 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
     @Override
     public ResponseEntity<Resource> downloadAvanseRequest(String tripNum) {
         String uuidFile = tripRequestAdvancePaymentRepository.findRequestAdvancePaymentByTripNum(tripNum).getUuidAdvanceApplicationFile();
-        String url = "https://preprod.oboz.online/api/bstore/" + uuidFile;
+        String url = applicationProperties.getBStoreUrl() + uuidFile;
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJtZWwxMDZWemFlZGpmU3ctUVRtblVLa3ZuQUlfdXB3TGdRZHY4Vm85SEk4In0.eyJqdGkiOiJmMGY4OTBmMi03OTZiLTQwMDEtYjg2Yi0zY2YzMGM1NTRhYWQiLCJleHAiOjE2MTU0NTkzNjgsIm5iZiI6MCwiaWF0IjoxNTgzOTIzMzY4LCJpc3MiOiJodHRwczovL3ByZXByb2Qub2Jvei5vbmxpbmUvYXV0aC9yZWFsbXMvbWFzdGVyIiwiYXVkIjoiZWxwIiwic3ViIjoiZjpmY2MwMzM2Yy1lNmYyLTRlZTctYjllYi1jMjU2NDY3M2IwMzY6NDI2MjciLCJ0eXAiOiJCZWFyZXIiLCJhenAiOiJlbHAiLCJhdXRoX3RpbWUiOjAsInNlc3Npb25fc3RhdGUiOiI3ZTY1NGMzYi04OTMwLTQwMDctOGQ2Zi01N2JlYzQyNzU1OTAiLCJhY3IiOiIxIiwiY2xpZW50X3Nlc3Npb24iOiJhYTRlZjg4ZC02MjYxLTRkZTItYWQ2MS1mNDQ4OTg3MWJjOGMiLCJhbGxvd2VkLW9yaWdpbnMiOlsiKiJdLCJyZWFsbV9hY2Nlc3MiOnsicm9sZXMiOlsiY3JlYXRlLXJlYWxtIiwiY2FycmllciIsImVscC1hZG1pbiIsInNlbmRlciIsImFkbWluIiwidW1hX2F1dGhvcml6YXRpb24iLCJkaXNwYXRjaGVyIl19LCJyZXNvdXJjZV9hY2Nlc3MiOnsiZHJpdmVyLWFwcC1yZWFsbSI6eyJyb2xlcyI6WyJ2aWV3LWlkZW50aXR5LXByb3ZpZGVycyIsInZpZXctcmVhbG0iLCJtYW5hZ2UtaWRlbnRpdHktcHJvdmlkZXJzIiwiaW1wZXJzb25hdGlvbiIsImNyZWF0ZS1jbGllbnQiLCJtYW5hZ2UtdXNlcnMiLCJ2aWV3LWF1dGhvcml6YXRpb24iLCJtYW5hZ2UtZXZlbnRzIiwibWFuYWdlLXJlYWxtIiwidmlldy1ldmVudHMiLCJ2aWV3LXVzZXJzIiwidmlldy1jbGllbnRzIiwibWFuYWdlLWF1dGhvcml6YXRpb24iLCJtYW5hZ2UtY2xpZW50cyJdfSwiZHJpdmVyLWFwcC1yZWdpc3RyYXRpb24tcmVhbG0iOnsicm9sZXMiOlsidmlldy1yZWFsbSIsInZpZXctaWRlbnRpdHktcHJvdmlkZXJzIiwibWFuYWdlLWlkZW50aXR5LXByb3ZpZGVycyIsImltcGVyc29uYXRpb24iLCJjcmVhdGUtY2xpZW50IiwibWFuYWdlLXVzZXJzIiwidmlldy1hdXRob3JpemF0aW9uIiwibWFuYWdlLWV2ZW50cyIsIm1hbmFnZS1yZWFsbSIsInZpZXctZXZlbnRzIiwidmlldy11c2VycyIsInZpZXctY2xpZW50cyIsIm1hbmFnZS1hdXRob3JpemF0aW9uIiwibWFuYWdlLWNsaWVudHMiXX0sImRtcy1yZWFsbSI6eyJyb2xlcyI6WyJ2aWV3LWlkZW50aXR5LXByb3ZpZGVycyIsInZpZXctcmVhbG0iLCJtYW5hZ2UtaWRlbnRpdHktcHJvdmlkZXJzIiwiaW1wZXJzb25hdGlvbiIsImNyZWF0ZS1jbGllbnQiLCJtYW5hZ2UtdXNlcnMiLCJ2aWV3LWF1dGhvcml6YXRpb24iLCJtYW5hZ2UtZXZlbnRzIiwibWFuYWdlLXJlYWxtIiwidmlldy1ldmVudHMiLCJ2aWV3LXVzZXJzIiwidmlldy1jbGllbnRzIiwibWFuYWdlLWF1dGhvcml6YXRpb24iLCJtYW5hZ2UtY2xpZW50cyJdfSwicHVibGljLXJlYWxtIjp7InJvbGVzIjpbInZpZXctcmVhbG0iLCJ2aWV3LWlkZW50aXR5LXByb3ZpZGVycyIsIm1hbmFnZS1pZGVudGl0eS1wcm92aWRlcnMiLCJpbXBlcnNvbmF0aW9uIiwiY3JlYXRlLWNsaWVudCIsIm1hbmFnZS11c2VycyIsInZpZXctYXV0aG9yaXphdGlvbiIsIm1hbmFnZS1ldmVudHMiLCJtYW5hZ2UtcmVhbG0iLCJ2aWV3LWV2ZW50cyIsInZpZXctdXNlcnMiLCJ2aWV3LWNsaWVudHMiLCJtYW5hZ2UtYXV0aG9yaXphdGlvbiIsIm1hbmFnZS1jbGllbnRzIl19LCJtYXN0ZXItcmVhbG0iOnsicm9sZXMiOlsidmlldy1yZWFsbSIsInZpZXctaWRlbnRpdHktcHJvdmlkZXJzIiwibWFuYWdlLWlkZW50aXR5LXByb3ZpZGVycyIsImltcGVyc29uYXRpb24iLCJjcmVhdGUtY2xpZW50IiwibWFuYWdlLXVzZXJzIiwidmlldy1hdXRob3JpemF0aW9uIiwibWFuYWdlLWV2ZW50cyIsIm1hbmFnZS1yZWFsbSIsInZpZXctZXZlbnRzIiwidmlldy11c2VycyIsInZpZXctY2xpZW50cyIsIm1hbmFnZS1hdXRob3JpemF0aW9uIiwibWFuYWdlLWNsaWVudHMiXX0sImFjY291bnQiOnsicm9sZXMiOlsibWFuYWdlLWFjY291bnQiLCJtYW5hZ2UtYWNjb3VudC1saW5rcyIsInZpZXctcHJvZmlsZSJdfX0sImNvbnRyYWN0b3IiOnsiaWQiOiI2MDkifSwicGVyc29uIjp7ImlkIjoiNDI2MjcifSwibmFtZSI6ItCT0LXQvdC90LDQtNC40Lkg0JzQsNC60LDRgNC-0LIiLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiIwMDAwMDAxMDA1IiwiZ2l2ZW5fbmFtZSI6ItCT0LXQvdC90LDQtNC40LkiLCJmYW1pbHlfbmFtZSI6ItCc0LDQutCw0YDQvtCyIiwiZW1haWwiOiJnbWFrYXJvdkBvYm96LmNvbSJ9.Mm9jTH1B-n-awgofxTy7aNJLhu83J4-mG98nhWkrzBq8oGCQbEzAranSO1r_LsgARg8-bqb0ek4AC9Fa_CCwNNEPlCQB1ufOA3CVDNttm1o5I2HuYk1jlcmQBInePxBqQJqkAyeAYVkwn5AT_21Rv0VJRkH9VkXPeDV9vseBp5P_N1bYjoWLRlhPwqjqwSnzpCukduFzTerws5ngf54H1CVVTaBR9FS7w_y3ql5RSeECE-Z3_4-lkSgC7WjzPxEUfxz-1I1f7fqQn9NZKW4FdFOdVUoUW-tOqVYWfJ_erDWcRvt0VXw-1iKX_r7g50-ACV0VYFscPzEziSKihtw8sA");
+        headers.add(HttpHeaders.AUTHORIZATION, "Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJtZWwxMDZWemFlZGpmU3ctUVRtblVLa3ZuQUlfdXB3TGdRZHY4Vm85SEk4In0.eyJqdGkiOiI3MmRjZDA2NS1mMDhmLTRkZjAtYjMwMi0zNzNiYzUwZDAzNjYiLCJleHAiOjE2MTU2NDk0NjAsIm5iZiI6MCwiaWF0IjoxNTg0MTEzNDYwLCJpc3MiOiJodHRwczovL2Rldi5vYm96Lm9ubGluZS9hdXRoL3JlYWxtcy9tYXN0ZXIiLCJhdWQiOiJlbHAiLCJzdWIiOiJmOmZjYzAzMzZjLWU2ZjItNGVlNy1iOWViLWMyNTY0NjczYjAzNjo0MjYyNyIsInR5cCI6IkJlYXJlciIsImF6cCI6ImVscCIsImF1dGhfdGltZSI6MCwic2Vzc2lvbl9zdGF0ZSI6IjBjM2U4MzI4LTYxNjctNDlhYi05MWI2LWJjNGMyM2ZhZjljZSIsImFjciI6IjEiLCJjbGllbnRfc2Vzc2lvbiI6IjBmYTc4NjVmLTVmN2QtNDFhOC05NjU2LTE0MWQ0YjU3ODI1OSIsImFsbG93ZWQtb3JpZ2lucyI6WyIqIl0sInJlYWxtX2FjY2VzcyI6eyJyb2xlcyI6WyJjcmVhdGUtcmVhbG0iLCJjYXJyaWVyIiwiZWxwLWFkbWluIiwic2VuZGVyIiwiYWRtaW4iLCJ1bWFfYXV0aG9yaXphdGlvbiIsImRpc3BhdGNoZXIiXX0sInJlc291cmNlX2FjY2VzcyI6eyJkcml2ZXItYXBwLXJlYWxtIjp7InJvbGVzIjpbInZpZXctcmVhbG0iLCJ2aWV3LWlkZW50aXR5LXByb3ZpZGVycyIsIm1hbmFnZS1pZGVudGl0eS1wcm92aWRlcnMiLCJpbXBlcnNvbmF0aW9uIiwiY3JlYXRlLWNsaWVudCIsIm1hbmFnZS11c2VycyIsInZpZXctYXV0aG9yaXphdGlvbiIsIm1hbmFnZS1ldmVudHMiLCJtYW5hZ2UtcmVhbG0iLCJ2aWV3LWV2ZW50cyIsInZpZXctdXNlcnMiLCJ2aWV3LWNsaWVudHMiLCJtYW5hZ2UtYXV0aG9yaXphdGlvbiIsIm1hbmFnZS1jbGllbnRzIl19LCJkcml2ZXItYXBwLXJlZ2lzdHJhdGlvbi1yZWFsbSI6eyJyb2xlcyI6WyJ2aWV3LXJlYWxtIiwidmlldy1pZGVudGl0eS1wcm92aWRlcnMiLCJtYW5hZ2UtaWRlbnRpdHktcHJvdmlkZXJzIiwiaW1wZXJzb25hdGlvbiIsImNyZWF0ZS1jbGllbnQiLCJtYW5hZ2UtdXNlcnMiLCJ2aWV3LWF1dGhvcml6YXRpb24iLCJtYW5hZ2UtZXZlbnRzIiwibWFuYWdlLXJlYWxtIiwidmlldy1ldmVudHMiLCJ2aWV3LXVzZXJzIiwidmlldy1jbGllbnRzIiwibWFuYWdlLWF1dGhvcml6YXRpb24iLCJtYW5hZ2UtY2xpZW50cyJdfSwiZG1zLXJlYWxtIjp7InJvbGVzIjpbInZpZXctcmVhbG0iLCJ2aWV3LWlkZW50aXR5LXByb3ZpZGVycyIsIm1hbmFnZS1pZGVudGl0eS1wcm92aWRlcnMiLCJpbXBlcnNvbmF0aW9uIiwiY3JlYXRlLWNsaWVudCIsIm1hbmFnZS11c2VycyIsInZpZXctYXV0aG9yaXphdGlvbiIsIm1hbmFnZS1ldmVudHMiLCJtYW5hZ2UtcmVhbG0iLCJ2aWV3LWV2ZW50cyIsInZpZXctdXNlcnMiLCJ2aWV3LWNsaWVudHMiLCJtYW5hZ2UtYXV0aG9yaXphdGlvbiIsIm1hbmFnZS1jbGllbnRzIl19LCJwdWJsaWMtcmVhbG0iOnsicm9sZXMiOlsidmlldy1yZWFsbSIsInZpZXctaWRlbnRpdHktcHJvdmlkZXJzIiwibWFuYWdlLWlkZW50aXR5LXByb3ZpZGVycyIsImltcGVyc29uYXRpb24iLCJjcmVhdGUtY2xpZW50IiwibWFuYWdlLXVzZXJzIiwidmlldy1hdXRob3JpemF0aW9uIiwibWFuYWdlLWV2ZW50cyIsIm1hbmFnZS1yZWFsbSIsInZpZXctZXZlbnRzIiwidmlldy11c2VycyIsInZpZXctY2xpZW50cyIsIm1hbmFnZS1hdXRob3JpemF0aW9uIiwibWFuYWdlLWNsaWVudHMiXX0sIm1hc3Rlci1yZWFsbSI6eyJyb2xlcyI6WyJ2aWV3LXJlYWxtIiwidmlldy1pZGVudGl0eS1wcm92aWRlcnMiLCJtYW5hZ2UtaWRlbnRpdHktcHJvdmlkZXJzIiwiaW1wZXJzb25hdGlvbiIsImNyZWF0ZS1jbGllbnQiLCJtYW5hZ2UtdXNlcnMiLCJ2aWV3LWF1dGhvcml6YXRpb24iLCJtYW5hZ2UtZXZlbnRzIiwibWFuYWdlLXJlYWxtIiwidmlldy1ldmVudHMiLCJ2aWV3LXVzZXJzIiwidmlldy1jbGllbnRzIiwibWFuYWdlLWF1dGhvcml6YXRpb24iLCJtYW5hZ2UtY2xpZW50cyJdfSwiYWNjb3VudCI6eyJyb2xlcyI6WyJtYW5hZ2UtYWNjb3VudCIsIm1hbmFnZS1hY2NvdW50LWxpbmtzIiwidmlldy1wcm9maWxlIl19fSwiY29udHJhY3RvciI6eyJpZCI6IjYwOSJ9LCJwZXJzb24iOnsiaWQiOiI0MjYyNyJ9LCJuYW1lIjoi0JPQtdC90L3QsNC00LjQuSDQnNCw0LrQsNGA0L7QsiIsInByZWZlcnJlZF91c2VybmFtZSI6IjAwMDAwMDEwMDUiLCJnaXZlbl9uYW1lIjoi0JPQtdC90L3QsNC00LjQuSIsImZhbWlseV9uYW1lIjoi0JzQsNC60LDRgNC-0LIiLCJlbWFpbCI6ImdtYWthcm92QG9ib3ouY29tIn0.DDmESVFTbTeZVViL_6C5PQidsbmNJ7MVgtEPHpkchF7E00gJ0lYNhvtknFK8M7S-d6_8j2_4_QQjN5VcyPY0tzIUBJgYTaIT-LgGu6NF94-G1qrWIqDxVe4btKEijMKKYcBfLNzp9v59bRDoWMpFzF78yHqmBKeSBzxBPllfMvwxbUEHtiQxqFAB7-DEu48-PRy91C1I3StemW8qyLSoDnOzkDpwawaO_5K2fK6tnOd6h4Di4S9oWYNQ9JHypyRMrstYTHMp1z9vAcUWbjFbQrUTmp-qpkYGi_eIKf__fAJdcGUrVZEboQFQZxA0mzYpCkVjHWu_P0mFnd13_AqYNw");
         ResponseEntity<Resource> response = getResourceResponseEntity(url, headers);
         if (response != null) return response;
         log.error("server {} returned bad response", url);
@@ -275,9 +282,9 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
     @Override
     public ResponseEntity<Resource> downloadRequest(String tripNum) {
         String uuidFile = tripRequestAdvancePaymentRepository.findRequestAdvancePaymentByTripNum(tripNum).getUuidContractApplicationFile();
-        String url = "https://preprod.oboz.online/api/bstore/" + uuidFile;
+        String url = applicationProperties.getBStoreUrl() + uuidFile;
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJtZWwxMDZWemFlZGpmU3ctUVRtblVLa3ZuQUlfdXB3TGdRZHY4Vm85SEk4In0.eyJqdGkiOiJmMGY4OTBmMi03OTZiLTQwMDEtYjg2Yi0zY2YzMGM1NTRhYWQiLCJleHAiOjE2MTU0NTkzNjgsIm5iZiI6MCwiaWF0IjoxNTgzOTIzMzY4LCJpc3MiOiJodHRwczovL3ByZXByb2Qub2Jvei5vbmxpbmUvYXV0aC9yZWFsbXMvbWFzdGVyIiwiYXVkIjoiZWxwIiwic3ViIjoiZjpmY2MwMzM2Yy1lNmYyLTRlZTctYjllYi1jMjU2NDY3M2IwMzY6NDI2MjciLCJ0eXAiOiJCZWFyZXIiLCJhenAiOiJlbHAiLCJhdXRoX3RpbWUiOjAsInNlc3Npb25fc3RhdGUiOiI3ZTY1NGMzYi04OTMwLTQwMDctOGQ2Zi01N2JlYzQyNzU1OTAiLCJhY3IiOiIxIiwiY2xpZW50X3Nlc3Npb24iOiJhYTRlZjg4ZC02MjYxLTRkZTItYWQ2MS1mNDQ4OTg3MWJjOGMiLCJhbGxvd2VkLW9yaWdpbnMiOlsiKiJdLCJyZWFsbV9hY2Nlc3MiOnsicm9sZXMiOlsiY3JlYXRlLXJlYWxtIiwiY2FycmllciIsImVscC1hZG1pbiIsInNlbmRlciIsImFkbWluIiwidW1hX2F1dGhvcml6YXRpb24iLCJkaXNwYXRjaGVyIl19LCJyZXNvdXJjZV9hY2Nlc3MiOnsiZHJpdmVyLWFwcC1yZWFsbSI6eyJyb2xlcyI6WyJ2aWV3LWlkZW50aXR5LXByb3ZpZGVycyIsInZpZXctcmVhbG0iLCJtYW5hZ2UtaWRlbnRpdHktcHJvdmlkZXJzIiwiaW1wZXJzb25hdGlvbiIsImNyZWF0ZS1jbGllbnQiLCJtYW5hZ2UtdXNlcnMiLCJ2aWV3LWF1dGhvcml6YXRpb24iLCJtYW5hZ2UtZXZlbnRzIiwibWFuYWdlLXJlYWxtIiwidmlldy1ldmVudHMiLCJ2aWV3LXVzZXJzIiwidmlldy1jbGllbnRzIiwibWFuYWdlLWF1dGhvcml6YXRpb24iLCJtYW5hZ2UtY2xpZW50cyJdfSwiZHJpdmVyLWFwcC1yZWdpc3RyYXRpb24tcmVhbG0iOnsicm9sZXMiOlsidmlldy1yZWFsbSIsInZpZXctaWRlbnRpdHktcHJvdmlkZXJzIiwibWFuYWdlLWlkZW50aXR5LXByb3ZpZGVycyIsImltcGVyc29uYXRpb24iLCJjcmVhdGUtY2xpZW50IiwibWFuYWdlLXVzZXJzIiwidmlldy1hdXRob3JpemF0aW9uIiwibWFuYWdlLWV2ZW50cyIsIm1hbmFnZS1yZWFsbSIsInZpZXctZXZlbnRzIiwidmlldy11c2VycyIsInZpZXctY2xpZW50cyIsIm1hbmFnZS1hdXRob3JpemF0aW9uIiwibWFuYWdlLWNsaWVudHMiXX0sImRtcy1yZWFsbSI6eyJyb2xlcyI6WyJ2aWV3LWlkZW50aXR5LXByb3ZpZGVycyIsInZpZXctcmVhbG0iLCJtYW5hZ2UtaWRlbnRpdHktcHJvdmlkZXJzIiwiaW1wZXJzb25hdGlvbiIsImNyZWF0ZS1jbGllbnQiLCJtYW5hZ2UtdXNlcnMiLCJ2aWV3LWF1dGhvcml6YXRpb24iLCJtYW5hZ2UtZXZlbnRzIiwibWFuYWdlLXJlYWxtIiwidmlldy1ldmVudHMiLCJ2aWV3LXVzZXJzIiwidmlldy1jbGllbnRzIiwibWFuYWdlLWF1dGhvcml6YXRpb24iLCJtYW5hZ2UtY2xpZW50cyJdfSwicHVibGljLXJlYWxtIjp7InJvbGVzIjpbInZpZXctcmVhbG0iLCJ2aWV3LWlkZW50aXR5LXByb3ZpZGVycyIsIm1hbmFnZS1pZGVudGl0eS1wcm92aWRlcnMiLCJpbXBlcnNvbmF0aW9uIiwiY3JlYXRlLWNsaWVudCIsIm1hbmFnZS11c2VycyIsInZpZXctYXV0aG9yaXphdGlvbiIsIm1hbmFnZS1ldmVudHMiLCJtYW5hZ2UtcmVhbG0iLCJ2aWV3LWV2ZW50cyIsInZpZXctdXNlcnMiLCJ2aWV3LWNsaWVudHMiLCJtYW5hZ2UtYXV0aG9yaXphdGlvbiIsIm1hbmFnZS1jbGllbnRzIl19LCJtYXN0ZXItcmVhbG0iOnsicm9sZXMiOlsidmlldy1yZWFsbSIsInZpZXctaWRlbnRpdHktcHJvdmlkZXJzIiwibWFuYWdlLWlkZW50aXR5LXByb3ZpZGVycyIsImltcGVyc29uYXRpb24iLCJjcmVhdGUtY2xpZW50IiwibWFuYWdlLXVzZXJzIiwidmlldy1hdXRob3JpemF0aW9uIiwibWFuYWdlLWV2ZW50cyIsIm1hbmFnZS1yZWFsbSIsInZpZXctZXZlbnRzIiwidmlldy11c2VycyIsInZpZXctY2xpZW50cyIsIm1hbmFnZS1hdXRob3JpemF0aW9uIiwibWFuYWdlLWNsaWVudHMiXX0sImFjY291bnQiOnsicm9sZXMiOlsibWFuYWdlLWFjY291bnQiLCJtYW5hZ2UtYWNjb3VudC1saW5rcyIsInZpZXctcHJvZmlsZSJdfX0sImNvbnRyYWN0b3IiOnsiaWQiOiI2MDkifSwicGVyc29uIjp7ImlkIjoiNDI2MjcifSwibmFtZSI6ItCT0LXQvdC90LDQtNC40Lkg0JzQsNC60LDRgNC-0LIiLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiIwMDAwMDAxMDA1IiwiZ2l2ZW5fbmFtZSI6ItCT0LXQvdC90LDQtNC40LkiLCJmYW1pbHlfbmFtZSI6ItCc0LDQutCw0YDQvtCyIiwiZW1haWwiOiJnbWFrYXJvdkBvYm96LmNvbSJ9.Mm9jTH1B-n-awgofxTy7aNJLhu83J4-mG98nhWkrzBq8oGCQbEzAranSO1r_LsgARg8-bqb0ek4AC9Fa_CCwNNEPlCQB1ufOA3CVDNttm1o5I2HuYk1jlcmQBInePxBqQJqkAyeAYVkwn5AT_21Rv0VJRkH9VkXPeDV9vseBp5P_N1bYjoWLRlhPwqjqwSnzpCukduFzTerws5ngf54H1CVVTaBR9FS7w_y3ql5RSeECE-Z3_4-lkSgC7WjzPxEUfxz-1I1f7fqQn9NZKW4FdFOdVUoUW-tOqVYWfJ_erDWcRvt0VXw-1iKX_r7g50-ACV0VYFscPzEziSKihtw8sA");
+        headers.add(HttpHeaders.AUTHORIZATION, "Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJtZWwxMDZWemFlZGpmU3ctUVRtblVLa3ZuQUlfdXB3TGdRZHY4Vm85SEk4In0.eyJqdGkiOiI3MmRjZDA2NS1mMDhmLTRkZjAtYjMwMi0zNzNiYzUwZDAzNjYiLCJleHAiOjE2MTU2NDk0NjAsIm5iZiI6MCwiaWF0IjoxNTg0MTEzNDYwLCJpc3MiOiJodHRwczovL2Rldi5vYm96Lm9ubGluZS9hdXRoL3JlYWxtcy9tYXN0ZXIiLCJhdWQiOiJlbHAiLCJzdWIiOiJmOmZjYzAzMzZjLWU2ZjItNGVlNy1iOWViLWMyNTY0NjczYjAzNjo0MjYyNyIsInR5cCI6IkJlYXJlciIsImF6cCI6ImVscCIsImF1dGhfdGltZSI6MCwic2Vzc2lvbl9zdGF0ZSI6IjBjM2U4MzI4LTYxNjctNDlhYi05MWI2LWJjNGMyM2ZhZjljZSIsImFjciI6IjEiLCJjbGllbnRfc2Vzc2lvbiI6IjBmYTc4NjVmLTVmN2QtNDFhOC05NjU2LTE0MWQ0YjU3ODI1OSIsImFsbG93ZWQtb3JpZ2lucyI6WyIqIl0sInJlYWxtX2FjY2VzcyI6eyJyb2xlcyI6WyJjcmVhdGUtcmVhbG0iLCJjYXJyaWVyIiwiZWxwLWFkbWluIiwic2VuZGVyIiwiYWRtaW4iLCJ1bWFfYXV0aG9yaXphdGlvbiIsImRpc3BhdGNoZXIiXX0sInJlc291cmNlX2FjY2VzcyI6eyJkcml2ZXItYXBwLXJlYWxtIjp7InJvbGVzIjpbInZpZXctcmVhbG0iLCJ2aWV3LWlkZW50aXR5LXByb3ZpZGVycyIsIm1hbmFnZS1pZGVudGl0eS1wcm92aWRlcnMiLCJpbXBlcnNvbmF0aW9uIiwiY3JlYXRlLWNsaWVudCIsIm1hbmFnZS11c2VycyIsInZpZXctYXV0aG9yaXphdGlvbiIsIm1hbmFnZS1ldmVudHMiLCJtYW5hZ2UtcmVhbG0iLCJ2aWV3LWV2ZW50cyIsInZpZXctdXNlcnMiLCJ2aWV3LWNsaWVudHMiLCJtYW5hZ2UtYXV0aG9yaXphdGlvbiIsIm1hbmFnZS1jbGllbnRzIl19LCJkcml2ZXItYXBwLXJlZ2lzdHJhdGlvbi1yZWFsbSI6eyJyb2xlcyI6WyJ2aWV3LXJlYWxtIiwidmlldy1pZGVudGl0eS1wcm92aWRlcnMiLCJtYW5hZ2UtaWRlbnRpdHktcHJvdmlkZXJzIiwiaW1wZXJzb25hdGlvbiIsImNyZWF0ZS1jbGllbnQiLCJtYW5hZ2UtdXNlcnMiLCJ2aWV3LWF1dGhvcml6YXRpb24iLCJtYW5hZ2UtZXZlbnRzIiwibWFuYWdlLXJlYWxtIiwidmlldy1ldmVudHMiLCJ2aWV3LXVzZXJzIiwidmlldy1jbGllbnRzIiwibWFuYWdlLWF1dGhvcml6YXRpb24iLCJtYW5hZ2UtY2xpZW50cyJdfSwiZG1zLXJlYWxtIjp7InJvbGVzIjpbInZpZXctcmVhbG0iLCJ2aWV3LWlkZW50aXR5LXByb3ZpZGVycyIsIm1hbmFnZS1pZGVudGl0eS1wcm92aWRlcnMiLCJpbXBlcnNvbmF0aW9uIiwiY3JlYXRlLWNsaWVudCIsIm1hbmFnZS11c2VycyIsInZpZXctYXV0aG9yaXphdGlvbiIsIm1hbmFnZS1ldmVudHMiLCJtYW5hZ2UtcmVhbG0iLCJ2aWV3LWV2ZW50cyIsInZpZXctdXNlcnMiLCJ2aWV3LWNsaWVudHMiLCJtYW5hZ2UtYXV0aG9yaXphdGlvbiIsIm1hbmFnZS1jbGllbnRzIl19LCJwdWJsaWMtcmVhbG0iOnsicm9sZXMiOlsidmlldy1yZWFsbSIsInZpZXctaWRlbnRpdHktcHJvdmlkZXJzIiwibWFuYWdlLWlkZW50aXR5LXByb3ZpZGVycyIsImltcGVyc29uYXRpb24iLCJjcmVhdGUtY2xpZW50IiwibWFuYWdlLXVzZXJzIiwidmlldy1hdXRob3JpemF0aW9uIiwibWFuYWdlLWV2ZW50cyIsIm1hbmFnZS1yZWFsbSIsInZpZXctZXZlbnRzIiwidmlldy11c2VycyIsInZpZXctY2xpZW50cyIsIm1hbmFnZS1hdXRob3JpemF0aW9uIiwibWFuYWdlLWNsaWVudHMiXX0sIm1hc3Rlci1yZWFsbSI6eyJyb2xlcyI6WyJ2aWV3LXJlYWxtIiwidmlldy1pZGVudGl0eS1wcm92aWRlcnMiLCJtYW5hZ2UtaWRlbnRpdHktcHJvdmlkZXJzIiwiaW1wZXJzb25hdGlvbiIsImNyZWF0ZS1jbGllbnQiLCJtYW5hZ2UtdXNlcnMiLCJ2aWV3LWF1dGhvcml6YXRpb24iLCJtYW5hZ2UtZXZlbnRzIiwibWFuYWdlLXJlYWxtIiwidmlldy1ldmVudHMiLCJ2aWV3LXVzZXJzIiwidmlldy1jbGllbnRzIiwibWFuYWdlLWF1dGhvcml6YXRpb24iLCJtYW5hZ2UtY2xpZW50cyJdfSwiYWNjb3VudCI6eyJyb2xlcyI6WyJtYW5hZ2UtYWNjb3VudCIsIm1hbmFnZS1hY2NvdW50LWxpbmtzIiwidmlldy1wcm9maWxlIl19fSwiY29udHJhY3RvciI6eyJpZCI6IjYwOSJ9LCJwZXJzb24iOnsiaWQiOiI0MjYyNyJ9LCJuYW1lIjoi0JPQtdC90L3QsNC00LjQuSDQnNCw0LrQsNGA0L7QsiIsInByZWZlcnJlZF91c2VybmFtZSI6IjAwMDAwMDEwMDUiLCJnaXZlbl9uYW1lIjoi0JPQtdC90L3QsNC00LjQuSIsImZhbWlseV9uYW1lIjoi0JzQsNC60LDRgNC-0LIiLCJlbWFpbCI6ImdtYWthcm92QG9ib3ouY29tIn0.DDmESVFTbTeZVViL_6C5PQidsbmNJ7MVgtEPHpkchF7E00gJ0lYNhvtknFK8M7S-d6_8j2_4_QQjN5VcyPY0tzIUBJgYTaIT-LgGu6NF94-G1qrWIqDxVe4btKEijMKKYcBfLNzp9v59bRDoWMpFzF78yHqmBKeSBzxBPllfMvwxbUEHtiQxqFAB7-DEu48-PRy91C1I3StemW8qyLSoDnOzkDpwawaO_5K2fK6tnOd6h4Di4S9oWYNQ9JHypyRMrstYTHMp1z9vAcUWbjFbQrUTmp-qpkYGi_eIKf__fAJdcGUrVZEboQFQZxA0mzYpCkVjHWu_P0mFnd13_AqYNw");
         ResponseEntity<Resource> response = getResourceResponseEntity(url, headers);
         if (response != null) return response;
         log.error("server {} returned bad response", url);
@@ -297,12 +304,21 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
 
     @Override
     public ResponseEntity<Void> uploadRequestAdvance(MultipartFile filename, String tripNum) {
-        String url = "https://preprod.oboz.online/api/bstore/pdf/";// applicationProperties.getBStoreUrl();
+        Trip trip = tripRepository.getTripByNum(tripNum).get();
+        Contractor contractor = contractorRepository.findById(trip.getContractorId()).orElseThrow(() -> {
+                Error error = new Error();
+                error.setErrorMessage("Contractor not found for tripId: " + trip.getId());
+                return new BusinessLogicException(HttpStatus.UNPROCESSABLE_ENTITY, error);
+            }
+        );
+        TripRequestAdvancePayment tripRequestAdvancePayment = tripRequestAdvancePaymentRepository
+            .findRequestAdvancePayment(trip.getId(), trip.getDriverId(), trip.getContractorId());
+        String url = applicationProperties.getBStoreUrl() + "pdf/";
 //        ResponseEntity<Resource> response;
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Type", "multipart/form-data;");
-        final String bearer = "Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJtZWwxMDZWemFlZGpmU3ctUVRtblVLa3ZuQUlfdXB3TGdRZHY4Vm85SEk4In0.eyJqdGkiOiJmMGY4OTBmMi03OTZiLTQwMDEtYjg2Yi0zY2YzMGM1NTRhYWQiLCJleHAiOjE2MTU0NTkzNjgsIm5iZiI6MCwiaWF0IjoxNTgzOTIzMzY4LCJpc3MiOiJodHRwczovL3ByZXByb2Qub2Jvei5vbmxpbmUvYXV0aC9yZWFsbXMvbWFzdGVyIiwiYXVkIjoiZWxwIiwic3ViIjoiZjpmY2MwMzM2Yy1lNmYyLTRlZTctYjllYi1jMjU2NDY3M2IwMzY6NDI2MjciLCJ0eXAiOiJCZWFyZXIiLCJhenAiOiJlbHAiLCJhdXRoX3RpbWUiOjAsInNlc3Npb25fc3RhdGUiOiI3ZTY1NGMzYi04OTMwLTQwMDctOGQ2Zi01N2JlYzQyNzU1OTAiLCJhY3IiOiIxIiwiY2xpZW50X3Nlc3Npb24iOiJhYTRlZjg4ZC02MjYxLTRkZTItYWQ2MS1mNDQ4OTg3MWJjOGMiLCJhbGxvd2VkLW9yaWdpbnMiOlsiKiJdLCJyZWFsbV9hY2Nlc3MiOnsicm9sZXMiOlsiY3JlYXRlLXJlYWxtIiwiY2FycmllciIsImVscC1hZG1pbiIsInNlbmRlciIsImFkbWluIiwidW1hX2F1dGhvcml6YXRpb24iLCJkaXNwYXRjaGVyIl19LCJyZXNvdXJjZV9hY2Nlc3MiOnsiZHJpdmVyLWFwcC1yZWFsbSI6eyJyb2xlcyI6WyJ2aWV3LWlkZW50aXR5LXByb3ZpZGVycyIsInZpZXctcmVhbG0iLCJtYW5hZ2UtaWRlbnRpdHktcHJvdmlkZXJzIiwiaW1wZXJzb25hdGlvbiIsImNyZWF0ZS1jbGllbnQiLCJtYW5hZ2UtdXNlcnMiLCJ2aWV3LWF1dGhvcml6YXRpb24iLCJtYW5hZ2UtZXZlbnRzIiwibWFuYWdlLXJlYWxtIiwidmlldy1ldmVudHMiLCJ2aWV3LXVzZXJzIiwidmlldy1jbGllbnRzIiwibWFuYWdlLWF1dGhvcml6YXRpb24iLCJtYW5hZ2UtY2xpZW50cyJdfSwiZHJpdmVyLWFwcC1yZWdpc3RyYXRpb24tcmVhbG0iOnsicm9sZXMiOlsidmlldy1yZWFsbSIsInZpZXctaWRlbnRpdHktcHJvdmlkZXJzIiwibWFuYWdlLWlkZW50aXR5LXByb3ZpZGVycyIsImltcGVyc29uYXRpb24iLCJjcmVhdGUtY2xpZW50IiwibWFuYWdlLXVzZXJzIiwidmlldy1hdXRob3JpemF0aW9uIiwibWFuYWdlLWV2ZW50cyIsIm1hbmFnZS1yZWFsbSIsInZpZXctZXZlbnRzIiwidmlldy11c2VycyIsInZpZXctY2xpZW50cyIsIm1hbmFnZS1hdXRob3JpemF0aW9uIiwibWFuYWdlLWNsaWVudHMiXX0sImRtcy1yZWFsbSI6eyJyb2xlcyI6WyJ2aWV3LWlkZW50aXR5LXByb3ZpZGVycyIsInZpZXctcmVhbG0iLCJtYW5hZ2UtaWRlbnRpdHktcHJvdmlkZXJzIiwiaW1wZXJzb25hdGlvbiIsImNyZWF0ZS1jbGllbnQiLCJtYW5hZ2UtdXNlcnMiLCJ2aWV3LWF1dGhvcml6YXRpb24iLCJtYW5hZ2UtZXZlbnRzIiwibWFuYWdlLXJlYWxtIiwidmlldy1ldmVudHMiLCJ2aWV3LXVzZXJzIiwidmlldy1jbGllbnRzIiwibWFuYWdlLWF1dGhvcml6YXRpb24iLCJtYW5hZ2UtY2xpZW50cyJdfSwicHVibGljLXJlYWxtIjp7InJvbGVzIjpbInZpZXctcmVhbG0iLCJ2aWV3LWlkZW50aXR5LXByb3ZpZGVycyIsIm1hbmFnZS1pZGVudGl0eS1wcm92aWRlcnMiLCJpbXBlcnNvbmF0aW9uIiwiY3JlYXRlLWNsaWVudCIsIm1hbmFnZS11c2VycyIsInZpZXctYXV0aG9yaXphdGlvbiIsIm1hbmFnZS1ldmVudHMiLCJtYW5hZ2UtcmVhbG0iLCJ2aWV3LWV2ZW50cyIsInZpZXctdXNlcnMiLCJ2aWV3LWNsaWVudHMiLCJtYW5hZ2UtYXV0aG9yaXphdGlvbiIsIm1hbmFnZS1jbGllbnRzIl19LCJtYXN0ZXItcmVhbG0iOnsicm9sZXMiOlsidmlldy1yZWFsbSIsInZpZXctaWRlbnRpdHktcHJvdmlkZXJzIiwibWFuYWdlLWlkZW50aXR5LXByb3ZpZGVycyIsImltcGVyc29uYXRpb24iLCJjcmVhdGUtY2xpZW50IiwibWFuYWdlLXVzZXJzIiwidmlldy1hdXRob3JpemF0aW9uIiwibWFuYWdlLWV2ZW50cyIsIm1hbmFnZS1yZWFsbSIsInZpZXctZXZlbnRzIiwidmlldy11c2VycyIsInZpZXctY2xpZW50cyIsIm1hbmFnZS1hdXRob3JpemF0aW9uIiwibWFuYWdlLWNsaWVudHMiXX0sImFjY291bnQiOnsicm9sZXMiOlsibWFuYWdlLWFjY291bnQiLCJtYW5hZ2UtYWNjb3VudC1saW5rcyIsInZpZXctcHJvZmlsZSJdfX0sImNvbnRyYWN0b3IiOnsiaWQiOiI2MDkifSwicGVyc29uIjp7ImlkIjoiNDI2MjcifSwibmFtZSI6ItCT0LXQvdC90LDQtNC40Lkg0JzQsNC60LDRgNC-0LIiLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiIwMDAwMDAxMDA1IiwiZ2l2ZW5fbmFtZSI6ItCT0LXQvdC90LDQtNC40LkiLCJmYW1pbHlfbmFtZSI6ItCc0LDQutCw0YDQvtCyIiwiZW1haWwiOiJnbWFrYXJvdkBvYm96LmNvbSJ9.Mm9jTH1B-n-awgofxTy7aNJLhu83J4-mG98nhWkrzBq8oGCQbEzAranSO1r_LsgARg8-bqb0ek4AC9Fa_CCwNNEPlCQB1ufOA3CVDNttm1o5I2HuYk1jlcmQBInePxBqQJqkAyeAYVkwn5AT_21Rv0VJRkH9VkXPeDV9vseBp5P_N1bYjoWLRlhPwqjqwSnzpCukduFzTerws5ngf54H1CVVTaBR9FS7w_y3ql5RSeECE-Z3_4-lkSgC7WjzPxEUfxz-1I1f7fqQn9NZKW4FdFOdVUoUW-tOqVYWfJ_erDWcRvt0VXw-1iKX_r7g50-ACV0VYFscPzEziSKihtw8sA";
-        headers.add("Authorization", bearer);
+        headers.add(HttpHeaders.CONTENT_TYPE, "multipart/form-data;");
+        final String bearer = "Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJtZWwxMDZWemFlZGpmU3ctUVRtblVLa3ZuQUlfdXB3TGdRZHY4Vm85SEk4In0.eyJqdGkiOiI3MmRjZDA2NS1mMDhmLTRkZjAtYjMwMi0zNzNiYzUwZDAzNjYiLCJleHAiOjE2MTU2NDk0NjAsIm5iZiI6MCwiaWF0IjoxNTg0MTEzNDYwLCJpc3MiOiJodHRwczovL2Rldi5vYm96Lm9ubGluZS9hdXRoL3JlYWxtcy9tYXN0ZXIiLCJhdWQiOiJlbHAiLCJzdWIiOiJmOmZjYzAzMzZjLWU2ZjItNGVlNy1iOWViLWMyNTY0NjczYjAzNjo0MjYyNyIsInR5cCI6IkJlYXJlciIsImF6cCI6ImVscCIsImF1dGhfdGltZSI6MCwic2Vzc2lvbl9zdGF0ZSI6IjBjM2U4MzI4LTYxNjctNDlhYi05MWI2LWJjNGMyM2ZhZjljZSIsImFjciI6IjEiLCJjbGllbnRfc2Vzc2lvbiI6IjBmYTc4NjVmLTVmN2QtNDFhOC05NjU2LTE0MWQ0YjU3ODI1OSIsImFsbG93ZWQtb3JpZ2lucyI6WyIqIl0sInJlYWxtX2FjY2VzcyI6eyJyb2xlcyI6WyJjcmVhdGUtcmVhbG0iLCJjYXJyaWVyIiwiZWxwLWFkbWluIiwic2VuZGVyIiwiYWRtaW4iLCJ1bWFfYXV0aG9yaXphdGlvbiIsImRpc3BhdGNoZXIiXX0sInJlc291cmNlX2FjY2VzcyI6eyJkcml2ZXItYXBwLXJlYWxtIjp7InJvbGVzIjpbInZpZXctcmVhbG0iLCJ2aWV3LWlkZW50aXR5LXByb3ZpZGVycyIsIm1hbmFnZS1pZGVudGl0eS1wcm92aWRlcnMiLCJpbXBlcnNvbmF0aW9uIiwiY3JlYXRlLWNsaWVudCIsIm1hbmFnZS11c2VycyIsInZpZXctYXV0aG9yaXphdGlvbiIsIm1hbmFnZS1ldmVudHMiLCJtYW5hZ2UtcmVhbG0iLCJ2aWV3LWV2ZW50cyIsInZpZXctdXNlcnMiLCJ2aWV3LWNsaWVudHMiLCJtYW5hZ2UtYXV0aG9yaXphdGlvbiIsIm1hbmFnZS1jbGllbnRzIl19LCJkcml2ZXItYXBwLXJlZ2lzdHJhdGlvbi1yZWFsbSI6eyJyb2xlcyI6WyJ2aWV3LXJlYWxtIiwidmlldy1pZGVudGl0eS1wcm92aWRlcnMiLCJtYW5hZ2UtaWRlbnRpdHktcHJvdmlkZXJzIiwiaW1wZXJzb25hdGlvbiIsImNyZWF0ZS1jbGllbnQiLCJtYW5hZ2UtdXNlcnMiLCJ2aWV3LWF1dGhvcml6YXRpb24iLCJtYW5hZ2UtZXZlbnRzIiwibWFuYWdlLXJlYWxtIiwidmlldy1ldmVudHMiLCJ2aWV3LXVzZXJzIiwidmlldy1jbGllbnRzIiwibWFuYWdlLWF1dGhvcml6YXRpb24iLCJtYW5hZ2UtY2xpZW50cyJdfSwiZG1zLXJlYWxtIjp7InJvbGVzIjpbInZpZXctcmVhbG0iLCJ2aWV3LWlkZW50aXR5LXByb3ZpZGVycyIsIm1hbmFnZS1pZGVudGl0eS1wcm92aWRlcnMiLCJpbXBlcnNvbmF0aW9uIiwiY3JlYXRlLWNsaWVudCIsIm1hbmFnZS11c2VycyIsInZpZXctYXV0aG9yaXphdGlvbiIsIm1hbmFnZS1ldmVudHMiLCJtYW5hZ2UtcmVhbG0iLCJ2aWV3LWV2ZW50cyIsInZpZXctdXNlcnMiLCJ2aWV3LWNsaWVudHMiLCJtYW5hZ2UtYXV0aG9yaXphdGlvbiIsIm1hbmFnZS1jbGllbnRzIl19LCJwdWJsaWMtcmVhbG0iOnsicm9sZXMiOlsidmlldy1yZWFsbSIsInZpZXctaWRlbnRpdHktcHJvdmlkZXJzIiwibWFuYWdlLWlkZW50aXR5LXByb3ZpZGVycyIsImltcGVyc29uYXRpb24iLCJjcmVhdGUtY2xpZW50IiwibWFuYWdlLXVzZXJzIiwidmlldy1hdXRob3JpemF0aW9uIiwibWFuYWdlLWV2ZW50cyIsIm1hbmFnZS1yZWFsbSIsInZpZXctZXZlbnRzIiwidmlldy11c2VycyIsInZpZXctY2xpZW50cyIsIm1hbmFnZS1hdXRob3JpemF0aW9uIiwibWFuYWdlLWNsaWVudHMiXX0sIm1hc3Rlci1yZWFsbSI6eyJyb2xlcyI6WyJ2aWV3LXJlYWxtIiwidmlldy1pZGVudGl0eS1wcm92aWRlcnMiLCJtYW5hZ2UtaWRlbnRpdHktcHJvdmlkZXJzIiwiaW1wZXJzb25hdGlvbiIsImNyZWF0ZS1jbGllbnQiLCJtYW5hZ2UtdXNlcnMiLCJ2aWV3LWF1dGhvcml6YXRpb24iLCJtYW5hZ2UtZXZlbnRzIiwibWFuYWdlLXJlYWxtIiwidmlldy1ldmVudHMiLCJ2aWV3LXVzZXJzIiwidmlldy1jbGllbnRzIiwibWFuYWdlLWF1dGhvcml6YXRpb24iLCJtYW5hZ2UtY2xpZW50cyJdfSwiYWNjb3VudCI6eyJyb2xlcyI6WyJtYW5hZ2UtYWNjb3VudCIsIm1hbmFnZS1hY2NvdW50LWxpbmtzIiwidmlldy1wcm9maWxlIl19fSwiY29udHJhY3RvciI6eyJpZCI6IjYwOSJ9LCJwZXJzb24iOnsiaWQiOiI0MjYyNyJ9LCJuYW1lIjoi0JPQtdC90L3QsNC00LjQuSDQnNCw0LrQsNGA0L7QsiIsInByZWZlcnJlZF91c2VybmFtZSI6IjAwMDAwMDEwMDUiLCJnaXZlbl9uYW1lIjoi0JPQtdC90L3QsNC00LjQuSIsImZhbWlseV9uYW1lIjoi0JzQsNC60LDRgNC-0LIiLCJlbWFpbCI6ImdtYWthcm92QG9ib3ouY29tIn0.DDmESVFTbTeZVViL_6C5PQidsbmNJ7MVgtEPHpkchF7E00gJ0lYNhvtknFK8M7S-d6_8j2_4_QQjN5VcyPY0tzIUBJgYTaIT-LgGu6NF94-G1qrWIqDxVe4btKEijMKKYcBfLNzp9v59bRDoWMpFzF78yHqmBKeSBzxBPllfMvwxbUEHtiQxqFAB7-DEu48-PRy91C1I3StemW8qyLSoDnOzkDpwawaO_5K2fK6tnOd6h4Di4S9oWYNQ9JHypyRMrstYTHMp1z9vAcUWbjFbQrUTmp-qpkYGi_eIKf__fAJdcGUrVZEboQFQZxA0mzYpCkVjHWu_P0mFnd13_AqYNw";
+        headers.add(HttpHeaders.AUTHORIZATION, bearer);
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         body.add("file", filename.getResource());
         HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<>(body, headers);
@@ -311,7 +327,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
             try {
                 JsonNode jsonNode = objectMapper.readTree(response.getBody());
                 String fileUuid = jsonNode.get("file_uuid").asText();
-                return saveTripDocuments(tripNum, fileUuid, bearer);
+                return saveTripDocuments(tripNum, fileUuid, bearer, tripRequestAdvancePayment);
             } catch (IOException e) {
                 log.error("", e);
             }
@@ -324,8 +340,8 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
 
     @Override
     public ResponseEntity<Void> uploadRequestAvanceForCarrier(MultipartFile filename, String trip_num) {
-
-        return null;
+        uploadRequestAdvance(filename, trip_num);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @Override
@@ -521,8 +537,8 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
 
     }
 
-    private ResponseEntity<Void> saveTripDocuments(String tripNum, String fileUuid, String bearer) {
-        String url = "https://preprod.oboz.online/api/orders/dispatcher/orders/%d/trips/%d/documents";// applicationProperties.getBaseUrl();
+    private ResponseEntity<Void> saveTripDocuments(String tripNum, String fileUuid, String bearer, TripRequestAdvancePayment tripRequestAdvancePayment) {
+        String url = applicationProperties.getOrdersApiUrl();
         Trip trip = tripRepository.getTripByNum(tripNum).orElseThrow(() -> {
                 Error error = new Error();
                 error.setErrorMessage("trip not found");
@@ -532,8 +548,8 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
         url = String.format(url, trip.getOrderId(), trip.getId());
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.add("Authorization", bearer);
-        final String s = "{\"trip_document\":{\"id\":null,\"file_id\":\"%s\",\"document_type_code\":\"trip_request\",\"name\":\"Договор-заявка\"}}";
+        headers.add(HttpHeaders.AUTHORIZATION, bearer);
+        final String s = "{\"trip_document\":{\"id\":null,\"file_id\":\"%s\",\"document_type_code\":\"assignment_advance_request\",\"name\":\"Заявка на авансирование\"}}";
         HttpEntity<String> request = new HttpEntity<>(String.format(s, fileUuid), headers);
         ResponseEntity<Void> response = new RestTemplate().exchange(url, HttpMethod.POST, request, Void.class);
         if (response.getStatusCode().value() == 200) {
@@ -541,6 +557,8 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
         } else {
             log.error("saveTripDocuments fail. http code {}", response.getStatusCode().value());
         }
+        tripRequestAdvancePayment.setUuidAdvanceApplicationFile(fileUuid);
+        tripRequestAdvancePaymentRepository.save(tripRequestAdvancePayment);
         return response;
     }
 
@@ -563,9 +581,9 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
         Map<String, String> fileAdvanceRequestUuidMap = autoAdvancedService.findAdvanceRequestDocs(trip);
         String requestFileUuid = Optional.ofNullable(fileRequestUuidMap.get("request")).orElse(fileRequestUuidMap.get("trip_request"));
         String advanceRequestFileUuid = fileAdvanceRequestUuidMap.get("assignment_advance_request");
-        final boolean isAllDocsUpload = requestFileUuid != null && advanceRequestFileUuid.isEmpty();
+        final boolean isAllDocsUpload = requestFileUuid != null && advanceRequestFileUuid != null;
         if (!isAllDocsUpload) {
-            log.info("Не загружены документы заявка / договор заявка  ");
+            log.info("Не загружены документы заявка / договор заявка и договор заявка на авансирование");
         }
         return isAllDocsUpload;
     }
@@ -616,6 +634,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
         tripRequestAdvancePayment.setPaidAt(OffsetDateTime.now());
         tripRequestAdvancePayment.setCancelAdvanceComment("");
         tripRequestAdvancePayment.setIsAutomationRequest(contractor.getIsAutoAdvancePayment());
+        tripRequestAdvancePayment.setUuidRequest(UUID.randomUUID());
 
         return tripRequestAdvancePayment;
     }
@@ -650,4 +669,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
         return contractorAdvancePaymentContactRepository
             .findContractorAdvancePaymentContact(contractorId).orElse(new ContractorAdvancePaymentContact());
     }
+//    TODO gettoken
+//    TODO сделать выполнение без авторизации методов лк перевозчика
+
 }

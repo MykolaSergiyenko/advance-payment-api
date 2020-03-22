@@ -42,7 +42,7 @@ paths:
     /advance_payment/request_by_carrier/{uuid}:
         #     без авторизации
         post:
-            summary: "Запрос на выдачу аванса"
+            summary: "Хочу аванс экран поставщика"
             operationId: requestGiveAdvancePaymentForCarrier
             tags:
                 - Advance Payment
@@ -319,16 +319,18 @@ paths:
                 - Advance Payment
             parameters:
                 -   name: id
-                    in: path
+                    in: query
                     schema:
                         type: integer
                         format: int64
                     required: true
+                    description: "Номер запроса на аванс"
                 -   name: loading_complete
                     in: query
                     schema:
                         type: boolean
                     required: true
+                    description: "Флаг загрузился водитель"
             responses:
                 200:
                     description: "OK"

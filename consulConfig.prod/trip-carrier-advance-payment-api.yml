@@ -47,8 +47,8 @@ notification:
     lk-url: https://oboz.online/carrier-advance/
 
 services:
-    bstore-url: https://oboz.online/api/bstore/pdf
-    orders-api-url: https://oboz.online/api/orders/dispatcher/orders
+    bstore-url: https://oboz.online/api/bstore/
+    orders-api-url: https://oboz.online/api/orders/dispatcher/orders/%d/trips/%d/documents
     report-server-url: https://reports.oboz.com/reportserver/reportserver/httpauthexport?key=avance_request&user=bertathar&apikey=nzybc16h&p_trip_num=
     keycloak:
         url: http://keycloak:8080/auth/realms/master/protocol/openid-connect
