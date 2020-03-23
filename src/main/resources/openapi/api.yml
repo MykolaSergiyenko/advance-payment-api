@@ -39,37 +39,6 @@ paths:
                             schema:
                                 $ref: "#/components/schemas/Error"
 
-    /advance_payment/request_by_carrier/{uuid}:
-        #     без авторизации
-        post:
-            summary: "Хочу аванс экран поставщика"
-            operationId: requestGiveAdvancePaymentForCarrier
-            tags:
-                - Advance Payment
-            parameters:
-                -   name: uuid
-                    in: path
-                    description: "uuid заказа на аванс"
-                    required: true
-                    schema:
-                        type: string
-                        format: uuid
-            responses:
-                200:
-                    description: "OK"
-                default:
-                    description: "Some other error"
-                    content:
-                        application/json:
-                            schema:
-                                $ref: "#/components/schemas/Error"
-                422:
-                    description: "Business error"
-                    content:
-                        application/json:
-                            schema:
-                                $ref: "#/components/schemas/Error"
-
     /advance_payment/confirm_advance_payment/{id}:
         post:
             #            security:
@@ -168,41 +137,6 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/ResponseAdvancePayment'
-                default:
-                    description: "Some other error"
-                    content:
-                        application/json:
-                            schema:
-                                $ref: "#/components/schemas/Error"
-                422:
-                    description: "Business error"
-                    content:
-                        application/json:
-                            schema:
-                                $ref: "#/components/schemas/Error"
-
-    /advance_payment/search_request/{uuid}:
-        #        без авторизации
-        get:
-            summary: "Просмотр запроса на аванс для экрана поставщика "
-            operationId: searchAdvancePaymentRequestByUuid
-            tags:
-                - Advance Payment
-            parameters:
-                -   name: uuid
-                    in: path
-                    description: "uuid заказа на аванс"
-                    required: true
-                    schema:
-                        type: string
-                        format: uuid
-            responses:
-                200:
-                    description: "OK"
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/FrontAdvancePaymentResponse'
                 default:
                     description: "Some other error"
                     content:
@@ -410,30 +344,6 @@ paths:
                 "422":
                     description: "Ошибка в процессе скачивания файла"
 
-    /advance_payment/download_advance_request_template_for_carrier:
-        get:
-            #             без авторизации
-            tags:
-                - Application contract
-            summary: "Запрос на скачивание шаблонной заявки на аванс"
-            operationId: downloadAvanceRequestTemplateForCarrier
-            parameters:
-                -   name: trip_num
-                    in: query
-                    schema:
-                        type: string
-                    description: "Номер заказа поставщика"
-            responses:
-                "200":
-                    description: "PDF-файл"
-                    content:
-                        application/pdf:
-                            schema:
-                                type: string
-                                format: binary
-                "422":
-                    description: "Ошибка в процессе скачивания файла"
-
     /advance_payment/download_request:
         get:
             #            security:
@@ -510,33 +420,73 @@ paths:
                 "422":
                     description: "Ошибка в процессе получения файла"
 
-    /advance_payment/delete_request_avance:
-        delete:
-            #            security:
-            #                -   bearerAuth: []
+    /advance_payment/carrier/request_by_carrier/{uuid}:
+        #     без авторизации
+        post:
+            summary: "Хочу аванс экран поставщика"
+            operationId: requestGiveAdvancePaymentForCarrier
             tags:
-                - Application contract
-            summary: "Добавление подписанного PDF файла заявки на аванс"
-            operationId: deleteRequestAdvance
+                - Advance Payment
             parameters:
-                -   name: trip_num
-                    in: query
+                -   name: uuid
+                    in: path
+                    description: "uuid заказа на аванс"
+                    required: true
                     schema:
                         type: string
-                    description: "Номер заказа поставщика"
-            requestBody:
-                required: true
-                content:
-                    multipart/form-data:
-                        schema:
-                            $ref: "#/components/schemas/RequestFormData"
+                        format: uuid
             responses:
-                "201":
-                    description: "Данные успешно получены"
-                "422":
-                    description: "Ошибка в процессе получения файла"
+                200:
+                    description: "OK"
+                default:
+                    description: "Some other error"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                422:
+                    description: "Business error"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
 
-    /advance_payment/upload_request_avance_for_carrier:
+    /advance_payment/carrier/search_request/{uuid}:
+        #        без авторизации
+        get:
+            summary: "Просмотр запроса на аванс для экрана поставщика "
+            operationId: searchAdvancePaymentRequestByUuid
+            tags:
+                - Advance Payment
+            parameters:
+                -   name: uuid
+                    in: path
+                    description: "uuid заказа на аванс"
+                    required: true
+                    schema:
+                        type: string
+                        format: uuid
+            responses:
+                200:
+                    description: "OK"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/FrontAdvancePaymentResponse'
+                default:
+                    description: "Some other error"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                422:
+                    description: "Business error"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+
+    /advance_payment/carrier/upload_request_avance_for_carrier:
         #  без авторизации
         post:
             tags:
@@ -561,12 +511,39 @@ paths:
                 "422":
                     description: "Ошибка в процессе получения файла"
 
+    /advance_payment/carrier/download_advance_request_template_for_carrier:
+        get:
+            #             без авторизации
+            tags:
+                - Application contract
+            summary: "Запрос на скачивание шаблонной заявки на аванс"
+            operationId: downloadAvanceRequestTemplateForCarrier
+            parameters:
+                -   name: trip_num
+                    in: query
+                    schema:
+                        type: string
+                    description: "Номер заказа поставщика"
+            responses:
+                "200":
+                    description: "PDF-файл"
+                    content:
+                        application/pdf:
+                            schema:
+                                type: string
+                                format: binary
+                "422":
+                    description: "Ошибка в процессе скачивания файла"
+
+# Apply the security globally to all operations
+security:
+    -   bearerAuth: []
 components:
-#    securitySchemes:
-#        bearerAuth:
-#            type: http
-#            scheme: bearer
-#            bearerFormat: JWT
+    securitySchemes:
+        bearerAuth:
+            type: http
+            scheme: bearer
+            bearerFormat: JWT
     schemas:
         Error:
             required:

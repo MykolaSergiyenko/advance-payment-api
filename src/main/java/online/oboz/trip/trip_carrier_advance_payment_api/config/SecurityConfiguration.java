@@ -24,12 +24,22 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.anonymous().and()
-            .csrf().disable()
-            .oauth2ResourceServer().jwt().and().and()
-            .authorizeRequests()
+        http.csrf().disable().authorizeRequests()
             .antMatchers(HttpMethod.GET, AUTH_WHITELIST).permitAll()
             .antMatchers(HttpMethod.POST, AUTH_WHITELIST).permitAll()
-            .antMatchers("/v1/**").authenticated();
+            .antMatchers(HttpMethod.POST, "/v1/advance_payment/carrier/**").permitAll()
+            .antMatchers(HttpMethod.GET, "/v1/advance_payment/carrier/**").permitAll()
+            .anyRequest().authenticated()
+            .and().oauth2ResourceServer().jwt();
     }
+//    @Override
+//    protected void configure(HttpSecurity http) throws Exception {
+//        http.anonymous().and()
+//            .csrf().disable()
+//            .oauth2ResourceServer().jwt().and().and()
+//            .authorizeRequests()
+//            .antMatchers(HttpMethod.GET, AUTH_WHITELIST).permitAll()
+//            .antMatchers(HttpMethod.POST, AUTH_WHITELIST).permitAll()
+//            .antMatchers("/v1/**").authenticated();
+//    }
 }

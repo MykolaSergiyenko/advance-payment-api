@@ -250,8 +250,8 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
             if (response != null) {
                 return response;
             }
-            log.error("server {} returned bad response", url);
         }
+        log.error("server {} returned bad response", url);
         return null;
     }
 
@@ -271,11 +271,6 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
     public ResponseEntity<Resource> downloadAvanceRequestTemplateForCarrier(String tripNum) {
         log.info("downloadAvanceRequestTemplate success");
         return downloadAvanceRequestTemplate(tripNum);
-    }
-
-    @Override
-    public ResponseEntity<Void> deleteRequestAdvance(MultipartFile filename, String tripNum) {
-        return null;
     }
 
     @Override
@@ -423,6 +418,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
                                            IsAdvancedRequestResponse isAdvancedRequestResponse) {
         final Boolean isAutoAdvancePayment = contractor.getIsAutoAdvancePayment();
         Map<String, String> downloadedDocuments = restService.findTripRequestDocs(trip);
+        isAdvancedRequestResponse.setIsButtonActive(false);
         if (tripRequestAdvancePayment == null &&
             !isAutoAdvancePayment &&
             !downloadedDocuments.isEmpty()
@@ -499,26 +495,27 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
                                                                    boolean isUnfSend,
                                                                    Trip trip) {
         TripRequestAdvancePayment tripRequestAdvancePayment = new TripRequestAdvancePayment();
-        tripRequestAdvancePayment.setAuthorId(SecurityUtils.getAuthPersonId()).
-            setTripId(advancePaymentCost.getId()).
-            setIsUnfSend(isUnfSend).
-            setTripCost(tripCostWithNds).
-            setAdvancePaymentSum(advancePaymentCost.getAdvancePaymentSum()).
-            setRegistrationFee(advancePaymentCost.getRegistrationFee()).
-            setCancelAdvance(false).
-            setContractorId(trip.getContractorId()).
-            setDriverId(trip.getDriverId()).
-            setCreatedAt(OffsetDateTime.now()).
-            setTripId(tripId).
-            setTripTypeCode(trip.getTripTypeCode()).
-            setLoadingComplete(false).
-            setPaymentContractorId(trip.getPaymentContractorId()).
-            setPageCarrierUrlIsAccess(true).
-            setIsPaid(false).
-            setPaidAt(OffsetDateTime.now()).
-            setCancelAdvanceComment("").
-            setIsAutomationRequest(contractor.getIsAutoAdvancePayment()).
-            setUuidRequest(UUID.randomUUID());
+        tripRequestAdvancePayment.setAuthorId(SecurityUtils.getAuthPersonId())
+            .setTripId(advancePaymentCost.getId())
+            .setIsUnfSend(isUnfSend)
+            .setTripCost(tripCostWithNds)
+            .setAdvancePaymentSum(advancePaymentCost.getAdvancePaymentSum())
+            .setRegistrationFee(advancePaymentCost.getRegistrationFee())
+            .setCancelAdvance(false)
+            .setContractorId(trip.getContractorId())
+            .setDriverId(trip.getDriverId())
+            .setCreatedAt(OffsetDateTime.now())
+            .setPushButtonAt(OffsetDateTime.now())
+            .setTripId(tripId)
+            .setTripTypeCode(trip.getTripTypeCode())
+            .setLoadingComplete(false)
+            .setPaymentContractorId(trip.getPaymentContractorId())
+            .setPageCarrierUrlIsAccess(true)
+            .setIsPaid(false)
+            .setPaidAt(OffsetDateTime.now())
+            .setCancelAdvanceComment("")
+            .setIsAutomationRequest(contractor.getIsAutoAdvancePayment())
+            .setUuidRequest(UUID.randomUUID());
         return tripRequestAdvancePayment;
     }
 //    TODO заполнение таблицы исключений тип заказа клиента  берем из текущего заказа
