@@ -48,7 +48,6 @@ notification:
 
 services:
     bstore-url: https://dev.oboz.online/api/bstore/
-    "https://dev.oboz.online/api/orders/dispatcher/orders/
     orders-api-url: https://dev.oboz.online/api/orders/dispatcher/orders/%d/trips/%d/documents
     report-server-url: https://reports.oboz.com/reportserver/reportserver/httpauthexport?key=avance_request&user=bertathar&apikey=nzybc16h&p_trip_num=
     keycloak:

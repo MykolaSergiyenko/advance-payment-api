@@ -818,3 +818,35 @@ components:
                     format: binary
             required:
                 - filename
+
+        ResponseToken:
+            type: object
+            description: "JWT токены доступа и обновления"
+            required:
+                - access_token
+                - expires_in
+                - refresh_expires_in
+                - refresh_token
+                - token_type
+            properties:
+                access_token:
+                    type: string
+                    example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+                    description: "Токен доступа"
+                expires_in:
+                    type: integer
+                    format: int32
+                    example: 86400
+                    description: "Время жизни токена доступа, секунды"
+                refresh_expires_in:
+                    type: integer
+                    format: int32
+                    example: 2592000
+                    description: "Время жизни токена обновления, секунды"
+                refresh_token:
+                    type: string
+                    example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+                token_type:
+                    type: string
+                    example: "Bearer"
+                    description: "Тип токена"

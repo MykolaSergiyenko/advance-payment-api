@@ -48,6 +48,8 @@ public class ApplicationProperties {
     private String ordersApiUrl;
     @Value("${services.report-server-url}")
     private String reportServerUrl;
+    @Value("${services.keycloak.url}")
+    private String tokenAuthUrl;
 
     public OffsetDateTime getMinDateTrip() {
         return OffsetDateTime.parse(strMinDateTrip);
