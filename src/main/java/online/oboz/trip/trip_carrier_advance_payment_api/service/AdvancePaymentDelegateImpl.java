@@ -296,6 +296,10 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
         final Long tripId = trip.getId();
         TripRequestAdvancePayment tripRequestAdvancePayment = tripRequestAdvancePaymentRepository
             .findRequestAdvancePayment(tripId, trip.getDriverId(), trip.getContractorId());
+        if (tripRequestAdvancePayment == null)
+            throw getBusinessLogicException("tripRequestAdvancePayment not found");
+        if (tripRequestAdvancePayment.getPushButtonAt() == null)
+            throw getBusinessLogicException("PushButtonAt need is first");
         String url = applicationProperties.getBStoreUrl() + "pdf/";
         ResponseEntity<String> response = restService.getFileUuid(filename, url);
         if (response.getStatusCode().value() == 200) {

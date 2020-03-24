@@ -37,6 +37,7 @@ public class NotificationService {
 //    }
 
     public void sendSms(MessageDto messageDto) {
+//        TODO При нажатии на кнопку Email отправляется сразу же, смс отправляется через 10 минут, если статус «Заказа поставщика» не стал отличный от «Назначен».
         String url = applicationProperties.getSmsSenderUrl();
         try {
             ResponseEntity<String> response = restTemplate.postForEntity(
