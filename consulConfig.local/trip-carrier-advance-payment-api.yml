@@ -18,6 +18,25 @@ spring:
                     timeout: 15000
                     writetimeout: 15000
                 debug: false
+
+    cloud:
+        stream:
+            binders:
+                events_host:
+                    default: true
+                    type: rabbit
+            rabbit:
+                bindings:
+                    orders-update:
+                        producer:
+                            bindingRoutingKey: event.orders.update
+                            routingKeyExpression: '"event.orders.update"'
+            bindings:
+                orders-update:
+                    destination: events
+                    binder: events_host
+                    group: b2b.orders.update
+
     datasource:
         type: com.zaxxer.hikari.HikariDataSource
         url: jdbc:postgresql://pg-01-01.preprod.oboz:5432/elp
@@ -28,6 +47,13 @@ spring:
         hikari:
             poolName: main-pool
             auto-commit: false
+
+    rabbitmq:
+        host: rmq-01.dev.oboz
+        port: 5672
+        username: elp
+        password: 9yOoTul5hQBAylh
+        virtual-host: events
 
 sms-sender:
     url: 'http://sms-sender.r14.k.preprod.oboz:30080'

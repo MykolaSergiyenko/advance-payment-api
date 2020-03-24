@@ -7,9 +7,8 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
 
-
 public interface ContractorAdvanceExclusionRepository extends JpaRepository<ContractorAdvanceExclusion, Long> {
-//    TODO change Optional<ContractorAdvanceExclusion> to List<ContractorAdvanceExclusion>
-@Query(" select ce from ContractorAdvanceExclusion ce where ce.carrierId =:contractor_id ")
-Optional<ContractorAdvanceExclusion> findByContractorId(@Param("contractor_id") Long contractorId);
+    @Query("select ce from ContractorAdvanceExclusion ce where ce.carrierId =:contractorId " +
+        "and ce.orderTypeId =:orderTypeId and ce.deletedAt is null")
+    Optional<ContractorAdvanceExclusion> findByContractorId(@Param("contractorId") Long contractorId, @Param("orderTypeId") Long orderTypeId);
 }

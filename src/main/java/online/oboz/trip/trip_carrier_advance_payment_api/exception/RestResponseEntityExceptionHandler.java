@@ -1,5 +1,6 @@
 package online.oboz.trip.trip_carrier_advance_payment_api.exception;
 
+import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.Error;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -23,8 +24,8 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
     ) {
         log.error("catch MethodArgumentNotValidException for request  " + request, ex);
         Error error = new Error();
-//        error.setErrorCode("required_field_is_empty");
-//        error.setErrorMessage("Не заполнено обязательное поле");
+        error.setErrorCode("required_field_is_empty");
+        error.setErrorMessage("Не заполнено обязательное поле");
         return new ResponseEntity<>(error, HttpStatus.UNPROCESSABLE_ENTITY);
     }
 }

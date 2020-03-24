@@ -14,7 +14,7 @@ public interface ContractorRepository extends JpaRepository<Contractor, Long> {
         "  left join common.payment_contractors pc " +
         "    on c.id = pc.contractor_id" +
         " where pc.id = :paymentContractorId")
-    String getContractor(@Param("paymentContractorId") Long paymentContractorId);
+    String getFullNameByPaymentContractorId(@Param("paymentContractorId") Long paymentContractorId);
 
     @Query(nativeQuery = true, value = "select id, " +
         "       full_name, " +
@@ -34,5 +34,5 @@ public interface ContractorRepository extends JpaRepository<Contractor, Long> {
         "      is_verified = true" +
         "    group by c.id " +
         "    having count(t.id) >= :x)")
-    List<Contractor> getContractor(@Param("x") int minCountTrip, @Param("a") OffsetDateTime minDateTrip);
+    List<Contractor> getFullNameByPaymentContractorId(@Param("x") int minCountTrip, @Param("a") OffsetDateTime minDateTrip);
 }

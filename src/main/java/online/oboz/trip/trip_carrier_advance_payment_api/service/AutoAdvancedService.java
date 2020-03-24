@@ -79,11 +79,10 @@ public class AutoAdvancedService {
                 tripRequestAdvancePayment.setIsUnfSend(false);
                 tripRequestAdvancePayment.setIsPaid(false);
                 tripRequestAdvancePayment.setUuidRequest(UUID.randomUUID());
-// TODO Спросить у Сергея если нажали кнопку в обозе  то вв кабинете перевозчика  что делать с кнопкой push_button_at: это разные кнопки
                 ContractorAdvancePaymentContact contact = advancePaymentContactService.getAdvancePaymentContact(trip.getContractorId());
                 tripRequestAdvancePaymentRepository.save(tripRequestAdvancePayment);
                 if (contact != null) {
-                    String paymentContractor = contractorRepository.getContractor(trip.getPaymentContractorId());
+                    String paymentContractor = contractorRepository.getFullNameByPaymentContractorId(trip.getPaymentContractorId());
                     Trip motorTrip = tripRepository.getMotorTrip(tripRequestAdvancePayment.getTripId()).orElse(new Trip());
                     MessageDto messageDto = getMessageDto(tripRequestAdvancePayment, contact, paymentContractor,
                         applicationProperties.getLkUrl(),
@@ -132,7 +131,7 @@ public class AutoAdvancedService {
     //    @Scheduled(cron = "${cron.expression:0 /1 * * * *}")
 //    @Scheduled(fixedDelayString = "10000")
     void updateAutoAdvanse() {
-        List<Contractor> contractors = contractorRepository.getContractor(applicationProperties.getMinCountTrip(),
+        List<Contractor> contractors = contractorRepository.getFullNameByPaymentContractorId(applicationProperties.getMinCountTrip(),
             applicationProperties.getMinDateTrip());
         contractors.forEach(c -> c.setIsAutoAdvancePayment(true));
         contractorRepository.saveAll(contractors);
