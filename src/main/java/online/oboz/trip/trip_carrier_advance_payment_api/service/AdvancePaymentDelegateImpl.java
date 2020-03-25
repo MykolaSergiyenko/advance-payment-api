@@ -251,9 +251,9 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
     }
 
     @Override
-    public ResponseEntity<Resource> downloadAvanceRequestTemplate(String tripNum) {
+    public ResponseEntity downloadAvanceRequestTemplate(String tripNum) {
         StringBuilder url = new StringBuilder();
-        ResponseEntity<Resource> response;
+        ResponseEntity response;
         url.append(applicationProperties.getReportServerUrl());
         TripRequestAdvancePayment tripRequestAdvancePayment = tripRequestAdvancePaymentRepository.findRequestAdvancePaymentByTripNum(tripNum);
         if (tripRequestAdvancePayment != null) {
@@ -285,7 +285,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
     }
 
     @Override
-    public ResponseEntity<Resource> downloadAvanceRequestTemplateForCarrier(String tripNum) {
+    public ResponseEntity downloadAvanceRequestTemplateForCarrier(String tripNum) {
         log.info("downloadAvanceRequestTemplate success");
         return downloadAvanceRequestTemplate(tripNum);
     }
@@ -300,6 +300,8 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
             throw getBusinessLogicException("tripRequestAdvancePayment not found");
         if (tripRequestAdvancePayment.getPushButtonAt() == null)
             throw getBusinessLogicException("PushButtonAt need is first");
+        if (tripRequestAdvancePayment.getIsUnfSend())
+            throw getBusinessLogicException("uploadRequestAdvance forbidden");
         String url = applicationProperties.getBStoreUrl() + "pdf/";
         ResponseEntity<String> response = restService.getFileUuid(filename, url);
         if (response.getStatusCode().value() == 200) {
@@ -309,6 +311,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
                 String urlOrders = String.format(applicationProperties.getOrdersApiUrl(), trip.getOrderId(), tripId);
                 ResponseEntity<Void> ordersApiResponse = restService.saveTripDocuments(urlOrders, fileUuid);
                 tripRequestAdvancePayment.setUuidAdvanceApplicationFile(fileUuid);
+                tripRequestAdvancePayment.setIsDownloadedAdvanceApplication(true);
                 tripRequestAdvancePaymentRepository.save(tripRequestAdvancePayment);
                 return ordersApiResponse;
             } catch (IOException e) {
@@ -417,6 +420,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
         frontAdvancePaymentResponse.setAdvancePaymentSum(t.getAdvancePaymentSum());
         frontAdvancePaymentResponse.setRegistrationFee(t.getRegistrationFee());
         frontAdvancePaymentResponse.setCancelAdvance(t.getCancelAdvance());
+        frontAdvancePaymentResponse.setIsUnfSend(t.getIsUnfSend());
         return new ResponseEntity<>(frontAdvancePaymentResponse, HttpStatus.OK);
     }
 
