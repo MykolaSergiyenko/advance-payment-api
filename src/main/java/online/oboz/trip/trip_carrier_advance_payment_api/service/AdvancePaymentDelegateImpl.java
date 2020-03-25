@@ -251,9 +251,9 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
     }
 
     @Override
-    public ResponseEntity downloadAvanceRequestTemplate(String tripNum) {
+    public ResponseEntity<Resource> downloadAvanceRequestTemplate(String tripNum) {
         StringBuilder url = new StringBuilder();
-        ResponseEntity response;
+        ResponseEntity<Resource> response;
         url.append(applicationProperties.getReportServerUrl());
         TripRequestAdvancePayment tripRequestAdvancePayment = tripRequestAdvancePaymentRepository.findRequestAdvancePaymentByTripNum(tripNum);
         if (tripRequestAdvancePayment != null) {
@@ -265,6 +265,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
                 .append("&format=PDF");
             response = restService.getResourceResponseEntity(url.toString(), new HttpHeaders());
             if (response != null) {
+                log.info("report server response  Headers is: {}", response.getHeaders().entrySet().toString());
                 return response;
             }
         }
@@ -286,6 +287,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
 
     @Override
     public ResponseEntity downloadAvanceRequestTemplateForCarrier(String tripNum) {
+
         log.info("downloadAvanceRequestTemplate success");
         return downloadAvanceRequestTemplate(tripNum);
     }
