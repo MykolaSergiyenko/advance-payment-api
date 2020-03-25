@@ -15,7 +15,7 @@ public class DtoUtils {
         messageDto.setContractorName(paymentContractorFullName);
         messageDto.setEmail(contact.getEmail());
         messageDto.setPhone(contact.getPhone());
-        messageDto.setLKLink(lkUrl + tripRequestAdvancePayment.getUuidRequest());
+        messageDto.setLKLink(lkUrl + tripRequestAdvancePayment.getAdvanceUuid());
         messageDto.setTripNum(tripNum);
         return messageDto;
     }

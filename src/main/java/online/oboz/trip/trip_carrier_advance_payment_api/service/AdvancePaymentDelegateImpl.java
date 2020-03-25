@@ -555,7 +555,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
             .setPaidAt(OffsetDateTime.now())
             .setCancelAdvanceComment("")
             .setIsAutomationRequest(contractor.getIsAutoAdvancePayment())
-            .setUuidRequest(UUID.randomUUID());
+            .setAdvanceUuid(UUID.randomUUID());
         return tripRequestAdvancePayment;
     }
 

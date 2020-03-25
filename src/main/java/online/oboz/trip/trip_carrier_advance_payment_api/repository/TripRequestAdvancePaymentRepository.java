@@ -29,7 +29,7 @@ public interface TripRequestAdvancePaymentRepository extends JpaRepository<TripR
 
     @Query("select pc " +
         " from TripRequestAdvancePayment pc " +
-        " where pc.uuidRequest = :uuid ")
+        " where pc.advanceUuid = :uuid ")
     Optional<TripRequestAdvancePayment> findTripRequestAdvancePayment(@Param("uuid") UUID uuid);
 
     @Query("select pc " +
