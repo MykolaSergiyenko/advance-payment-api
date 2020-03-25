@@ -136,4 +136,16 @@ public class AutoAdvancedService {
         contractors.forEach(c -> c.setIsAutoAdvancePayment(true));
         contractorRepository.saveAll(contractors);
     }
+
+    //    @Scheduled(cron = "${cron.expression:0 /1 * * * *}")
+//    @Scheduled(fixedDelayString = "10000")
+    void cancelAdvance() {
+//        TODO :
+        List<TripRequestAdvancePayment> tripRequestAdvancePayments = tripRequestAdvancePaymentRepository.findRequestAdvancePaymentNeedCancel();
+        tripRequestAdvancePayments.forEach(p -> {
+            p.setCancelAdvance(true);
+            p.setCancelAdvanceComment("Auto Canceled");
+        });
+        tripRequestAdvancePaymentRepository.saveAll(tripRequestAdvancePayments);
+    }
 }
