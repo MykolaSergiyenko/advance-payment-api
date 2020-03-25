@@ -233,7 +233,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
                 notificationService.sendEmail(messageDto);
             }
             if (contact.getPhone() != null) {
-                notificationService.sendSms(messageDto);
+                notificationService.sendSmsDelay(messageDto);
             }
             contractorAdvanceExclusionRepository.findByContractorId(contractorId, order.getOrderTypeId()).orElseGet(() -> {
                 final ContractorAdvanceExclusion entity = new ContractorAdvanceExclusion();
@@ -294,6 +294,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
 
     @Override
     public ResponseEntity<Void> uploadRequestAdvance(MultipartFile filename, String tripNum) {
+//        TODO :  catch   big size file and response
         Trip trip = tripRepository.getTripByNum(tripNum).orElseThrow(() -> getBusinessLogicException("trip not found"));
         final Long tripId = trip.getId();
         TripRequestAdvancePayment tripRequestAdvancePayment = tripRequestAdvancePaymentRepository

@@ -55,7 +55,7 @@ public class AutoAdvancedService {
         this.restService = restService;
     }
 
-    //        @Scheduled(cron = "${cron.expression:0 /1 * * * *}")
+    //        @Scheduled(cron = "${cron.creation:0 /1 * * * *}")
 //    @Scheduled(fixedDelayString = "10000")
     void createTripRequestAdvancePayment() {
         tripRepository.getAutoApprovedTrips().forEach(trip -> {
@@ -92,14 +92,14 @@ public class AutoAdvancedService {
                         notificationService.sendEmail(messageDto);
                     }
                     if (contact.getPhone() != null && motorTrip.getNum() != null) {
-                        notificationService.sendSms(messageDto);
+                        notificationService.sendSmsDelay(messageDto);
                     }
                 }
             }
         );
     }
 
-    //    @Scheduled(cron = "${cron.expression:0 /1 * * * *}")
+    //    @Scheduled(cron = "${cron.update:0 /1 * * * *}")
 //    @Scheduled(fixedDelayString = "10000")
     void updateFileUuid() {
         List<TripRequestAdvancePayment> tripRequestAdvancePayments = tripRequestAdvancePaymentRepository.findRequestAdvancePaymentWithOutUuidFiles();
@@ -128,7 +128,7 @@ public class AutoAdvancedService {
         tripRequestAdvancePaymentRepository.saveAll(tripRequestAdvancePayments);
     }
 
-    //    @Scheduled(cron = "${cron.expression:0 /1 * * * *}")
+    //    @Scheduled(cron = "${cron.update:0 /1 * * * *}")
 //    @Scheduled(fixedDelayString = "10000")
     void updateAutoAdvanse() {
         List<Contractor> contractors = contractorRepository.getFullNameByPaymentContractorId(applicationProperties.getMinCountTrip(),
@@ -137,7 +137,7 @@ public class AutoAdvancedService {
         contractorRepository.saveAll(contractors);
     }
 
-    //    @Scheduled(cron = "${cron.expression:0 /1 * * * *}")
+    //    @Scheduled(cron = "${cron.update:0 /1 * * * *}")
 //    @Scheduled(fixedDelayString = "10000")
     void cancelAdvance() {
 //        TODO :

@@ -4,12 +4,16 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import online.oboz.trip.trip_carrier_advance_payment_api.config.ApplicationProperties;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.dto.MessageDto;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.dto.SendSmsRequest;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.dto.SmsRequestDelayed;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+
+import java.util.concurrent.DelayQueue;
+import java.util.concurrent.Delayed;
 
 @Service
 @Slf4j
@@ -23,34 +27,51 @@ public class NotificationService {
     private static final String EMAIL_HEADER_TEMPLATE = "Компания %s  предлагает аванс.";
     private static final String MESSAGE_TEXT = "Компания %s  предлагает аванс по \n " +
         "заказу %s на сумму %s, для подтверждения пройдите по ссылке %s.";
+
     private final JavaMailSender emailSender;
 
     // String url = "http://da-checking-service:8080";
     // String url = "http://sms-sender.r14.k.preprod.oboz:30080";
 
+    private final DelayQueue<Delayed> delayQueue = new DelayQueue<>();
     private final RestTemplate restTemplate;
     private final ApplicationProperties applicationProperties;
-//
-//    public NotificationService(RestTemplate restTemplate, ApplicationProperties applicationProperties) {
-//        this.restTemplate = restTemplate;
-//        this.applicationProperties = applicationProperties;
-//    }
 
-    public void sendSms(MessageDto messageDto) {
-//        TODO При нажатии на кнопку Email отправляется сразу же, смс отправляется через 10 минут, если статус «Заказа поставщика» не стал отличный от «Назначен».
+    //    @Scheduled(cron = "${cron.update:0 /1 * * * *}")  //TODO add to  consul
+    @Scheduled(fixedDelayString = "1000")
+    private void checkDelayedSendSms() {
         String url = applicationProperties.getSmsSenderUrl();
         try {
-            ResponseEntity<String> response = restTemplate.postForEntity(
-                url + SEND_SMS_METHOD_PATH,
-                new SendSmsRequest(getMessageText(messageDto), RUSSIAN_COUNTRY_CODE + messageDto.getPhone()),
-                String.class
-            );
-            if (response.getStatusCode().value() != 200) {
-                log.error("Sms server returned bad response" + response);
+            Delayed sms = delayQueue.poll();
+            while (sms != null) {
+                sendSms(url, sms);
+                sms = delayQueue.poll();
             }
         } catch (Exception e) {
-            log.error("Some Exeption" + e.getMessage());
+            log.error("Some Exeption", e);
         }
+    }
+
+    private void sendSms(String url, Delayed sms) {
+        ResponseEntity<String> response = restTemplate.postForEntity(
+            url + SEND_SMS_METHOD_PATH,
+            sms,
+            String.class
+        );
+        log.info("Sms server response {}", response);
+        if (response.getStatusCode().value() != 200) {
+            log.error("Sms server returned bad response {}", response);
+        }
+    }
+
+    public void sendSmsDelay(MessageDto messageDto) {
+        SmsRequestDelayed smsRequestDelayed = new SmsRequestDelayed(
+            getMessageText(messageDto),
+            RUSSIAN_COUNTRY_CODE + messageDto.getPhone(),
+            10 * 60 * 1000 //TODO add to  consul
+        );
+        log.info("add smsRequestDelayed to delayQueue");
+        delayQueue.add(smsRequestDelayed);
     }
 
     public void sendEmail(MessageDto messageDto) {
