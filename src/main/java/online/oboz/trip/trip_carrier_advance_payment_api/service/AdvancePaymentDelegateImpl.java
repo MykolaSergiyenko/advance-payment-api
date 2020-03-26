@@ -579,6 +579,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
             .setPaymentContractorId(trip.getPaymentContractorId())
             .setPageCarrierUrlIsAccess(true)
             .setIsPaid(false)
+            .setIs1CSendAllowed(false)
             .setPaidAt(OffsetDateTime.now())
             .setCancelAdvanceComment("")
             .setIsAutomationRequest(contractor.getIsAutoAdvancePayment())
