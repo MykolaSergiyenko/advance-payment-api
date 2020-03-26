@@ -32,7 +32,7 @@ public interface TripRepository extends JpaRepository<Trip, Long> {
         "                else t.cost end as decimal(10, 2)) as cost, " +
         "       t.payment_contractor_id, " +
         "       t.vat_code, " +
-        "       t.trip_type_code, " +
+        "       t.trip_status_code, " +
         "       t.resource_type_code, " +
         "       t.is_advanced_payment, " +
         "       t.created_at " +
