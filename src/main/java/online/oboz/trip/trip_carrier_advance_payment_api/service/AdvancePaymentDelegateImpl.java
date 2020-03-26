@@ -273,7 +273,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
                 return response;
             }
         }
-        log.error("server {} returned bad response", url);
+        log.error("server {} returned bad response, tripRequestAdvancePayment is: {}", url, tripRequestAdvancePayment);
         return null;
     }
 
