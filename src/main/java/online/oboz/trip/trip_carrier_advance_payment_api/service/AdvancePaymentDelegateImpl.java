@@ -580,7 +580,6 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
             .setPageCarrierUrlIsAccess(true)
             .setIsPaid(false)
             .setIs1CSendAllowed(false)
-            .setPaidAt(OffsetDateTime.now())
             .setCancelAdvanceComment("")
             .setIsAutomationRequest(contractor.getIsAutoAdvancePayment())
             .setAdvanceUuid(UUID.randomUUID());
