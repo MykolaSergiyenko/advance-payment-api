@@ -11,7 +11,7 @@ apply plugin: com.google.cloud.tools.jib.gradle.JibPlugin
 
 jib {
     from {
-        image = 'openjdk:8-jre-alpine'
+        image = 'gitlab.oboz.com:6000/oboz2/build/openjdk8-jre-alpine/base:latest'
     }
     to {
         image = project.property('rootProject.name') + ':latest'
