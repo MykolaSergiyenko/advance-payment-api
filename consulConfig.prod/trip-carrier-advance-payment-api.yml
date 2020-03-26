@@ -59,8 +59,8 @@ sms-sender:
     url: 'http://sms-sender.r14.k.preprod.oboz:30080'
 
 cron:
-    creation: 0 /5 * * * *
-    update: 0 /5 * * * *
+    creation: 0 /60 * * * *
+    update: 0 /60 * * * *
 
 #    При изменении minCountTrip нужно также поменять minDateTrip наа текущее значение
 auto-advance:
@@ -69,6 +69,8 @@ auto-advance:
     required-download-docs: true
 
 notification:
+    #    msec
+    delay.sms-send: 600000
     sms-enable: false
     email-enable: true
     lk-url: https://oboz.online/carrier-advance/

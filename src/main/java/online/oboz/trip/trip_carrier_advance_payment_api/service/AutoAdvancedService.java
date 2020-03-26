@@ -11,6 +11,7 @@ import online.oboz.trip.trip_carrier_advance_payment_api.repository.TripRequestA
 import online.oboz.trip.trip_carrier_advance_payment_api.service.dto.MessageDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -55,12 +56,10 @@ public class AutoAdvancedService {
         this.restService = restService;
     }
 
-    //        @Scheduled(cron = "${cron.creation:0 /1 * * * *}")
-//    @Scheduled(fixedDelayString = "10000")
+    @Scheduled(cron = "${cron.creation:0 /1 * * * *}")
     void createTripRequestAdvancePayment() {
         tripRepository.getAutoApprovedTrips().forEach(trip -> {
                 final Long id = trip.getId();
-                //              advancePaymentCost закэшировать
                 AdvancePaymentCost advancePaymentCost = advancePaymentCostRepository.searchAdvancePaymentCost(trip.getCost());
                 TripRequestAdvancePayment tripRequestAdvancePayment = new TripRequestAdvancePayment();
                 tripRequestAdvancePayment.setTripId(id);
@@ -99,8 +98,7 @@ public class AutoAdvancedService {
         );
     }
 
-    //    @Scheduled(cron = "${cron.update:0 /1 * * * *}")
-//    @Scheduled(fixedDelayString = "10000")
+    @Scheduled(cron = "${cron.update:0 /1 * * * *}")
     void updateFileUuid() {
         List<TripRequestAdvancePayment> tripRequestAdvancePayments = tripRequestAdvancePaymentRepository.findRequestAdvancePaymentWithOutUuidFiles();
         tripRequestAdvancePayments.forEach(tripRequestAdvancePayment -> {
@@ -117,30 +115,27 @@ public class AutoAdvancedService {
                 if (fileAdvanceRequestUuid != null) {
                     tripRequestAdvancePayment.setIsDownloadedContractApplication(true);
                     tripRequestAdvancePayment.setUuidAdvanceApplicationFile(fileAdvanceRequestUuid);
-                    }
-                    if (tripRequestAdvancePayment.getUuidContractApplicationFile() != null &&
-                        tripRequestAdvancePayment.getUuidAdvanceApplicationFile() != null) {
-                        tripRequestAdvancePayment.setIs1CSendAllowed(true);
-                    }
                 }
+                if (tripRequestAdvancePayment.getUuidContractApplicationFile() != null &&
+                    tripRequestAdvancePayment.getUuidAdvanceApplicationFile() != null) {
+                    tripRequestAdvancePayment.setIs1CSendAllowed(true);
+                }
+            }
             }
         );
         tripRequestAdvancePaymentRepository.saveAll(tripRequestAdvancePayments);
     }
 
-    //    @Scheduled(cron = "${cron.update:0 /1 * * * *}")
-//    @Scheduled(fixedDelayString = "10000")
-    void updateAutoAdvanse() {
+    @Scheduled(cron = "${cron.update:0 /1 * * * *}")
+    void updateAutoAdvance() {
         List<Contractor> contractors = contractorRepository.getFullNameByPaymentContractorId(applicationProperties.getMinCountTrip(),
             applicationProperties.getMinDateTrip());
         contractors.forEach(c -> c.setIsAutoAdvancePayment(true));
         contractorRepository.saveAll(contractors);
     }
 
-    //    @Scheduled(cron = "${cron.update:0 /1 * * * *}")
-//    @Scheduled(fixedDelayString = "10000")
+    @Scheduled(cron = "${cron.update:0 /1 * * * *}")
     void cancelAdvance() {
-//        TODO :
         List<TripRequestAdvancePayment> tripRequestAdvancePayments = tripRequestAdvancePaymentRepository.findRequestAdvancePaymentNeedCancel();
         tripRequestAdvancePayments.forEach(p -> {
             p.setCancelAdvance(true);

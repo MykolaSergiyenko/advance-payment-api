@@ -19,7 +19,6 @@ import java.util.concurrent.Delayed;
 @Slf4j
 @RequiredArgsConstructor
 public class NotificationService {
-
     private static final String RUSSIAN_COUNTRY_CODE = "7";
     private static final String SEND_SMS_METHOD_PATH = "/v1/send-sms";
     //    "Компания %Название компании% (из поля «Юр. лицо для взаиморасчетов» в ОБОЗе) предлагает аванс по \n " +
@@ -30,15 +29,12 @@ public class NotificationService {
 
     private final JavaMailSender emailSender;
 
-    // String url = "http://da-checking-service:8080";
-    // String url = "http://sms-sender.r14.k.preprod.oboz:30080";
 
     private final DelayQueue<Delayed> delayQueue = new DelayQueue<>();
     private final RestTemplate restTemplate;
     private final ApplicationProperties applicationProperties;
 
-    //    @Scheduled(cron = "${cron.update:0 /1 * * * *}")  //TODO add to  consul
-    @Scheduled(fixedDelayString = "1000")
+    @Scheduled(cron = "${cron.update:0 /60 * * * *}")  //TODO add to  consul
     private void checkDelayedSendSms() {
         String url = applicationProperties.getSmsSenderUrl();
         try {
@@ -68,7 +64,7 @@ public class NotificationService {
         SmsRequestDelayed smsRequestDelayed = new SmsRequestDelayed(
             getMessageText(messageDto),
             RUSSIAN_COUNTRY_CODE + messageDto.getPhone(),
-            10 * 60 * 1000 //TODO add to  consul
+            applicationProperties.getSmsSendDelay()
         );
         log.info("add smsRequestDelayed to delayQueue");
         delayQueue.add(smsRequestDelayed);
