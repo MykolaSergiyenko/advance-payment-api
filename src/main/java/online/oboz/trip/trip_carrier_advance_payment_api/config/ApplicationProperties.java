@@ -50,7 +50,7 @@ public class ApplicationProperties {
     private String reportServerUrl;
     @Value("${services.keycloak.url}")
     private String tokenAuthUrl;
-    @Value("${notification.delay.sms-send:600}")
+    @Value("${notification.delay.sms-send:60000}")
     private Integer smsSendDelay;
 
     public OffsetDateTime getMinDateTrip() {

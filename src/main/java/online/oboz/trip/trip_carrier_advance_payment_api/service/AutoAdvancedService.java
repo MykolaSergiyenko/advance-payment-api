@@ -56,7 +56,7 @@ public class AutoAdvancedService {
         this.restService = restService;
     }
 
-    @Scheduled(cron = "${cron.creation:0 /1 * * * *}")
+    @Scheduled(cron = "${cron.creation: 0 0/30 * * * *}")
     void createTripRequestAdvancePayment() {
         tripRepository.getAutoApprovedTrips().forEach(trip -> {
                 final Long id = trip.getId();
@@ -98,7 +98,7 @@ public class AutoAdvancedService {
         );
     }
 
-    @Scheduled(cron = "${cron.update:0 /1 * * * *}")
+    @Scheduled(cron = "${cron.update: 0 0/30 * * * *}")
     void updateFileUuid() {
         List<TripRequestAdvancePayment> tripRequestAdvancePayments = tripRequestAdvancePaymentRepository.findRequestAdvancePaymentWithOutUuidFiles();
         tripRequestAdvancePayments.forEach(tripRequestAdvancePayment -> {
@@ -126,7 +126,7 @@ public class AutoAdvancedService {
         tripRequestAdvancePaymentRepository.saveAll(tripRequestAdvancePayments);
     }
 
-    @Scheduled(cron = "${cron.update:0 /1 * * * *}")
+    @Scheduled(cron = "${cron.update: 0 0/30 * * * *}")
     void updateAutoAdvance() {
         List<Contractor> contractors = contractorRepository.getFullNameByPaymentContractorId(applicationProperties.getMinCountTrip(),
             applicationProperties.getMinDateTrip());
@@ -134,7 +134,7 @@ public class AutoAdvancedService {
         contractorRepository.saveAll(contractors);
     }
 
-    @Scheduled(cron = "${cron.update:0 /1 * * * *}")
+    @Scheduled(cron = "${cron.update: 0 0/30 * * * *}")
     void cancelAdvance() {
         List<TripRequestAdvancePayment> tripRequestAdvancePayments = tripRequestAdvancePaymentRepository.findRequestAdvancePaymentNeedCancel();
         tripRequestAdvancePayments.forEach(p -> {

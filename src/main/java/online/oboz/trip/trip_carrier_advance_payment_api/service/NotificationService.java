@@ -26,15 +26,12 @@ public class NotificationService {
     private static final String EMAIL_HEADER_TEMPLATE = "Компания %s  предлагает аванс.";
     private static final String MESSAGE_TEXT = "Компания %s  предлагает аванс по \n " +
         "заказу %s на сумму %s, для подтверждения пройдите по ссылке %s.";
-
     private final JavaMailSender emailSender;
-
-
     private final DelayQueue<Delayed> delayQueue = new DelayQueue<>();
     private final RestTemplate restTemplate;
     private final ApplicationProperties applicationProperties;
 
-    @Scheduled(cron = "${cron.update:0 /60 * * * *}")  //TODO add to  consul
+    @Scheduled(cron = "${cron.update: 0 0/30 * * * *}")  //TODO add to  consul
     private void checkDelayedSendSms() {
         String url = applicationProperties.getSmsSenderUrl();
         try {

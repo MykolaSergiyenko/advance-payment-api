@@ -59,8 +59,8 @@ sms-sender:
     url: 'http://sms-sender.r14.k.preprod.oboz:30080'
 
 cron:
-    creation: 0 /60 * * * *
-    update: 0 /60 * * * *
+    creation: 0 0/30 * * * *
+    update: 0 0/30 * * * *
 
 #    При изменении minCountTrip нужно также поменять minDateTrip наа текущее значение
 auto-advance:
