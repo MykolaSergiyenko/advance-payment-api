@@ -110,8 +110,10 @@ public class RestService extends AbstractService {
 
     public ResponseEntity<String> getFileUuid(MultipartFile filename, String url) {
         HttpHeaders headers = new HttpHeaders();
-        headers.add(HttpHeaders.CONTENT_TYPE, "multipart/form-data;");
-        headers.add(HttpHeaders.AUTHORIZATION, "Bearer " + ACCESS_TOKEN);
+        headers.add(HttpHeaders.CONTENT_TYPE, "multipart/form-data");
+        final String Bearer = "Bearer " + ACCESS_TOKEN;
+        log.debug("Bearer is: {}", Bearer);
+        headers.add(HttpHeaders.AUTHORIZATION, Bearer);
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         body.add("file", filename.getResource());
         HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<>(body, headers);

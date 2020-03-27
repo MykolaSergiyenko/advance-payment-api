@@ -8,8 +8,8 @@ servers:
 paths:
     /advance_payment/request_give_advance_payment/{id}:
         post:
-#            security:give
-            #                -   bearerAuth: []
+            security:
+                -   bearerAuth: []
             summary: "Запрос на выдачу аванса"
             operationId: requestGiveAdvancePayment
             tags:
@@ -41,8 +41,8 @@ paths:
 
     /advance_payment/confirm_advance_payment/{id}:
         post:
-            #            security:
-            #                -   bearerAuth: []
+            security:
+                -   bearerAuth: []
             summary: "Подтверждение аванса / отказ на выдачу аванса "
             operationId: confirmAdvancePayment
             tags:
@@ -82,8 +82,8 @@ paths:
 
     /advance_payment/is_advanced/{trip_id}:
         get:
-            #            security:
-            #                -   bearerAuth: []
+            security:
+                -   bearerAuth: []
             summary: "Проверить выдан ли аванс"
             operationId: isAdvanced
             tags:
@@ -119,8 +119,8 @@ paths:
 
     /advance_payment/search_request:
         post:
-            #            security:
-            #                -   bearerAuth: []
+            security:
+                -   bearerAuth: []
             summary: "Просмотр списка запросов на аванс"
             operationId: searchAdvancePaymentRequest
             tags:
@@ -152,8 +152,8 @@ paths:
 
     /advance_payment/contact/get_contact_carrier/{contrctor_id}:
         get:
-            #            security:
-            #                -   bearerAuth: []
+            security:
+                -   bearerAuth: []
             summary: "Просмотр контактов перевозчика"
             operationId: getContactCarrier
             tags:
@@ -187,8 +187,8 @@ paths:
 
     /advance_payment/contact/update_contact_carrier:
         put:
-            #            security:
-            #                -   bearerAuth: []
+            security:
+                -   bearerAuth: []
             summary: "Обновить контакт контрагента для авансирования"
             operationId: updateContactCarrier
             tags:
@@ -216,8 +216,8 @@ paths:
 
     /advance_payment/contact/add_contact_carrier:
         post:
-            #            security:
-            #                -   bearerAuth: []
+            security:
+                -   bearerAuth: []
             summary: "Добавить контакт контрагента для авансирования"
             operationId: addContactCarrier
             tags:
@@ -245,8 +245,8 @@ paths:
 
     /advance_payment/update_loading_complete:
         put:
-            #            security:
-            #                -   bearerAuth: []
+            security:
+                -   bearerAuth: []
             summary: "Обновить факт загрузки водителя"
             operationId: updateLoadingComplete
             tags:
@@ -283,8 +283,8 @@ paths:
 
     /advance_payment/cancel_advance_payment:
         put:
-            #            security:
-            #                -   bearerAuth: []
+            security:
+                -   bearerAuth: []
             summary: "Аннулировать запрос на аванс "
             operationId: cancelAdvancePayment
             tags:
@@ -321,8 +321,8 @@ paths:
 
     /advance_payment/download_advance_request_template:
         get:
-            #            security:
-            #                -   bearerAuth: []
+            security:
+                -   bearerAuth: []
             tags:
                 - Application contract
             summary: "Запрос на скачивание шаблонной заявки на аванс"
@@ -346,8 +346,8 @@ paths:
 
     /advance_payment/download_request:
         get:
-            #            security:
-            #                -   bearerAuth: []
+            security:
+                -   bearerAuth: []
             tags:
                 - Application contract
             summary: "Запрос на скачивание подписанного PDF файла заявки"
@@ -371,8 +371,8 @@ paths:
 
     /advance_payment/download_request_avance:
         get:
-            #            security:
-            #                -   bearerAuth: []
+            security:
+                -   bearerAuth: []
             tags:
                 - Application contract
             summary: "Запрос на скачивание подписанного PDF файла заявки на аванс"
@@ -396,8 +396,8 @@ paths:
 
     /advance_payment/upload_request_avance:
         post:
-            #            security:
-            #                -   bearerAuth: []
+            security:
+                -   bearerAuth: []
             tags:
                 - Application contract
             summary: "Добавление подписанного PDF файла заявки на аванс"

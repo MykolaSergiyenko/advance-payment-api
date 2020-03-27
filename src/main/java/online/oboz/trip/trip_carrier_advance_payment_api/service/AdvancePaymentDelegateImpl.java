@@ -258,7 +258,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
     public ResponseEntity<Resource> downloadAvanceRequestTemplate(String tripNum) {
         StringBuilder url = new StringBuilder();
         ResponseEntity<Resource> response;
-        url.append(applicationProperties.getReportServerUrl());
+        url.append("https://reports.oboz.com/reportserver/reportserver/httpauthexport?key=avance_request&user=bertathar&apikey=nzybc16h&p_trip_num=");
         TripRequestAdvancePayment tripRequestAdvancePayment = tripRequestAdvancePaymentRepository.findRequestAdvancePaymentByTripNum(tripNum);
         if (tripRequestAdvancePayment != null) {
             url.append(tripNum)
@@ -299,6 +299,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
     @Override
     public ResponseEntity<Void> uploadRequestAdvance(MultipartFile filename, String tripNum) {
 //        TODO :  catch   big size file and response
+//        TODO "error_code": "500 INTERNAL_SERVER_ERROR",
         Trip trip = tripRepository.getTripByNum(tripNum).orElseThrow(() -> getBusinessLogicException("trip not found"));
         final Long tripId = trip.getId();
         TripRequestAdvancePayment tripRequestAdvancePayment = tripRequestAdvancePaymentRepository

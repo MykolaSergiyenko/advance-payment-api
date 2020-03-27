@@ -59,39 +59,46 @@ public class AutoAdvancedService {
     @Scheduled(cron = "${cron.creation: 0 0/30 * * * *}")
     void createTripRequestAdvancePayment() {
         tripRepository.getAutoApprovedTrips().forEach(trip -> {
-                final Long id = trip.getId();
-                AdvancePaymentCost advancePaymentCost = advancePaymentCostRepository.searchAdvancePaymentCost(trip.getCost());
-                TripRequestAdvancePayment tripRequestAdvancePayment = new TripRequestAdvancePayment();
-                tripRequestAdvancePayment.setTripId(id);
-                tripRequestAdvancePayment.setContractorId(trip.getContractorId());
-                tripRequestAdvancePayment.setDriverId(trip.getDriverId());
-                tripRequestAdvancePayment.setTripTypeCode(trip.getTripTypeCode());
-                tripRequestAdvancePayment.setPaymentContractorId(trip.getPaymentContractorId());
-                tripRequestAdvancePayment.setIsAutomationRequest(true);
-                tripRequestAdvancePayment.setTripCost(trip.getCost());
-                tripRequestAdvancePayment.setAdvancePaymentSum(advancePaymentCost.getAdvancePaymentSum());
-                tripRequestAdvancePayment.setRegistrationFee(advancePaymentCost.getRegistrationFee());
-                tripRequestAdvancePayment.setLoadingComplete(false);
-                tripRequestAdvancePayment.setPageCarrierUrlIsAccess(true);
-                tripRequestAdvancePayment.setIs1CSendAllowed(true);
-                tripRequestAdvancePayment.setCancelAdvance(false);
-                tripRequestAdvancePayment.setIsUnfSend(false);
-                tripRequestAdvancePayment.setIsPaid(false);
+            final Long id = trip.getId();
+            AdvancePaymentCost advancePaymentCost = advancePaymentCostRepository.searchAdvancePaymentCost(trip.getCost());
+            log.info("start createTripRequestAdvancePayment for tripId: {}, with cost: {}", id, trip.getCost());
+            if (advancePaymentCost == null) {
+                log.info("not found cost  for tripId: {} from advancePaymentCostRepository", id);
+                return;
+            }
+            TripRequestAdvancePayment tripRequestAdvancePayment = new TripRequestAdvancePayment();
+            tripRequestAdvancePayment.setTripId(id);
+            tripRequestAdvancePayment.setContractorId(trip.getContractorId());
+            tripRequestAdvancePayment.setDriverId(trip.getDriverId());
+            tripRequestAdvancePayment.setTripTypeCode(trip.getTripTypeCode());
+            tripRequestAdvancePayment.setPaymentContractorId(trip.getPaymentContractorId());
+            tripRequestAdvancePayment.setIsAutomationRequest(true);
+            tripRequestAdvancePayment.setTripCost(trip.getCost());
+            tripRequestAdvancePayment.setAdvancePaymentSum(advancePaymentCost.getAdvancePaymentSum());
+            tripRequestAdvancePayment.setRegistrationFee(advancePaymentCost.getRegistrationFee());
+            tripRequestAdvancePayment.setLoadingComplete(false);
+            tripRequestAdvancePayment.setPageCarrierUrlIsAccess(true);
+            tripRequestAdvancePayment.setIs1CSendAllowed(true);
+            tripRequestAdvancePayment.setCancelAdvance(false);
+            tripRequestAdvancePayment.setIsUnfSend(false);
+            tripRequestAdvancePayment.setIsPaid(false);
             tripRequestAdvancePayment.setIsAdvancedPayment(false);
             tripRequestAdvancePayment.setAdvanceUuid(UUID.randomUUID());
-                ContractorAdvancePaymentContact contact = advancePaymentContactService.getAdvancePaymentContact(trip.getContractorId());
-                tripRequestAdvancePaymentRepository.save(tripRequestAdvancePayment);
-                if (contact != null) {
-                    String paymentContractor = contractorRepository.getFullNameByPaymentContractorId(trip.getPaymentContractorId());
-                    Trip motorTrip = tripRepository.getMotorTrip(tripRequestAdvancePayment.getTripId()).orElse(new Trip());
-                    MessageDto messageDto = getMessageDto(tripRequestAdvancePayment, contact, paymentContractor,
-                        applicationProperties.getLkUrl(),
-                        motorTrip.getNum()
-                    );
-                    if (contact.getEmail() != null && motorTrip.getNum() != null) {
-                        notificationService.sendEmail(messageDto);
+            ContractorAdvancePaymentContact contact = advancePaymentContactService.getAdvancePaymentContact(trip.getContractorId());
+            tripRequestAdvancePaymentRepository.save(tripRequestAdvancePayment);
+            if (contact != null) {
+                String paymentContractor = contractorRepository.getFullNameByPaymentContractorId(trip.getPaymentContractorId());
+                Trip motorTrip = tripRepository.getMotorTrip(tripRequestAdvancePayment.getTripId()).orElse(new Trip());
+                MessageDto messageDto = getMessageDto(tripRequestAdvancePayment, contact, paymentContractor,
+                    applicationProperties.getLkUrl(),
+                    motorTrip.getNum()
+                );
+                if (contact.getEmail() != null && motorTrip.getNum() != null) {
+                    log.info("start sendEmail for tripNum: {}, for email: {}", motorTrip.getNum(), contact.getEmail());
+                    notificationService.sendEmail(messageDto);
                     }
                     if (contact.getPhone() != null && motorTrip.getNum() != null) {
+                        log.info("start sendSmsDelay for tripNum: {}, for Phone: {}", motorTrip.getNum(), contact.getPhone());
                         notificationService.sendSmsDelay(messageDto);
                     }
                 }
@@ -103,25 +110,25 @@ public class AutoAdvancedService {
     void updateFileUuid() {
         List<TripRequestAdvancePayment> tripRequestAdvancePayments = tripRequestAdvancePaymentRepository.findRequestAdvancePaymentWithOutUuidFiles();
         tripRequestAdvancePayments.forEach(tripRequestAdvancePayment -> {
-            final Long tripId = tripRequestAdvancePayment.getTripId();
-            Trip trip = tripRepository.findById(tripId).get();
-            Map<String, String> fileUuidMap = restService.findTripRequestDocs(trip);
-            if (!fileUuidMap.isEmpty()) {
-                String fileContractRequestUuid = Optional.ofNullable(fileUuidMap.get("request")).orElse(fileUuidMap.get("trip_request"));
-                if (fileContractRequestUuid != null) {
-                    tripRequestAdvancePayment.setIsDownloadedContractApplication(true);
-                    tripRequestAdvancePayment.setUuidContractApplicationFile(fileContractRequestUuid);
+                final Long tripId = tripRequestAdvancePayment.getTripId();
+                Trip trip = tripRepository.findById(tripId).get();
+                Map<String, String> fileUuidMap = restService.findTripRequestDocs(trip);
+                if (!fileUuidMap.isEmpty()) {
+                    String fileContractRequestUuid = Optional.ofNullable(fileUuidMap.get("request")).orElse(fileUuidMap.get("trip_request"));
+                    if (fileContractRequestUuid != null) {
+                        tripRequestAdvancePayment.setIsDownloadedContractApplication(true);
+                        tripRequestAdvancePayment.setUuidContractApplicationFile(fileContractRequestUuid);
+                    }
+                    String fileAdvanceRequestUuid = fileUuidMap.get("assignment_advance_request");
+                    if (fileAdvanceRequestUuid != null) {
+                        tripRequestAdvancePayment.setIsDownloadedContractApplication(true);
+                        tripRequestAdvancePayment.setUuidAdvanceApplicationFile(fileAdvanceRequestUuid);
+                    }
+                    if (tripRequestAdvancePayment.getUuidContractApplicationFile() != null &&
+                        tripRequestAdvancePayment.getUuidAdvanceApplicationFile() != null) {
+                        tripRequestAdvancePayment.setIs1CSendAllowed(true);
+                    }
                 }
-                String fileAdvanceRequestUuid = fileUuidMap.get("assignment_advance_request");
-                if (fileAdvanceRequestUuid != null) {
-                    tripRequestAdvancePayment.setIsDownloadedContractApplication(true);
-                    tripRequestAdvancePayment.setUuidAdvanceApplicationFile(fileAdvanceRequestUuid);
-                }
-                if (tripRequestAdvancePayment.getUuidContractApplicationFile() != null &&
-                    tripRequestAdvancePayment.getUuidAdvanceApplicationFile() != null) {
-                    tripRequestAdvancePayment.setIs1CSendAllowed(true);
-                }
-            }
             }
         );
         tripRequestAdvancePaymentRepository.saveAll(tripRequestAdvancePayments);
