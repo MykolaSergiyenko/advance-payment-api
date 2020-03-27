@@ -399,15 +399,14 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
             log.error("PageCarrierUrlIsAccess is false");
             throw getBusinessLogicException("PageCarrierUrlIsAccess is false");
         }
-        if (t.getPushButtonAt() == null || !t.getCancelAdvance()) {
+        if (t.getPushButtonAt() == null && !t.getCancelAdvance()) {
             t.setPushButtonAt(OffsetDateTime.now());
             tripRequestAdvancePaymentRepository.save(t);
             log.error("save ok for advance request with uuid: {} ,PushButtonAt: {}, CancelAdvance: {} ", uuid, t.getPushButtonAt(), t.getCancelAdvance());
-            return new ResponseEntity<>(HttpStatus.OK);
         } else {
             log.error("Button already pushed or request was cancel");
-            throw getBusinessLogicException("Button already pushed or request was cancel");
         }
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @Override
