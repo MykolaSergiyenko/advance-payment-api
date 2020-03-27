@@ -34,7 +34,6 @@ public interface TripRepository extends JpaRepository<Trip, Long> {
         "       t.vat_code, " +
         "       t.trip_status_code, " +
         "       t.resource_type_code, " +
-        "       t.is_advanced_payment, " +
         "       t.created_at " +
         "        from orders.orders o " +
         "         inner join dictionary.order_types ot on o.order_type_id = ot.id " +

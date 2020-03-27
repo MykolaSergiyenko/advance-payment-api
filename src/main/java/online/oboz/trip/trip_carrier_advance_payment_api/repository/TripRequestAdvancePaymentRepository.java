@@ -65,7 +65,8 @@ public interface TripRequestAdvancePaymentRepository extends JpaRepository<TripR
         "       pc.uuid_advance_application_file, " +
         "       pc.uuid_contract_application_file, " +
         "       pc.push_button_at, " +
-        "       pc.advance_uuid " +
+        "       pc.advance_uuid, " +
+        "       pc.is_advanced_payment " +
         "from trip_request_advance_payment pc " +
         "inner join orders.trips t on pc.trip_id = t.id " +
         "where t.num = :tripNum ")
@@ -98,7 +99,8 @@ public interface TripRequestAdvancePaymentRepository extends JpaRepository<TripR
         "       trap.uuid_advance_application_file, " +
         "       trap.uuid_contract_application_file, " +
         "       trap.push_button_at, " +
-        "       trap.advance_uuid " +
+        "       trap.advance_uuid, " +
+        "       trap.is_advanced_payment " +
         "from orders.trip_request_advance_payment trap " +
         "         inner join orders.trips t on trap.trip_id = t.id and trap.cancel_advance != true " +
         "where t.trip_status_code in ('removed', 'cancelled', 'confirmed', 'driver_confirmation', 'refused')")

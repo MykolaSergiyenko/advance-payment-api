@@ -43,6 +43,7 @@ public class TripRequestAdvancePayment {
     private String cancelAdvanceComment;
     private OffsetDateTime pushButtonAt;
     private UUID advanceUuid;
+    private Boolean isAdvancedPayment;
 
     @NotNull
     @Column(name = "created_at", nullable = false)

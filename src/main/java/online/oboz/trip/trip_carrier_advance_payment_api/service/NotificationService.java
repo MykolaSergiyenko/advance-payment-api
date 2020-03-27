@@ -3,6 +3,7 @@ package online.oboz.trip.trip_carrier_advance_payment_api.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import online.oboz.trip.trip_carrier_advance_payment_api.config.ApplicationProperties;
+import online.oboz.trip.trip_carrier_advance_payment_api.repository.TripRepository;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.dto.MessageDto;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.dto.SmsRequestDelayed;
 import org.springframework.http.ResponseEntity;
@@ -30,8 +31,9 @@ public class NotificationService {
     private final DelayQueue<Delayed> delayQueue = new DelayQueue<>();
     private final RestTemplate restTemplate;
     private final ApplicationProperties applicationProperties;
+    private final TripRepository tripRepository;
 
-    @Scheduled(cron = "${cron.update: 0 0/30 * * * *}")  //TODO add to  consul
+    @Scheduled(cron = "${cron.update: 0 0/30 * * * *}")
     private void checkDelayedSendSms() {
         String url = applicationProperties.getSmsSenderUrl();
         try {

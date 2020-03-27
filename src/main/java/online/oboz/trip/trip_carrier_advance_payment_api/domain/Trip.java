@@ -24,7 +24,6 @@ public class Trip {
     private String tripTypeCode;
     private String tripStatusCode;
     private String resourceTypeCode;
-    private Boolean isAdvancedPayment;
     private OffsetDateTime createdAt;
 
 }

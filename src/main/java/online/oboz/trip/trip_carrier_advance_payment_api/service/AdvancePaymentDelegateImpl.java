@@ -121,7 +121,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
             confirmRequestToUnf(/*new Message(trip.getId().toString(),"")*/);
             tripRequestAdvancePayment.setIsUnfSend(true);
             tripRequestAdvancePayment.setPageCarrierUrlIsAccess(false);
-            trip.setIsAdvancedPayment(true);
+            tripRequestAdvancePayment.setIsAdvancedPayment(true);
             tripRepository.save(trip);
             tripRequestAdvancePaymentRepository.save(tripRequestAdvancePayment);
             final Long orderTypeId = orderRepository.findById(trip.getOrderId()).get().getOrderTypeId();
@@ -175,7 +175,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
                 !contractorAdvanceExclusion.getIsConfirmAdvance();
             isAdvancedRequestResponse.setIsContractorLock(isContractorLock);
             isAdvancedRequestResponse.setTripTypeCode(tripRequestAdvancePayment.getTripTypeCode());
-            isAdvancedRequestResponse.setIsAdvanssed(trip.getIsAdvancedPayment());
+            isAdvancedRequestResponse.setIsAdvanssed(tripRequestAdvancePayment.getIsAdvancedPayment());
             final Boolean isAutomationRequest = tripRequestAdvancePayment.getIsAutomationRequest();
             if (isAutomationRequest) {
                 isAdvancedRequestResponse.setIsAutoRequested(true);
@@ -582,7 +582,8 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
             .setIs1CSendAllowed(false)
             .setCancelAdvanceComment("")
             .setIsAutomationRequest(contractor.getIsAutoAdvancePayment())
-            .setAdvanceUuid(UUID.randomUUID());
+            .setAdvanceUuid(UUID.randomUUID())
+            .setIsAdvancedPayment(false);
         return tripRequestAdvancePayment;
     }
 

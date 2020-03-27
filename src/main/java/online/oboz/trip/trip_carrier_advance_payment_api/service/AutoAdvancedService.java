@@ -77,6 +77,7 @@ public class AutoAdvancedService {
                 tripRequestAdvancePayment.setCancelAdvance(false);
                 tripRequestAdvancePayment.setIsUnfSend(false);
                 tripRequestAdvancePayment.setIsPaid(false);
+            tripRequestAdvancePayment.setIsAdvancedPayment(false);
             tripRequestAdvancePayment.setAdvanceUuid(UUID.randomUUID());
                 ContractorAdvancePaymentContact contact = advancePaymentContactService.getAdvancePaymentContact(trip.getContractorId());
                 tripRequestAdvancePaymentRepository.save(tripRequestAdvancePayment);
