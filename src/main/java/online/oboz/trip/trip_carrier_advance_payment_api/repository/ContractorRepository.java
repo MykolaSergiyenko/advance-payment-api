@@ -31,7 +31,7 @@ public interface ContractorRepository extends JpaRepository<Contractor, Long> {
         "                        on c.id = t.contractor_id " +
         "    where t.created_at > :a " +
         "      and c.is_auto_advance_payment != true " +
-        "      is_verified = true" +
+        "      and is_verified = true" +
         "    group by c.id " +
         "    having count(t.id) >= :x)")
     List<Contractor> getFullNameByPaymentContractorId(@Param("x") int minCountTrip, @Param("a") OffsetDateTime minDateTrip);
