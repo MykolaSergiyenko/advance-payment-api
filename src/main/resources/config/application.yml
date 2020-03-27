@@ -19,6 +19,7 @@ server:
         session:
             cookie:
                 http-only: true
+    max-http-header-size: 32000
 logging:
     level:
         root: info
