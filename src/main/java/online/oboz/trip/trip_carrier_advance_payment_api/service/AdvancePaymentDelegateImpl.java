@@ -299,7 +299,6 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
     @Override
     public ResponseEntity<Void> uploadRequestAdvance(MultipartFile filename, String tripNum) {
 //        TODO :  catch   big size file and response
-//        TODO "error_code": "500 INTERNAL_SERVER_ERROR",
         Trip trip = tripRepository.getTripByNum(tripNum).orElseThrow(() -> getBusinessLogicException("trip not found"));
         final Long tripId = trip.getId();
         TripRequestAdvancePayment tripRequestAdvancePayment = tripRequestAdvancePaymentRepository

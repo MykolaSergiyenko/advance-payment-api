@@ -3,9 +3,11 @@ package online.oboz.trip.trip_carrier_advance_payment_api.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import online.oboz.trip.trip_carrier_advance_payment_api.config.ApplicationProperties;
+import online.oboz.trip.trip_carrier_advance_payment_api.domain.Trip;
 import online.oboz.trip.trip_carrier_advance_payment_api.repository.TripRepository;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.dto.MessageDto;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.dto.SmsRequestDelayed;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -37,10 +39,17 @@ public class NotificationService {
     private void checkDelayedSendSms() {
         String url = applicationProperties.getSmsSenderUrl();
         try {
-            Delayed sms = delayQueue.poll();
+            SmsRequestDelayed sms = (SmsRequestDelayed) delayQueue.poll();
             while (sms != null) {
-                sendSms(url, sms);
-                sms = delayQueue.poll();
+                final String tripStatusCode = tripRepository.getTripByNum(sms.getTripNum()).orElse(new Trip()).getTripStatusCode();
+                if ("assigned".equals(tripStatusCode)) {
+                    sendSms(url, sms);
+                    //log.info("Sms to {} is mock", url);
+                    //log.info("Sms body - {}", new ObjectMapper().writeValueAsString(sms));
+                } else {
+                    log.info("Trip {} is not assigned", sms.getTripNum());
+                }
+                sms = (SmsRequestDelayed) delayQueue.poll();
             }
         } catch (Exception e) {
             log.error("Some Exeption", e);
@@ -54,7 +63,7 @@ public class NotificationService {
             String.class
         );
         log.info("Sms server response {}", response);
-        if (response.getStatusCode().value() != 200) {
+        if (response.getStatusCode() != HttpStatus.OK) {
             log.error("Sms server returned bad response {}", response);
         }
     }
@@ -63,6 +72,7 @@ public class NotificationService {
         SmsRequestDelayed smsRequestDelayed = new SmsRequestDelayed(
             getMessageText(messageDto),
             RUSSIAN_COUNTRY_CODE + messageDto.getPhone(),
+            messageDto.getTripNum(),
             applicationProperties.getSmsSendDelay()
         );
         log.info("add smsRequestDelayed to delayQueue");

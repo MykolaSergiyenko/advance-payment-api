@@ -7,8 +7,8 @@ public class SmsRequestDelayed extends SendSmsRequest implements Delayed {
 
     private final long time;
 
-    public SmsRequestDelayed(String messageText, String phone, int time) {
-        super(messageText, phone);
+    public SmsRequestDelayed(String messageText, String phone, String tripNum, int time) {
+        super(messageText, phone, tripNum);
         this.time = System.currentTimeMillis() + time;
     }
 
