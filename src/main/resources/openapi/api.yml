@@ -336,11 +336,11 @@ paths:
             responses:
                 "200":
                     description: "PDF-файл"
-                #                    content:
-                #                        application/pdf:
-                #                            schema:
-                #                                type: string
-                #                                format: binary
+                    content:
+                        application/pdf:
+                            schema:
+                                type: string
+                                format: binary
                 "422":
                     description: "Ошибка в процессе скачивания файла"
 
@@ -527,11 +527,11 @@ paths:
             responses:
                 "200":
                     description: "PDF-файл"
-                #                    content:
-                #                        application/pdf:
-                #                            schema:
-                #                                type: string
-                #                                format: binary
+                    content:
+                        application/pdf:
+                            schema:
+                                type: string
+                                format: binary
                 "422":
                     description: "Ошибка в процессе скачивания файла"
 
