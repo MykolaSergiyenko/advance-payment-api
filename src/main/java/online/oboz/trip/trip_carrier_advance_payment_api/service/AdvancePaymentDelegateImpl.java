@@ -6,6 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import online.oboz.trip.trip_carrier_advance_payment_api.config.ApplicationProperties;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.*;
 import online.oboz.trip.trip_carrier_advance_payment_api.error.BusinessLogicException;
+import online.oboz.trip.trip_carrier_advance_payment_api.rabbit.Message;
+import online.oboz.trip.trip_carrier_advance_payment_api.rabbit.RabbitMessageProducer;
 import online.oboz.trip.trip_carrier_advance_payment_api.repository.*;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.dto.MessageDto;
 import online.oboz.trip.trip_carrier_advance_payment_api.util.SecurityUtils;
@@ -34,9 +36,6 @@ import java.util.stream.Collectors;
 
 import static online.oboz.trip.trip_carrier_advance_payment_api.util.DtoUtils.getMessageDto;
 
-//import online.oboz.trip.trip_carrier_advance_payment_api.rabbit.Message;
-//import online.oboz.trip.trip_carrier_advance_payment_api.rabbit.RabbitMessageProducer;
-
 @Slf4j
 @Service
 public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
@@ -54,7 +53,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
     private final ObjectMapper objectMapper;
     private final OrderRepository orderRepository;
     private final RestService restService;
-//    private final RabbitMessageProducer rabbitMessageProducer;
+    private final RabbitMessageProducer rabbitMessageProducer;
 
     @Autowired
     public AdvancePaymentDelegateImpl(AdvancePaymentCostRepository advancePaymentCostRepository,
@@ -68,8 +67,8 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
                                       ApplicationProperties applicationProperties,
                                       ObjectMapper objectMapper,
                                       OrderRepository orderRepository,
-                                      RestService restService/*,
-                                      RabbitMessageProducer rabbitMessageProducer*/) {
+                                      RestService restService,
+                                      RabbitMessageProducer rabbitMessageProducer) {
         this.advancePaymentCostRepository = advancePaymentCostRepository;
         this.tripRequestAdvancePaymentRepository = tripRequestAdvancePaymentRepository;
         this.contractorAdvancePaymentContactRepository = contractorAdvancePaymentContactRepository;
@@ -82,7 +81,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
         this.applicationProperties = applicationProperties;
         this.objectMapper = objectMapper;
         this.orderRepository = orderRepository;
-//        this.rabbitMessageProducer = rabbitMessageProducer;
+        this.rabbitMessageProducer = rabbitMessageProducer;
     }
 
     @Override
@@ -112,13 +111,13 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
         Trip trip = tripRepository.findById(tripRequestAdvancePayment.getTripId()).orElseThrow(() ->
             getBusinessLogicException("trip not found")
         );
-        Order order = orderRepository.findById(tripRequestAdvancePayment.getTripId()).orElseThrow(() ->
+        Order order = orderRepository.findById(trip.getOrderId()).orElseThrow(() ->
             getBusinessLogicException("order not found")
         );
         final boolean downloadAllDocuments = isDownloadAllDocuments(trip);
         final Boolean cancelAdvance = tripRequestAdvancePayment.getCancelAdvance();
         if (downloadAllDocuments && !tripRequestAdvancePayment.getIsUnfSend() && !cancelAdvance) {
-            confirmRequestToUnf(/*new Message(trip.getId().toString(),"")*/);
+            rabbitMessageProducer.sendMessage(new Message(trip.getId().toString()));
             tripRequestAdvancePayment.setIsUnfSend(true);
             tripRequestAdvancePayment.setPageCarrierUrlIsAccess(false);
             tripRequestAdvancePayment.setIsAdvancedPayment(true);
@@ -587,14 +586,6 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
             .setAdvanceUuid(UUID.randomUUID())
             .setIsAdvancedPayment(false);
         return tripRequestAdvancePayment;
-    }
-
-    Boolean confirmRequestToUnf(/*Message message*/) {
-        //TODO : Сформировать сообщение msg
-//        final Message msg = new Message("", "");
-//        rabbitMessageProducer.sendMessage(msg);
-
-        return true;
     }
 
     private TripRequestAdvancePayment getTripRequestAdvancePaymentById(Long id) {

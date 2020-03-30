@@ -29,13 +29,13 @@ spring:
                 bindings:
                     orders-update:
                         producer:
-                            bindingRoutingKey: event.orders.update
-                            routingKeyExpression: '"event.orders.update"'
+                            bindingRoutingKey: event.advance.update
+                            routingKeyExpression: '"event.advance.update"'
             bindings:
                 orders-update:
                     destination: events
                     binder: events_host
-                    group: b2b.orders.update
+                    group: 1c-integration-oboz-events
 
     datasource:
         type: com.zaxxer.hikari.HikariDataSource
