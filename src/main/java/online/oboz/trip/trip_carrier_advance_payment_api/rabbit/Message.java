@@ -15,7 +15,7 @@ public class Message {
     public Map<String, String> getPayload() {
         Map<String, String> msg = new HashMap<>();
         msg.put("dt", OffsetDateTime.now().format(DateTimeFormatter.ISO_INSTANT));
-        msg.put("advance_id", tripId);
+        msg.put("trip_id", tripId);
         msg.put("entityType", "ADVANCE");
 
         return msg;
