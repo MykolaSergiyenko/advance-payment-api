@@ -254,7 +254,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
     }
 
     @Override
-    public ResponseEntity<Resource> downloadAvanceRequestTemplate(String tripNum) {
+    public ResponseEntity downloadAvanceRequestTemplate(String tripNum) {
         StringBuilder url = new StringBuilder();
         ResponseEntity<Resource> response;
         url.append("https://reports.oboz.com/reportserver/reportserver/httpauthexport?key=avance_request&user=bertathar&apikey=nzybc16h&p_trip_num=");
