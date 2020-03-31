@@ -43,7 +43,7 @@ paths:
         post:
             security:
                 -   bearerAuth: []
-            summary: "Подтверждение аванса / отказ на выдачу аванса "
+            summary: "Подтверждение аванса"
             operationId: confirmAdvancePayment
             tags:
                 - Advance Payment
@@ -562,6 +562,10 @@ components:
             type: object
             description: "Список запросов на аванс"
             properties:
+                total:
+                    type: integer
+                    format: int32
+                    description: "Всего AdvancePayment"
                 request_advance_payment:
                     type: array
                     items:
@@ -727,8 +731,15 @@ components:
         Filter:
             type: object
             properties:
-                contractor_ids:
-                    $ref: "#/components/schemas/ContractorIds"
+                is_downloaded_contract_application:
+                    type: boolean
+                    description: "Признак - загружен «Договор-заявка» или «Заявка»"
+                is_downloaded_advance_application:
+                    type: boolean
+                    description: "Признак - загружена заявка на авансирование"
+                is_unf_send:
+                    type: boolean
+                    description: "Признак - отправлен в УНФ"
                 page:
                     type: integer
                     format: int32
@@ -739,12 +750,39 @@ components:
                     format: int32
                     default: 10
                     description: "Количество возвращаемых результатов"
+                sort:
+                    type: array
+                    items:
+                        $ref: "#/components/schemas/SortBy"
 
-        ContractorIds:
-            type: array
-            items:
-                type: integer
-            description: "Массив значений id контрагентов"
+        SortBy:
+            required:
+                - key
+                - dir
+            properties:
+                key:
+                    #                    type: string
+                    $ref: '#/components/schemas/SortByField'
+                dir:
+                    #                    type: string
+                    $ref: '#/components/schemas/SortByDirection'
+
+        SortByField:
+            type: string
+            enum:
+                - trip_num
+                - push_button_at
+                - is_automation_request
+                - loading_complete
+                - is_downloaded_contract_application
+                - is_downloaded_advance_application
+                - is_unf_send
+
+        SortByDirection:
+            type: string
+            enum:
+                - asc
+                - desc
 
         isAdvancedRequestResponse:
             type: object

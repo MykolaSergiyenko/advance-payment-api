@@ -11,6 +11,9 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface TripRequestAdvancePaymentRepository extends JpaRepository<TripRequestAdvancePayment, Long> {
+    @Query(" select count(*) from TripRequestAdvancePayment ap ")
+    Integer totalTripRequestAdvancePayment();
+
     @Query(" select ap from TripRequestAdvancePayment ap ")
     List<TripRequestAdvancePayment> findTripRequestAdvancePayment(Pageable pageable);
 

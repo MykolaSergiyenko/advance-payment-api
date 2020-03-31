@@ -86,6 +86,8 @@ public class AutoAdvancedService {
             tripRequestAdvancePayment.setAdvanceUuid(UUID.randomUUID());
             ContractorAdvancePaymentContact contact = advancePaymentContactService.getAdvancePaymentContact(trip.getContractorId());
             tripRequestAdvancePaymentRepository.save(tripRequestAdvancePayment);
+            log.info("tripRequestAdvancePayment for id : {}, is auto crated", tripRequestAdvancePayment.getId());
+
             if (contact != null) {
                 String paymentContractor = contractorRepository.getFullNameByPaymentContractorId(trip.getPaymentContractorId());
                 Trip motorTrip = tripRepository.getMotorTrip(tripRequestAdvancePayment.getTripId()).orElse(new Trip());
@@ -118,15 +120,20 @@ public class AutoAdvancedService {
                     if (fileContractRequestUuid != null) {
                         tripRequestAdvancePayment.setIsDownloadedContractApplication(true);
                         tripRequestAdvancePayment.setUuidContractApplicationFile(fileContractRequestUuid);
+                        log.info("UuidContractApplicationFile is: {}", tripRequestAdvancePayment.getUuidContractApplicationFile());
+
                     }
                     String fileAdvanceRequestUuid = fileUuidMap.get("assignment_advance_request");
                     if (fileAdvanceRequestUuid != null) {
                         tripRequestAdvancePayment.setIsDownloadedContractApplication(true);
                         tripRequestAdvancePayment.setUuidAdvanceApplicationFile(fileAdvanceRequestUuid);
+                        log.info("UuidAdvanceApplicationFile is: {}", tripRequestAdvancePayment.getUuidAdvanceApplicationFile());
+
                     }
                     if (tripRequestAdvancePayment.getUuidContractApplicationFile() != null &&
                         tripRequestAdvancePayment.getUuidAdvanceApplicationFile() != null) {
                         tripRequestAdvancePayment.setIs1CSendAllowed(true);
+                        log.info("Is1CSendAllowed set true for advance: {}", tripRequestAdvancePayment);
                     }
                 }
             }
@@ -138,7 +145,10 @@ public class AutoAdvancedService {
     void updateAutoAdvance() {
         List<Contractor> contractors = contractorRepository.getFullNameByPaymentContractorId(applicationProperties.getMinCountTrip(),
             applicationProperties.getMinDateTrip());
-        contractors.forEach(c -> c.setIsAutoAdvancePayment(true));
+        contractors.forEach(c -> {
+            c.setIsAutoAdvancePayment(true);
+            log.info("Contractor with id: {} IsAutoAdvancePayment.", c.getId());
+        });
         contractorRepository.saveAll(contractors);
     }
 
@@ -148,6 +158,8 @@ public class AutoAdvancedService {
         tripRequestAdvancePayments.forEach(p -> {
             p.setCancelAdvance(true);
             p.setCancelAdvanceComment("Auto Canceled");
+            log.info("tripRequestAdvancePayments with id: {} auto canceled.", p.getId());
+
         });
         tripRequestAdvancePaymentRepository.saveAll(tripRequestAdvancePayments);
     }

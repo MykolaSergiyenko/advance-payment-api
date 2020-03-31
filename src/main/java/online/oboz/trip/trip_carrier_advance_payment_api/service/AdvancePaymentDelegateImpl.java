@@ -87,6 +87,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
     @Override
     public ResponseEntity<ResponseAdvancePayment> searchAdvancePaymentRequest(Filter filter) {
         Pageable pageable = PageRequest.of(filter.getPage() - 1, filter.getPerPage());
+//        final String searchParam = Optional.ofNullable(filter.getSearchParam()).orElse("");
         List<FrontAdvancePaymentResponse> responseList;
         responseList = tripRequestAdvancePaymentRepository.findTripRequestAdvancePayment(pageable).stream()
             .map(rec -> {
@@ -100,6 +101,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
             })
             .collect(Collectors.toList());
         final ResponseAdvancePayment responseAdvancePayment = new ResponseAdvancePayment();
+        responseAdvancePayment.setTotal(tripRequestAdvancePaymentRepository.totalTripRequestAdvancePayment());
         responseAdvancePayment.setRequestAdvancePayment(responseList);
         return new ResponseEntity<>(responseAdvancePayment, HttpStatus.OK);
     }
