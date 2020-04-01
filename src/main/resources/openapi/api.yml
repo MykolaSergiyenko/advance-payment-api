@@ -319,6 +319,44 @@ paths:
                             schema:
                                 $ref: "#/components/schemas/Error"
 
+    /advance_payment/change_advance_payment_comment:
+        put:
+            security:
+                -   bearerAuth: []
+            summary: "Сменить комментарий в авансе"
+            operationId: changeAdvancePaymentComment
+            tags:
+                - Advance Payment
+            parameters:
+                -   name: id
+                    in: query
+                    schema:
+                        type: integer
+                        format: int64
+                    required: true
+                    description: "Номер запроса на аванс"
+                -   name: advance_comment
+                    in: query
+                    schema:
+                        type: string
+                    required: true
+                    description: "Комментарий в авансе"
+            responses:
+                200:
+                    description: "OK"
+                default:
+                    description: "Some other error"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                422:
+                    description: "Business error"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+
     /advance_payment/download_advance_request_template:
         get:
             security:

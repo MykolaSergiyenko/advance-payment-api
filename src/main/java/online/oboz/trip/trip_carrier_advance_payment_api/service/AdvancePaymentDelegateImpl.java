@@ -297,6 +297,14 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
     }
 
     @Override
+    public ResponseEntity<Void> changeAdvancePaymentComment(Long id, String advanceComment) {
+        final TripRequestAdvancePayment entity = getTripRequestAdvancePaymentById(id);
+        entity.setComment(advanceComment);
+        tripRequestAdvancePaymentRepository.save(entity);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @Override
     public ResponseEntity downloadAvanceRequestTemplate(String tripNum) {
         StringBuilder url = new StringBuilder();
         ResponseEntity<Resource> response;
