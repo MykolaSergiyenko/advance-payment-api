@@ -27,15 +27,15 @@ spring:
                     type: rabbit
             rabbit:
                 bindings:
-                    orders-update:
+                    advance-create:
                         producer:
                             bindingRoutingKey: event.advance.create
                             routingKeyExpression: '"event.advance.create"'
             bindings:
-                orders-update:
+                advance-create:
                     destination: events
                     binder: events_host
-                    group: 1c-integration-oboz-events
+                    group: advance.create
 
     datasource:
         type: com.zaxxer.hikari.HikariDataSource

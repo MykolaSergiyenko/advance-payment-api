@@ -17,7 +17,7 @@ public class RabbitMessageProducer {
     }
 
     public void sendMessage(Message msg) {
-        ordersSink.update().send(buildMessage(msg.getPayload()));
+        ordersSink.create().send(buildMessage(msg.getPayload()));
     }
 
     private static final <T> org.springframework.messaging.Message buildMessage(T val) {

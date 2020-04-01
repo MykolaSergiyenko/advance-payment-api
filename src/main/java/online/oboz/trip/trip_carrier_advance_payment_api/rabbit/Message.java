@@ -6,16 +6,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Message {
-    private final String tripId;
+    private final String advanceId;
 
-    public Message(String tripId) {
-        this.tripId = tripId;
+    public Message(String advanceId) {
+        this.advanceId = advanceId;
     }
 
     public Map<String, String> getPayload() {
         Map<String, String> msg = new HashMap<>();
         msg.put("dt", OffsetDateTime.now().format(DateTimeFormatter.ISO_INSTANT));
-        msg.put("trip_id", tripId);
+        msg.put("advance_id", advanceId);
         msg.put("entityType", "ADVANCE");
 
         return msg;

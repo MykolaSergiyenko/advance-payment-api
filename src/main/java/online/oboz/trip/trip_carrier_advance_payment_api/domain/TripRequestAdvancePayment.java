@@ -13,7 +13,7 @@ import java.util.UUID;
 @Data
 @Accessors(chain = true)
 public class TripRequestAdvancePayment {
-
+    //TODO: need rename table to trip_advance
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;

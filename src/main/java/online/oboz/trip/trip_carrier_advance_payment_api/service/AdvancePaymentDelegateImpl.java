@@ -158,8 +158,10 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
         final boolean downloadAllDocuments = isDownloadAllDocuments(trip);
         final Boolean cancelAdvance = tripRequestAdvancePayment.getCancelAdvance();
         if (downloadAllDocuments && !tripRequestAdvancePayment.getIsUnfSend() && !cancelAdvance) {
-            rabbitMessageProducer.sendMessage(new Message(trip.getId().toString()));
+            rabbitMessageProducer.sendMessage(new Message(tripRequestAdvancePayment.getId().toString()));
+            log.info("send message to Rabbit complete");
             tripRequestAdvancePayment.setIsUnfSend(true);
+            tripRequestAdvancePayment.setIs1CSendAllowed(false);
             tripRequestAdvancePayment.setPageCarrierUrlIsAccess(false);
             tripRequestAdvancePayment.setIsAdvancedPayment(true);
             tripRepository.save(trip);

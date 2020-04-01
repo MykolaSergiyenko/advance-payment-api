@@ -4,8 +4,8 @@ import org.springframework.cloud.stream.annotation.Output;
 import org.springframework.messaging.MessageChannel;
 
 public interface OrdersSink {
-    String ORDERS_UPDATE = "orders-update";
+    String ADVANCE_CREATE = "advance-create";
 
-    @Output(ORDERS_UPDATE)
-    MessageChannel update();
+    @Output(ADVANCE_CREATE)
+    MessageChannel create();
 }
