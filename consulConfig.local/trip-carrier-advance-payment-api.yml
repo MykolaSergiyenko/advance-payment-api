@@ -29,8 +29,8 @@ spring:
                 bindings:
                     orders-update:
                         producer:
-                            bindingRoutingKey: event.advance.update
-                            routingKeyExpression: '"event.advance.update"'
+                            bindingRoutingKey: event.advance.create
+                            routingKeyExpression: '"event.advance.create"'
             bindings:
                 orders-update:
                     destination: events

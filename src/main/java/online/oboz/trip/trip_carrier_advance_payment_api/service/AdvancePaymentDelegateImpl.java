@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +27,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.Tuple;
 import javax.transaction.Transactional;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -86,10 +89,14 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
 
     @Override
     public ResponseEntity<ResponseAdvancePayment> searchAdvancePaymentRequest(Filter filter) {
-        Pageable pageable = PageRequest.of(filter.getPage() - 1, filter.getPerPage());
+        Pageable pageable = PageRequest.of(filter.getPage() - 1, filter.getPerPage(), constructSorting(filter));
 //        final String searchParam = Optional.ofNullable(filter.getSearchParam()).orElse("");
         List<FrontAdvancePaymentResponse> responseList;
-        responseList = tripRequestAdvancePaymentRepository.findTripRequestAdvancePayment(pageable).stream()
+        responseList = tripRequestAdvancePaymentRepository.findTripRequestAdvancePayment(
+            filter.getIsUnfSend(),
+            filter.getIsDownloadedContractApplication(),
+            filter.getIsDownloadedAdvanceApplication(),
+            pageable).stream()
             .map(rec -> {
                 ContractorAdvancePaymentContact contractorAdvancePaymentContact =
                     contractorAdvancePaymentContactRepository.findContractorAdvancePaymentContact(rec.getContractorId())
@@ -101,9 +108,41 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
             })
             .collect(Collectors.toList());
         final ResponseAdvancePayment responseAdvancePayment = new ResponseAdvancePayment();
-        responseAdvancePayment.setTotal(tripRequestAdvancePaymentRepository.totalTripRequestAdvancePayment());
+        responseAdvancePayment.setTotal(tripRequestAdvancePaymentRepository.totalTripRequestAdvancePayment(
+            filter.getIsUnfSend(),
+            filter.getIsDownloadedContractApplication(),
+            filter.getIsDownloadedAdvanceApplication())
+        );
         responseAdvancePayment.setRequestAdvancePayment(responseList);
         return new ResponseEntity<>(responseAdvancePayment, HttpStatus.OK);
+    }
+
+    private Sort constructSorting(Filter filter) {
+        List<Sort.Order> sortingOrders = filter.getSort()
+            .stream()
+            .map(sort -> new Sort.Order(Sort.Direction.fromString(sort.getDir().name()), getProperty(sort.getKey())))
+            .collect(Collectors.toList());
+        return Sort.by(sortingOrders);
+    }
+
+    private String getProperty(@NotNull @Valid SortByField key) {
+        switch (key) {
+            case PUSH_BUTTON_AT:
+                return "pushButtonAt";
+            case IS_AUTOMATION_REQUEST:
+                return "isAutomationRequest";
+            case LOADING_COMPLETE:
+                return "loadingComplete";
+            case IS_DOWNLOADED_CONTRACT_APPLICATION:
+                return "isDownloadedContractApplication";
+            case IS_DOWNLOADED_ADVANCE_APPLICATION:
+                return "isDownloadedAdvanceApplication";
+            case IS_UNF_SEND:
+                return "isUnfSend";
+            case TRIP_NUM:
+            default:
+                return "tripId";
+        }
     }
 
     @Override
@@ -581,6 +620,8 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
             .setLoadingComplete(false)
             .setPaymentContractorId(trip.getPaymentContractorId())
             .setPageCarrierUrlIsAccess(true)
+            .setIsDownloadedAdvanceApplication(false)
+            .setIsDownloadedContractApplication(false)
             .setIsPaid(false)
             .setIs1CSendAllowed(false)
             .setCancelAdvanceComment("")

@@ -11,11 +11,24 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface TripRequestAdvancePaymentRepository extends JpaRepository<TripRequestAdvancePayment, Long> {
-    @Query(" select count(*) from TripRequestAdvancePayment ap ")
-    Integer totalTripRequestAdvancePayment();
 
-    @Query(" select ap from TripRequestAdvancePayment ap ")
-    List<TripRequestAdvancePayment> findTripRequestAdvancePayment(Pageable pageable);
+    @Query(" select count(*) from TripRequestAdvancePayment ap " +
+        " where (ap.isUnfSend = :inf_send or :inf_send is null)" +
+        "   and (ap.isDownloadedContractApplication = :downloaded_contract_app or :downloaded_contract_app is null)" +
+        "   and (ap.isDownloadedAdvanceApplication = :downloaded_advance_app or :downloaded_advance_app is null)")
+    Integer totalTripRequestAdvancePayment(@Param("inf_send") Boolean isUnfSend,
+                                           @Param("downloaded_contract_app") Boolean isDownloadedContractApplication,
+                                           @Param("downloaded_advance_app") Boolean isDownloadedAdvanceApplication);
+
+    @Query(" select ap from TripRequestAdvancePayment ap " +
+        " where (ap.isUnfSend = :inf_send or :inf_send is null)" +
+        "   and (ap.isDownloadedContractApplication = :downloaded_contract_app or :downloaded_contract_app is null)" +
+        "   and (ap.isDownloadedAdvanceApplication = :downloaded_advance_app or :downloaded_advance_app is null)")
+    List<TripRequestAdvancePayment> findTripRequestAdvancePayment(
+        @Param("inf_send") Boolean isUnfSend,
+        @Param("downloaded_contract_app") Boolean isDownloadedContractApplication,
+        @Param("downloaded_advance_app") Boolean isDownloadedAdvanceApplication,
+        Pageable pageable);
 
     @Query(" select ap from TripRequestAdvancePayment ap " +
         " where  ap.tripId = :trip_id " +
