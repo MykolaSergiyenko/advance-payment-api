@@ -30,9 +30,9 @@ public class TripRequestAdvancePayment {
     private String uuidAdvanceApplicationFile;
     @Column(name = "is_1c_send_allowed")
     private Boolean is1CSendAllowed;
-    private Boolean cancelAdvance;
+    private Boolean isCancelled;
     private String comment;
-    private Boolean isUnfSend;
+    private Boolean isPushedUnfButton;
     private Boolean isPaid;
     private OffsetDateTime paidAt;
     private Boolean pageCarrierUrlIsAccess;
@@ -40,10 +40,9 @@ public class TripRequestAdvancePayment {
     private Boolean isDownloadedContractApplication;
     private Boolean isDownloadedAdvanceApplication;
     private Long authorId;
-    private String cancelAdvanceComment;
+    private String cancelledComment;
     private OffsetDateTime pushButtonAt;
     private UUID advanceUuid;
-    private Boolean isAdvancedPayment;
 
     @NotNull
     @Column(name = "created_at", nullable = false)

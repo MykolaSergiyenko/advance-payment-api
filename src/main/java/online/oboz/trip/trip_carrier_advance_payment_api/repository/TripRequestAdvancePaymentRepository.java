@@ -13,31 +13,33 @@ import java.util.UUID;
 public interface TripRequestAdvancePaymentRepository extends JpaRepository<TripRequestAdvancePayment, Long> {
 
     @Query(" select count(*) from TripRequestAdvancePayment ap " +
-        " where (ap.isUnfSend = :inf_send or :inf_send is null)" +
+        " where (ap.isPushedUnfButton = :is_pushed_unf_button or :is_pushed_unf_button is null)" +
+        "   and (ap.isPaid = :is_paid or :is_paid is null) " +
+        "   and (ap.isCancelled = :is_cancelled or :is_cancelled is null) " +
         "   and (ap.isDownloadedContractApplication = :downloaded_contract_app or :downloaded_contract_app is null)" +
-        "   and (ap.isDownloadedAdvanceApplication = :downloaded_advance_app or :downloaded_advance_app is null)")
-    Integer totalTripRequestAdvancePayment(@Param("inf_send") Boolean isUnfSend,
+        "   and (ap.isDownloadedAdvanceApplication = :downloaded_advance_app or :downloaded_advance_app is null)" +
+        "   and (ap.comment is not null or :has_comment = false) ")
+    Integer totalTripRequestAdvancePayment(@Param("is_pushed_unf_button") Boolean isPushedUnfButton,
+                                           @Param("is_paid") Boolean isPaid,
+                                           @Param("is_cancelled") Boolean isCancelled,
                                            @Param("downloaded_contract_app") Boolean isDownloadedContractApplication,
-                                           @Param("downloaded_advance_app") Boolean isDownloadedAdvanceApplication);
+                                           @Param("downloaded_advance_app") Boolean isDownloadedAdvanceApplication,
+                                           @Param("has_comment") boolean hasComment);
 
     @Query(" select ap from TripRequestAdvancePayment ap " +
-        " where (ap.isUnfSend = :inf_send or :inf_send is null)" +
+        " where (ap.isPushedUnfButton = :is_pushed_unf_button or :is_pushed_unf_button is null)" +
         " and (ap.isPaid = :is_paid or :is_paid is null) " +
-        " and (ap.cancelAdvance = :cancel_advance or :cancel_advance is null) " +
+        " and (ap.isCancelled = :is_cancelled or :is_cancelled is null) " +
         " and (ap.isDownloadedContractApplication = :downloaded_contract_app or :downloaded_contract_app is null)" +
         " and (ap.isDownloadedAdvanceApplication = :downloaded_advance_app or :downloaded_advance_app is null)" +
-        " and (ap.paidAt is not null or :has_paid_at = false ) " +
-        " and (ap.comment is not null or :has_comment = false) " +
-        " and (ap.cancelAdvanceComment is not null or :has_cancelAdvanceComment = false) ")
+        " and (ap.comment is not null or :has_comment = false) ")
     List<TripRequestAdvancePayment> findTripRequestAdvancePayment(
-        @Param("inf_send") Boolean isUnfSend,
+        @Param("is_pushed_unf_button") Boolean isPushedUnfButton,
         @Param("is_paid") Boolean isPaid,
-        @Param("cancel_advance") Boolean cancelAdvance,
+        @Param("is_cancelled") Boolean is_cancelled,
         @Param("downloaded_contract_app") Boolean isDownloadedContractApplication,
         @Param("downloaded_advance_app") Boolean isDownloadedAdvanceApplication,
-        @Param("has_paid_at") boolean hasPaidAt,
         @Param("has_comment") boolean hasComment,
-        @Param("has_cancelAdvanceComment") boolean hasCancelAdvanceComment,
         Pageable pageable);
 
     @Query(" select ap from TripRequestAdvancePayment ap " +
@@ -71,16 +73,16 @@ public interface TripRequestAdvancePaymentRepository extends JpaRepository<TripR
         "       pc.contractor_id, " +
         "       pc.advance_payment_sum, " +
         "       pc.registration_fee, " +
-        "       pc.cancel_advance, " +
+        "       pc.is_cancelled, " +
         "       pc.comment, " +
-        "       pc.is_unf_send, " +
+        "       pc.is_pushed_unf_button, " +
         "       pc.payment_contractor_id, " +
         "       pc.page_carrier_url_is_access, " +
         "       pc.trip_type_code, " +
         "       pc.created_at, " +
         "       pc.updated_at, " +
         "       pc.author_id, " +
-        "       pc.cancel_advance_comment, " +
+        "       pc.cancelled_comment, " +
         "       pc.is_automation_request, " +
         "       pc.is_paid, " +
         "       pc.paid_at, " +
@@ -91,8 +93,7 @@ public interface TripRequestAdvancePaymentRepository extends JpaRepository<TripR
         "       pc.uuid_advance_application_file, " +
         "       pc.uuid_contract_application_file, " +
         "       pc.push_button_at, " +
-        "       pc.advance_uuid, " +
-        "       pc.is_advanced_payment " +
+        "       pc.advance_uuid " +
         "from trip_request_advance_payment pc " +
         "inner join orders.trips t on pc.trip_id = t.id " +
         "where t.num = :tripNum ")
@@ -105,16 +106,16 @@ public interface TripRequestAdvancePaymentRepository extends JpaRepository<TripR
         "       trap.contractor_id, " +
         "       trap.advance_payment_sum, " +
         "       trap.registration_fee, " +
-        "       trap.cancel_advance, " +
+        "       trap.is_cancelled, " +
         "       trap.comment, " +
-        "       trap.is_unf_send, " +
+        "       trap.is_pushed_unf_button, " +
         "       trap.payment_contractor_id, " +
         "       trap.page_carrier_url_is_access, " +
         "       trap.trip_type_code, " +
         "       trap.created_at, " +
         "       trap.updated_at, " +
         "       trap.author_id, " +
-        "       trap.cancel_advance_comment, " +
+        "       trap.cancelled_comment, " +
         "       trap.is_automation_request, " +
         "       trap.is_paid, " +
         "       trap.paid_at, " +
@@ -125,10 +126,9 @@ public interface TripRequestAdvancePaymentRepository extends JpaRepository<TripR
         "       trap.uuid_advance_application_file, " +
         "       trap.uuid_contract_application_file, " +
         "       trap.push_button_at, " +
-        "       trap.advance_uuid, " +
-        "       trap.is_advanced_payment " +
+        "       trap.advance_uuid " +
         "from orders.trip_request_advance_payment trap " +
-        "         inner join orders.trips t on trap.trip_id = t.id and trap.cancel_advance != true " +
+        "         inner join orders.trips t on trap.trip_id = t.id and trap.is_cancelled != true " +
         "where t.trip_status_code in ('removed', 'cancelled', 'confirmed', 'driver_confirmation', 'refused')")
     List<TripRequestAdvancePayment> findRequestAdvancePaymentNeedCancel();
 

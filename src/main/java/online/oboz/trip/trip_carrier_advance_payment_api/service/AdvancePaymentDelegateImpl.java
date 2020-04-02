@@ -90,16 +90,13 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
     @Override
     public ResponseEntity<ResponseAdvancePayment> searchAdvancePaymentRequest(Filter filter) {
         Pageable pageable = PageRequest.of(filter.getPage() - 1, filter.getPerPage(), constructSorting(filter));
-//        final String searchParam = Optional.ofNullable(filter.getSearchParam()).orElse("");
         List<FrontAdvancePaymentResponse> responseList = tripRequestAdvancePaymentRepository.findTripRequestAdvancePayment(
-            filter.getIsUnfSend(),
+            filter.getIsPushedUnfButton(),
             filter.getIsPaid(),
             filter.getIsCancelAdvance(),
             filter.getIsDownloadedContractApplication(),
             filter.getIsDownloadedAdvanceApplication(),
-            Optional.ofNullable(filter.getHasPaidAt()).orElse(false),
             Optional.ofNullable(filter.getHasComment()).orElse(false),
-            Optional.ofNullable(filter.getHasCancelAdvanceComment()).orElse(false),
             pageable).stream()
             .map(rec -> {
                 ContractorAdvancePaymentContact contractorAdvancePaymentContact =
@@ -113,9 +110,13 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
             .collect(Collectors.toList());
         final ResponseAdvancePayment responseAdvancePayment = new ResponseAdvancePayment();
         responseAdvancePayment.setTotal(tripRequestAdvancePaymentRepository.totalTripRequestAdvancePayment(
-            filter.getIsUnfSend(),
+            filter.getIsPushedUnfButton(),
+            filter.getIsPaid(),
+            filter.getIsCancelAdvance(),
             filter.getIsDownloadedContractApplication(),
-            filter.getIsDownloadedAdvanceApplication())
+            filter.getIsDownloadedAdvanceApplication(),
+            Optional.ofNullable(filter.getHasComment()).orElse(false)
+            )
         );
         responseAdvancePayment.setRequestAdvancePayment(responseList);
         return new ResponseEntity<>(responseAdvancePayment, HttpStatus.OK);
@@ -141,8 +142,8 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
                 return "isDownloadedContractApplication";
             case IS_DOWNLOADED_ADVANCE_APPLICATION:
                 return "isDownloadedAdvanceApplication";
-            case IS_UNF_SEND:
-                return "isUnfSend";
+            case IS_PUSHED_UNF_BUTTON:
+                return "isPushedUnfButton";
             case TRIP_NUM:
             default:
                 return "tripId";
@@ -160,14 +161,13 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
             getBusinessLogicException("order not found")
         );
         final boolean downloadAllDocuments = isDownloadAllDocuments(trip);
-        final Boolean cancelAdvance = tripRequestAdvancePayment.getCancelAdvance();
-        if (downloadAllDocuments && !tripRequestAdvancePayment.getIsUnfSend() && !cancelAdvance) {
+        final Boolean isCancelled = tripRequestAdvancePayment.getIsCancelled();
+        if (downloadAllDocuments && !tripRequestAdvancePayment.getIsPushedUnfButton() && !isCancelled) {
             rabbitMessageProducer.sendMessage(new Message(tripRequestAdvancePayment.getId().toString()));
             log.info("send message to Rabbit complete");
-            tripRequestAdvancePayment.setIsUnfSend(true);
+            tripRequestAdvancePayment.setIsPushedUnfButton(true);
             tripRequestAdvancePayment.setIs1CSendAllowed(false);
             tripRequestAdvancePayment.setPageCarrierUrlIsAccess(false);
-            tripRequestAdvancePayment.setIsAdvancedPayment(true);
             tripRepository.save(trip);
             tripRequestAdvancePaymentRepository.save(tripRequestAdvancePayment);
             final Long orderTypeId = orderRepository.findById(trip.getOrderId()).get().getOrderTypeId();
@@ -186,8 +186,8 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
         }
         if (!downloadAllDocuments) {
             throw getBusinessLogicException("no download All Documents");
-        } else if (cancelAdvance) {
-            throw getBusinessLogicException("cancelAdvance is true");
+        } else if (isCancelled) {
+            throw getBusinessLogicException("isCancelled is true");
         } else {
             throw getBusinessLogicException("unf already send");
         }
@@ -221,7 +221,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
                 !contractorAdvanceExclusion.getIsConfirmAdvance();
             isAdvancedRequestResponse.setIsContractorLock(isContractorLock);
             isAdvancedRequestResponse.setTripTypeCode(tripRequestAdvancePayment.getTripTypeCode());
-            isAdvancedRequestResponse.setIsAdvanssed(tripRequestAdvancePayment.getIsAdvancedPayment());
+            isAdvancedRequestResponse.setIsPaid(tripRequestAdvancePayment.getIsPaid());
             final Boolean isAutomationRequest = tripRequestAdvancePayment.getIsAutomationRequest();
             if (isAutomationRequest) {
                 isAdvancedRequestResponse.setIsAutoRequested(true);
@@ -361,7 +361,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
             throw getBusinessLogicException("tripRequestAdvancePayment not found");
         if (tripRequestAdvancePayment.getPushButtonAt() == null)
             throw getBusinessLogicException("PushButtonAt need is first");
-        if (tripRequestAdvancePayment.getIsUnfSend())
+        if (tripRequestAdvancePayment.getIsPushedUnfButton())
             throw getBusinessLogicException("uploadRequestAdvance forbidden");
         String url = applicationProperties.getBStoreUrl() + "pdf/";
         ResponseEntity<String> response = restService.getFileUuid(filename, url);
@@ -431,8 +431,8 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
     @Override
     public ResponseEntity<Void> cancelAdvancePayment(Long id, String cancelAdvanceComment) {
         final TripRequestAdvancePayment entity = getTripRequestAdvancePaymentById(id);
-        entity.setCancelAdvanceComment(cancelAdvanceComment);
-        entity.setCancelAdvance(true);
+        entity.setCancelledComment(cancelAdvanceComment);
+        entity.setIsCancelled(true);
         tripRequestAdvancePaymentRepository.save(entity);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -453,10 +453,10 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
             log.error("PageCarrierUrlIsAccess is false");
             throw getBusinessLogicException("PageCarrierUrlIsAccess is false");
         }
-        if (t.getPushButtonAt() == null && !t.getCancelAdvance()) {
+        if (t.getPushButtonAt() == null && !t.getIsCancelled()) {
             t.setPushButtonAt(OffsetDateTime.now());
             tripRequestAdvancePaymentRepository.save(t);
-            log.error("save ok for advance request with uuid: {} ,PushButtonAt: {}, CancelAdvance: {} ", uuid, t.getPushButtonAt(), t.getCancelAdvance());
+            log.error("save ok for advance request with uuid: {} ,PushButtonAt: {}, CancelAdvance: {} ", uuid, t.getPushButtonAt(), t.getIsCancelled());
         } else {
             log.error("Button already pushed or request was cancel");
         }
@@ -482,8 +482,8 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
         frontAdvancePaymentResponse.setTripCostWithVat(t.getTripCost());
         frontAdvancePaymentResponse.setAdvancePaymentSum(t.getAdvancePaymentSum());
         frontAdvancePaymentResponse.setRegistrationFee(t.getRegistrationFee());
-        frontAdvancePaymentResponse.setCancelAdvance(t.getCancelAdvance());
-        frontAdvancePaymentResponse.setIsUnfSend(t.getIsUnfSend());
+        frontAdvancePaymentResponse.setIsCancelled(t.getIsCancelled());
+        frontAdvancePaymentResponse.setIsPushedUnfButton(t.getIsPushedUnfButton());
         return new ResponseEntity<>(frontAdvancePaymentResponse, HttpStatus.OK);
     }
 
@@ -541,15 +541,15 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
         ) {
             isAdvancedRequestResponse.setIsButtonActive(true);
         } else if (tripRequestAdvancePayment != null && (
-            !tripRequestAdvancePayment.getCancelAdvance() &&
+            !tripRequestAdvancePayment.getIsCancelled() &&
                 !isAutoAdvancePayment &&
-                !tripRequestAdvancePayment.getIsUnfSend() &&
+                !tripRequestAdvancePayment.getIsPushedUnfButton() &&
                 !trip.getDriverId().equals(tripRequestAdvancePayment.getDriverId()))) {
             isAdvancedRequestResponse.setIsButtonActive(true);
         } else if (tripRequestAdvancePayment != null && (
-            tripRequestAdvancePayment.getCancelAdvance() ||
+            tripRequestAdvancePayment.getIsCancelled() ||
                 isAutoAdvancePayment ||
-                tripRequestAdvancePayment.getIsUnfSend() ||
+                tripRequestAdvancePayment.getIsPushedUnfButton() ||
                 trip.getDriverId().equals(tripRequestAdvancePayment.getDriverId()))) {
             isAdvancedRequestResponse.setIsButtonActive(false);
         }
@@ -586,12 +586,13 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
             .urlContractApplication(rec.getUuidContractApplicationFile())
             .urlAdvanceApplication(rec.getUuidAdvanceApplicationFile())
             .is1CSendAllowed(rec.getIs1CSendAllowed())
-            .isUnfSend(rec.getIsUnfSend())
+            .isPushedUnfButton(rec.getIsPushedUnfButton())
+            .pushButtonAt(rec.getPushButtonAt())
             .isPaid(rec.getIsPaid())
             .paidAt(rec.getPaidAt())
             .comment(rec.getComment())
-            .cancelAdvance(rec.getCancelAdvance())
-            .cancelAdvanceComment(rec.getCancelAdvanceComment())
+            .isCancelled(rec.getIsCancelled())
+            .cancelledComment(rec.getCancelledComment())
             .authorId(rec.getAuthorId())
             .pageCarrierUrlIsAccess(rec.getPageCarrierUrlIsAccess())
             .firstLoadingAddress(firstLoadingAddress)
@@ -620,11 +621,11 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
         TripRequestAdvancePayment tripRequestAdvancePayment = new TripRequestAdvancePayment();
         tripRequestAdvancePayment.setAuthorId(SecurityUtils.getAuthPersonId())
             .setTripId(advancePaymentCost.getId())
-            .setIsUnfSend(isUnfSend)
+            .setIsPushedUnfButton(isUnfSend)
             .setTripCost(tripCostWithNds)
             .setAdvancePaymentSum(advancePaymentCost.getAdvancePaymentSum())
             .setRegistrationFee(advancePaymentCost.getRegistrationFee())
-            .setCancelAdvance(false)
+            .setIsCancelled(false)
             .setContractorId(trip.getContractorId())
             .setDriverId(trip.getDriverId())
             .setCreatedAt(OffsetDateTime.now())
@@ -638,10 +639,9 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
             .setIsDownloadedContractApplication(false)
             .setIsPaid(false)
             .setIs1CSendAllowed(false)
-            .setCancelAdvanceComment("")
+            .setCancelledComment("")
             .setIsAutomationRequest(contractor.getIsAutoAdvancePayment())
-            .setAdvanceUuid(UUID.randomUUID())
-            .setIsAdvancedPayment(false);
+            .setAdvanceUuid(UUID.randomUUID());
         return tripRequestAdvancePayment;
     }
 

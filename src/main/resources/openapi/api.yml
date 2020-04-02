@@ -297,7 +297,7 @@ paths:
                         format: int64
                     required: true
                     description: "Номер запроса на аванс"
-                -   name: cancel_advance_comment
+                -   name: cancelled_comment
                     in: query
                     schema:
                         type: string
@@ -359,8 +359,6 @@ paths:
 
     /advance_payment/download_advance_request_template:
         get:
-            security:
-                -   bearerAuth: []
             tags:
                 - Application contract
             summary: "Запрос на скачивание шаблонной заявки на аванс"
@@ -384,8 +382,6 @@ paths:
 
     /advance_payment/download_request:
         get:
-            security:
-                -   bearerAuth: []
             tags:
                 - Application contract
             summary: "Запрос на скачивание подписанного PDF файла заявки"
@@ -409,8 +405,6 @@ paths:
 
     /advance_payment/download_request_avance:
         get:
-            security:
-                -   bearerAuth: []
             tags:
                 - Application contract
             summary: "Запрос на скачивание подписанного PDF файла заявки на аванс"
@@ -689,9 +683,9 @@ components:
                 is_1C_send_allowed:
                     type: boolean
                     description: "Признак доступности отправки в 1с"
-                is_unf_send:
+                is_pushed_unf_button:
                     type: boolean
-                    description: "Загружен в УНФ"
+                    description: "Признак нажали на кнопку в 1с"
                 is_paid:
                     type: boolean
                     description: "Оплачен"
@@ -702,10 +696,10 @@ components:
                 comment:
                     type: string
                     description: "Комментарий"
-                cancel_advance:
+                is_cancelled:
                     type: boolean
-                    description: "Аннулировать аванс"
-                cancel_advance_comment:
+                    description: "Признак аннулирован аванс"
+                cancelled_comment:
                     type: string
                     description: "Комментарий к аннулированию аванса"
                 page_carrier_url_is_access:
@@ -775,13 +769,7 @@ components:
                 is_cancel_advance:
                     type: boolean
                     description: "Признак"
-                has_paid_at:
-                    type: boolean
-                    description: "Признак"
                 has_comment:
-                    type: boolean
-                    description: "Признак"
-                has_cancel_advance_comment:
                     type: boolean
                     description: "Признак"
                 is_downloaded_contract_application:
@@ -790,7 +778,7 @@ components:
                 is_downloaded_advance_application:
                     type: boolean
                     description: "Признак - загружена заявка на авансирование"
-                is_unf_send:
+                is_pushed_unf_button:
                     type: boolean
                     description: "Признак - отправлен в УНФ"
                 page:
@@ -829,7 +817,7 @@ components:
                 - loading_complete
                 - is_downloaded_contract_application
                 - is_downloaded_advance_application
-                - is_unf_send
+                - is_pushed_unf_button
 
         SortByDirection:
             type: string
@@ -841,9 +829,9 @@ components:
             type: object
             description: "Статус выдачи аванса"
             properties:
-                isAdvanssed:
+                is_paid:
                     type: boolean
-                    description: "Флаг выдачи аванса"
+                    description: "Оплачен"
                 isButtonActive:
                     type: boolean
                     description: "Доступность выдачи аванса"

@@ -79,12 +79,11 @@ public class AutoAdvancedService {
             tripRequestAdvancePayment.setLoadingComplete(false);
             tripRequestAdvancePayment.setPageCarrierUrlIsAccess(true);
             tripRequestAdvancePayment.setIs1CSendAllowed(true);
-            tripRequestAdvancePayment.setCancelAdvance(false);
-            tripRequestAdvancePayment.setIsUnfSend(false);
+            tripRequestAdvancePayment.setIsCancelled(false);
+            tripRequestAdvancePayment.setIsPushedUnfButton(false);
             tripRequestAdvancePayment.setIsPaid(false);
             tripRequestAdvancePayment.setIsDownloadedAdvanceApplication(false);
             tripRequestAdvancePayment.setIsDownloadedContractApplication(false);
-            tripRequestAdvancePayment.setIsAdvancedPayment(false);
             tripRequestAdvancePayment.setAdvanceUuid(UUID.randomUUID());
             ContractorAdvancePaymentContact contact = advancePaymentContactService.getAdvancePaymentContact(trip.getContractorId());
             tripRequestAdvancePaymentRepository.save(tripRequestAdvancePayment);
@@ -158,8 +157,8 @@ public class AutoAdvancedService {
     void cancelAdvance() {
         List<TripRequestAdvancePayment> tripRequestAdvancePayments = tripRequestAdvancePaymentRepository.findRequestAdvancePaymentNeedCancel();
         tripRequestAdvancePayments.forEach(p -> {
-            p.setCancelAdvance(true);
-            p.setCancelAdvanceComment("Auto Canceled");
+            p.setIsCancelled(true);
+            p.setCancelledComment("Auto Canceled");
             log.info("tripRequestAdvancePayments with id: {} auto canceled.", p.getId());
 
         });
