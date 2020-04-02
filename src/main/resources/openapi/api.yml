@@ -769,6 +769,21 @@ components:
         Filter:
             type: object
             properties:
+                is_paid:
+                    type: boolean
+                    description: "Признак "
+                is_cancel_advance:
+                    type: boolean
+                    description: "Признак"
+                has_paid_at:
+                    type: boolean
+                    description: "Признак"
+                has_comment:
+                    type: boolean
+                    description: "Признак"
+                has_cancel_advance_comment:
+                    type: boolean
+                    description: "Признак"
                 is_downloaded_contract_application:
                     type: boolean
                     description: "Признак - загружен «Договор-заявка» или «Заявка»"

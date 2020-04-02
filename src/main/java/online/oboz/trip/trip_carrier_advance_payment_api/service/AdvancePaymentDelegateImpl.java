@@ -91,11 +91,15 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
     public ResponseEntity<ResponseAdvancePayment> searchAdvancePaymentRequest(Filter filter) {
         Pageable pageable = PageRequest.of(filter.getPage() - 1, filter.getPerPage(), constructSorting(filter));
 //        final String searchParam = Optional.ofNullable(filter.getSearchParam()).orElse("");
-        List<FrontAdvancePaymentResponse> responseList;
-        responseList = tripRequestAdvancePaymentRepository.findTripRequestAdvancePayment(
+        List<FrontAdvancePaymentResponse> responseList = tripRequestAdvancePaymentRepository.findTripRequestAdvancePayment(
             filter.getIsUnfSend(),
+            filter.getIsPaid(),
+            filter.getIsCancelAdvance(),
             filter.getIsDownloadedContractApplication(),
             filter.getIsDownloadedAdvanceApplication(),
+            Optional.ofNullable(filter.getHasPaidAt()).orElse(false),
+            Optional.ofNullable(filter.getHasComment()).orElse(false),
+            Optional.ofNullable(filter.getHasCancelAdvanceComment()).orElse(false),
             pageable).stream()
             .map(rec -> {
                 ContractorAdvancePaymentContact contractorAdvancePaymentContact =

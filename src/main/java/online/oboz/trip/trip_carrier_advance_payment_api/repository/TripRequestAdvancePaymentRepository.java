@@ -22,12 +22,22 @@ public interface TripRequestAdvancePaymentRepository extends JpaRepository<TripR
 
     @Query(" select ap from TripRequestAdvancePayment ap " +
         " where (ap.isUnfSend = :inf_send or :inf_send is null)" +
-        "   and (ap.isDownloadedContractApplication = :downloaded_contract_app or :downloaded_contract_app is null)" +
-        "   and (ap.isDownloadedAdvanceApplication = :downloaded_advance_app or :downloaded_advance_app is null)")
+        " and (ap.isPaid = :is_paid or :is_paid is null) " +
+        " and (ap.cancelAdvance = :cancel_advance or :cancel_advance is null) " +
+        " and (ap.isDownloadedContractApplication = :downloaded_contract_app or :downloaded_contract_app is null)" +
+        " and (ap.isDownloadedAdvanceApplication = :downloaded_advance_app or :downloaded_advance_app is null)" +
+        " and (ap.paidAt is not null or :has_paid_at = false ) " +
+        " and (ap.comment is not null or :has_comment = false) " +
+        " and (ap.cancelAdvanceComment is not null or :has_cancelAdvanceComment = false) ")
     List<TripRequestAdvancePayment> findTripRequestAdvancePayment(
         @Param("inf_send") Boolean isUnfSend,
+        @Param("is_paid") Boolean isPaid,
+        @Param("cancel_advance") Boolean cancelAdvance,
         @Param("downloaded_contract_app") Boolean isDownloadedContractApplication,
         @Param("downloaded_advance_app") Boolean isDownloadedAdvanceApplication,
+        @Param("has_paid_at") boolean hasPaidAt,
+        @Param("has_comment") boolean hasComment,
+        @Param("has_cancelAdvanceComment") boolean hasCancelAdvanceComment,
         Pageable pageable);
 
     @Query(" select ap from TripRequestAdvancePayment ap " +

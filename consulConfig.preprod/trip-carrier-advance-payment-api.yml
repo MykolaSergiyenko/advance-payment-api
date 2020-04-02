@@ -49,10 +49,10 @@ spring:
             auto-commit: false
 
     rabbitmq:
-        host: rabbitmq.services
+        host: rmq-01.preprod.oboz
         port: 5672
-        username: RMQ_USER
-        password: RMQ_PASSWORD
+        username: elp
+        password: 9yOoTul5hQBAylh
         virtual-host: events
 
 sms-sender:
