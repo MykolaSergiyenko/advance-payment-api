@@ -490,25 +490,28 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
 
     @Override
     public ResponseEntity<FrontAdvancePaymentResponse> searchAdvancePaymentRequestByUuid(UUID uuid) {
-        TripRequestAdvancePayment t = getTripRequestAdvancePaymentByUUID(uuid);
-        if (!t.getPageCarrierUrlIsAccess()) {
-            throw getBusinessLogicException("PageCarrierUrlIsAccess is false");
-        }
-        List<Tuple> tripPointDtos = tripRepository.getTripPointAddress(t.getTripId());
-        String firstLoadingAddress = getFirstLoadingAddress(tripPointDtos);
-        String lastUnloadingAddress = getLastUnLoadingAddress(tripPointDtos);
-        String tripNum = tripPointDtos.get(0).get(3).toString();
         FrontAdvancePaymentResponse frontAdvancePaymentResponse = new FrontAdvancePaymentResponse();
-        frontAdvancePaymentResponse.setTripNum(tripNum);
-        frontAdvancePaymentResponse.setFirstLoadingAddress(firstLoadingAddress);
-        frontAdvancePaymentResponse.setPushButtonAt(t.getPushButtonAt());
-        frontAdvancePaymentResponse.setUrlAdvanceApplication(t.getUuidAdvanceApplicationFile());
-        frontAdvancePaymentResponse.setLastUnloadingAddress(lastUnloadingAddress);
-        frontAdvancePaymentResponse.setTripCostWithVat(t.getTripCost());
-        frontAdvancePaymentResponse.setAdvancePaymentSum(t.getAdvancePaymentSum());
-        frontAdvancePaymentResponse.setRegistrationFee(t.getRegistrationFee());
-        frontAdvancePaymentResponse.setIsCancelled(t.getIsCancelled());
-        frontAdvancePaymentResponse.setIsPushedUnfButton(t.getIsPushedUnfButton());
+        TripRequestAdvancePayment t = getTripRequestAdvancePaymentByUUID(uuid);
+        if (t.getPageCarrierUrlIsAccess()) {
+            List<Tuple> tripPointDtos = tripRepository.getTripPointAddress(t.getTripId());
+            String firstLoadingAddress = getFirstLoadingAddress(tripPointDtos);
+            String lastUnloadingAddress = getLastUnLoadingAddress(tripPointDtos);
+            String tripNum = tripPointDtos.get(0).get(3).toString();
+            frontAdvancePaymentResponse.setTripNum(tripNum);
+            frontAdvancePaymentResponse.setFirstLoadingAddress(firstLoadingAddress);
+            frontAdvancePaymentResponse.setPushButtonAt(t.getPushButtonAt());
+            frontAdvancePaymentResponse.setUrlAdvanceApplication(t.getUuidAdvanceApplicationFile());
+            frontAdvancePaymentResponse.setLastUnloadingAddress(lastUnloadingAddress);
+            frontAdvancePaymentResponse.setTripCostWithVat(t.getTripCost());
+            frontAdvancePaymentResponse.setAdvancePaymentSum(t.getAdvancePaymentSum());
+            frontAdvancePaymentResponse.setRegistrationFee(t.getRegistrationFee());
+            frontAdvancePaymentResponse.setIsCancelled(t.getIsCancelled());
+            frontAdvancePaymentResponse.setIsPushedUnfButton(t.getIsPushedUnfButton());
+        } else {
+            frontAdvancePaymentResponse.setPageCarrierUrlIsAccess(t.getPageCarrierUrlIsAccess());
+            new ResponseEntity<>(frontAdvancePaymentResponse, HttpStatus.OK);
+            log.info("PageCarrierUrlIsAccess is false");
+        }
         return new ResponseEntity<>(frontAdvancePaymentResponse, HttpStatus.OK);
     }
 
