@@ -18,27 +18,31 @@ public interface TripRequestAdvancePaymentRepository extends JpaRepository<TripR
         "   and (ap.isCancelled = :is_cancelled or :is_cancelled is null) " +
         "   and (ap.isDownloadedContractApplication = :downloaded_contract_app or :downloaded_contract_app is null)" +
         "   and (ap.isDownloadedAdvanceApplication = :downloaded_advance_app or :downloaded_advance_app is null)" +
+        "   and (ap.isUnfSend = :is_unf_send or :is_unf_send is null)" +
         "   and (ap.comment is not null or :has_comment = false) ")
     Integer totalTripRequestAdvancePayment(@Param("is_pushed_unf_button") Boolean isPushedUnfButton,
                                            @Param("is_paid") Boolean isPaid,
                                            @Param("is_cancelled") Boolean isCancelled,
                                            @Param("downloaded_contract_app") Boolean isDownloadedContractApplication,
                                            @Param("downloaded_advance_app") Boolean isDownloadedAdvanceApplication,
+                                           @Param("is_unf_send") Boolean isUnfSend,
                                            @Param("has_comment") boolean hasComment);
 
     @Query(" select ap from TripRequestAdvancePayment ap " +
         " where (ap.isPushedUnfButton = :is_pushed_unf_button or :is_pushed_unf_button is null)" +
-        " and (ap.isPaid = :is_paid or :is_paid is null) " +
-        " and (ap.isCancelled = :is_cancelled or :is_cancelled is null) " +
-        " and (ap.isDownloadedContractApplication = :downloaded_contract_app or :downloaded_contract_app is null)" +
-        " and (ap.isDownloadedAdvanceApplication = :downloaded_advance_app or :downloaded_advance_app is null)" +
-        " and (ap.comment is not null or :has_comment = false) ")
+        "   and (ap.isPaid = :is_paid or :is_paid is null) " +
+        "   and (ap.isCancelled = :is_cancelled or :is_cancelled is null) " +
+        "   and (ap.isDownloadedContractApplication = :downloaded_contract_app or :downloaded_contract_app is null)" +
+        "   and (ap.isDownloadedAdvanceApplication = :downloaded_advance_app or :downloaded_advance_app is null)" +
+        "   and (ap.isUnfSend = :is_unf_send or :is_unf_send is null)" +
+        "   and (ap.comment is not null or :has_comment = false) ")
     List<TripRequestAdvancePayment> findTripRequestAdvancePayment(
         @Param("is_pushed_unf_button") Boolean isPushedUnfButton,
         @Param("is_paid") Boolean isPaid,
         @Param("is_cancelled") Boolean is_cancelled,
         @Param("downloaded_contract_app") Boolean isDownloadedContractApplication,
         @Param("downloaded_advance_app") Boolean isDownloadedAdvanceApplication,
+        @Param("is_unf_send") Boolean isUnfSend,
         @Param("has_comment") boolean hasComment,
         Pageable pageable);
 
@@ -76,6 +80,7 @@ public interface TripRequestAdvancePaymentRepository extends JpaRepository<TripR
         "       pc.is_cancelled, " +
         "       pc.comment, " +
         "       pc.is_pushed_unf_button, " +
+        "       pc.is_unf_send, " +
         "       pc.payment_contractor_id, " +
         "       pc.page_carrier_url_is_access, " +
         "       pc.trip_type_code, " +
@@ -109,6 +114,7 @@ public interface TripRequestAdvancePaymentRepository extends JpaRepository<TripR
         "       trap.is_cancelled, " +
         "       trap.comment, " +
         "       trap.is_pushed_unf_button, " +
+        "       trap.is_unf_send, " +
         "       trap.payment_contractor_id, " +
         "       trap.page_carrier_url_is_access, " +
         "       trap.trip_type_code, " +

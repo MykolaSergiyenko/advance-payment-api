@@ -33,6 +33,7 @@ public class TripRequestAdvancePayment {
     private Boolean isCancelled;
     private String comment;
     private Boolean isPushedUnfButton;
+    private Boolean isUnfSend;
     private Boolean isPaid;
     private OffsetDateTime paidAt;
     private Boolean pageCarrierUrlIsAccess;
