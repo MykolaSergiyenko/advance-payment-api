@@ -129,6 +129,9 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
             .stream()
             .map(sort -> new Sort.Order(Sort.Direction.fromString(sort.getDir().name()), getProperty(sort.getKey())))
             .collect(Collectors.toList());
+        if (sortingOrders.isEmpty()) {
+            sortingOrders.add(new Sort.Order(Sort.Direction.fromString("asc"), "tripId"));
+        }
         return Sort.by(sortingOrders);
     }
 
@@ -307,9 +310,9 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
     }
 
     @Override
-    public ResponseEntity<Void> changeAdvancePaymentComment(Long id, String advanceComment) {
-        final TripRequestAdvancePayment entity = getTripRequestAdvancePaymentById(id);
-        entity.setComment(advanceComment);
+    public ResponseEntity<Void> changeAdvancePaymentComment(AdvancePaymentCommentDTO advancePaymentCommentDTO) {
+        final TripRequestAdvancePayment entity = getTripRequestAdvancePaymentById(advancePaymentCommentDTO.getId());
+        entity.setComment(advancePaymentCommentDTO.getAdvanceComment());
         tripRequestAdvancePaymentRepository.save(entity);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -414,6 +417,19 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
     @Override
     public ResponseEntity<Void> updateLoadingComplete(Long id, Boolean loadingComplete) {
         final TripRequestAdvancePayment entity = getTripRequestAdvancePaymentById(id);
+        final Trip tripIgnore = tripRepository.getNotApproveTrip(entity.getTripId()).orElseGet(Trip::new);
+        if (!loadingComplete) {
+            entity.setIs1CSendAllowed(false);
+            log.error("setIs1CSendAllowed is false");
+
+        } else if (!entity.getIsPushedUnfButton() &&
+            tripIgnore.getTripStatusCode() == null &&
+            entity.getIsDownloadedAdvanceApplication() &&
+            entity.getIsDownloadedContractApplication()) {
+            entity.setIs1CSendAllowed(true);
+            log.error("setIs1CSendAllowed is true ");
+
+        }
         entity.setLoadingComplete(loadingComplete);
         tripRequestAdvancePaymentRepository.save(entity);
         return new ResponseEntity<>(HttpStatus.OK);

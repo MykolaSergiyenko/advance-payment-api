@@ -327,20 +327,11 @@ paths:
             operationId: changeAdvancePaymentComment
             tags:
                 - Advance Payment
-            parameters:
-                -   name: id
-                    in: query
-                    schema:
-                        type: integer
-                        format: int64
-                    required: true
-                    description: "Номер запроса на аванс"
-                -   name: advance_comment
-                    in: query
-                    schema:
-                        type: string
-                    required: true
-                    description: "Комментарий в авансе"
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/AdvancePaymentCommentDTO"
             responses:
                 200:
                     description: "OK"
@@ -589,6 +580,21 @@ components:
                     type: string
                 error_message:
                     type: string
+
+        AdvancePaymentCommentDTO:
+            type: object
+            description: "Комментарий"
+            required:
+                - id
+                - advance_comment
+            properties:
+                id:
+                    type: integer
+                    format: int64
+                    description: "Номер запроса на аванс"
+                advance_comment:
+                    type: string
+                    description: "Комментарий в авансе"
 
         ResponseAdvancePayment:
             type: object

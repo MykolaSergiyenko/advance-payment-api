@@ -28,7 +28,7 @@ public class NotificationService {
 //        "заказу %номер заказа поставщика% на сумму %сумма аванса с НДС%, для подтверждения пройдите по ссылке (ссылка на зеркало). ";
     private static final String EMAIL_HEADER_TEMPLATE = "Компания %s  предлагает аванс.";
     private static final String MESSAGE_TEXT = "Компания %s  предлагает аванс по \n " +
-        "заказу %s на сумму %s, для подтверждения пройдите по ссылке %s";
+        "заказу %s на сумму %s руб., для подтверждения пройдите по ссылке %s";
     private final JavaMailSender emailSender;
     private final DelayQueue<Delayed> delayQueue = new DelayQueue<>();
     private final RestTemplate restTemplate;
