@@ -16,9 +16,7 @@ import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.Error;
 import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,8 +25,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.Tuple;
 import javax.transaction.Transactional;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -57,6 +53,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
     private final OrderRepository orderRepository;
     private final RestService restService;
     private final RabbitMessageProducer rabbitMessageProducer;
+    private final AdvanceFilterService advanceFilterService;
 
     @Autowired
     public AdvancePaymentDelegateImpl(AdvancePaymentCostRepository advancePaymentCostRepository,
@@ -71,7 +68,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
                                       ObjectMapper objectMapper,
                                       OrderRepository orderRepository,
                                       RestService restService,
-                                      RabbitMessageProducer rabbitMessageProducer) {
+                                      RabbitMessageProducer rabbitMessageProducer, AdvanceFilterService advanceFilterService) {
         this.advancePaymentCostRepository = advancePaymentCostRepository;
         this.tripRequestAdvancePaymentRepository = tripRequestAdvancePaymentRepository;
         this.contractorAdvancePaymentContactRepository = contractorAdvancePaymentContactRepository;
@@ -85,74 +82,27 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
         this.objectMapper = objectMapper;
         this.orderRepository = orderRepository;
         this.rabbitMessageProducer = rabbitMessageProducer;
+        this.advanceFilterService = advanceFilterService;
     }
 
     @Override
     public ResponseEntity<ResponseAdvancePayment> searchAdvancePaymentRequest(Filter filter) {
-        Pageable pageable = PageRequest.of(filter.getPage() - 1, filter.getPerPage(), constructSorting(filter));
-        List<FrontAdvancePaymentResponse> responseList = tripRequestAdvancePaymentRepository.findTripRequestAdvancePayment(
-            filter.getIsPushedUnfButton(),
-            filter.getIsPaid(),
-            filter.getIsCancelAdvance(),
-            filter.getIsDownloadedContractApplication(),
-            filter.getIsDownloadedAdvanceApplication(),
-            filter.getIsUnfSend(),
-            Optional.ofNullable(filter.getHasComment()).orElse(false),
-            pageable).stream()
-            .map(rec -> {
-                ContractorAdvancePaymentContact contractorAdvancePaymentContact =
-                    contractorAdvancePaymentContactRepository.findContractorAdvancePaymentContact(rec.getContractorId())
-                        .orElse(new ContractorAdvancePaymentContact());
-                Contractor contractor = contractorRepository.findById(rec.getContractorId()).orElse(new Contractor());
-                String fullName = contractorRepository.getFullNameByPaymentContractorId(rec.getPaymentContractorId());
-                Trip trip = tripRepository.findById(rec.getTripId()).orElse(new Trip());
-                return getFrontAdvancePaymentResponse(rec, contractorAdvancePaymentContact, contractor, fullName, trip);
-            })
-            .collect(Collectors.toList());
         final ResponseAdvancePayment responseAdvancePayment = new ResponseAdvancePayment();
-        responseAdvancePayment.setTotal(tripRequestAdvancePaymentRepository.totalTripRequestAdvancePayment(
-            filter.getIsPushedUnfButton(),
-            filter.getIsPaid(),
-            filter.getIsCancelAdvance(),
-            filter.getIsDownloadedContractApplication(),
-            filter.getIsDownloadedAdvanceApplication(),
-            filter.getIsUnfSend(),
-            Optional.ofNullable(filter.getHasComment()).orElse(false)
-            )
-        );
-        responseAdvancePayment.setRequestAdvancePayment(responseList);
-        return new ResponseEntity<>(responseAdvancePayment, HttpStatus.OK);
-    }
-
-    private Sort constructSorting(Filter filter) {
-        List<Sort.Order> sortingOrders = filter.getSort()
-            .stream()
-            .map(sort -> new Sort.Order(Sort.Direction.fromString(sort.getDir().name()), getProperty(sort.getKey())))
+        log.info("Filter is {}", filter.toString());
+        Page<TripRequestAdvancePayment> tripRequestAdvancePayments = advanceFilterService.advancePayments(filter);
+        List<FrontAdvancePaymentResponse> responseList = tripRequestAdvancePayments.stream().map(rec -> {
+            ContractorAdvancePaymentContact contractorAdvancePaymentContact =
+                contractorAdvancePaymentContactRepository.findContractorAdvancePaymentContact(rec.getContractorId())
+                    .orElse(new ContractorAdvancePaymentContact());
+            Contractor contractor = contractorRepository.findById(rec.getContractorId()).orElse(new Contractor());
+            String fullName = contractorRepository.getFullNameByPaymentContractorId(rec.getPaymentContractorId());
+            Trip trip = tripRepository.findById(rec.getTripId()).orElse(new Trip());
+            return getFrontAdvancePaymentResponse(rec, contractorAdvancePaymentContact, contractor, fullName, trip);
+        })
             .collect(Collectors.toList());
-        if (sortingOrders.isEmpty()) {
-            sortingOrders.add(new Sort.Order(Sort.Direction.fromString("asc"), "tripId"));
-        }
-        return Sort.by(sortingOrders);
-    }
-
-    private String getProperty(@NotNull @Valid SortByField key) {
-        switch (key) {
-            case PUSH_BUTTON_AT:
-                return "pushButtonAt";
-            case IS_AUTOMATION_REQUEST:
-                return "isAutomationRequest";
-            case LOADING_COMPLETE:
-                return "loadingComplete";
-            case IS_DOWNLOADED_CONTRACT_APPLICATION:
-                return "isDownloadedContractApplication";
-            case IS_DOWNLOADED_ADVANCE_APPLICATION:
-                return "isDownloadedAdvanceApplication";
-            case IS_PUSHED_UNF_BUTTON:
-                return "isPushedUnfButton";
-            case TRIP_NUM:
-            default:
-                return "tripId";
-        }
+        responseAdvancePayment.setRequestAdvancePayment(responseList);
+        responseAdvancePayment.setTotal((int) tripRequestAdvancePayments.getTotalElements());
+        return new ResponseEntity<>(responseAdvancePayment, HttpStatus.OK);
     }
 
     @Override
@@ -615,6 +565,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
             .urlAdvanceApplication(rec.getUuidAdvanceApplicationFile())
             .is1CSendAllowed(rec.getIs1CSendAllowed())
             .isPushedUnfButton(rec.getIsPushedUnfButton())
+            .isUnfSend(rec.getIsUnfSend())
             .pushButtonAt(rec.getPushButtonAt())
             .isPaid(rec.getIsPaid())
             .paidAt(rec.getPaidAt())

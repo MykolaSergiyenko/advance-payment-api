@@ -3,10 +3,7 @@ package online.oboz.trip.trip_carrier_advance_payment_api.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import online.oboz.trip.trip_carrier_advance_payment_api.config.ApplicationProperties;
-import online.oboz.trip.trip_carrier_advance_payment_api.domain.AdvancePaymentCost;
-import online.oboz.trip.trip_carrier_advance_payment_api.domain.ContractorAdvancePaymentContact;
-import online.oboz.trip.trip_carrier_advance_payment_api.domain.Trip;
-import online.oboz.trip.trip_carrier_advance_payment_api.domain.TripRequestAdvancePayment;
+import online.oboz.trip.trip_carrier_advance_payment_api.domain.*;
 import online.oboz.trip.trip_carrier_advance_payment_api.repository.AdvancePaymentCostRepository;
 import online.oboz.trip.trip_carrier_advance_payment_api.repository.ContractorRepository;
 import online.oboz.trip.trip_carrier_advance_payment_api.repository.TripRepository;
@@ -85,6 +82,8 @@ public class AutoAdvancedService {
             tripRequestAdvancePayment.setIsCancelled(false);
             tripRequestAdvancePayment.setIsPushedUnfButton(false);
             tripRequestAdvancePayment.setIsPaid(false);
+            tripRequestAdvancePayment.setComment("Auto Created");
+            tripRequestAdvancePayment.setIsUnfSend(false);
             tripRequestAdvancePayment.setIsDownloadedAdvanceApplication(false);
             tripRequestAdvancePayment.setIsDownloadedContractApplication(false);
             tripRequestAdvancePayment.setAdvanceUuid(UUID.randomUUID());
@@ -145,16 +144,16 @@ public class AutoAdvancedService {
         tripRequestAdvancePaymentRepository.saveAll(tripRequestAdvancePayments);
     }
 
-//    @Scheduled(cron = "${cron.update: 0 0/30 * * * *}")
-//    void updateAutoAdvance() {
-//        List<Contractor> contractors = contractorRepository.getFullNameByPaymentContractorId(applicationProperties.getMinCountTrip(),
-//            applicationProperties.getMinDateTrip());
-//        contractors.forEach(c -> {
-//            c.setIsAutoAdvancePayment(true);
-//            log.info("Contractor with id: {} IsAutoAdvancePayment.", c.getId());
-//        });
-//        contractorRepository.saveAll(contractors);
-//    }
+    @Scheduled(cron = "${cron.update: 0 0/30 * * * *}")
+    void updateAutoAdvance() {
+        List<Contractor> contractors = contractorRepository.getFullNameByPaymentContractorId(applicationProperties.getMinCountTrip(),
+            applicationProperties.getMinDateTrip());
+        contractors.forEach(c -> {
+            c.setIsAutoAdvancePayment(true);
+            log.info("Contractor with id: {} IsAutoAdvancePayment.", c.getId());
+        });
+        contractorRepository.saveAll(contractors);
+    }
 
     @Scheduled(cron = "${cron.update: 0 0/30 * * * *}")
     void cancelAdvance() {

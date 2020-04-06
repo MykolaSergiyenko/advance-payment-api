@@ -692,6 +692,9 @@ components:
                 is_pushed_unf_button:
                     type: boolean
                     description: "Признак нажали на кнопку в 1с"
+                is_unf_send:
+                    type: boolean
+                    description: "Признак отправили в УНФ"
                 is_paid:
                     type: boolean
                     description: "Оплачен"
@@ -771,13 +774,13 @@ components:
             properties:
                 is_paid:
                     type: boolean
-                    description: "Признак "
-                is_cancel_advance:
+                    description: "Признак - Оплачен"
+                is_cancelled:
                     type: boolean
-                    description: "Признак"
+                    description: "Признак - Отменен"
                 has_comment:
                     type: boolean
-                    description: "Признак"
+                    description: "Признак - Есть комменарий"
                 is_downloaded_contract_application:
                     type: boolean
                     description: "Признак - загружен «Договор-заявка» или «Заявка»"

@@ -1,7 +1,6 @@
 package online.oboz.trip.trip_carrier_advance_payment_api.repository;
 
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.TripRequestAdvancePayment;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -11,40 +10,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface TripRequestAdvancePaymentRepository extends JpaRepository<TripRequestAdvancePayment, Long> {
-
-    @Query(" select count(*) from TripRequestAdvancePayment ap " +
-        " where (ap.isPushedUnfButton = :is_pushed_unf_button or :is_pushed_unf_button is null)" +
-        "   and (ap.isPaid = :is_paid or :is_paid is null) " +
-        "   and (ap.isCancelled = :is_cancelled or :is_cancelled is null) " +
-        "   and (ap.isDownloadedContractApplication = :downloaded_contract_app or :downloaded_contract_app is null)" +
-        "   and (ap.isDownloadedAdvanceApplication = :downloaded_advance_app or :downloaded_advance_app is null)" +
-        "   and (ap.isUnfSend = :is_unf_send or :is_unf_send is null)" +
-        "   and (ap.comment is not null or :has_comment = false) ")
-    Integer totalTripRequestAdvancePayment(@Param("is_pushed_unf_button") Boolean isPushedUnfButton,
-                                           @Param("is_paid") Boolean isPaid,
-                                           @Param("is_cancelled") Boolean isCancelled,
-                                           @Param("downloaded_contract_app") Boolean isDownloadedContractApplication,
-                                           @Param("downloaded_advance_app") Boolean isDownloadedAdvanceApplication,
-                                           @Param("is_unf_send") Boolean isUnfSend,
-                                           @Param("has_comment") boolean hasComment);
-
-    @Query(" select ap from TripRequestAdvancePayment ap " +
-        " where (ap.isPushedUnfButton = :is_pushed_unf_button or :is_pushed_unf_button is null)" +
-        "   and (ap.isPaid = :is_paid or :is_paid is null) " +
-        "   and (ap.isCancelled = :is_cancelled or :is_cancelled is null) " +
-        "   and (ap.isDownloadedContractApplication = :downloaded_contract_app or :downloaded_contract_app is null)" +
-        "   and (ap.isDownloadedAdvanceApplication = :downloaded_advance_app or :downloaded_advance_app is null)" +
-        "   and (ap.isUnfSend = :is_unf_send or :is_unf_send is null)" +
-        "   and (ap.comment is not null or :has_comment = false) ")
-    List<TripRequestAdvancePayment> findTripRequestAdvancePayment(
-        @Param("is_pushed_unf_button") Boolean isPushedUnfButton,
-        @Param("is_paid") Boolean isPaid,
-        @Param("is_cancelled") Boolean is_cancelled,
-        @Param("downloaded_contract_app") Boolean isDownloadedContractApplication,
-        @Param("downloaded_advance_app") Boolean isDownloadedAdvanceApplication,
-        @Param("is_unf_send") Boolean isUnfSend,
-        @Param("has_comment") boolean hasComment,
-        Pageable pageable);
 
     @Query(" select ap from TripRequestAdvancePayment ap " +
         " where  ap.tripId = :trip_id " +
