@@ -7,10 +7,10 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
 
-public interface ContractorAdvanceExclusionRepository extends JpaRepository<ContractorAdvanceExclusion, Long> {
+public interface ContractorExclusionRepository extends JpaRepository<ContractorAdvanceExclusion, Long> {
     @Query("select ce from ContractorAdvanceExclusion ce where ce.carrierId =:contractorId " +
         "and ce.orderTypeId =:orderTypeId")
-    Optional<ContractorAdvanceExclusion> findByContractorId(
+    Optional<ContractorAdvanceExclusion> find(
         @Param("contractorId") Long contractorId,
         @Param("orderTypeId") Long orderTypeId
     );

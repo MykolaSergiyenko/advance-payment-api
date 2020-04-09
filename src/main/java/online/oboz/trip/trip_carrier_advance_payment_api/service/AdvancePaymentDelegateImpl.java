@@ -44,7 +44,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
     private final AdvancePaymentCostRepository advancePaymentCostRepository;
     private final AdvanceRequestRepository advanceRequestRepository;
     private final ContractorContactRepository contractorContactRepository;
-    private final ContractorAdvanceExclusionRepository contractorAdvanceExclusionRepository;
+    private final ContractorExclusionRepository contractorExclusionRepository;
     private final TripRepository tripRepository;
     private final TripInfoRepository tripInfoRepository;
     private final ContractorRepository contractorRepository;
@@ -62,7 +62,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
         AdvancePaymentCostRepository advancePaymentCostRepository,
         AdvanceRequestRepository advanceRequestRepository,
         ContractorContactRepository contractorContactRepository,
-        ContractorAdvanceExclusionRepository contractorAdvanceExclusionRepository,
+        ContractorExclusionRepository contractorExclusionRepository,
         TripRepository tripRepository,
         TripInfoRepository tripInfoRepository,
         ContractorRepository contractorRepository,
@@ -77,7 +77,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
         this.advancePaymentCostRepository = advancePaymentCostRepository;
         this.advanceRequestRepository = advanceRequestRepository;
         this.contractorContactRepository = contractorContactRepository;
-        this.contractorAdvanceExclusionRepository = contractorAdvanceExclusionRepository;
+        this.contractorExclusionRepository = contractorExclusionRepository;
         this.tripRepository = tripRepository;
         this.tripInfoRepository = tripInfoRepository;
         this.contractorRepository = contractorRepository;
@@ -134,8 +134,8 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
                 trip.getOrderId()
             ).get().getOrderTypeId();
 
-            ContractorAdvanceExclusion contractorAdvanceExclusion = contractorAdvanceExclusionRepository
-                .findByContractorId(trip.getContractorId(), order.getOrderTypeId())
+            ContractorAdvanceExclusion contractorAdvanceExclusion = contractorExclusionRepository
+                .find(trip.getContractorId(), order.getOrderTypeId())
                 .orElse(new ContractorAdvanceExclusion());
             //проверяем наличие записи контрактора в таблице исключений по типу заказа при  отсутствии  добавляем запись
             if (contractorAdvanceExclusion.getId() == null) {
@@ -146,7 +146,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
                 contractorAdvanceExclusion.setCarrierFullName(
                     contractorRepository.findById(trip.getContractorId()).get().getFullName()
                 );
-                contractorAdvanceExclusionRepository.save(contractorAdvanceExclusion);
+                contractorExclusionRepository.save(contractorAdvanceExclusion);
             }
             return new ResponseEntity<>(HttpStatus.OK);
         }
@@ -182,8 +182,8 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
         IsAdvancedRequestResponse isAdvancedRequestResponse = getIsAdvancedRequestResponse();
         setButtonAccessGetAdvance(trip, contractor, tripRequestAdvancePayment, isAdvancedRequestResponse);
 
-        ContractorAdvanceExclusion contractorAdvanceExclusion = contractorAdvanceExclusionRepository
-            .findByContractorId(trip.getContractorId(), order.getOrderTypeId())
+        ContractorAdvanceExclusion contractorAdvanceExclusion = contractorExclusionRepository
+            .find(trip.getContractorId(), order.getOrderTypeId())
             .orElse(new ContractorAdvanceExclusion());
 
         if (tripRequestAdvancePayment != null) {
@@ -266,15 +266,17 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
                 notificationService.sendSmsDelay(messageDto);
             }
             advanceRequestRepository.save(tripRequestAdvancePayment);
-            ContractorAdvanceExclusion contractorAdvanceExclusion = contractorAdvanceExclusionRepository.findByContractorId(
-                contractorId, order.getOrderTypeId()).orElseGet(ContractorAdvanceExclusion::new);
+            ContractorAdvanceExclusion contractorAdvanceExclusion = contractorExclusionRepository.find(
+                contractorId, order.getOrderTypeId()
+            ).orElseGet(ContractorAdvanceExclusion::new);
+
             if (contractorAdvanceExclusion.getId() == null) {
                 final ContractorAdvanceExclusion entity = new ContractorAdvanceExclusion();
                 entity.setCarrierFullName(contractor.getFullName());
                 entity.setOrderTypeId(order.getOrderTypeId());
                 entity.setCarrierId(contractorId);
                 entity.setIsConfirmAdvance(true);
-                contractorAdvanceExclusionRepository.save(entity);
+                contractorExclusionRepository.save(entity);
             }
         }
         return new ResponseEntity<>(HttpStatus.OK);
