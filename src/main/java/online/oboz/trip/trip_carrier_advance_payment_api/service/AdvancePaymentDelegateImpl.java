@@ -45,6 +45,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
     private final ContractorAdvancePaymentContactRepository contractorAdvancePaymentContactRepository;
     private final ContractorAdvanceExclusionRepository contractorAdvanceExclusionRepository;
     private final TripRepository tripRepository;
+    private final TripInfoRepository tripInfoRepository;
     private final ContractorRepository contractorRepository;
     private final NotificationService notificationService;
     private final PersonRepository personRepository;
@@ -61,6 +62,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
                                       ContractorAdvancePaymentContactRepository contractorAdvancePaymentContactRepository,
                                       ContractorAdvanceExclusionRepository contractorAdvanceExclusionRepository,
                                       TripRepository tripRepository,
+                                      TripInfoRepository tripInfoRepository,
                                       ContractorRepository contractorRepository,
                                       NotificationService notificationService,
                                       PersonRepository personRepository,
@@ -74,6 +76,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
         this.contractorAdvancePaymentContactRepository = contractorAdvancePaymentContactRepository;
         this.contractorAdvanceExclusionRepository = contractorAdvanceExclusionRepository;
         this.tripRepository = tripRepository;
+        this.tripInfoRepository = tripInfoRepository;
         this.contractorRepository = contractorRepository;
         this.notificationService = notificationService;
         this.personRepository = personRepository;
@@ -457,12 +460,19 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
             frontAdvancePaymentResponse.setRegistrationFee(t.getRegistrationFee());
             frontAdvancePaymentResponse.setIsCancelled(t.getIsCancelled());
             frontAdvancePaymentResponse.setIsPushedUnfButton(t.getIsPushedUnfButton());
+            setTripInfo(frontAdvancePaymentResponse, t.getTripId());
         } else {
             frontAdvancePaymentResponse.setPageCarrierUrlIsAccess(t.getPageCarrierUrlIsAccess());
             new ResponseEntity<>(frontAdvancePaymentResponse, HttpStatus.OK);
             log.info("PageCarrierUrlIsAccess is false");
         }
         return new ResponseEntity<>(frontAdvancePaymentResponse, HttpStatus.OK);
+    }
+
+    private void setTripInfo(FrontAdvancePaymentResponse frontAdvancePaymentResponse, Long tripId) {
+        TripInfo tripInfo = tripInfoRepository.getTripInfo(tripId).orElse(new TripInfo());
+        frontAdvancePaymentResponse.setLoadingDate(tripInfo.getStartDate());
+        frontAdvancePaymentResponse.setUnloadingDate(tripInfo.getEndDate());
     }
 
     private void setPersonInfo(IsAdvancedRequestResponse isAdvancedRequestResponse, Long authorId) {
@@ -576,6 +586,9 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
             .pageCarrierUrlIsAccess(rec.getPageCarrierUrlIsAccess())
             .firstLoadingAddress(firstLoadingAddress)
             .lastUnloadingAddress(lastUnloadingAddress);
+
+        setTripInfo(frontAdvancePaymentResponse, trip.getId());
+
         return frontAdvancePaymentResponse;
     }
 

@@ -31,4 +31,7 @@ public class FrontAdvancePaymentDto {
     private OffsetDateTime createdAt;
     @NotNull
     private OffsetDateTime updatedAt;
+
+    private OffsetDateTime loadingDate;
+    private OffsetDateTime unloadingDate;
 }

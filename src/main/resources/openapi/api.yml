@@ -720,6 +720,14 @@ components:
                 last_unloading_address:
                     type: string
                     description: "Адрес последней разгрузки"
+                loading_date:
+                    type: string
+                    format: date-time
+                    description: "Дата погрузки"
+                unloading_date:
+                    type: string
+                    format: date-time
+                    description: "Дата разгрузки"
 
         ContractorResponse:
             type: array
