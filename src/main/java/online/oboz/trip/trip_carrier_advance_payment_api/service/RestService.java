@@ -1,12 +1,13 @@
 package online.oboz.trip.trip_carrier_advance_payment_api.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.extern.slf4j.Slf4j;
 import online.oboz.trip.trip_carrier_advance_payment_api.config.ApplicationProperties;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.Trip;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.TripDocuments;
 import online.oboz.trip.trip_carrier_advance_payment_api.exception.AuthException;
 import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.ResponseToken;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.io.Resource;
@@ -22,8 +23,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Service
-@Slf4j
 public class RestService extends AbstractService {
+    private static final Logger log = LoggerFactory.getLogger(RestService.class);
     private final ApplicationProperties applicationProperties;
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;

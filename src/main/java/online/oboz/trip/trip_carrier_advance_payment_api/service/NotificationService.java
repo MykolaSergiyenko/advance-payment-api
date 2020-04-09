@@ -1,12 +1,13 @@
 package online.oboz.trip.trip_carrier_advance_payment_api.service;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import online.oboz.trip.trip_carrier_advance_payment_api.config.ApplicationProperties;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.Trip;
 import online.oboz.trip.trip_carrier_advance_payment_api.repository.TripRepository;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.dto.MessageDto;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.dto.SmsRequestDelayed;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
@@ -20,9 +21,9 @@ import java.util.concurrent.DelayQueue;
 import java.util.concurrent.Delayed;
 
 @Service
-@Slf4j
 @RequiredArgsConstructor
 public class NotificationService {
+    private static final Logger log = LoggerFactory.getLogger(NotificationService.class);
     private static final String RUSSIAN_COUNTRY_CODE = "7";
     private static final String SEND_SMS_METHOD_PATH = "/v1/send-sms";
     private static final String ASSIGNED_TRIP_STATUS = "assigned";

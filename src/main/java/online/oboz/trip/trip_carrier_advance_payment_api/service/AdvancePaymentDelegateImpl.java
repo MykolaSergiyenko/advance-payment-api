@@ -2,7 +2,6 @@ package online.oboz.trip.trip_carrier_advance_payment_api.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.extern.slf4j.Slf4j;
 import online.oboz.trip.trip_carrier_advance_payment_api.config.ApplicationProperties;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.*;
 import online.oboz.trip.trip_carrier_advance_payment_api.error.BusinessLogicException;
@@ -14,6 +13,8 @@ import online.oboz.trip.trip_carrier_advance_payment_api.util.SecurityUtils;
 import online.oboz.trip.trip_carrier_advance_payment_api.web.api.controller.AdvancePaymentApiDelegate;
 import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.Error;
 import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
@@ -35,11 +36,11 @@ import java.util.stream.Collectors;
 
 import static online.oboz.trip.trip_carrier_advance_payment_api.util.DtoUtils.getMessageDto;
 
-@Slf4j
 @Service
 public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
 
     private static final String COMMENT = "Данному поставщику отправлен запрос на аванс в автоматическом режиме";
+    private static final Logger log = LoggerFactory.getLogger(AdvancePaymentDelegateImpl.class);
     private final AdvancePaymentCostRepository advancePaymentCostRepository;
     private final TripRequestAdvancePaymentRepository tripRequestAdvancePaymentRepository;
     private final ContractorAdvancePaymentContactRepository contractorAdvancePaymentContactRepository;

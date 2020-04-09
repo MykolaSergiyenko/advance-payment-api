@@ -1,12 +1,8 @@
 package online.oboz.trip.trip_carrier_advance_payment_api.service.dto;
 
-import lombok.Data;
-import lombok.experimental.Accessors;
-import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 
-@Data
-@Slf4j
-@Accessors(chain = true)
 public class MessageDto {
     private String tripNum;
     private String contractorName;
@@ -14,4 +10,81 @@ public class MessageDto {
     private Double advancePaymentSum;
     private String phone;
     private String lKLink;
+
+    public MessageDto() {
+    }
+
+    public String getTripNum() {
+        return this.tripNum;
+    }
+
+    public String getContractorName() {
+        return this.contractorName;
+    }
+
+    public String getEmail() {
+        return this.email;
+    }
+
+    public Double getAdvancePaymentSum() {
+        return this.advancePaymentSum;
+    }
+
+    public String getPhone() {
+        return this.phone;
+    }
+
+    public String getLKLink() {
+        return this.lKLink;
+    }
+
+    public MessageDto setTripNum(String tripNum) {
+        this.tripNum = tripNum;
+        return this;
+    }
+
+    public MessageDto setContractorName(String contractorName) {
+        this.contractorName = contractorName;
+        return this;
+    }
+
+    public MessageDto setEmail(String email) {
+        this.email = email;
+        return this;
+    }
+
+    public MessageDto setAdvancePaymentSum(Double advancePaymentSum) {
+        this.advancePaymentSum = advancePaymentSum;
+        return this;
+    }
+
+    public MessageDto setPhone(String phone) {
+        this.phone = phone;
+        return this;
+    }
+
+    public MessageDto setLKLink(String lKLink) {
+        this.lKLink = lKLink;
+        return this;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return EqualsBuilder.reflectionEquals(this, o);
+    }
+
+    @Override
+    public int hashCode() {
+        return HashCodeBuilder.reflectionHashCode(this);
+    }
+
+    public String toString() {
+        return "MessageDto(tripNum=" +
+            this.getTripNum() + ", contractorName=" +
+            this.getContractorName() + ", email=" +
+            this.getEmail() + ", advancePaymentSum=" +
+            this.getAdvancePaymentSum() + ", phone=" +
+            this.getPhone() + ", lKLink=" +
+            this.getLKLink() + ")";
+    }
 }

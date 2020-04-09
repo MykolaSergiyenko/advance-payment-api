@@ -1,16 +1,59 @@
 package online.oboz.trip.trip_carrier_advance_payment_api.domain;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 
-@Data
 public class BstoreResponse {
 
     @JsonProperty("file_uuid")
-    String fileUuid;
+    private String fileUuid;
     @JsonProperty("name")
-    String name;
+    private String name;
     @JsonProperty("link")
-    String link;
+    private String link;
 
+    public BstoreResponse() {
+    }
+
+    public String getFileUuid() {
+        return this.fileUuid;
+    }
+
+    public String getName() {
+        return this.name;
+    }
+
+    public String getLink() {
+        return this.link;
+    }
+
+    public void setFileUuid(String fileUuid) {
+        this.fileUuid = fileUuid;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setLink(String link) {
+        this.link = link;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return EqualsBuilder.reflectionEquals(this, o);
+    }
+
+    @Override
+    public int hashCode() {
+        return HashCodeBuilder.reflectionHashCode(this);
+    }
+
+    public String toString() {
+        return "BstoreResponse(fileUuid=" +
+            this.getFileUuid() + ", name=" +
+            this.getName() + ", link=" +
+            this.getLink() + ")";
+    }
 }

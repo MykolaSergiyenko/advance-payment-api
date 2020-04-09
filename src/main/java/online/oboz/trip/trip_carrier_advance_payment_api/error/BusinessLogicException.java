@@ -1,12 +1,10 @@
 package online.oboz.trip.trip_carrier_advance_payment_api.error;
 
-import lombok.Getter;
 import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.Error;
 import org.springframework.http.HttpStatus;
 
 import javax.validation.constraints.NotNull;
 
-@Getter
 public final class BusinessLogicException extends RuntimeException {
 
     @NotNull
@@ -21,4 +19,11 @@ public final class BusinessLogicException extends RuntimeException {
         this.errors = errors;
     }
 
+    public @NotNull HttpStatus getStatus() {
+        return this.status;
+    }
+
+    public @NotNull Error getErrors() {
+        return this.errors;
+    }
 }

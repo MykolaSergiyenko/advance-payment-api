@@ -1,13 +1,13 @@
 package online.oboz.trip.trip_carrier_advance_payment_api.domain;
 
-import lombok.Data;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Data
 @Table(schema = "common", name = "contractors")
 public class Contractor {
 
@@ -20,4 +20,83 @@ public class Contractor {
     private String email;
     private Boolean isAutoAdvancePayment;
 
+    public Contractor() {
+    }
+
+    public Long getId() {
+        return this.id;
+    }
+
+    public String getFullName() {
+        return this.fullName;
+    }
+
+    public Boolean getIsVatPayer() {
+        return this.isVatPayer;
+    }
+
+    public Boolean getIsVerified() {
+        return this.isVerified;
+    }
+
+    public String getPhone() {
+        return this.phone;
+    }
+
+    public String getEmail() {
+        return this.email;
+    }
+
+    public Boolean getIsAutoAdvancePayment() {
+        return this.isAutoAdvancePayment;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
+
+    public void setIsVatPayer(Boolean isVatPayer) {
+        this.isVatPayer = isVatPayer;
+    }
+
+    public void setIsVerified(Boolean isVerified) {
+        this.isVerified = isVerified;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setIsAutoAdvancePayment(Boolean isAutoAdvancePayment) {
+        this.isAutoAdvancePayment = isAutoAdvancePayment;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return EqualsBuilder.reflectionEquals(this, o);
+    }
+
+    @Override
+    public int hashCode() {
+        return HashCodeBuilder.reflectionHashCode(this);
+    }
+
+    public String toString() {
+        return "Contractor(id=" +
+            this.getId() + ", fullName=" +
+            this.getFullName() + ", isVatPayer=" +
+            this.getIsVatPayer() + ", isVerified=" +
+            this.getIsVerified() + ", phone=" +
+            this.getPhone() + ", email=" +
+            this.getEmail() + ", isAutoAdvancePayment=" +
+            this.getIsAutoAdvancePayment() + ")";
+    }
 }

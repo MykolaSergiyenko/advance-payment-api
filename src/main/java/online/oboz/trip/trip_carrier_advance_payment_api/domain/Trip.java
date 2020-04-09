@@ -1,6 +1,7 @@
 package online.oboz.trip.trip_carrier_advance_payment_api.domain;
 
-import lombok.Data;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -8,7 +9,6 @@ import javax.persistence.Table;
 import java.time.OffsetDateTime;
 
 @Entity
-@Data
 @Table(schema = "orders", name = "trips")
 public class Trip {
     @Id
@@ -20,10 +20,133 @@ public class Trip {
     private Double cost;
     private Long paymentContractorId;
     private String vatCode;
-    //    private Double vatCost;
     private String tripTypeCode;
     private String tripStatusCode;
     private String resourceTypeCode;
     private OffsetDateTime createdAt;
 
+    public Trip() {
+    }
+
+    public Long getId() {
+        return this.id;
+    }
+
+    public Long getContractorId() {
+        return this.contractorId;
+    }
+
+    public Long getDriverId() {
+        return this.driverId;
+    }
+
+    public String getNum() {
+        return this.num;
+    }
+
+    public Long getOrderId() {
+        return this.orderId;
+    }
+
+    public Double getCost() {
+        return this.cost;
+    }
+
+    public Long getPaymentContractorId() {
+        return this.paymentContractorId;
+    }
+
+    public String getVatCode() {
+        return this.vatCode;
+    }
+
+    public String getTripTypeCode() {
+        return this.tripTypeCode;
+    }
+
+    public String getTripStatusCode() {
+        return this.tripStatusCode;
+    }
+
+    public String getResourceTypeCode() {
+        return this.resourceTypeCode;
+    }
+
+    public OffsetDateTime getCreatedAt() {
+        return this.createdAt;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setContractorId(Long contractorId) {
+        this.contractorId = contractorId;
+    }
+
+    public void setDriverId(Long driverId) {
+        this.driverId = driverId;
+    }
+
+    public void setNum(String num) {
+        this.num = num;
+    }
+
+    public void setOrderId(Long orderId) {
+        this.orderId = orderId;
+    }
+
+    public void setCost(Double cost) {
+        this.cost = cost;
+    }
+
+    public void setPaymentContractorId(Long paymentContractorId) {
+        this.paymentContractorId = paymentContractorId;
+    }
+
+    public void setVatCode(String vatCode) {
+        this.vatCode = vatCode;
+    }
+
+    public void setTripTypeCode(String tripTypeCode) {
+        this.tripTypeCode = tripTypeCode;
+    }
+
+    public void setTripStatusCode(String tripStatusCode) {
+        this.tripStatusCode = tripStatusCode;
+    }
+
+    public void setResourceTypeCode(String resourceTypeCode) {
+        this.resourceTypeCode = resourceTypeCode;
+    }
+
+    public void setCreatedAt(OffsetDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return EqualsBuilder.reflectionEquals(this, o);
+    }
+
+    @Override
+    public int hashCode() {
+        return HashCodeBuilder.reflectionHashCode(this);
+    }
+
+    public String toString() {
+        return "Trip(id=" +
+            this.getId() + ", contractorId=" +
+            this.getContractorId() + ", driverId=" +
+            this.getDriverId() + ", num=" +
+            this.getNum() + ", orderId=" +
+            this.getOrderId() + ", cost=" +
+            this.getCost() + ", paymentContractorId=" +
+            this.getPaymentContractorId() + ", vatCode=" +
+            this.getVatCode() + ", tripTypeCode=" +
+            this.getTripTypeCode() + ", tripStatusCode=" +
+            this.getTripStatusCode() + ", resourceTypeCode=" +
+            this.getResourceTypeCode() + ", createdAt=" +
+            this.getCreatedAt() + ")";
+    }
 }

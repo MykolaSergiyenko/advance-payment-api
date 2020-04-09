@@ -1,6 +1,5 @@
 package online.oboz.trip.trip_carrier_advance_payment_api.service;
 
-import lombok.extern.slf4j.Slf4j;
 import online.oboz.trip.trip_carrier_advance_payment_api.config.ApplicationProperties;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.*;
 import online.oboz.trip.trip_carrier_advance_payment_api.repository.AdvancePaymentCostRepository;
@@ -8,6 +7,8 @@ import online.oboz.trip.trip_carrier_advance_payment_api.repository.ContractorRe
 import online.oboz.trip.trip_carrier_advance_payment_api.repository.TripRepository;
 import online.oboz.trip.trip_carrier_advance_payment_api.repository.TripRequestAdvancePaymentRepository;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.dto.MessageDto;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -20,11 +21,11 @@ import java.util.UUID;
 
 import static online.oboz.trip.trip_carrier_advance_payment_api.util.DtoUtils.getMessageDto;
 
-@Slf4j
 @Service
 @EnableScheduling
 public class AutoAdvancedService {
 
+    private static final Logger log = LoggerFactory.getLogger(AutoAdvancedService.class);
     private final AdvancePaymentCostRepository advancePaymentCostRepository;
     private final TripRequestAdvancePaymentRepository tripRequestAdvancePaymentRepository;
     private final TripRepository tripRepository;
