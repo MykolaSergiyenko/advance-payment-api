@@ -92,7 +92,9 @@ public class RestService extends AbstractService {
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.AUTHORIZATION, "Bearer " + ACCESS_TOKEN);
         ResponseEntity<Resource> response = getResourceResponseEntity(url, headers);
-        if (response != null) return response;
+        if (response != null) {
+            return response;
+        }
         log.error("server {} returned bad response", url);
         return null;
     }

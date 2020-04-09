@@ -11,8 +11,8 @@ public class TripInfo {
     @Id
     private Long id;
     private Long tripId;
-    public OffsetDateTime startDate;
-    public OffsetDateTime endDate;
+    private OffsetDateTime startDate;
+    private OffsetDateTime endDate;
 
     public TripInfo() {
     }

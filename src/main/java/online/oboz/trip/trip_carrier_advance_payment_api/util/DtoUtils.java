@@ -5,11 +5,13 @@ import online.oboz.trip.trip_carrier_advance_payment_api.domain.TripRequestAdvan
 import online.oboz.trip.trip_carrier_advance_payment_api.service.dto.MessageDto;
 
 public class DtoUtils {
-    public static MessageDto getMessageDto(TripRequestAdvancePayment tripRequestAdvancePayment,
-                                           ContractorAdvancePaymentContact contact,
-                                           String paymentContractorFullName,
-                                           String lkUrl,
-                                           String tripNum) {
+    public static MessageDto getMessageDto(
+        TripRequestAdvancePayment tripRequestAdvancePayment,
+        ContractorAdvancePaymentContact contact,
+        String paymentContractorFullName,
+        String lkUrl,
+        String tripNum
+    ) {
         MessageDto messageDto = new MessageDto();
         messageDto.setAdvancePaymentSum(tripRequestAdvancePayment.getAdvancePaymentSum());
         messageDto.setContractorName(paymentContractorFullName);
