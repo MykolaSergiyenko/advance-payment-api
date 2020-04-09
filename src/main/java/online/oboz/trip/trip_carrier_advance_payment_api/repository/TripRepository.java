@@ -9,7 +9,6 @@ import javax.persistence.Tuple;
 import java.util.List;
 import java.util.Optional;
 
-
 public interface TripRepository extends JpaRepository<Trip, Long> {
 
     @Query(nativeQuery = true, value = " select cast(case " +
@@ -53,7 +52,8 @@ public interface TripRepository extends JpaRepository<Trip, Long> {
     @Query("select t from Trip t where t.tripTypeCode = 'motor' and t.tripStatusCode = 'assigned' and t.id = :tripId ")
     Optional<Trip> getMotorTrip(@Param("tripId") Long tripId);
 
-    @Query("select t from Trip t where t.tripTypeCode in ('removed', 'cancelled', 'confirmed', 'driver_confirmation', 'refused') " +
+    @Query("select t from Trip t " +
+        "where t.tripTypeCode in ('removed', 'cancelled', 'confirmed', 'driver_confirmation', 'refused') " +
         "                 and t.id = :tripId ")
     Optional<Trip> getNotApproveTrip(@Param("tripId") Long tripId);
 

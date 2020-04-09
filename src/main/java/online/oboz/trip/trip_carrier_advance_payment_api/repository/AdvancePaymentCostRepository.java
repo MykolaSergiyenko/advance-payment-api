@@ -15,7 +15,7 @@ public interface AdvancePaymentCostRepository extends JpaRepository<AdvancePayme
         "from dictionary.advance_payment_cost c " +
         "where c.min_value <= :cost " +
         "  and :cost <= c.max_value")
-    AdvancePaymentCost searchAdvancePaymentCost(@Param("cost") Double cost);
+    AdvancePaymentCost getAdvancePaymentCost(@Param("cost") Double cost);
 
 
 }

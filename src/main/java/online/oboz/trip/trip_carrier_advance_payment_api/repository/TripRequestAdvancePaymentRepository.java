@@ -33,7 +33,7 @@ public interface TripRequestAdvancePaymentRepository extends JpaRepository<TripR
         " from TripRequestAdvancePayment pc " +
         " where pc.uuidAdvanceApplicationFile is null " +
         "   or pc.uuidContractApplicationFile is null ")
-    List<TripRequestAdvancePayment> findRequestAdvancePaymentWithOutUuidFiles();
+    List<TripRequestAdvancePayment> findRequestsWithoutFiles();
 
     @Query(nativeQuery = true, value = "select pc.id, " +
         "       pc.driver_id, " +

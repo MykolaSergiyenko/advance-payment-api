@@ -7,7 +7,6 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
 
-
 public interface TripInfoRepository extends JpaRepository<TripInfo, Long> {
 
     @Query("select t from TripInfo t where  t.tripId = :tripId")

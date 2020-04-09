@@ -28,7 +28,11 @@ public class RestService extends AbstractService {
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
 
-    public RestService(ApplicationProperties applicationProperties, RestTemplate restTemplate, ObjectMapper objectMapper) {
+    public RestService(
+        ApplicationProperties applicationProperties,
+        RestTemplate restTemplate,
+        ObjectMapper objectMapper
+    ) {
         this.applicationProperties = applicationProperties;
         this.restTemplate = restTemplate;
         this.objectMapper = objectMapper;
@@ -72,7 +76,7 @@ public class RestService extends AbstractService {
     public ResponseEntity<Resource> getResourceResponseEntity(String url, HttpHeaders headers) {
         try {
             HttpEntity request = new HttpEntity(headers);
-            ResponseEntity<Resource> response = new RestTemplate().exchange(url, HttpMethod.GET, request, Resource.class);
+            ResponseEntity<Resource> response = restTemplate.exchange(url, HttpMethod.GET, request, Resource.class);
             if (response.getStatusCode().value() == 200 || response.getStatusCode() == HttpStatus.MOVED_PERMANENTLY) {
                 return response;
             }
@@ -92,12 +96,18 @@ public class RestService extends AbstractService {
         return null;
     }
 
+    private static final String SAVE_TRIP_DOCUMENTS_REQUEST_BODY = "{\"trip_document\":{" +
+        "\"id\":null,\"file_id\":\"%s\"," +
+        "\"document_type_code\":\"assignment_advance_request\"," +
+        "\"name\":\"Заявка на авансирование\"}" +
+        "}";
+
     public ResponseEntity<Void> saveTripDocuments(String url, String fileUuid) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.add(HttpHeaders.AUTHORIZATION, "Bearer " + ACCESS_TOKEN);
-        final String s = "{\"trip_document\":{\"id\":null,\"file_id\":\"%s\",\"document_type_code\":\"assignment_advance_request\",\"name\":\"Заявка на авансирование\"}}";
-        HttpEntity<String> request = new HttpEntity<>(String.format(s, fileUuid), headers);
+        String requestBody = String.format(SAVE_TRIP_DOCUMENTS_REQUEST_BODY, fileUuid);
+        HttpEntity<String> request = new HttpEntity<>(requestBody, headers);
         ResponseEntity<Void> response = restTemplate.exchange(url, HttpMethod.POST, request, Void.class);
         if (response.getStatusCode().value() == 200) {
             log.info("saveTripDocuments ok");
@@ -111,9 +121,9 @@ public class RestService extends AbstractService {
     public ResponseEntity<String> getFileUuid(MultipartFile filename, String url) {
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.CONTENT_TYPE, "multipart/form-data");
-        final String Bearer = "Bearer " + ACCESS_TOKEN;
-        log.debug("Bearer is: {}", Bearer);
-        headers.add(HttpHeaders.AUTHORIZATION, Bearer);
+        final String bearer = "Bearer " + ACCESS_TOKEN;
+        log.debug("Bearer is: {}", bearer);
+        headers.add(HttpHeaders.AUTHORIZATION, bearer);
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         body.add("file", filename.getResource());
         HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<>(body, headers);
@@ -123,10 +133,14 @@ public class RestService extends AbstractService {
     public Map<String, String> findTripRequestDocs(Trip trip) {
         Map<String, String> fileUuidMap = new HashMap<>();
         try {
-            TripDocuments tripDocuments = objectMapper.readValue(getDocumentWithUuidFiles(trip.getOrderId(), trip.getId()), TripDocuments.class);
+            TripDocuments tripDocuments = objectMapper.readValue(
+                getDocumentWithUuidFiles(trip.getOrderId(), trip.getId()), TripDocuments.class
+            );
             tripDocuments.getTripDocuments().forEach(doc -> {
                 final String fileId = doc.getFileId();
-                if (fileId != null && ("trip_request".equals(doc.documentTypeCode) || "request".equals(doc.documentTypeCode))) {
+                if (fileId != null &&
+                    ("trip_request".equals(doc.documentTypeCode) || "request".equals(doc.documentTypeCode))
+                ) {
                     fileUuidMap.put(doc.documentTypeCode, fileId);
                     log.info(doc.getFileId());
                 }
@@ -140,7 +154,9 @@ public class RestService extends AbstractService {
     public Map<String, String> findAdvanceRequestDocs(Trip trip) {
         Map<String, String> fileUuidMap = new HashMap<>();
         try {
-            TripDocuments tripDocuments = objectMapper.readValue(getDocumentWithUuidFiles(trip.getOrderId(), trip.getId()), TripDocuments.class);
+            TripDocuments tripDocuments = objectMapper.readValue(
+                getDocumentWithUuidFiles(trip.getOrderId(), trip.getId()), TripDocuments.class
+            );
             tripDocuments.getTripDocuments().forEach(doc -> {
                 final String fileId = doc.getFileId();
                 if (fileId != null && "assignment_advance_request".equals(doc.documentTypeCode)) {
@@ -165,7 +181,7 @@ public class RestService extends AbstractService {
                 return response.getBody();
             }
         } catch (Exception e) {
-            log.error("Some Exeption", e);
+            log.error("Some Exception", e);
         }
         log.error("server {} returned bad response", url);
         return "";

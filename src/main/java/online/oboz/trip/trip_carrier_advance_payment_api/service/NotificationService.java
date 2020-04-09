@@ -15,6 +15,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.Optional;
 import java.util.concurrent.DelayQueue;
 import java.util.concurrent.Delayed;
 
@@ -24,11 +25,11 @@ import java.util.concurrent.Delayed;
 public class NotificationService {
     private static final String RUSSIAN_COUNTRY_CODE = "7";
     private static final String SEND_SMS_METHOD_PATH = "/v1/send-sms";
-    //    "Компания %Название компании% (из поля «Юр. лицо для взаиморасчетов» в ОБОЗе) предлагает аванс по \n " +
-//        "заказу %номер заказа поставщика% на сумму %сумма аванса с НДС%, для подтверждения пройдите по ссылке (ссылка на зеркало). ";
+    private static final String ASSIGNED_TRIP_STATUS = "assigned";
     private static final String EMAIL_HEADER_TEMPLATE = "Компания %s  предлагает аванс.";
     private static final String MESSAGE_TEXT = "Компания %s  предлагает аванс по \n " +
         "заказу %s на сумму %s руб., для подтверждения пройдите по ссылке %s";
+
     private final JavaMailSender emailSender;
     private final DelayQueue<Delayed> delayQueue = new DelayQueue<>();
     private final RestTemplate restTemplate;
@@ -41,18 +42,16 @@ public class NotificationService {
         try {
             SmsRequestDelayed sms = (SmsRequestDelayed) delayQueue.poll();
             while (sms != null) {
-                final String tripStatusCode = tripRepository.getTripByNum(sms.getTripNum()).orElse(new Trip()).getTripStatusCode();
-                if ("assigned".equals(tripStatusCode)) {
+                Optional<Trip> tripStatusCode = tripRepository.getTripByNum(sms.getTripNum());
+                if (tripStatusCode.map(t -> t.getTripStatusCode().equals(ASSIGNED_TRIP_STATUS)).orElse(false)) {
                     sendSms(url, sms);
-                    //log.info("Sms to {} is mock", url);
-                    //log.info("Sms body - {}", new ObjectMapper().writeValueAsString(sms));
                 } else {
                     log.info("Trip {} is not assigned", sms.getTripNum());
                 }
                 sms = (SmsRequestDelayed) delayQueue.poll();
             }
         } catch (Exception e) {
-            log.error("Some Exeption", e);
+            log.error("Some Exception", e);
         }
     }
 
@@ -96,7 +95,9 @@ public class NotificationService {
                 log.error("Error while sending message. to - {} subject - {}", message.getTo(), subject, ex);
                 throw ex;
             }
-        } else log.info("Sending message properties disable, email message  to - {}", messageDto.getEmail());
+        } else {
+            log.info("Sending message properties disable, email message  to - {}", messageDto.getEmail());
+        }
     }
 
     private String getMessageText(MessageDto messageDto) {
@@ -104,12 +105,12 @@ public class NotificationService {
             getContractorContractorName(messageDto),
             messageDto.getTripNum(),
             messageDto.getAdvancePaymentSum(),
-            messageDto.getLKLink());
+            messageDto.getLKLink()
+        );
     }
 
     private String getContractorContractorName(MessageDto messageDto) {
         return messageDto.getContractorName();
     }
-
 }
 

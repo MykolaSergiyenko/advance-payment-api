@@ -98,7 +98,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
                 contractorAdvancePaymentContactRepository.findContractorAdvancePaymentContact(rec.getContractorId())
                     .orElse(new ContractorAdvancePaymentContact());
             Contractor contractor = contractorRepository.findById(rec.getContractorId()).orElse(new Contractor());
-            String fullName = contractorRepository.getFullNameByPaymentContractorId(rec.getPaymentContractorId());
+            String fullName = contractorRepository.getFullName(rec.getPaymentContractorId());
             Trip trip = tripRepository.findById(rec.getTripId()).orElse(new Trip());
             return getFrontAdvancePaymentResponse(rec, contractorAdvancePaymentContact, contractor, fullName, trip);
         })
@@ -203,7 +203,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
     public ResponseEntity<Void> requestGiveAdvancePayment(Long tripId) {
         tripRepository.findById(tripId).orElseThrow(() -> getBusinessLogicException("trip not found"));
         Double tripCostWithNds = tripRepository.getTripCostWithVat(tripId);
-        AdvancePaymentCost advancePaymentCost = advancePaymentCostRepository.searchAdvancePaymentCost(tripCostWithNds);
+        AdvancePaymentCost advancePaymentCost = advancePaymentCostRepository.getAdvancePaymentCost(tripCostWithNds);
         Trip trip = tripRepository.getMotorTrip(tripId).orElseGet(Trip::new);
         Order order = orderRepository.findById(trip.getOrderId()).orElseGet(Order::new);
         if (trip.getId() == null) {
@@ -226,7 +226,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
             throw getBusinessLogicException("tripRequestAdvancePayment is present");
         }
         Contractor contractor = contractorRepository.findById(contractorId).orElse(new Contractor());
-        String paymentContractor = contractorRepository.getFullNameByPaymentContractorId(trip.getPaymentContractorId());
+        String paymentContractor = contractorRepository.getFullName(trip.getPaymentContractorId());
         String tripRequestDocsUUID = tripRequestDocs.entrySet().iterator().next().getValue();
         tripRequestAdvancePayment = createTripRequestAdvancePayment(
             contractor,

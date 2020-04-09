@@ -41,7 +41,11 @@ public class AdvanceFilterService {
         return new PageImpl<>(typedQuery.getResultList(), pageable, l);
     }
 
-    private Predicate[] getPredicate(CriteriaBuilder criteriaBuilder, Root<TripRequestAdvancePayment> root, Filter filter) {
+    private Predicate[] getPredicate(
+        CriteriaBuilder criteriaBuilder,
+        Root<TripRequestAdvancePayment> root,
+        Filter filter
+    ) {
         List<Predicate> res = new ArrayList<>();
         Boolean isDownloadedAdvanceApplication = filter.getIsDownloadedAdvanceApplication();
         if (isDownloadedAdvanceApplication != null) {

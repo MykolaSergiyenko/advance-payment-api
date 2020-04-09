@@ -40,6 +40,4 @@ public class ContractorAdvanceExclusion {
     protected void onUpdate() {
         setUpdatedAt(OffsetDateTime.now());
     }
-
-
 }

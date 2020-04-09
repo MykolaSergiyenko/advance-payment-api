@@ -10,7 +10,9 @@ import org.springframework.stereotype.Service;
 public class AdvancePaymentContactService {
     private final ContractorAdvancePaymentContactRepository contractorAdvancePaymentContactRepository;
 
-    public AdvancePaymentContactService(ContractorAdvancePaymentContactRepository contractorAdvancePaymentContactRepository) {
+    public AdvancePaymentContactService(
+        ContractorAdvancePaymentContactRepository contractorAdvancePaymentContactRepository
+    ) {
         this.contractorAdvancePaymentContactRepository = contractorAdvancePaymentContactRepository;
     }
 

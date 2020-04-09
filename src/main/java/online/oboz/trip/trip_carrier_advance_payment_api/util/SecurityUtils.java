@@ -1,6 +1,5 @@
 package online.oboz.trip.trip_carrier_advance_payment_api.util;
 
-
 import net.minidev.json.JSONArray;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -39,6 +38,5 @@ public final class SecurityUtils {
         Jwt jwt = SecurityUtils.getCurrentToken();
         return Long.parseLong(jwt.getClaimAsMap("person").get("id").toString());
     }
-
 }
 

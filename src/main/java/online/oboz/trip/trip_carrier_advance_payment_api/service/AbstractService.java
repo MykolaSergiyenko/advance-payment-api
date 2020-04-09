@@ -18,5 +18,4 @@ public abstract class AbstractService {
         headers.setContentType(MediaType.valueOf(MediaType.APPLICATION_FORM_URLENCODED_VALUE));
         return new HttpEntity(body, headers);
     }
-
 }
