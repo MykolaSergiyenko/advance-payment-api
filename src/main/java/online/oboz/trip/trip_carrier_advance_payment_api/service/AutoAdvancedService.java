@@ -5,7 +5,7 @@ import online.oboz.trip.trip_carrier_advance_payment_api.domain.*;
 import online.oboz.trip.trip_carrier_advance_payment_api.repository.AdvancePaymentCostRepository;
 import online.oboz.trip.trip_carrier_advance_payment_api.repository.ContractorRepository;
 import online.oboz.trip.trip_carrier_advance_payment_api.repository.TripRepository;
-import online.oboz.trip.trip_carrier_advance_payment_api.repository.TripRequestAdvancePaymentRepository;
+import online.oboz.trip.trip_carrier_advance_payment_api.repository.AdvanceRequestRepository;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.dto.MessageDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +27,7 @@ public class AutoAdvancedService {
 
     private static final Logger log = LoggerFactory.getLogger(AutoAdvancedService.class);
     private final AdvancePaymentCostRepository advancePaymentCostRepository;
-    private final TripRequestAdvancePaymentRepository tripRequestAdvancePaymentRepository;
+    private final AdvanceRequestRepository advanceRequestRepository;
     private final TripRepository tripRepository;
     private final ContractorRepository contractorRepository;
     private final ApplicationProperties applicationProperties;
@@ -38,7 +38,7 @@ public class AutoAdvancedService {
     @Autowired
     public AutoAdvancedService(
         AdvancePaymentCostRepository advancePaymentCostRepository,
-        TripRequestAdvancePaymentRepository tripRequestAdvancePaymentRepository,
+        AdvanceRequestRepository advanceRequestRepository,
         TripRepository tripRepository,
         ContractorRepository contractorRepository,
         ApplicationProperties applicationProperties,
@@ -46,7 +46,7 @@ public class AutoAdvancedService {
         NotificationService notificationService, RestService restService
     ) {
         this.advancePaymentCostRepository = advancePaymentCostRepository;
-        this.tripRequestAdvancePaymentRepository = tripRequestAdvancePaymentRepository;
+        this.advanceRequestRepository = advanceRequestRepository;
         this.tripRepository = tripRepository;
         this.contractorRepository = contractorRepository;
         this.applicationProperties = applicationProperties;
@@ -89,7 +89,7 @@ public class AutoAdvancedService {
                 ContractorAdvancePaymentContact contact = advancePaymentContactService.getAdvancePaymentContact(
                     trip.getContractorId()
                 );
-                tripRequestAdvancePaymentRepository.save(tripRequestAdvancePayment);
+                advanceRequestRepository.save(tripRequestAdvancePayment);
                 log.info("tripRequestAdvancePayment for id : {}, is auto crated", tripRequestAdvancePayment.getId());
 
                 if (contact != null) {
@@ -120,7 +120,7 @@ public class AutoAdvancedService {
 
     @Scheduled(cron = "${cron.update: 0 0/30 * * * *}")
     void updateFileUuid() {
-        List<TripRequestAdvancePayment> advanceRequests = tripRequestAdvancePaymentRepository.findRequestsWithoutFiles();
+        List<TripRequestAdvancePayment> advanceRequests = advanceRequestRepository.findRequestsWithoutFiles();
         for (TripRequestAdvancePayment advanceRequest : advanceRequests) {
             Optional<Trip> trip = tripRepository.findById(advanceRequest.getTripId());
             if (!trip.isPresent()) {
@@ -152,7 +152,7 @@ public class AutoAdvancedService {
                 }
             }
         }
-        tripRequestAdvancePaymentRepository.saveAll(advanceRequests);
+        advanceRequestRepository.saveAll(advanceRequests);
     }
 
     @Scheduled(cron = "${cron.update: 0 0/30 * * * *}")
@@ -171,13 +171,13 @@ public class AutoAdvancedService {
     @Scheduled(cron = "${cron.update: 0 0/30 * * * *}")
     void cancelAdvance() {
         List<TripRequestAdvancePayment> advanceRequests =
-            tripRequestAdvancePaymentRepository.findRequestAdvancePaymentNeedCancel();
+            advanceRequestRepository.findNeedCancelRequests();
         advanceRequests.forEach(p -> {
             p.setIsCancelled(true);
             p.setCancelledComment("Auto Canceled");
             log.info("tripRequestAdvancePayments with id: {} auto canceled.", p.getId());
 
         });
-        tripRequestAdvancePaymentRepository.saveAll(advanceRequests);
+        advanceRequestRepository.saveAll(advanceRequests);
     }
 }

@@ -9,25 +9,25 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface TripRequestAdvancePaymentRepository extends JpaRepository<TripRequestAdvancePayment, Long> {
+public interface AdvanceRequestRepository extends JpaRepository<TripRequestAdvancePayment, Long> {
 
     @Query(" select ap from TripRequestAdvancePayment ap " +
         " where  ap.tripId = :trip_id " +
         "   and ap.driverId = :driver_id " +
         "   and ap.contractorId = :contractor_id ")
-    TripRequestAdvancePayment findRequestAdvancePayment(@Param("trip_id") Long tripId,
-                                                        @Param("driver_id") Long driverId,
-                                                        @Param("contractor_id") Long contractorId);
+    TripRequestAdvancePayment find(@Param("trip_id") Long tripId,
+                                   @Param("driver_id") Long driverId,
+                                   @Param("contractor_id") Long contractorId);
 
     @Query("select pc " +
         " from TripRequestAdvancePayment pc " +
         " where pc.id = :id ")
-    Optional<TripRequestAdvancePayment> findTripRequestAdvancePayment(@Param("id") Long id);
+    Optional<TripRequestAdvancePayment> find(@Param("id") Long id);
 
     @Query("select pc " +
         " from TripRequestAdvancePayment pc " +
         " where pc.advanceUuid = :uuid ")
-    Optional<TripRequestAdvancePayment> findTripRequestAdvancePayment(@Param("uuid") UUID uuid);
+    Optional<TripRequestAdvancePayment> find(@Param("uuid") UUID uuid);
 
     @Query("select pc " +
         " from TripRequestAdvancePayment pc " +
@@ -67,7 +67,7 @@ public interface TripRequestAdvancePaymentRepository extends JpaRepository<TripR
         "from trip_request_advance_payment pc " +
         "inner join orders.trips t on pc.trip_id = t.id " +
         "where t.num = :tripNum ")
-    TripRequestAdvancePayment findRequestAdvancePaymentByTripNum(@Param("tripNum") String tripNum);
+    TripRequestAdvancePayment find(@Param("tripNum") String tripNum);
 
     @Query(nativeQuery = true, value = "select trap.id, " +
         "       trap.driver_id, " +
@@ -101,6 +101,6 @@ public interface TripRequestAdvancePaymentRepository extends JpaRepository<TripR
         "from orders.trip_request_advance_payment trap " +
         "         inner join orders.trips t on trap.trip_id = t.id and trap.is_cancelled != true " +
         "where t.trip_status_code in ('removed', 'cancelled', 'confirmed', 'driver_confirmation', 'refused')")
-    List<TripRequestAdvancePayment> findRequestAdvancePaymentNeedCancel();
+    List<TripRequestAdvancePayment> findNeedCancelRequests();
 
 }

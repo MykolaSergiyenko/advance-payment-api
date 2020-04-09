@@ -42,7 +42,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
     private static final String COMMENT = "Данному поставщику отправлен запрос на аванс в автоматическом режиме";
     private static final Logger log = LoggerFactory.getLogger(AdvancePaymentDelegateImpl.class);
     private final AdvancePaymentCostRepository advancePaymentCostRepository;
-    private final TripRequestAdvancePaymentRepository tripRequestAdvancePaymentRepository;
+    private final AdvanceRequestRepository advanceRequestRepository;
     private final ContractorAdvancePaymentContactRepository contractorAdvancePaymentContactRepository;
     private final ContractorAdvanceExclusionRepository contractorAdvanceExclusionRepository;
     private final TripRepository tripRepository;
@@ -60,7 +60,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
     @Autowired
     public AdvancePaymentDelegateImpl(
         AdvancePaymentCostRepository advancePaymentCostRepository,
-        TripRequestAdvancePaymentRepository tripRequestAdvancePaymentRepository,
+        AdvanceRequestRepository advanceRequestRepository,
         ContractorAdvancePaymentContactRepository contractorAdvancePaymentContactRepository,
         ContractorAdvanceExclusionRepository contractorAdvanceExclusionRepository,
         TripRepository tripRepository,
@@ -75,7 +75,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
         RabbitMessageProducer rabbitMessageProducer, AdvanceFilterService advanceFilterService
     ) {
         this.advancePaymentCostRepository = advancePaymentCostRepository;
-        this.tripRequestAdvancePaymentRepository = tripRequestAdvancePaymentRepository;
+        this.advanceRequestRepository = advanceRequestRepository;
         this.contractorAdvancePaymentContactRepository = contractorAdvancePaymentContactRepository;
         this.contractorAdvanceExclusionRepository = contractorAdvanceExclusionRepository;
         this.tripRepository = tripRepository;
@@ -130,7 +130,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
             tripRequestAdvancePayment.setIs1CSendAllowed(false);
             tripRequestAdvancePayment.setPageCarrierUrlIsAccess(false);
             tripRepository.save(trip);
-            tripRequestAdvancePaymentRepository.save(tripRequestAdvancePayment);
+            advanceRequestRepository.save(tripRequestAdvancePayment);
             final Long orderTypeId = orderRepository.findById(
                 trip.getOrderId()
             ).get().getOrderTypeId();
@@ -177,8 +177,8 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
             log.info("Contractor not found for tripId: " + trip.getContractorId());
             return getIsAdvancedRequestResponseResponseEntity();
         }
-        TripRequestAdvancePayment tripRequestAdvancePayment = tripRequestAdvancePaymentRepository
-            .findRequestAdvancePayment(tripId, trip.getDriverId(), trip.getContractorId());
+        TripRequestAdvancePayment tripRequestAdvancePayment = advanceRequestRepository
+            .find(tripId, trip.getDriverId(), trip.getContractorId());
         IsAdvancedRequestResponse isAdvancedRequestResponse = getIsAdvancedRequestResponse();
         setButtonAccessGetAdvance(trip, contractor, tripRequestAdvancePayment, isAdvancedRequestResponse);
 
@@ -234,8 +234,8 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
         if (tripRequestDocs.isEmpty()) {
             throw getBusinessLogicException("Не загружены Договор заявка / заявка ");
         }
-        TripRequestAdvancePayment tripRequestAdvancePayment = tripRequestAdvancePaymentRepository
-            .findRequestAdvancePayment(tripId,
+        TripRequestAdvancePayment tripRequestAdvancePayment = advanceRequestRepository
+            .find(tripId,
                 trip.getDriverId(),
                 contractorId
             );
@@ -264,7 +264,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
             if (contact.getPhone() != null) {
                 notificationService.sendSmsDelay(messageDto);
             }
-            tripRequestAdvancePaymentRepository.save(tripRequestAdvancePayment);
+            advanceRequestRepository.save(tripRequestAdvancePayment);
             ContractorAdvanceExclusion contractorAdvanceExclusion = contractorAdvanceExclusionRepository.findByContractorId(
                 contractorId, order.getOrderTypeId()).orElseGet(ContractorAdvanceExclusion::new);
             if (contractorAdvanceExclusion.getId() == null) {
@@ -283,7 +283,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
     public ResponseEntity<Void> changeAdvancePaymentComment(AdvancePaymentCommentDTO advancePaymentCommentDTO) {
         final TripRequestAdvancePayment entity = getTripRequestAdvancePaymentById(advancePaymentCommentDTO.getId());
         entity.setComment(advancePaymentCommentDTO.getAdvanceComment());
-        tripRequestAdvancePaymentRepository.save(entity);
+        advanceRequestRepository.save(entity);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -294,7 +294,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
         url.append("https://reports.oboz.com/reportserver/reportserver/httpauthexport?" +
             "key=avance_request&user=bertathar&apikey=nzybc16h&p_trip_num="
         );
-        TripRequestAdvancePayment tripRequestAdvancePayment = tripRequestAdvancePaymentRepository.findRequestAdvancePaymentByTripNum(tripNum);
+        TripRequestAdvancePayment tripRequestAdvancePayment = advanceRequestRepository.find(tripNum);
         if (tripRequestAdvancePayment != null) {
             url.append(tripNum)
                 .append("&p_avance_sum=")
@@ -314,16 +314,16 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
 
     @Override
     public ResponseEntity<Resource> downloadAvanseRequest(String tripNum) {
-        String uuidFile = tripRequestAdvancePaymentRepository
-            .findRequestAdvancePaymentByTripNum(tripNum)
+        String uuidFile = advanceRequestRepository
+            .find(tripNum)
             .getUuidAdvanceApplicationFile();
         return restService.getResourceBStore(uuidFile);
     }
 
     @Override
     public ResponseEntity<Resource> downloadRequest(String tripNum) {
-        String uuidFile = tripRequestAdvancePaymentRepository
-            .findRequestAdvancePaymentByTripNum(tripNum)
+        String uuidFile = advanceRequestRepository
+            .find(tripNum)
             .getUuidContractApplicationFile();
         return restService.getResourceBStore(uuidFile);
     }
@@ -339,8 +339,8 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
 //        TODO :  catch   big size file and response
         Trip trip = tripRepository.getTripByNum(tripNum).orElseThrow(() -> getBusinessLogicException("trip not found"));
         final Long tripId = trip.getId();
-        TripRequestAdvancePayment tripRequestAdvancePayment = tripRequestAdvancePaymentRepository
-            .findRequestAdvancePayment(tripId, trip.getDriverId(), trip.getContractorId());
+        TripRequestAdvancePayment tripRequestAdvancePayment = advanceRequestRepository
+            .find(tripId, trip.getDriverId(), trip.getContractorId());
         if (tripRequestAdvancePayment == null)
             throw getBusinessLogicException("tripRequestAdvancePayment not found");
         if (tripRequestAdvancePayment.getPushButtonAt() == null)
@@ -357,7 +357,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
                 ResponseEntity<Void> ordersApiResponse = restService.saveTripDocuments(urlOrders, fileUuid);
                 tripRequestAdvancePayment.setUuidAdvanceApplicationFile(fileUuid);
                 tripRequestAdvancePayment.setIsDownloadedAdvanceApplication(true);
-                tripRequestAdvancePaymentRepository.save(tripRequestAdvancePayment);
+                advanceRequestRepository.save(tripRequestAdvancePayment);
                 return ordersApiResponse;
             } catch (IOException e) {
                 log.error("", e);
@@ -408,7 +408,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
 
         }
         entity.setLoadingComplete(loadingComplete);
-        tripRequestAdvancePaymentRepository.save(entity);
+        advanceRequestRepository.save(entity);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -435,7 +435,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
         if (!entity.getIsCancelled()) {
             entity.setCancelledComment(cancelAdvanceComment);
             entity.setIsCancelled(true);
-            tripRequestAdvancePaymentRepository.save(entity);
+            advanceRequestRepository.save(entity);
             log.error(" was cancel AdvancePayment with id: {} and cancel comment: {}", id, cancelAdvanceComment);
         }
         return new ResponseEntity<>(HttpStatus.OK);
@@ -459,7 +459,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
         }
         if (t.getPushButtonAt() == null && !t.getIsCancelled()) {
             t.setPushButtonAt(OffsetDateTime.now());
-            tripRequestAdvancePaymentRepository.save(t);
+            advanceRequestRepository.save(t);
             log.error("save ok for advance request with uuid: {} ,PushButtonAt: {}, CancelAdvance: {} ",
                 uuid, t.getPushButtonAt(), t.getIsCancelled()
             );
@@ -535,7 +535,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
     }
 
     private TripRequestAdvancePayment getTripRequestAdvancePaymentByUUID(UUID uuid) {
-        return tripRequestAdvancePaymentRepository.findTripRequestAdvancePayment(uuid).orElseThrow(() ->
+        return advanceRequestRepository.find(uuid).orElseThrow(() ->
             getBusinessLogicException("AdvancePaymentRequest not found")
         );
     }
@@ -676,8 +676,8 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
     }
 
     private TripRequestAdvancePayment getTripRequestAdvancePaymentById(Long id) {
-        Optional<TripRequestAdvancePayment> tripRequestAdvancePayment = tripRequestAdvancePaymentRepository
-            .findTripRequestAdvancePayment(id);
+        Optional<TripRequestAdvancePayment> tripRequestAdvancePayment = advanceRequestRepository
+            .find(id);
         return tripRequestAdvancePayment.orElseThrow(() ->
             getBusinessLogicException("TripRequestAdvancePayment not found")
         );
