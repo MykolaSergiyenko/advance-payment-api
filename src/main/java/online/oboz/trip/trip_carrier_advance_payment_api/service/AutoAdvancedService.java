@@ -167,17 +167,4 @@ public class AutoAdvancedService {
         });
         contractorRepository.saveAll(contractors);
     }
-
-    @Scheduled(cron = "${cron.update: 0 0/30 * * * *}")
-    void cancelAdvance() {
-        List<TripRequestAdvancePayment> advanceRequests =
-            advanceRequestRepository.findNeedCancelRequests();
-        advanceRequests.forEach(p -> {
-            p.setIsCancelled(true);
-            p.setCancelledComment("Auto Canceled");
-            log.info("tripRequestAdvancePayments with id: {} auto canceled.", p.getId());
-
-        });
-        advanceRequestRepository.saveAll(advanceRequests);
-    }
 }
