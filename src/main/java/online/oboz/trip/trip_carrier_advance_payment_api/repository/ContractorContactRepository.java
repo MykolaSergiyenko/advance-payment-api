@@ -7,10 +7,10 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
 
-public interface ContractorAdvancePaymentContactRepository extends JpaRepository<ContractorAdvancePaymentContact, Long> {
+public interface ContractorContactRepository extends JpaRepository<ContractorAdvancePaymentContact, Long> {
     @Query("select  pc " +
         " from ContractorAdvancePaymentContact pc " +
         " where pc.contractorId = :contractor_id ")
-    Optional<ContractorAdvancePaymentContact> findContractorAdvancePaymentContact(@Param("contractor_id") Long contractorId);
+    Optional<ContractorAdvancePaymentContact> find(@Param("contractor_id") Long contractorId);
 
 }

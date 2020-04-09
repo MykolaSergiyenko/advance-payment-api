@@ -43,7 +43,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
     private static final Logger log = LoggerFactory.getLogger(AdvancePaymentDelegateImpl.class);
     private final AdvancePaymentCostRepository advancePaymentCostRepository;
     private final AdvanceRequestRepository advanceRequestRepository;
-    private final ContractorAdvancePaymentContactRepository contractorAdvancePaymentContactRepository;
+    private final ContractorContactRepository contractorContactRepository;
     private final ContractorAdvanceExclusionRepository contractorAdvanceExclusionRepository;
     private final TripRepository tripRepository;
     private final TripInfoRepository tripInfoRepository;
@@ -61,7 +61,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
     public AdvancePaymentDelegateImpl(
         AdvancePaymentCostRepository advancePaymentCostRepository,
         AdvanceRequestRepository advanceRequestRepository,
-        ContractorAdvancePaymentContactRepository contractorAdvancePaymentContactRepository,
+        ContractorContactRepository contractorContactRepository,
         ContractorAdvanceExclusionRepository contractorAdvanceExclusionRepository,
         TripRepository tripRepository,
         TripInfoRepository tripInfoRepository,
@@ -76,7 +76,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
     ) {
         this.advancePaymentCostRepository = advancePaymentCostRepository;
         this.advanceRequestRepository = advanceRequestRepository;
-        this.contractorAdvancePaymentContactRepository = contractorAdvancePaymentContactRepository;
+        this.contractorContactRepository = contractorContactRepository;
         this.contractorAdvanceExclusionRepository = contractorAdvanceExclusionRepository;
         this.tripRepository = tripRepository;
         this.tripInfoRepository = tripInfoRepository;
@@ -98,7 +98,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
         Page<TripRequestAdvancePayment> tripRequestAdvancePayments = advanceFilterService.advancePayments(filter);
         List<FrontAdvancePaymentResponse> responseList = tripRequestAdvancePayments.stream().map(rec -> {
             ContractorAdvancePaymentContact contractorAdvancePaymentContact =
-                contractorAdvancePaymentContactRepository.findContractorAdvancePaymentContact(rec.getContractorId())
+                contractorContactRepository.find(rec.getContractorId())
                     .orElse(new ContractorAdvancePaymentContact());
             Contractor contractor = contractorRepository.findById(rec.getContractorId()).orElse(new Contractor());
             String fullName = contractorRepository.getFullName(rec.getPaymentContractorId());
@@ -383,10 +383,9 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
 
     @Override
     public ResponseEntity<Void> addContactCarrier(CarrierContactDTO carrierContactDTO) {
-        Optional<ContractorAdvancePaymentContact> contractorAdvancePaymentContact =
-            contractorAdvancePaymentContactRepository.findContractorAdvancePaymentContact(
-                carrierContactDTO.getContractorId()
-            );
+        Optional<ContractorAdvancePaymentContact> contractorAdvancePaymentContact = contractorContactRepository.find(
+            carrierContactDTO.getContractorId()
+        );
         if (contractorAdvancePaymentContact.isPresent()) {
             throw getBusinessLogicException("ContractorAdvancePaymentContact is present");
         }
@@ -395,7 +394,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
         entity.setContractorId(carrierContactDTO.getContractorId());
         entity.setPhone(carrierContactDTO.getPhoneNumber());
         entity.setEmail(carrierContactDTO.getEmail());
-        contractorAdvancePaymentContactRepository.save(entity);
+        contractorContactRepository.save(entity);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -422,10 +421,9 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
 
     @Override
     public ResponseEntity<Void> updateContactCarrier(CarrierContactDTO carrierContactDTO) {
-        Optional<ContractorAdvancePaymentContact> contractorAdvancePaymentContact =
-            contractorAdvancePaymentContactRepository.findContractorAdvancePaymentContact(
-                carrierContactDTO.getContractorId()
-            );
+        Optional<ContractorAdvancePaymentContact> contractorAdvancePaymentContact = contractorContactRepository.find(
+            carrierContactDTO.getContractorId()
+        );
         final ContractorAdvancePaymentContact entity = contractorAdvancePaymentContact.orElseThrow(() ->
             getBusinessLogicException("ContractorAdvancePaymentContact not found")
         );
@@ -433,7 +431,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
         entity.setContractorId(carrierContactDTO.getContractorId());
         entity.setPhone(carrierContactDTO.getPhoneNumber());
         entity.setEmail(carrierContactDTO.getEmail());
-        contractorAdvancePaymentContactRepository.save(entity);
+        contractorContactRepository.save(entity);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -451,8 +449,8 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
 
     @Override
     public ResponseEntity<CarrierContactDTO> getContactCarrier(Long contractorId) {
-        ContractorAdvancePaymentContact contact = contractorAdvancePaymentContactRepository
-            .findContractorAdvancePaymentContact(contractorId)
+        ContractorAdvancePaymentContact contact = contractorContactRepository
+            .find(contractorId)
             .orElseGet(ContractorAdvancePaymentContact::new);
         CarrierContactDTO carrierContactDTO = getCarrierContactDTO(contact);
         return new ResponseEntity<>(carrierContactDTO, HttpStatus.OK);
@@ -702,7 +700,6 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
     }
 
     private ContractorAdvancePaymentContact getAdvancePaymentContact(Long contractorId) {
-        return contractorAdvancePaymentContactRepository
-            .findContractorAdvancePaymentContact(contractorId).orElse(new ContractorAdvancePaymentContact());
+        return contractorContactRepository.find(contractorId).orElse(new ContractorAdvancePaymentContact());
     }
 }
