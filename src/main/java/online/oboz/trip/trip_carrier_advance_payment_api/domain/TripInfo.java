@@ -1,17 +1,27 @@
 package online.oboz.trip.trip_carrier_advance_payment_api.domain;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.time.OffsetDateTime;
 
 @Entity
 @Table(schema = "orders", name = "trip_infos")
 public class TripInfo {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(name = "trip_id", updatable = false, insertable = false)
     private Long tripId;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "trip_id")
+    private Trip trip;
+
+    private String originPlaceId;
+    private String originName;
     private OffsetDateTime startDate;
+
+    private String destinationPlaceId;
+    private String destinationName;
     private OffsetDateTime endDate;
 
     public TripInfo() {
@@ -49,11 +59,50 @@ public class TripInfo {
         this.endDate = endDate;
     }
 
+
+    public String getOriginPlaceId() {
+        return originPlaceId;
+    }
+
+    public void setOriginPlaceId(String originPlaceId) {
+        this.originPlaceId = originPlaceId;
+    }
+
+    public String getDestinationPlaceId() {
+        return destinationPlaceId;
+    }
+
+    public void setDestinationPlaceId(String destinationPlaceId) {
+        this.destinationPlaceId = destinationPlaceId;
+    }
+
+    public String getOriginName() {
+        return originName;
+    }
+
+    public void setOriginName(String originName) {
+        this.originName = originName;
+    }
+
+    public String getDestinationName() {
+        return destinationName;
+    }
+
+    public void setDestinationName(String destinationName) {
+        this.destinationName = destinationName;
+    }
+
+
+
     public String toString() {
         return "TripInfo(id=" +
             this.getId() + ", tripId=" +
             this.getTripId() + ", startDate=" +
             this.getStartDate() + ", endDate=" +
-            this.getEndDate() + ")";
+            this.getEndDate() + ", originPlaceId=" +
+            this.getOriginPlaceId() + ", originName=" +
+            this.getOriginName() + ", destinationPlaceId=" +
+            this.getOriginPlaceId() + ", destinationName=" +
+            this.getDestinationName() + ")";
     }
 }

@@ -3,15 +3,14 @@ package online.oboz.trip.trip_carrier_advance_payment_api.domain;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.time.OffsetDateTime;
 
 @Entity
 @Table(schema = "orders", name = "trips")
 public class Trip {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private Long contractorId;
     private Long driverId;
@@ -24,6 +23,9 @@ public class Trip {
     private String tripStatusCode;
     private String resourceTypeCode;
     private OffsetDateTime createdAt;
+
+    @OneToOne(mappedBy = "trip", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private TripInfo tripInfo;
 
     public Trip() {
     }
@@ -134,6 +136,14 @@ public class Trip {
         return HashCodeBuilder.reflectionHashCode(this);
     }
 
+    public TripInfo getTripInfo() {
+        return tripInfo;
+    }
+
+    public void setTripInfo(TripInfo tripInfo) {
+        this.tripInfo = tripInfo;
+    }
+
     public String toString() {
         return "Trip(id=" +
             this.getId() + ", contractorId=" +
@@ -147,6 +157,7 @@ public class Trip {
             this.getTripTypeCode() + ", tripStatusCode=" +
             this.getTripStatusCode() + ", resourceTypeCode=" +
             this.getResourceTypeCode() + ", createdAt=" +
-            this.getCreatedAt() + ")";
+            this.getCreatedAt() + ", tripInfo=" +
+            this.getTripInfo().getId()+ ")";
     }
 }

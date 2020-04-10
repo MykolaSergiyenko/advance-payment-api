@@ -24,7 +24,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.persistence.Tuple;
 import javax.transaction.Transactional;
 import java.io.IOException;
 import java.time.OffsetDateTime;
@@ -46,7 +45,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
     private final ContractorContactRepository contractorContactRepository;
     private final ContractorExclusionRepository contractorExclusionRepository;
     private final TripRepository tripRepository;
-    private final TripInfoRepository tripInfoRepository;
+    private final LocationRepository locationRepository;
     private final ContractorRepository contractorRepository;
     private final NotificationService notificationService;
     private final PersonRepository personRepository;
@@ -64,7 +63,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
         ContractorContactRepository contractorContactRepository,
         ContractorExclusionRepository contractorExclusionRepository,
         TripRepository tripRepository,
-        TripInfoRepository tripInfoRepository,
+        LocationRepository locationRepository,
         ContractorRepository contractorRepository,
         NotificationService notificationService,
         PersonRepository personRepository,
@@ -79,7 +78,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
         this.contractorContactRepository = contractorContactRepository;
         this.contractorExclusionRepository = contractorExclusionRepository;
         this.tripRepository = tripRepository;
-        this.tripInfoRepository = tripInfoRepository;
+        this.locationRepository = locationRepository;
         this.contractorRepository = contractorRepository;
         this.notificationService = notificationService;
         this.personRepository = personRepository;
@@ -482,15 +481,8 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
         FrontAdvancePaymentResponse frontAdvancePaymentResponse = new FrontAdvancePaymentResponse();
         TripRequestAdvancePayment t = getTripRequestAdvancePaymentByUUID(uuid);
         if (t.getPageCarrierUrlIsAccess()) {
-            List<Tuple> tripPointDtos = tripRepository.getTripPointAddress(t.getTripId());
-            String firstLoadingAddress = getFirstLoadingAddress(tripPointDtos);
-            String lastUnloadingAddress = getLastUnLoadingAddress(tripPointDtos);
-            String tripNum = tripPointDtos.get(0).get(3).toString();
-            frontAdvancePaymentResponse.setTripNum(tripNum);
-            frontAdvancePaymentResponse.setFirstLoadingAddress(firstLoadingAddress);
             frontAdvancePaymentResponse.setPushButtonAt(t.getPushButtonAt());
             frontAdvancePaymentResponse.setUrlAdvanceApplication(t.getUuidAdvanceApplicationFile());
-            frontAdvancePaymentResponse.setLastUnloadingAddress(lastUnloadingAddress);
             frontAdvancePaymentResponse.setTripCostWithVat(t.getTripCost());
             frontAdvancePaymentResponse.setAdvancePaymentSum(t.getAdvancePaymentSum());
             frontAdvancePaymentResponse.setRegistrationFee(t.getRegistrationFee());
@@ -506,9 +498,23 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
     }
 
     private void setTripInfo(FrontAdvancePaymentResponse frontAdvancePaymentResponse, Long tripId) {
-        TripInfo tripInfo = tripInfoRepository.getTripInfo(tripId).orElse(new TripInfo());
+        Trip trip = tripRepository.findById(tripId).orElse(new Trip());
+        setTripInfo(frontAdvancePaymentResponse, trip);
+    }
+
+    private void setTripInfo(FrontAdvancePaymentResponse frontAdvancePaymentResponse, Trip trip) {
+        frontAdvancePaymentResponse.setTripNum(trip.getNum());
+        TripInfo tripInfo = trip.getTripInfo();
+
+        Location locOrigin = locationRepository.find(tripInfo.getOriginPlaceId()).orElse(new Location());
         frontAdvancePaymentResponse.setLoadingDate(tripInfo.getStartDate());
+        frontAdvancePaymentResponse.setLoadingTz(locOrigin.getLocationTz());
+        frontAdvancePaymentResponse.setFirstLoadingAddress(locOrigin.getAddress());
+
+        Location locDest = locationRepository.find(tripInfo.getDestinationPlaceId()).orElse(new Location());
         frontAdvancePaymentResponse.setUnloadingDate(tripInfo.getEndDate());
+        frontAdvancePaymentResponse.setUnloadingTz(locDest.getLocationTz());
+        frontAdvancePaymentResponse.setLastUnloadingAddress(locDest.getAddress());
     }
 
     private void setPersonInfo(IsAdvancedRequestResponse isAdvancedRequestResponse, Long authorId) {
@@ -525,21 +531,6 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
 
     private IsAdvancedRequestResponse getIsAdvancedRequestResponse() {
         return new IsAdvancedRequestResponse();
-    }
-
-    private String getFirstLoadingAddress(List<Tuple> tripPointDtos) {
-        if (!tripPointDtos.isEmpty()) {
-            return tripPointDtos.get(0).get(1).toString();
-        }
-        throw getBusinessLogicException("FirstLoadingAddress not found");
-    }
-
-    private String getLastUnLoadingAddress(List<Tuple> tripPointDtos) {
-        final int size = tripPointDtos.size();
-        if (size > 1) {
-            return tripPointDtos.get(size - 1).get(1).toString();
-        }
-        throw getBusinessLogicException("LastUnLoadingAddress not found");
     }
 
     private TripRequestAdvancePayment getTripRequestAdvancePaymentByUUID(UUID uuid) {
@@ -589,13 +580,9 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
         Trip trip
     ) {
         FrontAdvancePaymentResponse frontAdvancePaymentResponse = new FrontAdvancePaymentResponse();
-        List<Tuple> tripPointDtos = tripRepository.getTripPointAddress(trip.getId());
-        String firstLoadingAddress = getFirstLoadingAddress(tripPointDtos);
-        String lastUnloadingAddress = getLastUnLoadingAddress(tripPointDtos);
         frontAdvancePaymentResponse
             .id(rec.getId())
             .tripId(rec.getTripId())
-            .tripNum(trip.getNum())
             .tripTypeCode(rec.getTripTypeCode())
             .createdAt(trip.getCreatedAt())
             .reqCreatedAt(rec.getCreatedAt())
@@ -623,12 +610,8 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
             .isCancelled(rec.getIsCancelled())
             .cancelledComment(rec.getCancelledComment())
             .authorId(rec.getAuthorId())
-            .pageCarrierUrlIsAccess(rec.getPageCarrierUrlIsAccess())
-            .firstLoadingAddress(firstLoadingAddress)
-            .lastUnloadingAddress(lastUnloadingAddress);
-
-        setTripInfo(frontAdvancePaymentResponse, trip.getId());
-
+            .pageCarrierUrlIsAccess(rec.getPageCarrierUrlIsAccess());
+        setTripInfo(frontAdvancePaymentResponse, trip);
         return frontAdvancePaymentResponse;
     }
 

@@ -724,11 +724,16 @@ components:
                     type: string
                     format: date-time
                     description: "Дата погрузки"
+                loading_tz:
+                    type: string
+                    description: "Таймзона погрузки"
                 unloading_date:
                     type: string
                     format: date-time
                     description: "Дата разгрузки"
-
+                unloading_tz:
+                    type: string
+                    description: "Таймзона разгрузки"
         ContractorResponse:
             type: array
             items:
