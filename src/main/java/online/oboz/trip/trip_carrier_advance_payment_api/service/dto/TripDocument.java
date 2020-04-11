@@ -1,26 +1,28 @@
-package online.oboz.trip.trip_carrier_advance_payment_api.domain;
+package online.oboz.trip.trip_carrier_advance_payment_api.service.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
 import java.util.UUID;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class TripDocument {
     @JsonProperty
-    public Integer id;
+    private Integer id;
     @JsonProperty("trip_id")
-    public Integer tripId;
+    private Integer tripId;
     @JsonProperty("file_id")
-    public String fileId;
+    private String fileId;
     @JsonProperty("template_file_id")
-    public UUID templateFileId;
+    private UUID templateFileId;
     @JsonProperty("document_type_code")
-    public String documentTypeCode;
+    private String documentTypeCode;
     @JsonProperty("document_properties_values")
-    public Object documentPropertiesValues;
+    private Object documentPropertiesValues;
     @JsonProperty("name")
-    public String name;
+    private String name;
 
     public TripDocument() {
     }

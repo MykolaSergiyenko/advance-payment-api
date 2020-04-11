@@ -3,7 +3,7 @@ package online.oboz.trip.trip_carrier_advance_payment_api.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import online.oboz.trip.trip_carrier_advance_payment_api.config.ApplicationProperties;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.Trip;
-import online.oboz.trip.trip_carrier_advance_payment_api.domain.TripDocuments;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.dto.TripDocuments;
 import online.oboz.trip.trip_carrier_advance_payment_api.exception.AuthException;
 import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.ResponseToken;
 import org.slf4j.Logger;
@@ -120,7 +120,6 @@ public class RestService extends AbstractService {
         return response;
     }
 
-
     public ResponseEntity<String> getFileUuid(MultipartFile filename, String url) {
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.CONTENT_TYPE, "multipart/form-data");
@@ -142,9 +141,9 @@ public class RestService extends AbstractService {
             tripDocuments.getTripDocuments().forEach(doc -> {
                 final String fileId = doc.getFileId();
                 if (fileId != null &&
-                    ("trip_request".equals(doc.documentTypeCode) || "request".equals(doc.documentTypeCode))
+                    ("trip_request".equals(doc.getDocumentTypeCode()) || "request".equals(doc.getDocumentTypeCode()))
                 ) {
-                    fileUuidMap.put(doc.documentTypeCode, fileId);
+                    fileUuidMap.put(doc.getDocumentTypeCode(), fileId);
                     log.info(doc.getFileId());
                 }
             });
@@ -162,8 +161,8 @@ public class RestService extends AbstractService {
             );
             tripDocuments.getTripDocuments().forEach(doc -> {
                 final String fileId = doc.getFileId();
-                if (fileId != null && "assignment_advance_request".equals(doc.documentTypeCode)) {
-                    fileUuidMap.put(doc.documentTypeCode, fileId);
+                if (fileId != null && "assignment_advance_request".equals(doc.getDocumentTypeCode())) {
+                    fileUuidMap.put(doc.getDocumentTypeCode(), fileId);
                     log.info(fileId);
                 }
             });
