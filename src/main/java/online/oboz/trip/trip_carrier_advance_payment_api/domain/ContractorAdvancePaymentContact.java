@@ -108,14 +108,16 @@ public class ContractorAdvancePaymentContact {
         return HashCodeBuilder.reflectionHashCode(this);
     }
 
+    @Override
     public String toString() {
-        return "ContractorAdvancePaymentContact(id=" +
-            this.getId() + ", contractorId=" +
-            this.getContractorId() + ", fullName=" +
-            this.getFullName() + ", email=" +
-            this.getEmail() + ", phone=" +
-            this.getPhone() + ", createdAt=" +
-            this.getCreatedAt() + ", updatedAt=" +
-            this.getUpdatedAt() + ")";
+        return "ContractorAdvancePaymentContact{" +
+            "id=" + id +
+            ", contractorId=" + contractorId +
+            ", fullName='" + fullName + '\'' +
+            ", email='" + email + '\'' +
+            ", phone='" + phone + '\'' +
+            ", createdAt=" + createdAt +
+            ", updatedAt=" + updatedAt +
+            '}';
     }
 }

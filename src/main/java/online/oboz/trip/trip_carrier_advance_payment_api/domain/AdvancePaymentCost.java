@@ -80,13 +80,15 @@ public class AdvancePaymentCost {
         return HashCodeBuilder.reflectionHashCode(this);
     }
 
+    @Override
     public String toString() {
-        return "AdvancePaymentCost(id=" +
-            this.getId() + ", minValue=" +
-            this.getMinValue() + ", maxValue=" +
-            this.getMaxValue() + ", advancePaymentSum=" +
-            this.getAdvancePaymentSum() + ", registrationFee=" +
-            this.getRegistrationFee() + ", createdAt=" +
-            this.getCreatedAt() + ")";
+        return "AdvancePaymentCost{" +
+            "id=" + id +
+            ", minValue=" + minValue +
+            ", maxValue=" + maxValue +
+            ", advancePaymentSum=" + advancePaymentSum +
+            ", registrationFee=" + registrationFee +
+            ", createdAt=" + createdAt +
+            '}';
     }
 }

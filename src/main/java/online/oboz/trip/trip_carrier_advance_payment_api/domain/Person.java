@@ -89,14 +89,16 @@ public class Person {
         return HashCodeBuilder.reflectionHashCode(this);
     }
 
+    @Override
     public String toString() {
-        return "Person(id=" +
-            this.getId() + ", contractorId=" +
-            this.getContractorId() + ", firstName=" +
-            this.getFirstName() + ", lastName=" +
-            this.getLastName() + ", middleName=" +
-            this.getMiddleName() + ", phone=" +
-            this.getPhone() + ", email=" +
-            this.getEmail() + ")";
+        return "Person{" +
+            "id=" + id +
+            ", contractorId=" + contractorId +
+            ", firstName='" + firstName + '\'' +
+            ", lastName='" + lastName + '\'' +
+            ", middleName='" + middleName + '\'' +
+            ", phone='" + phone + '\'' +
+            ", email='" + email + '\'' +
+            '}';
     }
 }

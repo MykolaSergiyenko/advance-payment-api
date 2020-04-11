@@ -144,20 +144,22 @@ public class Trip {
         this.tripInfo = tripInfo;
     }
 
+    @Override
     public String toString() {
-        return "Trip(id=" +
-            this.getId() + ", contractorId=" +
-            this.getContractorId() + ", driverId=" +
-            this.getDriverId() + ", num=" +
-            this.getNum() + ", orderId=" +
-            this.getOrderId() + ", cost=" +
-            this.getCost() + ", paymentContractorId=" +
-            this.getPaymentContractorId() + ", vatCode=" +
-            this.getVatCode() + ", tripTypeCode=" +
-            this.getTripTypeCode() + ", tripStatusCode=" +
-            this.getTripStatusCode() + ", resourceTypeCode=" +
-            this.getResourceTypeCode() + ", createdAt=" +
-            this.getCreatedAt() + ", tripInfo=" +
-            this.getTripInfo().getId()+ ")";
+        return "Trip{" +
+            "id=" + id +
+            ", contractorId=" + contractorId +
+            ", driverId=" + driverId +
+            ", num='" + num + '\'' +
+            ", orderId=" + orderId +
+            ", cost=" + cost +
+            ", paymentContractorId=" + paymentContractorId +
+            ", vatCode='" + vatCode + '\'' +
+            ", tripTypeCode='" + tripTypeCode + '\'' +
+            ", tripStatusCode='" + tripStatusCode + '\'' +
+            ", resourceTypeCode='" + resourceTypeCode + '\'' +
+            ", createdAt=" + createdAt +
+            ", tripInfo=" + tripInfo +
+            '}';
     }
 }

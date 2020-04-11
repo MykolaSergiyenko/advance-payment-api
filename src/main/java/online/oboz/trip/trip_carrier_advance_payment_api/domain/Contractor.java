@@ -89,14 +89,16 @@ public class Contractor {
         return HashCodeBuilder.reflectionHashCode(this);
     }
 
+    @Override
     public String toString() {
-        return "Contractor(id=" +
-            this.getId() + ", fullName=" +
-            this.getFullName() + ", isVatPayer=" +
-            this.getIsVatPayer() + ", isVerified=" +
-            this.getIsVerified() + ", phone=" +
-            this.getPhone() + ", email=" +
-            this.getEmail() + ", isAutoAdvancePayment=" +
-            this.getIsAutoAdvancePayment() + ")";
+        return "Contractor{" +
+            "id=" + id +
+            ", fullName='" + fullName + '\'' +
+            ", isVatPayer=" + isVatPayer +
+            ", isVerified=" + isVerified +
+            ", phone='" + phone + '\'' +
+            ", email='" + email + '\'' +
+            ", isAutoAdvancePayment=" + isAutoAdvancePayment +
+            '}';
     }
 }

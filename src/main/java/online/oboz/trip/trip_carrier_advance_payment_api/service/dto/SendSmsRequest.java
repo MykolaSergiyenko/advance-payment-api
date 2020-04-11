@@ -58,10 +58,12 @@ public class SendSmsRequest {
         return HashCodeBuilder.reflectionHashCode(this);
     }
 
+    @Override
     public String toString() {
-        return "SendSmsRequest(text=" +
-            this.getText() + ", phone=" +
-            this.getPhone() + ", tripNum=" +
-            this.getTripNum() + ")";
+        return "SendSmsRequest{" +
+            "text='" + text + '\'' +
+            ", phone='" + phone + '\'' +
+            ", tripNum='" + tripNum + '\'' +
+            '}';
     }
 }

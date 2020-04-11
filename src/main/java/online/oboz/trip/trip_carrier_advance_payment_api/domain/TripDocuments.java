@@ -21,7 +21,10 @@ public class TripDocuments {
         this.tripDocuments = tripDocuments;
     }
 
+    @Override
     public String toString() {
-        return "TripDocuments(tripDocuments=" + this.getTripDocuments() + ")";
+        return "TripDocuments{" +
+            "tripDocuments=" + tripDocuments +
+            '}';
     }
 }

@@ -118,15 +118,17 @@ public class ContractorAdvanceExclusion {
         return HashCodeBuilder.reflectionHashCode(this);
     }
 
+    @Override
     public String toString() {
-        return "ContractorAdvanceExclusion(id=" +
-            this.getId() + ", orderTypeId=" +
-            this.getOrderTypeId() + ", carrierId=" +
-            this.getCarrierId() + ", carrierFullName=" +
-            this.getCarrierFullName() + ", isConfirmAdvance=" +
-            this.getIsConfirmAdvance() + ", deletedAt=" +
-            this.getDeletedAt() + ", createdAt=" +
-            this.getCreatedAt() + ", updatedAt=" +
-            this.getUpdatedAt() + ")";
+        return "ContractorAdvanceExclusion{" +
+            "id=" + id +
+            ", orderTypeId=" + orderTypeId +
+            ", carrierId=" + carrierId +
+            ", carrierFullName='" + carrierFullName + '\'' +
+            ", isConfirmAdvance=" + isConfirmAdvance +
+            ", deletedAt=" + deletedAt +
+            ", createdAt=" + createdAt +
+            ", updatedAt=" + updatedAt +
+            '}';
     }
 }

@@ -50,10 +50,12 @@ public class BstoreResponse {
         return HashCodeBuilder.reflectionHashCode(this);
     }
 
+    @Override
     public String toString() {
-        return "BstoreResponse(fileUuid=" +
-            this.getFileUuid() + ", name=" +
-            this.getName() + ", link=" +
-            this.getLink() + ")";
+        return "BstoreResponse{" +
+            "fileUuid='" + fileUuid + '\'' +
+            ", name='" + name + '\'' +
+            ", link='" + link + '\'' +
+            '}';
     }
 }

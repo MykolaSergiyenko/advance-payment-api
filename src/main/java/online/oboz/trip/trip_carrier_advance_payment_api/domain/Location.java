@@ -13,7 +13,6 @@ public class Location {
     private String locationTz;
     private String address;
 
-
     public Long getId() {
         return id;
     }
@@ -44,5 +43,15 @@ public class Location {
 
     public void setAddress(String address) {
         this.address = address;
+    }
+
+    @Override
+    public String toString() {
+        return "Location{" +
+            "id=" + id +
+            ", locationId='" + locationId + '\'' +
+            ", locationTz='" + locationTz + '\'' +
+            ", address='" + address + '\'' +
+            '}';
     }
 }

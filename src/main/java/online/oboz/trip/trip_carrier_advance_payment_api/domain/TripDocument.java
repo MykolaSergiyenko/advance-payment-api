@@ -91,14 +91,16 @@ public class TripDocument {
         return HashCodeBuilder.reflectionHashCode(this);
     }
 
+    @Override
     public String toString() {
-        return "TripDocument(id=" +
-            this.getId() + ", tripId=" +
-            this.getTripId() + ", fileId=" +
-            this.getFileId() + ", templateFileId=" +
-            this.getTemplateFileId() + ", documentTypeCode=" +
-            this.getDocumentTypeCode() + ", documentPropertiesValues=" +
-            this.getDocumentPropertiesValues() + ", name=" +
-            this.getName() + ")";
+        return "TripDocument{" +
+            "id=" + id +
+            ", tripId=" + tripId +
+            ", fileId='" + fileId + '\'' +
+            ", templateFileId=" + templateFileId +
+            ", documentTypeCode='" + documentTypeCode + '\'' +
+            ", documentPropertiesValues=" + documentPropertiesValues +
+            ", name='" + name + '\'' +
+            '}';
     }
 }

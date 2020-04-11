@@ -79,13 +79,15 @@ public class Order {
         return HashCodeBuilder.reflectionHashCode(this);
     }
 
+    @Override
     public String toString() {
-        return "Order(id=" +
-            this.getId() + ", orderNum=" +
-            this.getOrderNum() + ", orderStatus=" +
-            this.getOrderStatus() + ", originOrderNum=" +
-            this.getOriginOrderNum() + ", orderTypeId=" +
-            this.getOrderTypeId() + ", contractPaymentContractorName=" +
-            this.getContractPaymentContractorName() + ")";
+        return "Order{" +
+            "id=" + id +
+            ", orderNum='" + orderNum + '\'' +
+            ", orderStatus='" + orderStatus + '\'' +
+            ", originOrderNum='" + originOrderNum + '\'' +
+            ", orderTypeId=" + orderTypeId +
+            ", contractPaymentContractorName='" + contractPaymentContractorName + '\'' +
+            '}';
     }
 }

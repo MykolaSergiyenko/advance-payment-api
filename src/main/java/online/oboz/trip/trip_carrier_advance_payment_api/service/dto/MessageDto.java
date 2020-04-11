@@ -78,13 +78,15 @@ public class MessageDto {
         return HashCodeBuilder.reflectionHashCode(this);
     }
 
+    @Override
     public String toString() {
-        return "MessageDto(tripNum=" +
-            this.getTripNum() + ", contractorName=" +
-            this.getContractorName() + ", email=" +
-            this.getEmail() + ", advancePaymentSum=" +
-            this.getAdvancePaymentSum() + ", phone=" +
-            this.getPhone() + ", lKLink=" +
-            this.getLKLink() + ")";
+        return "MessageDto{" +
+            "tripNum='" + tripNum + '\'' +
+            ", contractorName='" + contractorName + '\'' +
+            ", email='" + email + '\'' +
+            ", advancePaymentSum=" + advancePaymentSum +
+            ", phone='" + phone + '\'' +
+            ", lKLink='" + lKLink + '\'' +
+            '}';
     }
 }

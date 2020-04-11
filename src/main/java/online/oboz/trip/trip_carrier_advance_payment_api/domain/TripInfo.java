@@ -92,17 +92,18 @@ public class TripInfo {
         this.destinationName = destinationName;
     }
 
-
-
+    @Override
     public String toString() {
-        return "TripInfo(id=" +
-            this.getId() + ", tripId=" +
-            this.getTripId() + ", startDate=" +
-            this.getStartDate() + ", endDate=" +
-            this.getEndDate() + ", originPlaceId=" +
-            this.getOriginPlaceId() + ", originName=" +
-            this.getOriginName() + ", destinationPlaceId=" +
-            this.getOriginPlaceId() + ", destinationName=" +
-            this.getDestinationName() + ")";
+        return "TripInfo{" +
+            "id=" + id +
+            ", tripId=" + tripId +
+            ", trip=" + trip +
+            ", originPlaceId='" + originPlaceId + '\'' +
+            ", originName='" + originName + '\'' +
+            ", startDate=" + startDate +
+            ", destinationPlaceId='" + destinationPlaceId + '\'' +
+            ", destinationName='" + destinationName + '\'' +
+            ", endDate=" + endDate +
+            '}';
     }
 }
