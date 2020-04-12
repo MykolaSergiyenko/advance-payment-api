@@ -7,6 +7,7 @@ import online.oboz.trip.trip_carrier_advance_payment_api.repository.ContractorRe
 import online.oboz.trip.trip_carrier_advance_payment_api.repository.TripRepository;
 import online.oboz.trip.trip_carrier_advance_payment_api.repository.AdvanceRequestRepository;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.dto.MessageDto;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.integration.OrdersApiService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +34,7 @@ public class AutoAdvancedService {
     private final ApplicationProperties applicationProperties;
     private final AdvancePaymentContactService advancePaymentContactService;
     private final NotificationService notificationService;
-    private final RestService restService;
+    private final OrdersApiService ordersApiService;
 
     @Autowired
     public AutoAdvancedService(
@@ -43,7 +44,8 @@ public class AutoAdvancedService {
         ContractorRepository contractorRepository,
         ApplicationProperties applicationProperties,
         AdvancePaymentContactService advancePaymentContactService,
-        NotificationService notificationService, RestService restService
+        NotificationService notificationService,
+        OrdersApiService ordersApiService
     ) {
         this.advancePaymentCostRepository = advancePaymentCostRepository;
         this.advanceRequestRepository = advanceRequestRepository;
@@ -52,7 +54,7 @@ public class AutoAdvancedService {
         this.applicationProperties = applicationProperties;
         this.advancePaymentContactService = advancePaymentContactService;
         this.notificationService = notificationService;
-        this.restService = restService;
+        this.ordersApiService = ordersApiService;
     }
 
     @Scheduled(cron = "${cron.creation: 0 0/30 * * * *}")
@@ -126,7 +128,7 @@ public class AutoAdvancedService {
             if (!trip.isPresent()) {
                 continue;
             }
-            Map<String, String> fileUuidMap = restService.findTripRequestDocs(trip.get());
+            Map<String, String> fileUuidMap = ordersApiService.findTripRequestDocs(trip.get());
             if (!fileUuidMap.isEmpty()) {
                 String fileContractRequestUuid = Optional
                     .ofNullable(fileUuidMap.get("request"))

@@ -1,6 +1,5 @@
 package online.oboz.trip.trip_carrier_advance_payment_api.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import online.oboz.trip.trip_carrier_advance_payment_api.config.ApplicationProperties;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.*;
@@ -9,6 +8,8 @@ import online.oboz.trip.trip_carrier_advance_payment_api.rabbit.Message;
 import online.oboz.trip.trip_carrier_advance_payment_api.rabbit.RabbitMessageProducer;
 import online.oboz.trip.trip_carrier_advance_payment_api.repository.*;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.dto.MessageDto;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.integration.BStoreService;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.integration.OrdersApiService;
 import online.oboz.trip.trip_carrier_advance_payment_api.util.SecurityUtils;
 import online.oboz.trip.trip_carrier_advance_payment_api.web.api.controller.AdvancePaymentApiDelegate;
 import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.Error;
@@ -25,7 +26,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
-import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
@@ -53,6 +53,8 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
     private final ObjectMapper objectMapper;
     private final OrderRepository orderRepository;
     private final RestService restService;
+    private final OrdersApiService ordersApiService;
+    private final BStoreService bStoreService;
     private final RabbitMessageProducer rabbitMessageProducer;
     private final AdvanceFilterService advanceFilterService;
 
@@ -71,6 +73,8 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
         ObjectMapper objectMapper,
         OrderRepository orderRepository,
         RestService restService,
+        BStoreService bStoreService,
+        OrdersApiService ordersApiService,
         RabbitMessageProducer rabbitMessageProducer, AdvanceFilterService advanceFilterService
     ) {
         this.advancePaymentCostRepository = advancePaymentCostRepository;
@@ -88,6 +92,8 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
         this.orderRepository = orderRepository;
         this.rabbitMessageProducer = rabbitMessageProducer;
         this.advanceFilterService = advanceFilterService;
+        this.bStoreService = bStoreService;
+        this.ordersApiService = ordersApiService;
     }
 
     @Override
@@ -231,7 +237,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
         if (advancePaymentCost == null || trip.getDriverId() == null || contractorId == null) {
             throw getBusinessLogicException("Не назначены необходимы поля: advancePaymentCost DriverId ContractorId");
         }
-        Map<String, String> tripRequestDocs = restService.findTripRequestDocs(trip);
+        Map<String, String> tripRequestDocs = ordersApiService.findTripRequestDocs(trip);
         if (tripRequestDocs.isEmpty()) {
             throw getBusinessLogicException("Не загружены Договор заявка / заявка ");
         }
@@ -304,7 +310,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
                 .append("&p_avance_comission=")
                 .append(tripRequestAdvancePayment.getRegistrationFee().toString())
                 .append("&format=PDF");
-            response = restService.getResourceResponseEntity(url.toString(), new HttpHeaders());
+            response = restService.requestResource(url.toString(), new HttpHeaders());
             if (response != null) {
                 log.info("report server response  Headers is: {}", response.getHeaders().entrySet().toString());
                 return response;
@@ -319,7 +325,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
         String uuidFile = advanceRequestRepository
             .find(tripNum)
             .getUuidAdvanceApplicationFile();
-        return restService.getResourceBStore(uuidFile);
+        return bStoreService.requestResourceFromBStore(uuidFile);
     }
 
     @Override
@@ -327,7 +333,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
         String uuidFile = advanceRequestRepository
             .find(tripNum)
             .getUuidContractApplicationFile();
-        return restService.getResourceBStore(uuidFile);
+        return bStoreService.requestResourceFromBStore(uuidFile);
     }
 
     @Override
@@ -356,24 +362,20 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
             throw getBusinessLogicException("uploadRequestAdvance forbidden");
         }
 
-        String url = applicationProperties.getBStoreUrl() + "pdf/";
-        ResponseEntity<String> response = restService.getFileUuid(filename, url);
-        if (response.getStatusCode().value() == 200) {
-            try {
-                JsonNode jsonNode = objectMapper.readTree(response.getBody());
-                String fileUuid = jsonNode.get("file_uuid").asText();
-                String urlOrders = String.format(applicationProperties.getOrdersApiUrl(), trip.getOrderId(), tripId);
-                ResponseEntity<Void> ordersApiResponse = restService.saveTripDocuments(urlOrders, fileUuid);
+
+        String fileUuid = bStoreService.getFileUuid(filename);
+        if (fileUuid != null) {
+            if (ordersApiService.saveTripDocuments(trip.getOrderId(), trip.getId(), fileUuid)) {
                 tripRequestAdvancePayment.setUuidAdvanceApplicationFile(fileUuid);
                 tripRequestAdvancePayment.setIsDownloadedAdvanceApplication(true);
                 advanceRequestRepository.save(tripRequestAdvancePayment);
-                return ordersApiResponse;
-            } catch (IOException e) {
-                log.error("", e);
+                return new ResponseEntity<>(HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
             }
         }
-        log.error("uploadRequestAvance fail. http code {}", response.getStatusCode().value());
-        throw getBusinessLogicException("uploadRequestAvance fail. http code " + response.getStatusCode().value());
+        log.error("uploadRequestAvance fail. ");
+        throw getBusinessLogicException("uploadRequestAvance fail. ");
     }
 
     @Override
@@ -552,7 +554,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
         IsAdvancedRequestResponse isAdvancedRequestResponse
     ) {
         final Boolean isAutoAdvancePayment = contractor.getIsAutoAdvancePayment();
-        Map<String, String> downloadedDocuments = restService.findTripRequestDocs(trip);
+        Map<String, String> downloadedDocuments = ordersApiService.findTripRequestDocs(trip);
         if (tripRequestAdvancePayment == null && !isAutoAdvancePayment &&
             (!downloadedDocuments.isEmpty() || !applicationProperties.getRequiredDownloadDocs())
         ) {
@@ -617,15 +619,15 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
 
     private Boolean isDownloadAllDocuments(Trip trip) {
 //        использовать только в confirm
-        Map<String, String> fileRequestUuidMap = restService.findTripRequestDocs(trip);
-        Map<String, String> fileAdvanceRequestUuidMap = restService.findAdvanceRequestDocs(trip);
+        Map<String, String> fileRequestUuidMap = ordersApiService.findTripRequestDocs(trip);
+        Map<String, String> fileAdvanceRequestUuidMap = ordersApiService.findAdvanceRequestDocs(trip);
         String requestFileUuid = Optional
             .ofNullable(fileRequestUuidMap.get("request"))
             .orElse(fileRequestUuidMap.get("trip_request"));
         String advanceRequestFileUuid = fileAdvanceRequestUuidMap.get("assignment_advance_request");
         final boolean isAllDocsUpload = requestFileUuid != null && advanceRequestFileUuid != null;
         if (!isAllDocsUpload) {
-            log.info("Не загружены документы заявка / договор заявка и договор заявка на авансирование");
+            log.info("Не загружены документы. " + trip.getId());
         }
         return isAllDocsUpload;
     }
