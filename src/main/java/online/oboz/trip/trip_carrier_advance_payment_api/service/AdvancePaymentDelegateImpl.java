@@ -193,7 +193,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
         isAdvancedRequestResponse.setIsAutoRequested(!isButtonActive);
 
         if (tripRequestAdvancePayment != null) {
-            if (isButtonActive){
+            if (isButtonActive) {
                 isButtonActive = !(tripRequestAdvancePayment.getIsCancelled() ||
                                     tripRequestAdvancePayment.getIsPushedUnfButton());
             } else {
