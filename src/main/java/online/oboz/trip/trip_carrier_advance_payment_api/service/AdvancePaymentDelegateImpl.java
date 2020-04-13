@@ -182,27 +182,33 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
         TripRequestAdvancePayment tripRequestAdvancePayment = advanceRequestRepository.find(
             tripId, trip.getDriverId(), trip.getContractorId()
         );
-        IsAdvancedRequestResponse isAdvancedRequestResponse = getIsAdvancedRequestResponse();
-        setButtonAccessGetAdvance(trip, contractor, tripRequestAdvancePayment, isAdvancedRequestResponse);
 
-        ContractorAdvanceExclusion contractorAdvanceExclusion = contractorExclusionRepository
-            .find(trip.getContractorId(), order.getOrderTypeId())
-            .orElse(new ContractorAdvanceExclusion());
+        IsAdvancedRequestResponse isAdvancedRequestResponse = new IsAdvancedRequestResponse();
+
+        Map<String, String> downloadedDocuments = ordersApiService.findTripRequestDocs(trip);
+        boolean isDocsLoaded = !downloadedDocuments.isEmpty();
+        isAdvancedRequestResponse.setIsDownloadedDocs(isDocsLoaded);
+
+        boolean isButtonActive = !contractor.getIsAutoAdvancePayment();
+        isAdvancedRequestResponse.setIsAutoRequested(!isButtonActive);
 
         if (tripRequestAdvancePayment != null) {
+            if (isButtonActive){
+                isButtonActive = !(tripRequestAdvancePayment.getIsCancelled() ||
+                                    tripRequestAdvancePayment.getIsPushedUnfButton());
+            } else {
+                isAdvancedRequestResponse.setComment(COMMENT);
+            }
+            ContractorAdvanceExclusion contractorAdvanceExclusion = contractorExclusionRepository
+                .find(trip.getContractorId(), order.getOrderTypeId())
+                .orElse(new ContractorAdvanceExclusion());
             boolean isContractorLock = contractorAdvanceExclusion.getIsConfirmAdvance() != null &&
                 !contractorAdvanceExclusion.getIsConfirmAdvance();
             isAdvancedRequestResponse.setTripTypeCode(tripRequestAdvancePayment.getTripTypeCode());
             isAdvancedRequestResponse.setIsContractorLock(isContractorLock);
             isAdvancedRequestResponse.setTripTypeCode(tripRequestAdvancePayment.getTripTypeCode());
             isAdvancedRequestResponse.setIsPaid(tripRequestAdvancePayment.getIsPaid());
-            Boolean isAutomationRequest = tripRequestAdvancePayment.getIsAutomationRequest();
-            if (isAutomationRequest) {
-                isAdvancedRequestResponse.setIsAutoRequested(true);
-                isAdvancedRequestResponse.setComment(COMMENT);
-            } else {
-                isAdvancedRequestResponse.setIsAutoRequested(false);
-            }
+
             Long authorId = tripRequestAdvancePayment.getAuthorId();
             if (authorId != null) {
                 setPersonInfo(isAdvancedRequestResponse, authorId);
@@ -213,10 +219,15 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
                 tripId, trip.getDriverId(), trip.getContractorId(), isAdvancedRequestResponse
             );
         } else {
-            log.info("isAdvancedRequestResponse not found for tripId: {} , DriverId: {} , ContractorId {}",
+            if (isButtonActive) {
+                isButtonActive = isDocsLoaded || !applicationProperties.getRequiredDownloadDocs();
+            }
+            log.info("TripRequestAdvancePayment not found for tripId: {} , DriverId: {} , ContractorId {}",
                 tripId, trip.getDriverId(), trip.getContractorId()
             );
         }
+
+        isAdvancedRequestResponse.setIsButtonActive(isButtonActive);
         return new ResponseEntity<>(isAdvancedRequestResponse, HttpStatus.OK);
     }
 
@@ -541,11 +552,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
     }
 
     private ResponseEntity<IsAdvancedRequestResponse> getIsAdvancedRequestResponseResponseEntity() {
-        return new ResponseEntity<>(getIsAdvancedRequestResponse(), HttpStatus.OK);
-    }
-
-    private IsAdvancedRequestResponse getIsAdvancedRequestResponse() {
-        return new IsAdvancedRequestResponse();
+        return new ResponseEntity<>(new IsAdvancedRequestResponse(), HttpStatus.OK);
     }
 
     private TripRequestAdvancePayment getTripRequestAdvancePaymentByUUID(UUID uuid) {
@@ -558,33 +565,6 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
         Error error = new Error();
         error.setErrorMessage(s);
         return new BusinessLogicException(HttpStatus.UNPROCESSABLE_ENTITY, error);
-    }
-
-    private void setButtonAccessGetAdvance(
-        Trip trip,
-        Contractor contractor,
-        TripRequestAdvancePayment tripRequestAdvancePayment,
-        IsAdvancedRequestResponse isAdvancedRequestResponse
-    ) {
-        final Boolean isAutoAdvancePayment = contractor.getIsAutoAdvancePayment();
-        Map<String, String> downloadedDocuments = ordersApiService.findTripRequestDocs(trip);
-        if (tripRequestAdvancePayment == null && !isAutoAdvancePayment &&
-            (!downloadedDocuments.isEmpty() || !applicationProperties.getRequiredDownloadDocs())
-        ) {
-            isAdvancedRequestResponse.setIsButtonActive(true);
-        } else if (tripRequestAdvancePayment != null && (
-            !tripRequestAdvancePayment.getIsCancelled() &&
-                !isAutoAdvancePayment &&
-                !tripRequestAdvancePayment.getIsPushedUnfButton() &&
-                !trip.getDriverId().equals(tripRequestAdvancePayment.getDriverId()))) {
-            isAdvancedRequestResponse.setIsButtonActive(true);
-        } else if (tripRequestAdvancePayment != null && (
-            tripRequestAdvancePayment.getIsCancelled() ||
-                isAutoAdvancePayment ||
-                tripRequestAdvancePayment.getIsPushedUnfButton() ||
-                trip.getDriverId().equals(tripRequestAdvancePayment.getDriverId()))) {
-            isAdvancedRequestResponse.setIsButtonActive(false);
-        }
     }
 
     private FrontAdvancePaymentResponse getFrontAdvancePaymentResponse(
