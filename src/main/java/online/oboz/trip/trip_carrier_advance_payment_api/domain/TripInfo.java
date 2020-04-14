@@ -97,7 +97,6 @@ public class TripInfo {
         return "TripInfo{" +
             "id=" + id +
             ", tripId=" + tripId +
-            ", trip=" + trip +
             ", originPlaceId='" + originPlaceId + '\'' +
             ", originName='" + originName + '\'' +
             ", startDate=" + startDate +

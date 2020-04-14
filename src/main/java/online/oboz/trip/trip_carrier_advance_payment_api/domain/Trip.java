@@ -159,7 +159,6 @@ public class Trip {
             ", tripStatusCode='" + tripStatusCode + '\'' +
             ", resourceTypeCode='" + resourceTypeCode + '\'' +
             ", createdAt=" + createdAt +
-            ", tripInfo=" + tripInfo +
             '}';
     }
 }
