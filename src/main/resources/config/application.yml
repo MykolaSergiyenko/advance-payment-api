@@ -1,6 +1,5 @@
 spring:
     jpa:
-        show_sql: true
         properties:
             hibernate:
                 jdbc:
@@ -12,15 +11,12 @@ spring:
     main:
         banner-mode: "off"
         allow-bean-definition-overriding: true
-    profiles:
-        active: local
 server:
     servlet:
         session:
             cookie:
                 http-only: true
-    max-http-header-size: 32000
 logging:
     level:
-        root: info
-        online.oboz: info
+        root: INFO
+        online.oboz: INFO
