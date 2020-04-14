@@ -187,7 +187,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
 
         Map<String, String> downloadedDocuments = ordersApiService.findTripRequestDocs(trip);
         boolean isDocsLoaded = !downloadedDocuments.isEmpty();
-        isAdvancedRequestResponse.setIsDownloadedDocs(isDocsLoaded);
+        isAdvancedRequestResponse.setIsDocsUploaded(isDocsLoaded);
 
         boolean isButtonActive = !contractor.getIsAutoAdvancePayment();
         isAdvancedRequestResponse.setIsAutoRequested(!isButtonActive);

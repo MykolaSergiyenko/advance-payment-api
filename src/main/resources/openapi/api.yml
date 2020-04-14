@@ -860,7 +860,7 @@ components:
                 isButtonActive:
                     type: boolean
                     description: "Доступность выдачи аванса"
-                isDownloadedDocs:
+                isDocsUploaded:
                     type: boolean
                     description: "Наличие загруженных документов"
                 isContractorLock:
