@@ -23,7 +23,7 @@ public class AdvanceFilterService {
     @PersistenceContext
     private EntityManager entityManager;
 
-    Page<TripRequestAdvancePayment> advancePayments(Filter filter) {
+    public Page<TripRequestAdvancePayment> advancePayments(Filter filter) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<TripRequestAdvancePayment> query = criteriaBuilder.createQuery(TripRequestAdvancePayment.class);
         Root<TripRequestAdvancePayment> root = query.from(TripRequestAdvancePayment.class);
