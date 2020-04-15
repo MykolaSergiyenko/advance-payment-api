@@ -157,7 +157,7 @@ public class AutoAdvancedService {
         advanceRequestRepository.saveAll(advanceRequests);
     }
 
-    @Scheduled(cron = "${cron.update: 0 0/30 * * * *}")
+//    @Scheduled(cron = "${cron.update: 0 0/30 * * * *}")
     void updateAutoAdvance() {
         List<Contractor> contractors = contractorRepository.getFullName(
             applicationProperties.getMinCountTrip(),
