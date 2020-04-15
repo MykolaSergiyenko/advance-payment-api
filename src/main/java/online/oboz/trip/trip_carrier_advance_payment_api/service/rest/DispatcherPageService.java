@@ -105,7 +105,7 @@ public class DispatcherPageService {
         isAdvancedRequestResponse.setIsDocsUploaded(isDocsLoaded);
 
         boolean isButtonActive = !contractor.getIsAutoAdvancePayment();
-        isAdvancedRequestResponse.setIsAutoRequested(!isButtonActive);
+        isAdvancedRequestResponse.setIsAutoRequested(contractor.getIsAutoAdvancePayment());
 
         if (tripRequestAdvancePayment != null) {
             if (isButtonActive) {
