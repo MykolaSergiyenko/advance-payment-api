@@ -600,10 +600,8 @@ components:
             type: object
             description: "Список запросов на аванс"
             properties:
-                total:
-                    type: integer
-                    format: int32
-                    description: "Всего AdvancePayment"
+                paginator:
+                    $ref: "#/components/schemas/Paginator"
                 request_advance_payment:
                     type: array
                     items:
@@ -892,6 +890,27 @@ components:
                 isAutoRequested:
                     type: boolean
                     description: "Тип заказа нужен фронту для отображения кнопки (пока фронт должен отображать только авто (FTL))"
+
+        Paginator:
+            type: object
+            description: "Пагинатор"
+            required:
+                - total
+                - per
+                - page
+            properties:
+                total:
+                    type: integer
+                    format: int32
+                    description: "Общее количество записей"
+                per:
+                    type: integer
+                    format: int32
+                    description:  "Количество записей на страницу"
+                page:
+                    type: integer
+                    format: int32
+                    description: "Номер текущей страницы"
 
         RequestFormData:
             title: "Параметры запроса"

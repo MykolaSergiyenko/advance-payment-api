@@ -6,11 +6,8 @@ import online.oboz.trip.trip_carrier_advance_payment_api.repository.*;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.AdvanceFilterService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.integration.Integration1cService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.integration.OrdersApiService;
-import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.AdvancePaymentCommentDTO;
+import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.*;
 import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.Error;
-import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.Filter;
-import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.FrontAdvancePaymentResponse;
-import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.ResponseAdvancePayment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -124,7 +121,12 @@ public class AdvancePageService {
 
         ResponseAdvancePayment responseAdvancePayment = new ResponseAdvancePayment();
         responseAdvancePayment.setRequestAdvancePayment(responseList);
-        responseAdvancePayment.setTotal((int) tripRequestAdvancePayments.getTotalElements());
+        responseAdvancePayment.setPaginator(
+            new Paginator()
+                .page(filter.getPage())
+                .per(filter.getPerPage())
+                .total((int) tripRequestAdvancePayments.getTotalElements())
+        );
         return new ResponseEntity<>(responseAdvancePayment, HttpStatus.OK);
     }
 
