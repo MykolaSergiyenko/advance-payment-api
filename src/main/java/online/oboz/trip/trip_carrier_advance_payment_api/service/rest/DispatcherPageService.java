@@ -134,7 +134,7 @@ public class DispatcherPageService {
                 tripId, trip.getDriverId(), trip.getContractorId(), isAdvancedRequestResponse
             );
         } else {
-            if (isButtonActive) {
+            if (!isButtonActive) {
                 isButtonActive = isDocsLoaded || !applicationProperties.getRequiredDownloadDocs();
             }
             log.info("TripRequestAdvancePayment not found for tripId: {} , DriverId: {} , ContractorId {}",
