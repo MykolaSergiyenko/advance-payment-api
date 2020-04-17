@@ -50,8 +50,32 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
     }
 
     @Override
-    public ResponseEntity<ResponseAdvancePayment> searchAdvancePaymentRequest(Filter filter) {
-        log.info("Got searchAdvancePaymentRequest " + filter);
+    public ResponseEntity<ResponseAdvancePayment> searchInWorkRequests(Filter filter) {
+        log.info("Got searchInWorkRequests " + filter);
+        return advancePageService.searchAdvancePaymentRequest(filter);
+    }
+
+    @Override
+    public ResponseEntity<ResponseAdvancePayment> searchProblemRequests(Filter filter) {
+        log.info("Got searchProblemRequests " + filter);
+        return advancePageService.searchAdvancePaymentRequest(filter);
+    }
+
+    @Override
+    public ResponseEntity<ResponseAdvancePayment> searchPaidRequests(Filter filter) {
+        log.info("Got searchPaidRequests " + filter);
+        return advancePageService.searchAdvancePaymentRequest(filter);
+    }
+
+    @Override
+    public ResponseEntity<ResponseAdvancePayment> searchNotPaidRequests(Filter filter) {
+        log.info("Got searchNotPaidRequests " + filter);
+        return advancePageService.searchAdvancePaymentRequest(filter);
+    }
+
+    @Override
+    public ResponseEntity<ResponseAdvancePayment> searchCanceledRequests(Filter filter) {
+        log.info("Got searchCanceledRequests " + filter);
         return advancePageService.searchAdvancePaymentRequest(filter);
     }
 

@@ -28,7 +28,7 @@ public class AdvanceFilterService {
         CriteriaQuery<TripRequestAdvancePayment> query = criteriaBuilder.createQuery(TripRequestAdvancePayment.class);
         Root<TripRequestAdvancePayment> root = query.from(TripRequestAdvancePayment.class);
         query.select(root);
-        query.where(getPredicate(criteriaBuilder, root, filter));
+//        query.where(getPredicate(criteriaBuilder, root, filter));
         query.orderBy(getOrders(criteriaBuilder, root, constructSorting(filter)));
 
         TypedQuery<TripRequestAdvancePayment> typedQuery = entityManager.createQuery(query);
@@ -39,44 +39,6 @@ public class AdvanceFilterService {
         typedQuery.setMaxResults(pageable.getPageSize());
 
         return new PageImpl<>(typedQuery.getResultList(), pageable, l);
-    }
-
-    private Predicate[] getPredicate(
-        CriteriaBuilder criteriaBuilder,
-        Root<TripRequestAdvancePayment> root,
-        Filter filter
-    ) {
-        List<Predicate> res = new ArrayList<>();
-        Boolean isDownloadedAdvanceApplication = filter.getIsDownloadedAdvanceApplication();
-        if (isDownloadedAdvanceApplication != null) {
-            res.add(criteriaBuilder.equal(root.get("isDownloadedAdvanceApplication"), isDownloadedAdvanceApplication));
-        }
-        Boolean isDownloadedContractApplication = filter.getIsDownloadedContractApplication();
-        if (isDownloadedContractApplication != null) {
-            res.add(criteriaBuilder.equal(root.get("isDownloadedContractApplication"), isDownloadedContractApplication));
-        }
-        if (filter.getIsPushedUnfButton() != null) {
-            res.add(criteriaBuilder.equal(root.get("isPushedUnfButton"), filter.getIsPushedUnfButton()));
-        }
-        if (filter.getIsUnfSend() != null) {
-            res.add(criteriaBuilder.equal(root.get("isUnfSend"), filter.getIsUnfSend()));
-        }
-        if (filter.getIsPaid() != null) {
-            res.add(criteriaBuilder.equal(root.get("isPaid"), filter.getIsPaid()));
-        }
-        if (filter.getIsCancelled() != null) {
-            res.add(criteriaBuilder.equal(root.get("isCancelled"), filter.getIsCancelled()));
-        }
-        if (filter.getHasComment() != null) {
-            Predicate comment = filter.getHasComment() ?
-                criteriaBuilder.isNotNull(root.get("comment")) :
-                criteriaBuilder.isNull(root.get("comment"));
-            res.add(comment);
-        }
-        if (filter.getIsCancelled() != null) {
-            res.add(criteriaBuilder.equal(root.get("isCancelled"), filter.getIsCancelled()));
-        }
-        return res.toArray(new Predicate[]{});
     }
 
     private Order[] getOrders(CriteriaBuilder criteriaBuilder, Root<TripRequestAdvancePayment> root, Sort orders) {

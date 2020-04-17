@@ -117,12 +117,144 @@ paths:
                             schema:
                                 $ref: "#/components/schemas/Error"
 
-    /advance_payment/search_request:
+    /advance_payment/search_request/in_work:
         post:
             security:
                 -   bearerAuth: []
-            summary: "Просмотр списка запросов на аванс"
-            operationId: searchAdvancePaymentRequest
+            summary: "Просмотр списка запросов на аванс (в работе)"
+            operationId: searchInWorkRequests
+            tags:
+                - Advance Payment
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/Filter'
+            responses:
+                200:
+                    description: "OK"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ResponseAdvancePayment'
+                default:
+                    description: "Some other error"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                422:
+                    description: "Business error"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+
+    /advance_payment/search_request/problem:
+        post:
+            security:
+                -   bearerAuth: []
+            summary: "Просмотр списка запросов на аванс (проблемные)"
+            operationId: searchProblemRequests
+            tags:
+                - Advance Payment
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/Filter'
+            responses:
+                200:
+                    description: "OK"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ResponseAdvancePayment'
+                default:
+                    description: "Some other error"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                422:
+                    description: "Business error"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+
+    /advance_payment/search_request/paid:
+        post:
+            security:
+                -   bearerAuth: []
+            summary: "Просмотр списка запросов на аванс (оплачены)"
+            operationId: searchPaidRequests
+            tags:
+                - Advance Payment
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/Filter'
+            responses:
+                200:
+                    description: "OK"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ResponseAdvancePayment'
+                default:
+                    description: "Some other error"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                422:
+                    description: "Business error"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+
+    /advance_payment/search_request/not_paid:
+        post:
+            security:
+                -   bearerAuth: []
+            summary: "Просмотр списка запросов на аванс (не оплачены)"
+            operationId: searchNotPaidRequests
+            tags:
+                - Advance Payment
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/Filter'
+            responses:
+                200:
+                    description: "OK"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ResponseAdvancePayment'
+                default:
+                    description: "Some other error"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                422:
+                    description: "Business error"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+
+    /advance_payment/search_request/canceled:
+        post:
+            security:
+                -   bearerAuth: []
+            summary: "Просмотр списка запросов на аванс (аннулироване)"
+            operationId: searchCanceledRequests
             tags:
                 - Advance Payment
             requestBody:
@@ -783,27 +915,6 @@ components:
         Filter:
             type: object
             properties:
-                is_paid:
-                    type: boolean
-                    description: "Признак - Оплачен"
-                is_cancelled:
-                    type: boolean
-                    description: "Признак - Отменен"
-                has_comment:
-                    type: boolean
-                    description: "Признак - Есть комменарий"
-                is_downloaded_contract_application:
-                    type: boolean
-                    description: "Признак - загружен «Договор-заявка» или «Заявка»"
-                is_downloaded_advance_application:
-                    type: boolean
-                    description: "Признак - загружена заявка на авансирование"
-                is_pushed_unf_button:
-                    type: boolean
-                    description: "Признак - отправлен в УНФ"
-                is_unf_send:
-                    type: boolean
-                    description: "Загружен в УНФ"
                 page:
                     type: integer
                     format: int32
