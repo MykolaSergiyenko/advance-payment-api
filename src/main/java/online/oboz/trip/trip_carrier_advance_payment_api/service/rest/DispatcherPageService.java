@@ -46,7 +46,7 @@ public class DispatcherPageService {
     private final RestService restService;
     private final NotificationService notificationService;
     private final AdvancePaymentCostRepository advancePaymentCostRepository;
-    private final ContractorContactRepository contractorContactRepository;
+    private final AdvanceContactRepository advanceContactRepository;
 
     public DispatcherPageService(
         TripRepository tripRepository,
@@ -61,7 +61,7 @@ public class DispatcherPageService {
         RestService restService,
         NotificationService notificationService,
         AdvancePaymentCostRepository advancePaymentCostRepository,
-        ContractorContactRepository contractorContactRepository
+        AdvanceContactRepository advanceContactRepository
     ) {
         this.tripRepository = tripRepository;
         this.advanceRequestRepository = advanceRequestRepository;
@@ -75,7 +75,7 @@ public class DispatcherPageService {
         this.restService = restService;
         this.notificationService = notificationService;
         this.advancePaymentCostRepository = advancePaymentCostRepository;
-        this.contractorContactRepository = contractorContactRepository;
+        this.advanceContactRepository = advanceContactRepository;
     }
 
     public ResponseEntity<IsAdvancedRequestResponse> isAdvanced(Long tripId) {
@@ -271,7 +271,7 @@ public class DispatcherPageService {
     }
 
     public ResponseEntity<Void> addContactCarrier(CarrierContactDTO carrierContactDTO) {
-        Optional<ContractorAdvancePaymentContact> contractorAdvancePaymentContact = contractorContactRepository.find(
+        Optional<ContractorAdvancePaymentContact> contractorAdvancePaymentContact = advanceContactRepository.find(
             carrierContactDTO.getContractorId()
         );
         if (contractorAdvancePaymentContact.isPresent()) {
@@ -282,12 +282,12 @@ public class DispatcherPageService {
         entity.setContractorId(carrierContactDTO.getContractorId());
         entity.setPhone(carrierContactDTO.getPhoneNumber());
         entity.setEmail(carrierContactDTO.getEmail());
-        contractorContactRepository.save(entity);
+        advanceContactRepository.save(entity);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     public ResponseEntity<Void> updateContactCarrier(CarrierContactDTO carrierContactDTO) {
-        Optional<ContractorAdvancePaymentContact> contractorAdvancePaymentContact = contractorContactRepository.find(
+        Optional<ContractorAdvancePaymentContact> contractorAdvancePaymentContact = advanceContactRepository.find(
             carrierContactDTO.getContractorId()
         );
         ContractorAdvancePaymentContact entity = contractorAdvancePaymentContact.orElseThrow(() ->
@@ -297,12 +297,12 @@ public class DispatcherPageService {
         entity.setContractorId(carrierContactDTO.getContractorId());
         entity.setPhone(carrierContactDTO.getPhoneNumber());
         entity.setEmail(carrierContactDTO.getEmail());
-        contractorContactRepository.save(entity);
+        advanceContactRepository.save(entity);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     public ResponseEntity<CarrierContactDTO> getContactCarrier(Long contractorId) {
-        ContractorAdvancePaymentContact contact = contractorContactRepository
+        ContractorAdvancePaymentContact contact = advanceContactRepository
             .find(contractorId)
             .orElseGet(ContractorAdvancePaymentContact::new);
         CarrierContactDTO carrierContactDTO = getCarrierContactDTO(contact);
@@ -364,7 +364,7 @@ public class DispatcherPageService {
     }
 
     private ContractorAdvancePaymentContact getAdvancePaymentContact(Long contractorId) {
-        return contractorContactRepository.find(contractorId).orElse(new ContractorAdvancePaymentContact());
+        return advanceContactRepository.find(contractorId).orElse(new ContractorAdvancePaymentContact());
     }
 
     private ResponseEntity<IsAdvancedRequestResponse> getIsAdvancedRequestResponseResponseEntity() {

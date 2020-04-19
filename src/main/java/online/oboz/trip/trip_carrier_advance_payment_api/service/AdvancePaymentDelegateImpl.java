@@ -3,6 +3,7 @@ package online.oboz.trip.trip_carrier_advance_payment_api.service;
 import online.oboz.trip.trip_carrier_advance_payment_api.repository.AdvanceRequestRepository;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.integration.BStoreService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.rest.AdvancePageService;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.rest.AdvancePageTabsService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.rest.CarrierPageService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.rest.DispatcherPageService;
 import online.oboz.trip.trip_carrier_advance_payment_api.web.api.controller.AdvancePaymentApiDelegate;
@@ -27,6 +28,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
     private final DispatcherPageService dispatcherPageService;
     private final CarrierPageService carrierPageService;
     private final AdvancePageService advancePageService;
+    private final AdvancePageTabsService advancePageTabsService;
 
     @Autowired
     public AdvancePaymentDelegateImpl(
@@ -34,13 +36,15 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
         BStoreService bStoreService,
         CarrierPageService carrierPageService,
         DispatcherPageService dispatcherPageService,
-        AdvancePageService advancePageService
+        AdvancePageService advancePageService,
+        AdvancePageTabsService advancePageTabsService
     ) {
         this.advanceRequestRepository = advanceRequestRepository;
         this.bStoreService = bStoreService;
         this.dispatcherPageService = dispatcherPageService;
         this.advancePageService = advancePageService;
         this.carrierPageService = carrierPageService;
+        this.advancePageTabsService = advancePageTabsService;
     }
 
     @Override
@@ -52,31 +56,31 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
     @Override
     public ResponseEntity<ResponseAdvancePayment> searchInWorkRequests(Filter filter) {
         log.info("Got searchInWorkRequests " + filter);
-        return advancePageService.searchAdvancePaymentRequest(filter);
+        return advancePageTabsService.searchInWorkRequests(filter);
     }
 
     @Override
     public ResponseEntity<ResponseAdvancePayment> searchProblemRequests(Filter filter) {
         log.info("Got searchProblemRequests " + filter);
-        return advancePageService.searchAdvancePaymentRequest(filter);
+        return advancePageTabsService.searchProblemRequests(filter);
     }
 
     @Override
     public ResponseEntity<ResponseAdvancePayment> searchPaidRequests(Filter filter) {
         log.info("Got searchPaidRequests " + filter);
-        return advancePageService.searchAdvancePaymentRequest(filter);
+        return advancePageTabsService.searchPaidRequests(filter);
     }
 
     @Override
     public ResponseEntity<ResponseAdvancePayment> searchNotPaidRequests(Filter filter) {
         log.info("Got searchNotPaidRequests " + filter);
-        return advancePageService.searchAdvancePaymentRequest(filter);
+        return advancePageTabsService.searchNotPaidRequests(filter);
     }
 
     @Override
     public ResponseEntity<ResponseAdvancePayment> searchCanceledRequests(Filter filter) {
         log.info("Got searchCanceledRequests " + filter);
-        return advancePageService.searchAdvancePaymentRequest(filter);
+        return advancePageTabsService.searchCanceledRequests(filter);
     }
 
     @Override

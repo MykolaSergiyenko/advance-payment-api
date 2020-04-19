@@ -1,20 +1,20 @@
 package online.oboz.trip.trip_carrier_advance_payment_api.service;
 
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.ContractorAdvancePaymentContact;
-import online.oboz.trip.trip_carrier_advance_payment_api.repository.ContractorContactRepository;
+import online.oboz.trip.trip_carrier_advance_payment_api.repository.AdvanceContactRepository;
 import org.springframework.stereotype.Service;
 
 @Service
 public class AdvancePaymentContactService {
-    private final ContractorContactRepository contractorContactRepository;
+    private final AdvanceContactRepository advanceContactRepository;
 
     public AdvancePaymentContactService(
-        ContractorContactRepository contractorContactRepository
+        AdvanceContactRepository advanceContactRepository
     ) {
-        this.contractorContactRepository = contractorContactRepository;
+        this.advanceContactRepository = advanceContactRepository;
     }
 
     public ContractorAdvancePaymentContact getAdvancePaymentContact(Long contractorId) {
-        return contractorContactRepository.find(contractorId).orElse(new ContractorAdvancePaymentContact());
+        return advanceContactRepository.find(contractorId).orElse(new ContractorAdvancePaymentContact());
     }
 }

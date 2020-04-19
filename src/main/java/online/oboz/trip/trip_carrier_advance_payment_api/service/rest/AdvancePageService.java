@@ -1,25 +1,24 @@
 package online.oboz.trip.trip_carrier_advance_payment_api.service.rest;
 
-import online.oboz.trip.trip_carrier_advance_payment_api.domain.*;
+import online.oboz.trip.trip_carrier_advance_payment_api.domain.ContractorAdvanceExclusion;
+import online.oboz.trip.trip_carrier_advance_payment_api.domain.Order;
+import online.oboz.trip.trip_carrier_advance_payment_api.domain.Trip;
+import online.oboz.trip.trip_carrier_advance_payment_api.domain.TripRequestAdvancePayment;
 import online.oboz.trip.trip_carrier_advance_payment_api.error.BusinessLogicException;
 import online.oboz.trip.trip_carrier_advance_payment_api.repository.*;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.AdvanceFilterService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.integration.Integration1cService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.integration.OrdersApiService;
-import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.*;
+import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.AdvancePaymentCommentDTO;
 import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.Error;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class AdvancePageService {
@@ -31,10 +30,7 @@ public class AdvancePageService {
     private final AdvanceRequestRepository advanceRequestRepository;
     private final ContractorExclusionRepository contractorExclusionRepository;
     private final ContractorRepository contractorRepository;
-    private final AdvanceFilterService advanceFilterService;
-    private final ContractorContactRepository contractorContactRepository;
     private final OrdersApiService ordersApiService;
-    private final LocationRepository locationRepository;
 
     public AdvancePageService(
         TripRepository tripRepository,
@@ -43,10 +39,7 @@ public class AdvancePageService {
         AdvanceRequestRepository advanceRequestRepository,
         ContractorExclusionRepository contractorExclusionRepository,
         ContractorRepository contractorRepository,
-        AdvanceFilterService advanceFilterService,
-        ContractorContactRepository contractorContactRepository,
-        OrdersApiService ordersApiService,
-        LocationRepository locationRepository
+        OrdersApiService ordersApiService
     ) {
         this.tripRepository = tripRepository;
         this.orderRepository = orderRepository;
@@ -54,10 +47,7 @@ public class AdvancePageService {
         this.advanceRequestRepository = advanceRequestRepository;
         this.contractorExclusionRepository = contractorExclusionRepository;
         this.contractorRepository = contractorRepository;
-        this.advanceFilterService = advanceFilterService;
-        this.contractorContactRepository = contractorContactRepository;
         this.ordersApiService = ordersApiService;
-        this.locationRepository = locationRepository;
     }
 
     @Transactional
@@ -105,29 +95,6 @@ public class AdvancePageService {
         } else {
             throw getBusinessLogicException("unf already send");
         }
-    }
-
-    public ResponseEntity<ResponseAdvancePayment> searchAdvancePaymentRequest(Filter filter) {
-        Page<TripRequestAdvancePayment> tripRequestAdvancePayments = advanceFilterService.advancePayments(filter);
-        List<FrontAdvancePaymentResponse> responseList = tripRequestAdvancePayments.stream().map(rec -> {
-            ContractorAdvancePaymentContact contractorAdvancePaymentContact =
-                contractorContactRepository.find(rec.getContractorId())
-                    .orElse(new ContractorAdvancePaymentContact());
-            Contractor contractor = contractorRepository.findById(rec.getContractorId()).orElse(new Contractor());
-            String fullName = contractorRepository.getFullName(rec.getPaymentContractorId());
-            Trip trip = tripRepository.findById(rec.getTripId()).orElse(new Trip());
-            return getFrontAdvancePaymentResponse(rec, contractorAdvancePaymentContact, contractor, fullName, trip);
-        }).collect(Collectors.toList());
-
-        ResponseAdvancePayment responseAdvancePayment = new ResponseAdvancePayment();
-        responseAdvancePayment.setRequestAdvancePayment(responseList);
-        responseAdvancePayment.setPaginator(
-            new Paginator()
-                .page(filter.getPage())
-                .per(filter.getPerPage())
-                .total((int) tripRequestAdvancePayments.getTotalElements())
-        );
-        return new ResponseEntity<>(responseAdvancePayment, HttpStatus.OK);
     }
 
     public ResponseEntity<Void> cancelAdvancePayment(Long id, String cancelAdvanceComment) {
@@ -188,64 +155,6 @@ public class AdvancePageService {
         return tripRequestAdvancePayment.orElseThrow(() ->
             getBusinessLogicException("TripRequestAdvancePayment not found")
         );
-    }
-
-    private FrontAdvancePaymentResponse getFrontAdvancePaymentResponse(
-        TripRequestAdvancePayment rec,
-        ContractorAdvancePaymentContact contractorAdvancePaymentContact,
-        Contractor contractor,
-        String contractorPaymentName,
-        Trip trip
-    ) {
-        FrontAdvancePaymentResponse frontAdvancePaymentResponse = new FrontAdvancePaymentResponse();
-        frontAdvancePaymentResponse
-            .id(rec.getId())
-            .tripId(rec.getTripId())
-            .tripTypeCode(rec.getTripTypeCode())
-            .createdAt(trip.getCreatedAt())
-            .reqCreatedAt(rec.getCreatedAt())
-            .contractorId(rec.getContractorId())
-            .contractorName(contractor.getFullName())
-            .contactFio(contractorAdvancePaymentContact.getFullName())
-            .contactPhone(contractorAdvancePaymentContact.getPhone())
-            .contactEmail(contractorAdvancePaymentContact.getEmail())
-            .paymentContractor(contractorPaymentName)
-            .isAutomationRequest(rec.getIsAutomationRequest())
-            .tripCostWithVat(rec.getTripCost())
-            .advancePaymentSum(rec.getAdvancePaymentSum())
-            .registrationFee(rec.getRegistrationFee())
-            //проставляется вручную сотрудниками авансирования
-            .loadingComplete(rec.getLoadingComplete())
-            .urlContractApplication(rec.getUuidContractApplicationFile())
-            .urlAdvanceApplication(rec.getUuidAdvanceApplicationFile())
-            .is1CSendAllowed(rec.getIs1CSendAllowed())
-            .isPushedUnfButton(rec.getIsPushedUnfButton())
-            .isUnfSend(rec.getIsUnfSend())
-            .pushButtonAt(rec.getPushButtonAt())
-            .isPaid(rec.getIsPaid())
-            .paidAt(rec.getPaidAt())
-            .comment(rec.getComment())
-            .isCancelled(rec.getIsCancelled())
-            .cancelledComment(rec.getCancelledComment())
-            .authorId(rec.getAuthorId())
-            .pageCarrierUrlIsAccess(rec.getPageCarrierUrlIsAccess());
-        setTripInfo(frontAdvancePaymentResponse, trip);
-        return frontAdvancePaymentResponse;
-    }
-
-    private void setTripInfo(FrontAdvancePaymentResponse frontAdvancePaymentResponse, Trip trip) {
-        frontAdvancePaymentResponse.setTripNum(trip.getNum());
-        TripInfo tripInfo = trip.getTripInfo();
-
-        Location locOrigin = locationRepository.find(tripInfo.getOriginPlaceId()).orElse(new Location());
-        frontAdvancePaymentResponse.setLoadingDate(tripInfo.getStartDate());
-        frontAdvancePaymentResponse.setLoadingTz(locOrigin.getLocationTz());
-        frontAdvancePaymentResponse.setFirstLoadingAddress(locOrigin.getAddress());
-
-        Location locDest = locationRepository.find(tripInfo.getDestinationPlaceId()).orElse(new Location());
-        frontAdvancePaymentResponse.setUnloadingDate(tripInfo.getEndDate());
-        frontAdvancePaymentResponse.setUnloadingTz(locDest.getLocationTz());
-        frontAdvancePaymentResponse.setLastUnloadingAddress(locDest.getAddress());
     }
 
     private BusinessLogicException getBusinessLogicException(String s) {
