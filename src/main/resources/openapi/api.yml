@@ -822,9 +822,6 @@ components:
                 cancelled_comment:
                     type: string
                     description: "Комментарий к аннулированию аванса"
-                page_carrier_url_is_access:
-                    type: boolean
-                    description: "Признак доступности ссылки в кабинет перевозчика "
 
         FrontAdvancePaymentResponse:
             type: object

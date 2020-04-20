@@ -25,6 +25,7 @@ import static online.oboz.trip.trip_carrier_advance_payment_api.util.DtoUtils.ge
 @Service
 @EnableScheduling
 public class AutoAdvancedService {
+    public static final String AUTO_ADVANCE_COMMENT = "Auto Created";
 
     private static final Logger log = LoggerFactory.getLogger(AutoAdvancedService.class);
     private final AdvancePaymentCostRepository advancePaymentCostRepository;
@@ -83,7 +84,7 @@ public class AutoAdvancedService {
                 tripRequestAdvancePayment.setIsCancelled(false);
                 tripRequestAdvancePayment.setIsPushedUnfButton(false);
                 tripRequestAdvancePayment.setIsPaid(false);
-                tripRequestAdvancePayment.setComment("Auto Created");
+                tripRequestAdvancePayment.setComment(AUTO_ADVANCE_COMMENT);
                 tripRequestAdvancePayment.setIsUnfSend(false);
                 tripRequestAdvancePayment.setIsDownloadedAdvanceApplication(false);
                 tripRequestAdvancePayment.setIsDownloadedContractApplication(false);

@@ -8,6 +8,7 @@ import online.oboz.trip.trip_carrier_advance_payment_api.repository.AdvanceReque
 import online.oboz.trip.trip_carrier_advance_payment_api.repository.AdvanceContactRepository;
 import online.oboz.trip.trip_carrier_advance_payment_api.repository.ContractorRepository;
 import online.oboz.trip.trip_carrier_advance_payment_api.repository.TripRepository;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.AutoAdvancedService;
 import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.AdvancePageDTO;
 import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.Filter;
 import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.Paginator;
@@ -17,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -85,6 +87,7 @@ public class AdvancePageTabsService {
         Function<TripRequestAdvancePayment, AdvancePageDTO> mapper,
         Filter filter
     ) {
+        tripRequestAdvancePayments.sort(Comparator.comparing(TripRequestAdvancePayment::getId).reversed());
         List<AdvancePageDTO> responseList = tripRequestAdvancePayments.stream()
             .skip(getOffset(filter.getPage(), filter.getPerPage()))
             .limit(filter.getPerPage())
@@ -104,7 +107,7 @@ public class AdvancePageTabsService {
     }
 
     private boolean isCanceled(TripRequestAdvancePayment request) {
-        return request.getIsCancelled() && StringUtils.isNotBlank(request.getCancelledComment());
+        return request.getIsCancelled();
     }
 
     private boolean isNotPaid(TripRequestAdvancePayment request) {
@@ -125,7 +128,8 @@ public class AdvancePageTabsService {
     }
 
     private boolean isProblem(TripRequestAdvancePayment request) {
-        return StringUtils.isNotBlank(request.getComment());
+        return StringUtils.isNotBlank(request.getComment()) &&
+            !request.getComment().equals(AutoAdvancedService.AUTO_ADVANCE_COMMENT);
     }
 
     //TODO переделать на маленькие dto для каждой вкладки
@@ -162,8 +166,7 @@ public class AdvancePageTabsService {
             .paidAt(rec.getPaidAt())
             .comment(rec.getComment())
             .isCancelled(rec.getIsCancelled())
-            .cancelledComment(rec.getCancelledComment())
-            .pageCarrierUrlIsAccess(rec.getPageCarrierUrlIsAccess());
+            .cancelledComment(rec.getCancelledComment());
         return frontAdvancePaymentResponse;
     }
 
