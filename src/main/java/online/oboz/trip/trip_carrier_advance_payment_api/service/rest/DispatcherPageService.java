@@ -104,10 +104,11 @@ public class DispatcherPageService {
         boolean isDocsLoaded = !downloadedDocuments.isEmpty();
         isAdvancedRequestResponse.setIsDocsUploaded(isDocsLoaded);
 
-        boolean isButtonActive = !contractor.getIsAutoAdvancePayment();
+        boolean isButtonActive;
         isAdvancedRequestResponse.setIsAutoRequested(contractor.getIsAutoAdvancePayment());
 
         if (tripRequestAdvancePayment != null) {
+            isButtonActive = false;
             ContractorAdvanceExclusion contractorAdvanceExclusion = contractorExclusionRepository
                 .find(trip.getContractorId(), order.getOrderTypeId())
                 .orElse(new ContractorAdvanceExclusion());
