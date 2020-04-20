@@ -108,12 +108,6 @@ public class DispatcherPageService {
         isAdvancedRequestResponse.setIsAutoRequested(contractor.getIsAutoAdvancePayment());
 
         if (tripRequestAdvancePayment != null) {
-            if (isButtonActive) {
-                isButtonActive = !(tripRequestAdvancePayment.getIsCancelled() ||
-                    tripRequestAdvancePayment.getIsPushedUnfButton());
-            } else {
-                isAdvancedRequestResponse.setComment(COMMENT);
-            }
             ContractorAdvanceExclusion contractorAdvanceExclusion = contractorExclusionRepository
                 .find(trip.getContractorId(), order.getOrderTypeId())
                 .orElse(new ContractorAdvanceExclusion());
@@ -127,6 +121,19 @@ public class DispatcherPageService {
             Long authorId = tripRequestAdvancePayment.getAuthorId();
             if (authorId != null) {
                 setPersonInfo(isAdvancedRequestResponse, authorId);
+            }
+
+            if (tripRequestAdvancePayment.getIsCancelled()) {
+                isButtonActive = true;
+            }
+
+            if (isContractorLock || tripRequestAdvancePayment.getIsPushedUnfButton()) {
+                isButtonActive = false;
+            }
+
+            if (tripRequestAdvancePayment.getIsAutomationRequest()) {
+                isButtonActive = false;
+                isAdvancedRequestResponse.setComment(COMMENT);
             }
 
             isAdvancedRequestResponse.setCreatedAt(tripRequestAdvancePayment.getCreatedAt());
