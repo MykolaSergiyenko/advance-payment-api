@@ -1004,7 +1004,7 @@ components:
                     format: int32
                     default: 1
                     description: "Позиция, с которой отдаются результаты"
-                perPage:
+                per:
                     type: integer
                     format: int32
                     default: 10

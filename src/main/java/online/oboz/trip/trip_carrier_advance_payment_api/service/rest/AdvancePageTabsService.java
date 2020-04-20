@@ -89,8 +89,8 @@ public class AdvancePageTabsService {
     ) {
         tripRequestAdvancePayments.sort(Comparator.comparing(TripRequestAdvancePayment::getId).reversed());
         List<AdvancePageDTO> responseList = tripRequestAdvancePayments.stream()
-            .skip(getOffset(filter.getPage(), filter.getPerPage()))
-            .limit(filter.getPerPage())
+            .skip(getOffset(filter.getPage(), filter.getPer()))
+            .limit(filter.getPer())
             .map(mapper)
             .collect(Collectors.toList());
 
@@ -99,7 +99,7 @@ public class AdvancePageTabsService {
         responseAdvancePayment.setPaginator(
             new Paginator()
                 .page(filter.getPage())
-                .per(filter.getPerPage())
+                .per(filter.getPer())
                 .total(tripRequestAdvancePayments.size())
         );
 
