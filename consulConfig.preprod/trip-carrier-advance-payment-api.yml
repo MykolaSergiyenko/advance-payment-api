@@ -71,7 +71,7 @@ auto-advance:
 notification:
     #    msec
     delay.sms-send: 600000
-    sms-enable: false
+    sms-enable: true
     email-enable: true
     lk-url: https://preprod.oboz.online/carrier-advance/
 
