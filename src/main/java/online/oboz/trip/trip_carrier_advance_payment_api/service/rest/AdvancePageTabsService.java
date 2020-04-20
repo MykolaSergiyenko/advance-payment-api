@@ -67,6 +67,7 @@ public class AdvancePageTabsService {
 
     public ResponseEntity<ResponseAdvancePayment> searchNotPaidRequests(Filter filter) {
         List<TripRequestAdvancePayment> requests = advanceRequestRepository.findAll().stream()
+            .filter(request -> !isCanceled(request))
             .filter(this::isNotPaid)
             .collect(Collectors.toList());
         return new ResponseEntity<>(mapResponse(requests, getMapperWithoutContractorInfo(), filter), HttpStatus.OK);
