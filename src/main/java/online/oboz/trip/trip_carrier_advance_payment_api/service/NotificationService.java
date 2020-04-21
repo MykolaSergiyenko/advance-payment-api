@@ -27,7 +27,7 @@ public class NotificationService {
     private static final String RUSSIAN_COUNTRY_CODE = "7";
     private static final String SEND_SMS_METHOD_PATH = "/v1/send-sms";
     private static final String ASSIGNED_TRIP_STATUS = "assigned";
-    private static final String EMAIL_HEADER_TEMPLATE = "Компания %s  предлагает аванс.";
+    private static final String EMAIL_HEADER_TEMPLATE = "Компания %s  предлагает аванс по заказу %s .";
     private static final String MESSAGE_TEXT = "Компания %s  предлагает аванс по \n " +
         "заказу %s на сумму %s руб., для подтверждения пройдите по ссылке %s";
 
@@ -85,7 +85,8 @@ public class NotificationService {
             message.setFrom(applicationProperties.getMailUsername());
             message.setTo(messageDto.getEmail());
             String subject = String.format(EMAIL_HEADER_TEMPLATE,
-                messageDto.getContractorName());
+                messageDto.getContractorName(), messageDto.getTripNum()
+            );
             String text = getMessageText(messageDto);
             message.setText(text);
             message.setSubject(subject);
