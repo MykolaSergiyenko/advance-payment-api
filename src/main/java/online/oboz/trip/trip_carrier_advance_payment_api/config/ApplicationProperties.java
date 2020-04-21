@@ -30,8 +30,6 @@ public class ApplicationProperties {
     private String mailStarttls;
     @Value("${spring.mail.properties.mail.smtp.auth:true}")
     private String mailAuth;
-    @Value("${notification.sms-enable:true}")
-    private Boolean smsEnable;
     @Value("${notification.lk-url}")
     private String lkUrl;
     @Value("${notification.email-enable:true}")
@@ -100,10 +98,6 @@ public class ApplicationProperties {
 
     public String getMailAuth() {
         return this.mailAuth;
-    }
-
-    public Boolean getSmsEnable() {
-        return this.smsEnable;
     }
 
     public String getLkUrl() {
@@ -190,10 +184,6 @@ public class ApplicationProperties {
         this.mailAuth = mailAuth;
     }
 
-    public void setSmsEnable(Boolean smsEnable) {
-        this.smsEnable = smsEnable;
-    }
-
     public void setLkUrl(String lkUrl) {
         this.lkUrl = lkUrl;
     }
@@ -230,29 +220,30 @@ public class ApplicationProperties {
         this.smsSendDelay = smsSendDelay;
     }
 
+    @Override
     public String toString() {
-        return "ApplicationProperties(smsSenderUrl=" +
-            this.getSmsSenderUrl() + ", minCountTrip=" +
-            this.getMinCountTrip() + ", strMinDateTrip=" +
-            this.getStrMinDateTrip() + ", minDateTrip=" +
-            this.getMinDateTrip() + ", requiredDownloadDocs=" +
-            this.getRequiredDownloadDocs() + ", mailHost=" +
-            this.getMailHost() + ", mailPort=" +
-            this.getMailPort() + ", mailUsername=" +
-            this.getMailUsername() + ", mailPassword=" +
-            this.getMailPassword() + ", propertiesMailDebug=" +
-            this.getPropertiesMailDebug() + ", mailStarttls=" +
-            this.getMailStarttls() + ", mailAuth=" +
-            this.getMailAuth() + ", smsEnable=" +
-            this.getSmsEnable() + ", lkUrl=" +
-            this.getLkUrl() + ", mailEnable=" +
-            this.getMailEnable() + ", username=" +
-            this.getUsername() + ", password=" +
-            this.getPassword() + ", bStoreUrl=" +
-            this.getBStoreUrl() + ", ordersApiUrl=" +
-            this.getOrdersApiUrl() + ", reportServerUrl=" +
-            this.getReportServerUrl() + ", tokenAuthUrl=" +
-            this.getTokenAuthUrl() + ", smsSendDelay=" +
-            this.getSmsSendDelay() + ")";
+        return "ApplicationProperties{" +
+            "smsSenderUrl='" + smsSenderUrl + '\'' +
+            ", minCountTrip=" + minCountTrip +
+            ", strMinDateTrip='" + strMinDateTrip + '\'' +
+            ", minDateTrip=" + minDateTrip +
+            ", requiredDownloadDocs=" + requiredDownloadDocs +
+            ", mailHost='" + mailHost + '\'' +
+            ", mailPort=" + mailPort +
+            ", mailUsername='" + mailUsername + '\'' +
+            ", mailPassword='" + mailPassword + '\'' +
+            ", propertiesMailDebug='" + propertiesMailDebug + '\'' +
+            ", mailStarttls='" + mailStarttls + '\'' +
+            ", mailAuth='" + mailAuth + '\'' +
+            ", lkUrl='" + lkUrl + '\'' +
+            ", mailEnable=" + mailEnable +
+            ", username='" + username + '\'' +
+            ", password='" + password + '\'' +
+            ", bStoreUrl='" + bStoreUrl + '\'' +
+            ", ordersApiUrl='" + ordersApiUrl + '\'' +
+            ", reportServerUrl='" + reportServerUrl + '\'' +
+            ", tokenAuthUrl='" + tokenAuthUrl + '\'' +
+            ", smsSendDelay=" + smsSendDelay +
+            '}';
     }
 }
