@@ -20,7 +20,7 @@ public class NotificationService {
     private static final Logger log = LoggerFactory.getLogger(NotificationService.class);
     private static final String RUSSIAN_COUNTRY_CODE = "7";
     private static final String SEND_SMS_METHOD_PATH = "/v1/send-sms";
-    private static final String EMAIL_HEADER_TEMPLATE = "Компания %s  предлагает аванс по заказу %s .";
+    private static final String EMAIL_HEADER_TEMPLATE = "Компания %s  предлагает аванс по заказу %s ";
     private static final String MESSAGE_TEXT = "Компания %s  предлагает аванс по \n " +
         "заказу %s на сумму %s руб., для подтверждения пройдите по ссылке %s";
 
