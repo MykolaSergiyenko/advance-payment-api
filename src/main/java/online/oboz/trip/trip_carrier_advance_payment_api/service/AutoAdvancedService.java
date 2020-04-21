@@ -19,6 +19,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static online.oboz.trip.trip_carrier_advance_payment_api.util.DtoUtils.getMessageDto;
 
@@ -36,6 +38,7 @@ public class AutoAdvancedService {
     private final AdvancePaymentContactService advancePaymentContactService;
     private final NotificationService notificationService;
     private final OrdersApiService ordersApiService;
+    private final ExecutorService service = Executors.newFixedThreadPool(15);
 
     @Autowired
     public AutoAdvancedService(
@@ -108,13 +111,14 @@ public class AutoAdvancedService {
                         log.info("start sendEmail for tripNum: {}, for email: {}",
                             motorTrip.getNum(), contact.getEmail()
                         );
-                        notificationService.sendEmail(messageDto);
+                        service.submit(() -> notificationService.sendEmail(messageDto));
+
                     }
                     if (contact.getPhone() != null && motorTrip.getNum() != null) {
                         log.info("start sendSmsDelay for tripNum: {}, for Phone: {}",
                             motorTrip.getNum(), contact.getPhone()
                         );
-                        notificationService.sendSmsDelay(messageDto);
+                        service.submit(() -> notificationService.sendSmsDelay(messageDto));
                     }
                 }
             }
