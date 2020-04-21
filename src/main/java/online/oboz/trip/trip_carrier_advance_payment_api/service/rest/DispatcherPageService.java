@@ -197,11 +197,9 @@ public class DispatcherPageService {
                 trip.getNum()
             );
             if (contact.getEmail() != null) {
-                log.info("set email to queue " + messageDto);
                 notificationService.sendEmail(messageDto);
             }
             if (contact.getPhone() != null) {
-                log.info("set sms to queue " + messageDto);
                 notificationService.sendSmsDelay(messageDto);
             }
             advanceRequestRepository.save(tripRequestAdvancePayment);
