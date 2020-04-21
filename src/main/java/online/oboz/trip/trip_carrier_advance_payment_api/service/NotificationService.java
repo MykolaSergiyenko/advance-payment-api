@@ -46,14 +46,18 @@ public class NotificationService {
 
     public void sendSmsDelay(MessageDto messageDto) {
         log.info("Send sms " + messageDto);
-        SmsRequestDelayed smsRequestDelayed = new SmsRequestDelayed(
-            getMessageText(messageDto),
-            RUSSIAN_COUNTRY_CODE + messageDto.getPhone(),
-            messageDto.getTripNum(),
-            applicationProperties.getSmsSendDelay()
-        );
+        try {
+            SmsRequestDelayed smsRequestDelayed = new SmsRequestDelayed(
+                getMessageText(messageDto),
+                RUSSIAN_COUNTRY_CODE + messageDto.getPhone(),
+                messageDto.getTripNum(),
+                applicationProperties.getSmsSendDelay()
+            );
 
-        sendSms(applicationProperties.getSmsSenderUrl(), smsRequestDelayed);
+            sendSms(applicationProperties.getSmsSenderUrl(), smsRequestDelayed);
+        } catch (Exception e) {
+            log.error("Failed send sms " + messageDto, e);
+        }
     }
 
     public void sendEmail(MessageDto messageDto) {
