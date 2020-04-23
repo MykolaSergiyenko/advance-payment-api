@@ -26,10 +26,10 @@ public class NotificationService {
     private static final String SEND_SMS_METHOD_PATH = "/v1/send-sms";
     private static final String EMAIL_HEADER_TEMPLATE = "Компания %s  предлагает аванс по заказу %s ";
     private static final String MESSAGE_TEXT = "Компания %s  предлагает аванс по заказу\n" +
-        "%s на сумму %s руб., для просмотра пройдите по ссылке \n%s";
+        "%s на сумму %.0f руб., для просмотра пройдите по ссылке \n%s";
 
     private static final String MESSAGE_TEXT_SMS = "Компания %s  предлагает аванс по заказу " +
-        "%s на сумму %s руб., для просмотра пройдите по ссылке %s";
+        "%s на сумму %.0f руб., для просмотра пройдите по ссылке %s";
 
     private final JavaMailSender emailSender;
     private final RestTemplate restTemplate;
