@@ -41,6 +41,7 @@ public class OrdersApiService {
         "}";
 
     public boolean saveTripDocuments(long orderId, long tripId, String fileUuid) {
+        log.info("saveTripDocuments for order {} trip {} fileUuid {} ", orderId, tripId, fileUuid);
         String url = String.format(applicationProperties.getOrdersApiUrl(), orderId, tripId);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
