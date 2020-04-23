@@ -21,11 +21,12 @@ import org.springframework.web.client.RestTemplate;
 @RequiredArgsConstructor
 public class NotificationService {
     private static final Logger log = LoggerFactory.getLogger(NotificationService.class);
+    private static final String IN_SMS_COMPANY_NAME = "ОБОЗ";
     private static final String RUSSIAN_COUNTRY_CODE = "7";
     private static final String SEND_SMS_METHOD_PATH = "/v1/send-sms";
     private static final String EMAIL_HEADER_TEMPLATE = "Компания %s  предлагает аванс по заказу %s ";
     private static final String MESSAGE_TEXT = "Компания %s  предлагает аванс по \n " +
-        "заказу %s на сумму %s руб., для подтверждения пройдите по ссылке %s";
+        "заказу %s на сумму %s руб., для просмотра пройдите по ссылке %s";
 
     private final JavaMailSender emailSender;
     private final RestTemplate restTemplate;
@@ -50,6 +51,7 @@ public class NotificationService {
     public void sendSmsDelay(MessageDto messageDto) {
         log.info("Send sms " + messageDto);
         try {
+            messageDto.setContractorName(IN_SMS_COMPANY_NAME);
             String text = getMessageText(messageDto);
             if (text.isEmpty()) {
                 log.warn("SMS text for {} is empty.", messageDto.getPhone());
