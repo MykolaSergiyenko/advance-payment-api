@@ -10,6 +10,8 @@ public class ApplicationProperties {
 
     @Value("${sms-sender.url:http://sms-sender.r14.k.preprod.oboz:30080}")
     private String smsSenderUrl;
+    @Value("${cut-link.url:https://clck.ru/--?url=}")
+    private String cutLinkUrl;
     @Value("${auto-advance.min-count-trip:3}")
     private Integer minCountTrip;
     @Value("${auto-advance.min-date-trip:2020-01-01T00:00:00+00:00}")
@@ -58,6 +60,10 @@ public class ApplicationProperties {
 
     public String getSmsSenderUrl() {
         return this.smsSenderUrl;
+    }
+
+    public String getCutLinkUrl() {
+        return cutLinkUrl;
     }
 
     public Integer getMinCountTrip() {
@@ -140,8 +146,8 @@ public class ApplicationProperties {
         this.smsSenderUrl = smsSenderUrl;
     }
 
-    public void setMinCountTrip(Integer minCountTrip) {
-        this.minCountTrip = minCountTrip;
+    public void setCutLinkUrl(String cutLinkUrl) {
+        this.cutLinkUrl = cutLinkUrl;
     }
 
     public void setStrMinDateTrip(String strMinDateTrip) {
@@ -224,6 +230,7 @@ public class ApplicationProperties {
     public String toString() {
         return "ApplicationProperties{" +
             "smsSenderUrl='" + smsSenderUrl + '\'' +
+            ", cutLinkUrl='" + cutLinkUrl + '\'' +
             ", minCountTrip=" + minCountTrip +
             ", strMinDateTrip='" + strMinDateTrip + '\'' +
             ", minDateTrip=" + minDateTrip +

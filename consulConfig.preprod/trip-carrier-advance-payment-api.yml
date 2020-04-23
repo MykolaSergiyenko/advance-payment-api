@@ -58,6 +58,9 @@ spring:
 sms-sender:
     url: 'http://sms-sender.r14.k.preprod.oboz:30080'
 
+cut-link:
+    url: 'https://clck.ru/--?url='
+
 cron:
     creation: 0 0/30 * * * *
     update: 0 0/30 * * * *
