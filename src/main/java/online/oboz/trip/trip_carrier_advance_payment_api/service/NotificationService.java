@@ -6,6 +6,7 @@ import online.oboz.trip.trip_carrier_advance_payment_api.config.ApplicationPrope
 import online.oboz.trip.trip_carrier_advance_payment_api.service.dto.MessageDto;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.dto.SendSmsRequest;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.dto.SmsRequestDelayed;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpMethod;
@@ -75,7 +76,7 @@ public class NotificationService {
             String subject = String.format(EMAIL_HEADER_TEMPLATE,
                 messageDto.getContractorName(), messageDto.getTripNum()
             );
-            String text = getMessageText(messageDto);
+            String text = formatMessageWithUrl(messageDto, messageDto.getLKLink());
             if (text.isEmpty()) {
                 log.warn("E-mail message text for {} is empty.", messageDto.getEmail());
                 return;
@@ -100,15 +101,9 @@ public class NotificationService {
             log.info("Short URL for LK is: {} .", shortUrl);
             return formatMessageWithUrl(messageDto, shortUrl);
         } catch (Exception e) {
-            // Return message with long-URL if error
-            log.warn("URL-shortener error. So use long-link.");
-            return formatMessage(messageDto);
+            log.error("Failed to shorten link. So use long-link.", e);
+            return formatMessageWithUrl(messageDto, messageDto.getLKLink());
         }
-    }
-
-
-    private String formatMessage(MessageDto message) {
-        return formatMessageWithUrl(message, message.getLKLink());
     }
 
     private String formatMessageWithUrl(MessageDto message, String url) {
@@ -121,12 +116,17 @@ public class NotificationService {
     }
 
     private String getShortUrl(String url) throws BadRequestException {
-        if (url.isEmpty()) throw new IllegalArgumentException("Input URL is empty.");
+        if (StringUtils.isBlank(url)) {
+            throw new IllegalArgumentException("Input URL is empty.");
+        }
         String serviceUrl = applicationProperties.getCutLinkUrl();
-        if (serviceUrl.isEmpty()) throw new IllegalArgumentException("Link-shortener service URL is empty.");
+        if (StringUtils.isBlank(serviceUrl)) {
+            throw new IllegalArgumentException("Link-shortener service URL is empty.");
+        }
 
         ResponseEntity<String> response = restTemplate.exchange(serviceUrl + url,
-            HttpMethod.GET, null, String.class);
+            HttpMethod.GET, null, String.class
+        );
 
         if (response.getStatusCode() != HttpStatus.OK) {
             log.error("URL-shortener server returned bad response {}", response);
