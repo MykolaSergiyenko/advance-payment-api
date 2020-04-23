@@ -12,11 +12,7 @@ import javax.persistence.Table;
 public class Order {
     @Id
     private Long id;
-    private String orderNum;
-    private String orderStatus;
-    private String originOrderNum;
     private Long orderTypeId;
-    private String contractPaymentContractorName;
 
     public Order() {
     }
@@ -25,48 +21,16 @@ public class Order {
         return this.id;
     }
 
-    public String getOrderNum() {
-        return this.orderNum;
-    }
-
-    public String getOrderStatus() {
-        return this.orderStatus;
-    }
-
-    public String getOriginOrderNum() {
-        return this.originOrderNum;
-    }
-
     public Long getOrderTypeId() {
         return this.orderTypeId;
-    }
-
-    public String getContractPaymentContractorName() {
-        return this.contractPaymentContractorName;
     }
 
     public void setId(Long id) {
         this.id = id;
     }
 
-    public void setOrderNum(String orderNum) {
-        this.orderNum = orderNum;
-    }
-
-    public void setOrderStatus(String orderStatus) {
-        this.orderStatus = orderStatus;
-    }
-
-    public void setOriginOrderNum(String originOrderNum) {
-        this.originOrderNum = originOrderNum;
-    }
-
     public void setOrderTypeId(Long orderTypeId) {
         this.orderTypeId = orderTypeId;
-    }
-
-    public void setContractPaymentContractorName(String contractPaymentContractorName) {
-        this.contractPaymentContractorName = contractPaymentContractorName;
     }
 
     @Override
@@ -83,11 +47,7 @@ public class Order {
     public String toString() {
         return "Order{" +
             "id=" + id +
-            ", orderNum='" + orderNum + '\'' +
-            ", orderStatus='" + orderStatus + '\'' +
-            ", originOrderNum='" + originOrderNum + '\'' +
             ", orderTypeId=" + orderTypeId +
-            ", contractPaymentContractorName='" + contractPaymentContractorName + '\'' +
             '}';
     }
 }
