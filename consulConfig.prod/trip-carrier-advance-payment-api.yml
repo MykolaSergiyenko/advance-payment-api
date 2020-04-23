@@ -56,7 +56,7 @@ spring:
         virtual-host: events
 
 sms-sender:
-    url: 'http://sms-sender.r14.k.preprod.oboz:30080'
+    url: 'http://sms-sender:8080'
 
 
 cut-link:
