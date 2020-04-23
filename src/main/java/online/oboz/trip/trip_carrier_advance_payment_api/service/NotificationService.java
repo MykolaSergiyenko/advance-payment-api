@@ -25,8 +25,11 @@ public class NotificationService {
     private static final String RUSSIAN_COUNTRY_CODE = "7";
     private static final String SEND_SMS_METHOD_PATH = "/v1/send-sms";
     private static final String EMAIL_HEADER_TEMPLATE = "Компания %s  предлагает аванс по заказу %s ";
-    private static final String MESSAGE_TEXT = "Компания %s  предлагает аванс по \n " +
-        "заказу %s на сумму %s руб., для просмотра пройдите по ссылке %s";
+    private static final String MESSAGE_TEXT = "Компания %s  предлагает аванс по заказу\n" +
+        "%s на сумму %s руб., для просмотра пройдите по ссылке \n%s";
+
+    private static final String MESSAGE_TEXT_SMS = "Компания %s  предлагает аванс по заказу " +
+        "%s на сумму %s руб., для просмотра пройдите по ссылке %s";
 
     private final JavaMailSender emailSender;
     private final RestTemplate restTemplate;
@@ -78,7 +81,7 @@ public class NotificationService {
             String subject = String.format(EMAIL_HEADER_TEMPLATE,
                 messageDto.getContractorName(), messageDto.getTripNum()
             );
-            String text = formatMessageWithUrl(messageDto, messageDto.getLKLink());
+            String text = formatMessageWithUrl(MESSAGE_TEXT, messageDto, messageDto.getLKLink());
             if (text.isEmpty()) {
                 log.warn("E-mail message text for {} is empty.", messageDto.getEmail());
                 return;
@@ -101,15 +104,15 @@ public class NotificationService {
         try {
             String shortUrl = getShortUrl(messageDto.getLKLink());
             log.info("Short URL for LK is: {} .", shortUrl);
-            return formatMessageWithUrl(messageDto, shortUrl);
+            return formatMessageWithUrl(MESSAGE_TEXT_SMS, messageDto, shortUrl);
         } catch (Exception e) {
             log.error("Failed to shorten link. So use long-link.", e);
-            return formatMessageWithUrl(messageDto, messageDto.getLKLink());
+            return formatMessageWithUrl(MESSAGE_TEXT_SMS, messageDto, messageDto.getLKLink());
         }
     }
 
-    private String formatMessageWithUrl(MessageDto message, String url) {
-        return String.format(MESSAGE_TEXT,
+    private String formatMessageWithUrl(String textTemplate, MessageDto message, String url) {
+        return String.format(textTemplate,
             message.getContractorName(),
             message.getTripNum(),
             message.getAdvancePaymentSum(),
