@@ -238,7 +238,7 @@ public class DispatcherPageService {
             throw getBusinessLogicException("uploadRequestAdvance forbidden");
         }
 
-
+        log.info("Save RequestAdvance file to bstore for trip " + tripNum);
         String fileUuid = bStoreService.getFileUuid(filename);
         if (fileUuid != null) {
             if (ordersApiService.saveTripDocuments(trip.getOrderId(), trip.getId(), fileUuid)) {

@@ -34,7 +34,6 @@ public class RestService {
         String password = applicationProperties.getPassword();
         ResponseToken responseToken = requestToken(user, password);
         ACCESS_TOKEN = responseToken.getAccessToken();
-        log.info("Success request token. " + ACCESS_TOKEN);
     }
 
     public ResponseToken requestToken(String userName, String password) {

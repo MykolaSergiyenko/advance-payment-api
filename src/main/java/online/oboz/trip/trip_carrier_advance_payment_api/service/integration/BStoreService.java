@@ -59,6 +59,7 @@ public class BStoreService {
             try {
                 JsonNode jsonNode = objectMapper.readTree(response.getBody());
                 result = jsonNode.get("file_uuid").asText();
+                log.info("Success save file to bstore " + result);
             } catch (IOException e) {
                 log.error("Failed parse response from bstore. " + response);
             }
