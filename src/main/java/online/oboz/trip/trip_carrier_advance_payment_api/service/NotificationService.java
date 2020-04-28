@@ -3,9 +3,12 @@ package online.oboz.trip.trip_carrier_advance_payment_api.service;
 import io.undertow.util.BadRequestException;
 import lombok.RequiredArgsConstructor;
 import online.oboz.trip.trip_carrier_advance_payment_api.config.ApplicationProperties;
+import online.oboz.trip.trip_carrier_advance_payment_api.domain.*;
+import online.oboz.trip.trip_carrier_advance_payment_api.repository.*;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.dto.MessageDto;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.dto.SendSmsRequest;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.dto.SmsRequestDelayed;
+import online.oboz.trip.trip_carrier_advance_payment_api.util.DtoUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,10 +17,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.List;
+
 @Service
+@EnableScheduling
 @RequiredArgsConstructor
 public class NotificationService {
     private static final Logger log = LoggerFactory.getLogger(NotificationService.class);
@@ -35,23 +43,38 @@ public class NotificationService {
     private final RestTemplate restTemplate;
     private final ApplicationProperties applicationProperties;
 
-    private void sendSms(String url, SmsRequestDelayed sms) {
-        ResponseEntity<String> response = restTemplate.postForEntity(
-            url + SEND_SMS_METHOD_PATH,
-            new SendSmsRequest(sms.getText(), sms.getPhone(), sms.getTripNum()),
-            String.class
-        );
-        if (response.getStatusCode().value() != 200) {
-            throw new RuntimeException("Sms server returned bad response" + response);
-        }
-        log.info("Success send notification sms to " + sms.getPhone());
+    private final AdvanceRequestRepository advanceRequestRepository;
+    private final AdvanceContactRepository advanceContactRepository;
+    private final ContractorRepository contractorRepository;
+    private final TripRepository tripRepository;
 
-        if (response.getStatusCode() != HttpStatus.OK) {
-            log.error("Sms server returned bad response {}", response);
-        }
+
+    @Scheduled(cron = "${cron.sms-notify: 0 0/1 * * * *}")
+    public void scheduledSms() {
+        List<TripRequestAdvancePayment> advances = advanceRequestRepository.findForNotification();
+        advances.forEach(advance -> {
+                log.info("Found advance-request with unread e-mail - {}.", advance.getId());
+                //setSmsSent(advance); // если только одна попытка отправки
+                Trip trip = tripRepository.getMotorTrip(advance.getTripId()).orElse(null);
+                if (null == trip) {
+                    log.info("Trip not found, id = " + advance.getTripId());
+                    return;
+                }
+                ContractorAdvancePaymentContact contact = advanceContactRepository.find(trip.getContractorId()).orElse(null);
+                if (contact != null) {
+                    DtoUtils dto = new DtoUtils(contractorRepository, applicationProperties);
+                    MessageDto messageDto = dto.newMessage(advance, contact, trip.getNum());
+                    sendSms(messageDto);
+                } else {
+                    log.info("Contact not found for trip {}.", trip.getNum());
+                }
+                setSmsSent(advance); //возможны исключения и ошибки при отправке
+            }
+        );
     }
 
-    public void sendSmsDelay(MessageDto messageDto) {
+    public void sendSms(MessageDto messageDto) {
+        //TODO: make private
         log.info("Send sms " + messageDto);
         try {
             messageDto.setContractorName(IN_SMS_COMPANY_NAME);
@@ -67,11 +90,36 @@ public class NotificationService {
                 applicationProperties.getSmsSendDelay()
             );
 
-            sendSms(applicationProperties.getSmsSenderUrl(), smsRequestDelayed);
+            sendSmsRequest(applicationProperties.getSmsSenderUrl(), smsRequestDelayed);
         } catch (Exception e) {
             log.error("Failed send sms " + messageDto, e);
         }
     }
+
+
+    private void sendSmsRequest(String url, SmsRequestDelayed sms) {
+        ResponseEntity<String> response = restTemplate.postForEntity(
+            url + SEND_SMS_METHOD_PATH,
+            new SendSmsRequest(sms.getText(), sms.getPhone(), sms.getTripNum()),
+            String.class
+        );
+        if (response.getStatusCode().value() != 200) {
+            throw new RuntimeException("Sms server returned bad response" + response);
+        }
+        log.info("Success send notification sms to " + sms.getPhone());
+
+        if (response.getStatusCode() != HttpStatus.OK) {
+            log.error("Sms server returned bad response {}", response);
+        }
+    }
+
+    private void setSmsSent(TripRequestAdvancePayment advance) {
+        advance.setIsSmsSent(true);
+        advanceRequestRepository.save(advance);
+        log.info("Set sms-sent for advance-request " + advance.getId());
+        //возможно, писать комментарий об ошибке отправки?
+    }
+
 
     public void sendEmail(MessageDto messageDto) {
         if (applicationProperties.getMailEnable()) {

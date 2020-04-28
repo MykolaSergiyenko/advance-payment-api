@@ -49,12 +49,21 @@ public class CarrierPageService {
             frontAdvancePaymentResponse.setIsCancelled(t.getIsCancelled());
             frontAdvancePaymentResponse.setIsPushedUnfButton(t.getIsPushedUnfButton());
             setTripInfo(frontAdvancePaymentResponse, t.getTripId());
+            setEmailRead(t);
         } else {
             frontAdvancePaymentResponse.setPageCarrierUrlIsAccess(t.getPageCarrierUrlIsAccess());
             new ResponseEntity<>(frontAdvancePaymentResponse, HttpStatus.OK);
             log.info("PageCarrierUrlIsAccess is false");
         }
         return new ResponseEntity<>(frontAdvancePaymentResponse, HttpStatus.OK);
+    }
+
+    private void setEmailRead(TripRequestAdvancePayment advance) {
+        if (!advance.getIsEmailRead()) {
+            advance.setIsEmailRead(true);
+            advance.setEmailReadAt(OffsetDateTime.now());
+            advanceRequestRepository.save(advance);
+        }
     }
 
     public ResponseEntity<Void> requestGiveAdvancePaymentForCarrier(UUID uuid) {

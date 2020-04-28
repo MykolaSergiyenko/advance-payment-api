@@ -118,7 +118,7 @@ public class AutoAdvancedService {
     private void sendNotifications(MessageDto messageDto) {
         if (StringUtils.isNotBlank(messageDto.getTripNum())) {
             submitEmail(messageDto);
-            submitSms(messageDto);
+            //submitSms(messageDto);
         } else {
             log.info("Trip-number is empty {}.", messageDto.getTripNum());
         }
@@ -135,8 +135,8 @@ public class AutoAdvancedService {
 
     private void submitSms(MessageDto messageDto) {
         if (StringUtils.isNotBlank(messageDto.getPhone())) {
-            log.info("start sendSms for tripNum: {}, for Phone: {}",messageDto.getTripNum(), messageDto.getPhone());
-            service.submit(() -> notificationService.sendSmsDelay(messageDto));
+            log.info("start sendSms for tripNum: {}, for Phone: {}", messageDto.getTripNum(), messageDto.getPhone());
+            service.submit(() -> notificationService.sendSms(messageDto));
         } else {
             log.info("Phone-number in message is empty for trip-number {}.", messageDto.getTripNum());
         }

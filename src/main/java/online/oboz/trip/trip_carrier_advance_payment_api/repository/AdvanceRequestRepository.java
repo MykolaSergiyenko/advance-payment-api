@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -68,5 +69,13 @@ public interface AdvanceRequestRepository extends JpaRepository<TripRequestAdvan
         "inner join orders.trips t on pc.trip_id = t.id " +
         "where t.num = :tripNum ")
     TripRequestAdvancePayment find(@Param("tripNum") String tripNum);
+
+
+    @Query(nativeQuery = true,
+        value = "select * from trip_request_advance_payment t where " +
+            "t.is_email_read = false and t.is_sms_sent = false " +
+            "and now() - interval '1 hour' > t.created_at")
+        // or (email_read_at is null?)
+    List<TripRequestAdvancePayment> findForNotification();
 
 }

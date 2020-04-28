@@ -65,6 +65,7 @@ cut-link:
 cron:
     creation: 0 0/30 * * * *
     update: 0 0/30 * * * *
+    sms-notify: 0 0/30 * * * *
 
 #    При изменении minCountTrip нужно также поменять minDateTrip наа текущее значение
 auto-advance:

@@ -195,9 +195,10 @@ public class DispatcherPageService {
             if (contact.getEmail() != null) {
                 notificationService.sendEmail(messageDto);
             }
+            /* Send sms in scheduled task.
             if (contact.getPhone() != null) {
                 notificationService.sendSmsDelay(messageDto);
-            }
+            }*/
 
             ContractorAdvanceExclusion contractorAdvanceExclusion = contractorExclusionRepository.find(
                 contractorId, order.getOrderTypeId()
