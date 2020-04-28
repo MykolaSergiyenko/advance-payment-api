@@ -9,6 +9,7 @@ import online.oboz.trip.trip_carrier_advance_payment_api.service.RestService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.dto.MessageDto;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.integration.BStoreService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.integration.OrdersApiService;
+import online.oboz.trip.trip_carrier_advance_payment_api.util.DtoUtils;
 import online.oboz.trip.trip_carrier_advance_payment_api.util.SecurityUtils;
 import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.CarrierContactDTO;
 import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.Error;
@@ -26,8 +27,6 @@ import java.time.OffsetDateTime;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-
-import static online.oboz.trip.trip_carrier_advance_payment_api.util.DtoUtils.getMessageDto;
 
 @Service
 public class DispatcherPageService {
@@ -157,15 +156,12 @@ public class DispatcherPageService {
     }
 
     public ResponseEntity<Void> requestGiveAdvancePayment(Long tripId) {
-        tripRepository.findById(tripId).orElseThrow(() -> getBusinessLogicException("trip not found"));
+        Trip trip = tripRepository.getMotorTrip(tripId).orElseThrow(() ->
+            getBusinessLogicException("tripTypeCode не 'motor' или tripStatus не 'assigned' для trip_id: " + tripId));
+
         Double tripCostWithNds = tripRepository.getTripCostWithVat(tripId);
         AdvancePaymentCost advancePaymentCost = advancePaymentCostRepository.getAdvancePaymentCost(tripCostWithNds);
-        Trip trip = tripRepository.getMotorTrip(tripId).orElseGet(Trip::new);
         Order order = orderRepository.findById(trip.getOrderId()).orElseGet(Order::new);
-        if (trip.getId() == null) {
-            log.error("tripTypeCode не 'motor' или  tripStatusCode не assigned для trip_id: {}", tripId);
-            throw getBusinessLogicException("trip type code не 'motor' или  trip status code не 'assigned'");
-        }
         final Long contractorId = trip.getContractorId();
         if (advancePaymentCost == null || trip.getDriverId() == null || contractorId == null) {
             throw getBusinessLogicException("Не назначены необходимы поля: advancePaymentCost DriverId ContractorId");
@@ -181,28 +177,28 @@ public class DispatcherPageService {
             throw getBusinessLogicException("tripRequestAdvancePayment is present");
         }
         Contractor contractor = contractorRepository.findById(contractorId).orElse(new Contractor());
-        String paymentContractor = contractorRepository.getFullName(trip.getPaymentContractorId());
+
         String tripRequestDocsUUID = tripRequestDocs.entrySet().iterator().next().getValue();
         tripRequestAdvancePayment = createTripRequestAdvancePayment(
-            contractor,
+            contractor.getIsAutoAdvancePayment(),
             tripCostWithNds,
             advancePaymentCost,
             trip,
             tripRequestDocsUUID
         );
+        advanceRequestRepository.save(tripRequestAdvancePayment);
         ContractorAdvancePaymentContact contact = getAdvancePaymentContact(contractorId);
-        if (contact != null && contact.getEmail() != null) {
-            MessageDto messageDto = getMessageDto(tripRequestAdvancePayment, contact, paymentContractor,
-                applicationProperties.getLkUrl(),
-                trip.getNum()
-            );
+
+        if (contact != null) {
+            DtoUtils dto = new DtoUtils(contractorRepository, applicationProperties);
+            MessageDto messageDto = dto.newMessage(tripRequestAdvancePayment, contact, trip.getNum());
             if (contact.getEmail() != null) {
                 notificationService.sendEmail(messageDto);
             }
             if (contact.getPhone() != null) {
                 notificationService.sendSmsDelay(messageDto);
             }
-            advanceRequestRepository.save(tripRequestAdvancePayment);
+
             ContractorAdvanceExclusion contractorAdvanceExclusion = contractorExclusionRepository.find(
                 contractorId, order.getOrderTypeId()
             ).orElseGet(ContractorAdvanceExclusion::new);
@@ -327,7 +323,7 @@ public class DispatcherPageService {
     }
 
     private TripRequestAdvancePayment createTripRequestAdvancePayment(
-        Contractor contractor,
+        Boolean isAuto,
         Double tripCostWithNds,
         AdvancePaymentCost advancePaymentCost,
         Trip trip,
@@ -358,7 +354,7 @@ public class DispatcherPageService {
             .setCancelledComment("")
             .setIsDownloadedContractApplication(true)
             .setUuidContractApplicationFile(tripRequestDocsUUID)
-            .setIsAutomationRequest(contractor.getIsAutoAdvancePayment())
+            .setIsAutomationRequest(isAuto)
             .setAdvanceUuid(UUID.randomUUID());
         return tripRequestAdvancePayment;
     }

@@ -37,16 +37,17 @@ public interface TripRepository extends JpaRepository<Trip, Long> {
         "        from orders.orders o " +
         "         inner join dictionary.order_types ot on o.order_type_id = ot.id " +
         "         inner join orders.trips t on o.id = t.order_id " +
-        "         inner join common.contractors cc on t.contractor_id = cc.id " +
-        "    and t.driver_id notnull " +
-        "    and cc.is_auto_advance_payment = true " +
-        "    and t.trip_status_code = 'assigned' " +
+        "         inner join common.contractors cc on (t.contractor_id = cc.id " +
+        "    and cc.is_auto_advance_payment = true) " +
         "         inner join dictionary.vats v on v.code = t.vat_code " +
         "         inner join common.contractor_advance_exclusion ce on cc.id = ce.carrier_id " +
         "         left join orders.trip_request_advance_payment trap on t.id = trap.trip_id " +
         "where  (trap.trip_id is null or t.driver_id != trap.driver_id) " +
-        "       and ot.id = ce.order_type_id")
-    List<Trip> getAutoApprovedTrips();
+        "       and ot.id = ce.order_type_id" +
+        "    and t.driver_id notnull " +
+        "    and t.trip_status_code = 'assigned' " +
+        "    and t.trip_type_code = 'motor' ")
+    List<Trip> getAutoApprovedMotorTrips();
 
     @Query("select t from Trip t where t.tripTypeCode = 'motor' and t.tripStatusCode = 'assigned' and t.id = :tripId ")
     Optional<Trip> getMotorTrip(@Param("tripId") Long tripId);

@@ -175,7 +175,7 @@ public class AdvancePageTabsService {
             long contractorId = request.getContractorId();
             ContractorAdvancePaymentContact advanceContact = advanceContactRepository.find(contractorId).orElse(null);
             Contractor contractor = contractorRepository.findById(contractorId).orElse(null);
-            String fullName = contractorRepository.getFullName(request.getPaymentContractorId());
+            String fullName = contractorRepository.getPaymentContractorName(request.getPaymentContractorId());
             Trip trip = tripRepository.findById(request.getTripId()).orElse(null);
             return mapAdvancePageDTO(request, advanceContact, contractor, fullName, trip);
         };
