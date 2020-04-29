@@ -45,6 +45,11 @@ public class TripRequestAdvancePayment {
     private OffsetDateTime pushButtonAt;
     private UUID advanceUuid;
 
+    private OffsetDateTime emailReadAt;
+    private Boolean isEmailRead;
+    private Boolean isSmsSent;
+
+
     @NotNull
     @Column(name = "created_at", nullable = false)
     private OffsetDateTime createdAt;
