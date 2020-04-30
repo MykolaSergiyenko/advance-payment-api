@@ -352,6 +352,8 @@ public class DispatcherPageService {
             .setIsDownloadedContractApplication(true)
             .setIsPaid(false)
             .setIs1CSendAllowed(false)
+            .setIsSmsSent(false)
+            .setIsEmailRead(false)
             .setCancelledComment("")
             .setIsDownloadedContractApplication(true)
             .setUuidContractApplicationFile(tripRequestDocsUUID)
