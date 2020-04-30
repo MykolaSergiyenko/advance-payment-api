@@ -78,8 +78,8 @@ public class AutoAdvancedService {
                 ContractorAdvancePaymentContact contact = advanceContactRepository.find(trip.getContractorId()).orElse(null);
 
                 if (contact != null) {
-                    DtoUtils dto = new DtoUtils(contractorRepository, applicationProperties);
-                    MessageDto messageDto = dto.newMessage(tripRequestAdvancePayment, contact, trip.getNum());
+                    MessageDto messageDto = DtoUtils.newMessage(tripRequestAdvancePayment, contact, trip.getNum(),
+                        contractorRepository, applicationProperties);
                     sendNotifications(messageDto);
                 } else {
                     log.info("Contact not found for trip {}.", trip.getNum());
@@ -133,10 +133,11 @@ public class AutoAdvancedService {
         }
     }
 
+    @Deprecated
     private void submitSms(MessageDto messageDto) {
         if (StringUtils.isNotBlank(messageDto.getPhone())) {
             log.info("start sendSms for tripNum: {}, for Phone: {}", messageDto.getTripNum(), messageDto.getPhone());
-            service.submit(() -> notificationService.sendSms(messageDto));
+            //service.submit(() -> notificationService.sendSms(messageDto));
         } else {
             log.info("Phone-number in message is empty for trip-number {}.", messageDto.getTripNum());
         }

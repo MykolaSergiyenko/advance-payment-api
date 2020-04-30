@@ -4,11 +4,14 @@ import io.undertow.util.BadRequestException;
 import lombok.RequiredArgsConstructor;
 import online.oboz.trip.trip_carrier_advance_payment_api.config.ApplicationProperties;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.*;
+import online.oboz.trip.trip_carrier_advance_payment_api.error.BusinessLogicException;
+import online.oboz.trip.trip_carrier_advance_payment_api.error.SmsSendingException;
 import online.oboz.trip.trip_carrier_advance_payment_api.repository.*;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.dto.MessageDto;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.dto.SendSmsRequest;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.dto.SmsRequestDelayed;
 import online.oboz.trip.trip_carrier_advance_payment_api.util.DtoUtils;
+import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.Error;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +23,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
@@ -54,62 +58,61 @@ public class NotificationService {
         List<TripRequestAdvancePayment> advances = advanceRequestRepository.findForNotification();
         advances.forEach(advance -> {
                 log.info("Found advance-request with unread e-mail - {}.", advance.getId());
-                //setSmsSent(advance); // если только одна попытка отправки
-                Trip trip = tripRepository.getMotorTrip(advance.getTripId()).orElse(null);
-                if (null == trip) {
-                    log.info("Trip not found, id = " + advance.getTripId());
-                    return;
-                }
-                ContractorAdvancePaymentContact contact = advanceContactRepository.find(trip.getContractorId()).orElse(null);
-                if (contact != null) {
-                    DtoUtils dto = new DtoUtils(contractorRepository, applicationProperties);
-                    MessageDto messageDto = dto.newMessage(advance, contact, trip.getNum());
+                try {
+                    String errMessage;
+                    Trip trip = tripRepository.getMotorTrip(advance.getTripId()).orElse(null);
+                    if (null == trip) {
+                        errMessage = "Trip not found, id = " + advance.getTripId();
+                        throw getSmsException(errMessage, HttpStatus.NOT_FOUND);
+                    }
+                    ContractorAdvancePaymentContact contact = advanceContactRepository.find(trip.getContractorId()).orElse(null);
+                    if (null == contact) {
+                        errMessage = "Contact not found for trip " + trip.getNum();
+                        throw getSmsException(errMessage, HttpStatus.NOT_FOUND);
+                    }
+                    MessageDto messageDto = DtoUtils.newMessage(advance, contact, trip.getNum(),
+                        contractorRepository, applicationProperties);
                     sendSms(messageDto);
-                } else {
-                    log.info("Contact not found for trip {}.", trip.getNum());
+
+                    setSmsSent(advance);
+                } catch (SmsSendingException e) {
+                    log.error("Sms-sending error: {}", e.getErrors());
                 }
-                setSmsSent(advance); //возможны исключения и ошибки при отправке
             }
         );
     }
 
-    public void sendSms(MessageDto messageDto) {
-        //TODO: make private
+    private void sendSms(MessageDto messageDto) throws SmsSendingException {
         log.info("Send sms " + messageDto);
-        try {
-            messageDto.setContractorName(IN_SMS_COMPANY_NAME);
-            String text = getMessageText(messageDto);
-            if (text.isEmpty()) {
-                log.warn("SMS text for {} is empty.", messageDto.getPhone());
-                return;
-            }
-            SmsRequestDelayed smsRequestDelayed = new SmsRequestDelayed(
-                text,
-                RUSSIAN_COUNTRY_CODE + messageDto.getPhone(),
-                messageDto.getTripNum(),
-                applicationProperties.getSmsSendDelay()
-            );
-
-            sendSmsRequest(applicationProperties.getSmsSenderUrl(), smsRequestDelayed);
-        } catch (Exception e) {
-            log.error("Failed send sms " + messageDto, e);
+        messageDto.setContractorName(IN_SMS_COMPANY_NAME);
+        String text = getMessageText(messageDto);
+        if (StringUtils.isBlank(text)) {
+            throw getSmsException("SMS text is empty.", HttpStatus.NO_CONTENT);
         }
+        SmsRequestDelayed smsRequestDelayed = new SmsRequestDelayed(
+            text,
+            RUSSIAN_COUNTRY_CODE + messageDto.getPhone(),
+            messageDto.getTripNum(),
+            applicationProperties.getSmsSendDelay()
+        );
+        sendSmsRequest(applicationProperties.getSmsSenderUrl(), smsRequestDelayed);
     }
 
 
-    private void sendSmsRequest(String url, SmsRequestDelayed sms) {
-        ResponseEntity<String> response = restTemplate.postForEntity(
-            url + SEND_SMS_METHOD_PATH,
-            new SendSmsRequest(sms.getText(), sms.getPhone(), sms.getTripNum()),
-            String.class
-        );
-        if (response.getStatusCode().value() != 200) {
-            throw new RuntimeException("Sms server returned bad response" + response);
-        }
-        log.info("Success send notification sms to " + sms.getPhone());
-
-        if (response.getStatusCode() != HttpStatus.OK) {
-            log.error("Sms server returned bad response {}", response);
+    private void sendSmsRequest(String url, SmsRequestDelayed sms) throws SmsSendingException {
+        String errMessage = "SMS sending error for phone-number " + sms.getPhone();
+        try {
+            ResponseEntity<String> response = restTemplate.postForEntity(
+                url + SEND_SMS_METHOD_PATH,
+                new SendSmsRequest(sms.getText(), sms.getPhone(), sms.getTripNum()),
+                String.class
+            );
+            if (response.getStatusCode() != HttpStatus.OK) {
+                throw getSmsException(errMessage, response.getStatusCode());
+            }
+            log.info("Success send notification sms to " + sms.getPhone());
+        } catch (HttpServerErrorException e) {
+            throw getSmsException(errMessage + ". Error: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -117,7 +120,6 @@ public class NotificationService {
         advance.setIsSmsSent(true);
         advanceRequestRepository.save(advance);
         log.info("Set sms-sent for advance-request " + advance.getId());
-        //возможно, писать комментарий об ошибке отправки?
     }
 
 
@@ -187,6 +189,15 @@ public class NotificationService {
         } else {
             return response.getBody();
         }
+    }
+
+
+    private SmsSendingException getSmsException(String s, HttpStatus status) {
+        Error error = new Error();
+        error.setErrorMessage(s);
+        error.setErrorCode(Integer.toString(status.value()));
+        error.setStatus(status.toString());
+        return new SmsSendingException(status, error);
     }
 }
 

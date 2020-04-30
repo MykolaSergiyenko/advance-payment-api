@@ -7,20 +7,14 @@ import online.oboz.trip.trip_carrier_advance_payment_api.repository.ContractorRe
 import online.oboz.trip.trip_carrier_advance_payment_api.service.dto.MessageDto;
 
 public class DtoUtils {
-    private final ContractorRepository contractorRepository;
-    private final ApplicationProperties applicationProperties;
 
-
-    public DtoUtils(ContractorRepository contractorRepository, ApplicationProperties applicationProperties) {
-        this.contractorRepository = contractorRepository;
-        this.applicationProperties = applicationProperties;
-    }
-
-
-    public MessageDto newMessage(
+    public static MessageDto newMessage(
         TripRequestAdvancePayment tripRequestAdvancePayment,
         ContractorAdvancePaymentContact contact,
-        String tripNum) {
+        String tripNum,
+        ContractorRepository contractorRepository,
+        ApplicationProperties applicationProperties
+    ) {
 
         String lkUrl = applicationProperties.getLkUrl();
 

@@ -190,9 +190,9 @@ public class DispatcherPageService {
         ContractorAdvancePaymentContact contact = getAdvancePaymentContact(contractorId);
 
         if (contact != null) {
-            DtoUtils dto = new DtoUtils(contractorRepository, applicationProperties);
-            MessageDto messageDto = dto.newMessage(tripRequestAdvancePayment, contact, trip.getNum());
-            if (contact.getEmail() != null) {
+            MessageDto messageDto = DtoUtils.newMessage(tripRequestAdvancePayment, contact, trip.getNum(),
+                contractorRepository, applicationProperties);
+            if (messageDto.getEmail() != null) {
                 notificationService.sendEmail(messageDto);
             }
             /* Send sms in scheduled task.
