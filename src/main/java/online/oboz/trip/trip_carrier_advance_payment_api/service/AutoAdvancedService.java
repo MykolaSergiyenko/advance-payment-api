@@ -111,6 +111,8 @@ public class AutoAdvancedService {
         tripRequestAdvancePayment.setIsDownloadedAdvanceApplication(false);
         tripRequestAdvancePayment.setIsDownloadedContractApplication(false);
         tripRequestAdvancePayment.setAdvanceUuid(UUID.randomUUID());
+        tripRequestAdvancePayment.setIsSmsSent(false);
+        tripRequestAdvancePayment.setIsEmailRead(false);
         advanceRequestRepository.save(tripRequestAdvancePayment);
         return tripRequestAdvancePayment;
     }
