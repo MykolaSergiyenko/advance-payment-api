@@ -85,7 +85,7 @@ dependencies {
     compile "org.springframework.boot:spring-boot-starter-logging"
     compile "org.springframework.boot:spring-boot-starter-oauth2-resource-server"
     //compile group: 'org.springframework.cloud', name: 'spring-cloud-stream'
-
+    compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.30'
     runtimeOnly 'org.postgresql:postgresql'
 
     compile "org.hibernate:hibernate-core"
@@ -107,15 +107,12 @@ dependencies {
 
     compile "net.logstash.logback:logstash-logback-encoder:6.2"
 
-    compileOnly "org.projectlombok:lombok:${lombok_version}"
-    annotationProcessor "org.projectlombok:lombok:${lombok_version}"
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testCompile(
-        'junit:junit:4.12',
-    )
-    testAnnotationProcessor "org.projectlombok:lombok:${lombok_version}"
-    testCompile("org.projectlombok:lombok:${lombok_version}")
+    testImplementation('org.junit.jupiter:junit-jupiter:5.6.2')
+    testRuntimeOnly('org.postgresql:postgresql')
+
+    //testCompile('junit:junit:4.12')
 
     if (profile == 'local') {
         compile "org.springframework.boot:spring-boot-devtools"

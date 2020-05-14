@@ -4,7 +4,7 @@ info:
     version: "1.0"
     description: "trip-carrier-advance-api"
 servers:
-    - url: "{server}/v1"
+    -   url: "{server}/v1"
 paths:
     /advance_payment/request_give_advance_payment/{id}:
         post:
@@ -690,6 +690,78 @@ paths:
                 "422":
                     description: "Ошибка в процессе скачивания файла"
 
+
+    /advance_payment_test/cutUrl/{stringUrl}:
+        post:
+            security:
+                -   bearerAuth: []
+            summary: "URL-сокращатор"
+            operationId: cutUrl
+            parameters:
+                -   name: stringUrl
+                    in: path
+                    description: "Сокращаемый URL"
+                    required: true
+                    schema:
+                        type: string
+                        format: uri
+            tags:
+                - Advance Test-Sandbox
+                - Messaging
+            responses:
+                200:
+                    description: "OK"
+                default:
+                    description: "Some other error"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ShortUrlResponse"
+                422:
+                    description: "Business error"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+
+    /advance_payment_test/create_message/{advance_id}:
+        get:
+            security:
+                -   bearerAuth: []
+            summary: "Выполнить уведомление по авансу (e-mail и смс в общем  случае)"
+            operationId: createMessage
+            tags:
+                - Advance Test-Sandbox
+                - Messaging
+            parameters:
+                -   name: advance_id
+                    in: path
+                    description: "Id аванса"
+                    required: true
+                    schema:
+                        type: integer
+                        format: int64
+                        minimum: 1
+            responses:
+                200:
+                    description: "OK"
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                default:
+                    description: "Some other error"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                422:
+                    description: "Business error"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+
 # Apply the security globally to all operations
 security:
     -   bearerAuth: []
@@ -711,6 +783,13 @@ components:
                 error_code:
                     type: string
                 error_message:
+                    type: string
+
+        ShortUrlResponse:
+            required:
+                - stringUrl
+            properties:
+                stringUrl:
                     type: string
 
         AdvancePaymentCommentDTO:
@@ -967,6 +1046,7 @@ components:
                     type: string
                     description: "ИНН"
 
+        #can use for Messaging?
         CarrierContactDTO:
             type: object
             description: Персональные данные
@@ -985,7 +1065,7 @@ components:
                     description: "Фамилия Имя Отчество"
                 phone_number:
                     type: string
-#                    pattern: "^+),-,0-9*$"
+                    #№pattern: "^+),-,0-9*$" use pattern from app.properties?
                     minLength: 8
                     maxLength: 19
                     example: "9851112233"
@@ -1117,6 +1197,7 @@ components:
             required:
                 - filename
 
+        # Это используется в RestService для токена
         ResponseToken:
             type: object
             description: "JWT токены доступа и обновления"
