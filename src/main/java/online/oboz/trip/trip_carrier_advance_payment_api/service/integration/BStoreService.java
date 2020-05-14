@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
@@ -35,7 +36,7 @@ public class BStoreService {
     }
 
     public ResponseEntity<Resource> requestResourceFromBStore(String uuidFile) {
-        String url = applicationProperties.getBStoreUrl() + uuidFile;
+        String url = applicationProperties.getbStoreUrl() + uuidFile;
         ResponseEntity<Resource> response = restService.authRequestResource(url);
         if (response != null) {
             return response;
@@ -44,8 +45,10 @@ public class BStoreService {
         return null;
     }
 
+
+    //TODO: what is it?
     public String getFileUuid(MultipartFile filename) {
-        String url = applicationProperties.getBStoreUrl() + "pdf/";
+        String url = applicationProperties.getbStoreUrl() + "pdf/";
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.CONTENT_TYPE, "multipart/form-data");
 

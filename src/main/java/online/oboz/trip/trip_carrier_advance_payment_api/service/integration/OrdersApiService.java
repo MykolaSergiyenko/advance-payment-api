@@ -34,6 +34,8 @@ public class OrdersApiService {
         this.objectMapper = objectMapper;
     }
 
+
+    //TODO: use in app.props?
     private static final String SAVE_TRIP_DOCUMENTS_REQUEST_BODY = "{\"trip_document\":{" +
         "\"id\":null,\"file_id\":\"%s\"," +
         "\"document_type_code\":\"assignment_advance_request\"," +
@@ -42,7 +44,7 @@ public class OrdersApiService {
 
     public boolean saveTripDocuments(long orderId, long tripId, String fileUuid) {
         log.info("saveTripDocuments for order {} trip {} fileUuid {} ", orderId, tripId, fileUuid);
-        String url = String.format(applicationProperties.getOrdersApiUrl(), orderId, tripId);
+        String url = String.format(applicationProperties.getOrdersApiUrl().toString(), orderId, tripId);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         String requestBody = String.format(SAVE_TRIP_DOCUMENTS_REQUEST_BODY, fileUuid);
@@ -85,7 +87,9 @@ public class OrdersApiService {
     }
 
     private String getDocumentWithUuidFiles(Long orderId, Long tripId) {
-        String url = String.format(applicationProperties.getOrdersApiUrl(), orderId, tripId);
+        String url =
+            String.format(applicationProperties.getOrdersApiUrl().toString(),
+                orderId, tripId);
         try {
             ResponseEntity<String> response = restService.executeGetAuthRequest(url,  new HttpHeaders());
             if (response.getStatusCode().value() == 200) {
