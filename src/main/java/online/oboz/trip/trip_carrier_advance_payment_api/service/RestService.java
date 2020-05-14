@@ -5,6 +5,7 @@ import online.oboz.trip.trip_carrier_advance_payment_api.exception.AuthException
 import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.ResponseToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.io.Resource;
@@ -18,6 +19,7 @@ public class RestService {
     private final ApplicationProperties applicationProperties;
     private final RestTemplate restTemplate;
 
+    @Autowired
     public RestService(
         ApplicationProperties applicationProperties,
         RestTemplate restTemplate
