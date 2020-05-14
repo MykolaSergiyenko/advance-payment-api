@@ -1,6 +1,6 @@
 package online.oboz.trip.trip_carrier_advance_payment_api.service;
 
-import online.oboz.trip.trip_carrier_advance_payment_api.repository.AdvanceRequestRepository;
+import online.oboz.trip.trip_carrier_advance_payment_api.repository.TripAdvanceRepository;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.integration.BStoreService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.rest.AdvancePageService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.rest.AdvancePageTabsService;
@@ -23,7 +23,7 @@ import java.util.UUID;
 public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
 
     private static final Logger log = LoggerFactory.getLogger(AdvancePaymentDelegateImpl.class);
-    private final AdvanceRequestRepository advanceRequestRepository;
+    private final TripAdvanceRepository tripAdvanceRepository;
     private final BStoreService bStoreService;
     private final DispatcherPageService dispatcherPageService;
     private final CarrierPageService carrierPageService;
@@ -32,14 +32,14 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
 
     @Autowired
     public AdvancePaymentDelegateImpl(
-        AdvanceRequestRepository advanceRequestRepository,
+        TripAdvanceRepository tripAdvanceRepository,
         BStoreService bStoreService,
         CarrierPageService carrierPageService,
         DispatcherPageService dispatcherPageService,
         AdvancePageService advancePageService,
         AdvancePageTabsService advancePageTabsService
     ) {
-        this.advanceRequestRepository = advanceRequestRepository;
+        this.tripAdvanceRepository = tripAdvanceRepository;
         this.bStoreService = bStoreService;
         this.dispatcherPageService = dispatcherPageService;
         this.advancePageService = advancePageService;
@@ -122,7 +122,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
     @Override
     public ResponseEntity<Resource> downloadAvanseRequest(String tripNum) {
         log.info("Got downloadAvanseRequest request tripNum - " + tripNum);
-        String uuidFile = advanceRequestRepository
+        String uuidFile = tripAdvanceRepository
             .find(tripNum)
             .getUuidAdvanceApplicationFile();
         return bStoreService.requestResourceFromBStore(uuidFile);
@@ -131,8 +131,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
     @Override
     public ResponseEntity<Resource> downloadRequest(String tripNum) {
         log.info("Got downloadRequest request tripNum - " + tripNum);
-        String uuidFile = advanceRequestRepository
-            .find(tripNum)
+        String uuidFile = tripAdvanceRepository.find(tripNum)
             .getUuidContractApplicationFile();
         return bStoreService.requestResourceFromBStore(uuidFile);
     }
