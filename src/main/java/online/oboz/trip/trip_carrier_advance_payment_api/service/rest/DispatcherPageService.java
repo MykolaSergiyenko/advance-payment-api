@@ -6,10 +6,9 @@ import online.oboz.trip.trip_carrier_advance_payment_api.error.BusinessLogicExce
 import online.oboz.trip.trip_carrier_advance_payment_api.repository.*;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.NotificationService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.RestService;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.dto.MessageDto;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.integration.BStoreService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.integration.OrdersApiService;
-import online.oboz.trip.trip_carrier_advance_payment_api.util.DtoUtils;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.messages.NewNotificationService;
 import online.oboz.trip.trip_carrier_advance_payment_api.util.SecurityUtils;
 import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.CarrierContactDTO;
 import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.Error;
@@ -32,9 +31,8 @@ import java.util.UUID;
 public class DispatcherPageService {
     private static final Logger log = LoggerFactory.getLogger(DispatcherPageService.class);
     private static final String COMMENT = "Данному поставщику отправлен запрос на аванс в автоматическом режиме";
-
     private final TripRepository tripRepository;
-    private final AdvanceRequestRepository advanceRequestRepository;
+    private final TripAdvanceRepository advanceRepository;
     private final OrdersApiService ordersApiService;
     private final BStoreService bStoreService;
     private final OrderRepository orderRepository;
@@ -44,12 +42,13 @@ public class DispatcherPageService {
     private final PersonRepository personRepository;
     private final RestService restService;
     private final NotificationService notificationService;
+    private final NewNotificationService newNotificationService;
     private final AdvancePaymentCostRepository advancePaymentCostRepository;
     private final AdvanceContactRepository advanceContactRepository;
 
     public DispatcherPageService(
         TripRepository tripRepository,
-        AdvanceRequestRepository advanceRequestRepository,
+        TripAdvanceRepository advanceRepository,
         OrdersApiService ordersApiService,
         BStoreService bStoreService,
         OrderRepository orderRepository,
@@ -59,11 +58,11 @@ public class DispatcherPageService {
         PersonRepository personRepository,
         RestService restService,
         NotificationService notificationService,
-        AdvancePaymentCostRepository advancePaymentCostRepository,
+        NewNotificationService newNotificationService, AdvancePaymentCostRepository advancePaymentCostRepository,
         AdvanceContactRepository advanceContactRepository
     ) {
         this.tripRepository = tripRepository;
-        this.advanceRequestRepository = advanceRequestRepository;
+        this.advanceRepository = advanceRepository;
         this.ordersApiService = ordersApiService;
         this.bStoreService = bStoreService;
         this.orderRepository = orderRepository;
@@ -73,6 +72,7 @@ public class DispatcherPageService {
         this.personRepository = personRepository;
         this.restService = restService;
         this.notificationService = notificationService;
+        this.newNotificationService = newNotificationService;
         this.advancePaymentCostRepository = advancePaymentCostRepository;
         this.advanceContactRepository = advanceContactRepository;
     }
@@ -93,7 +93,7 @@ public class DispatcherPageService {
             log.info("Contractor not found for tripId - " + trip.getContractorId());
             return getIsAdvancedRequestResponseResponseEntity();
         }
-        TripRequestAdvancePayment tripRequestAdvancePayment = advanceRequestRepository.find(
+        TripAdvance tripAdvance = advanceRepository.find(
             tripId, trip.getDriverId(), trip.getContractorId()
         );
 
@@ -106,37 +106,37 @@ public class DispatcherPageService {
         boolean isButtonActive;
         isAdvancedRequestResponse.setIsAutoRequested(contractor.getIsAutoAdvancePayment());
 
-        if (tripRequestAdvancePayment != null) {
+        if (tripAdvance != null) {
             isButtonActive = false;
             ContractorAdvanceExclusion contractorAdvanceExclusion = contractorExclusionRepository
                 .find(trip.getContractorId(), order.getOrderTypeId())
                 .orElse(new ContractorAdvanceExclusion());
             boolean isContractorLock = contractorAdvanceExclusion.getIsConfirmAdvance() != null &&
                 !contractorAdvanceExclusion.getIsConfirmAdvance();
-            isAdvancedRequestResponse.setTripTypeCode(tripRequestAdvancePayment.getTripTypeCode());
+            isAdvancedRequestResponse.setTripTypeCode(tripAdvance.getTripTypeCode());
             isAdvancedRequestResponse.setIsContractorLock(isContractorLock);
-            isAdvancedRequestResponse.setTripTypeCode(tripRequestAdvancePayment.getTripTypeCode());
-            isAdvancedRequestResponse.setIsPaid(tripRequestAdvancePayment.getIsPaid());
+            isAdvancedRequestResponse.setTripTypeCode(tripAdvance.getTripTypeCode());
+            isAdvancedRequestResponse.setIsPaid(tripAdvance.getIsPaid());
 
-            Long authorId = tripRequestAdvancePayment.getAuthorId();
+            Long authorId = tripAdvance.getAuthorId();
             if (authorId != null) {
                 setPersonInfo(isAdvancedRequestResponse, authorId);
             }
 
-            if (tripRequestAdvancePayment.getIsCancelled()) {
+            if (tripAdvance.getIsCancelled()) {
                 isButtonActive = true;
             }
 
-            if (isContractorLock || tripRequestAdvancePayment.getIsPushedUnfButton()) {
+            if (isContractorLock || tripAdvance.getIsPushedUnfButton()) {
                 isButtonActive = false;
             }
 
-            if (tripRequestAdvancePayment.getIsAutomationRequest()) {
+            if (tripAdvance.getIsAuto()) {
                 isButtonActive = false;
                 isAdvancedRequestResponse.setComment(COMMENT);
             }
 
-            isAdvancedRequestResponse.setCreatedAt(tripRequestAdvancePayment.getCreatedAt());
+            isAdvancedRequestResponse.setCreatedAt(tripAdvance.getCreatedAt());
             log.info("isAdvancedRequestResponse for tripId: {} , DriverId: {} , ContractorId {} is: {}",
                 tripId, trip.getDriverId(), trip.getContractorId(), isAdvancedRequestResponse
             );
@@ -146,7 +146,7 @@ public class DispatcherPageService {
             } else {
                 isButtonActive = isDocsLoaded || !applicationProperties.getRequiredDownloadDocs();
             }
-            log.info("TripRequestAdvancePayment not found for tripId: {} , DriverId: {} , ContractorId {}",
+            log.info("tripAdvance not found for tripId: {} , DriverId: {} , ContractorId {}",
                 tripId, trip.getDriverId(), trip.getContractorId()
             );
         }
@@ -156,63 +156,50 @@ public class DispatcherPageService {
     }
 
     public ResponseEntity<Void> requestGiveAdvancePayment(Long tripId) {
-        Trip trip = tripRepository.getMotorTrip(tripId).orElseThrow(() ->
-            getBusinessLogicException("tripTypeCode не 'motor' или tripStatus не 'assigned' для trip_id: " + tripId));
 
-        Double tripCostWithNds = tripRepository.getTripCostWithVat(tripId);
-        AdvancePaymentCost advancePaymentCost = advancePaymentCostRepository.getAdvancePaymentCost(tripCostWithNds);
-        Order order = orderRepository.findById(trip.getOrderId()).orElseGet(Order::new);
-        final Long contractorId = trip.getContractorId();
-        if (advancePaymentCost == null || trip.getDriverId() == null || contractorId == null) {
-            throw getBusinessLogicException("Не назначены необходимы поля: advancePaymentCost DriverId ContractorId");
-        }
-        Map<String, String> tripRequestDocs = ordersApiService.findTripRequestDocs(trip);
+        // Request motor, assigned Trip, its Contacts, Orders...
+        //        if (tripAdvance != null) {
+        //  throw getBusinessLogicException("tripAdvance is present");
+        //}
+        // create new TripAdvance() entity? by tripId
+        //
+        // set it's fields
+        // Count vats?
+        // save it
+
+        // check docs downloaded via openApi
+
+        //
+
+
+
+        TripAdvance tripAdvance = advanceRepository.find(tripId).orElse(new TripAdvance());
+
+
+        Map<String, String> tripRequestDocs = ordersApiService.findTripRequestDocs(tripAdvance.getTrip());
         if (tripRequestDocs.isEmpty()) {
             throw getBusinessLogicException("Не загружены Договор заявка / заявка ");
         }
-        TripRequestAdvancePayment tripRequestAdvancePayment = advanceRequestRepository.find(
-            tripId, trip.getDriverId(), contractorId
-        );
-        if (tripRequestAdvancePayment != null) {
-            throw getBusinessLogicException("tripRequestAdvancePayment is present");
+
+
+
+
+        //Order trip-type?
+        // getTripTypeCode() of order?
+        // what is exclusion?
+        ContractorAdvanceExclusion contractorAdvanceExclusion = contractorExclusionRepository.find(
+            tripAdvance.getContractorId(),
+            tripAdvance.getTrip().getOrder().getOrderTypeId()
+        ).orElseGet(ContractorAdvanceExclusion::new);
+
+        if (contractorAdvanceExclusion.getId() == null) {
+             contractorAdvanceExclusion =
+                new ContractorAdvanceExclusion();
+                contractorExclusionRepository.save(contractorAdvanceExclusion);
         }
-        Contractor contractor = contractorRepository.findById(contractorId).orElse(new Contractor());
 
-        String tripRequestDocsUUID = tripRequestDocs.entrySet().iterator().next().getValue();
-        tripRequestAdvancePayment = createTripRequestAdvancePayment(
-            contractor.getIsAutoAdvancePayment(),
-            tripCostWithNds,
-            advancePaymentCost,
-            trip,
-            tripRequestDocsUUID
-        );
-        advanceRequestRepository.save(tripRequestAdvancePayment);
-        ContractorAdvancePaymentContact contact = getAdvancePaymentContact(contractorId);
-
-        if (contact != null) {
-            MessageDto messageDto = DtoUtils.newMessage(tripRequestAdvancePayment, contact, trip.getNum(),
-                contractorRepository, applicationProperties);
-            if (messageDto.getEmail() != null) {
-                notificationService.sendEmail(messageDto);
-            }
-            /* Send sms in scheduled task.
-            if (contact.getPhone() != null) {
-                notificationService.sendSmsDelay(messageDto);
-            }*/
-
-            ContractorAdvanceExclusion contractorAdvanceExclusion = contractorExclusionRepository.find(
-                contractorId, order.getOrderTypeId()
-            ).orElseGet(ContractorAdvanceExclusion::new);
-
-            if (contractorAdvanceExclusion.getId() == null) {
-                ContractorAdvanceExclusion entity = new ContractorAdvanceExclusion();
-                entity.setCarrierFullName(contractor.getFullName());
-                entity.setOrderTypeId(order.getOrderTypeId());
-                entity.setCarrierId(contractorId);
-                entity.setIsConfirmAdvance(true);
-                contractorExclusionRepository.save(entity);
-            }
-        }
+        // Notificate about new advance created
+        newNotificationService.notificate(tripAdvance);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -220,18 +207,18 @@ public class DispatcherPageService {
 //        TODO :  catch   big size file and response
         Trip trip = tripRepository.getTripByNum(tripNum).orElseThrow(() -> getBusinessLogicException("trip not found"));
         Long tripId = trip.getId();
-        TripRequestAdvancePayment tripRequestAdvancePayment = advanceRequestRepository.find(
+        TripAdvance tripAdvance = advanceRepository.find(
             tripId, trip.getDriverId(), trip.getContractorId()
         );
-        if (tripRequestAdvancePayment == null) {
-            throw getBusinessLogicException("tripRequestAdvancePayment not found");
+        if (tripAdvance == null) {
+            throw getBusinessLogicException("tripAdvance not found");
         }
 
-        if (tripRequestAdvancePayment.getPushButtonAt() == null) {
+        if (tripAdvance.getPushButtonAt() == null) {
             throw getBusinessLogicException("PushButtonAt need is first");
         }
 
-        if (tripRequestAdvancePayment.getIsPushedUnfButton()) {
+        if (tripAdvance.getIsPushedUnfButton()) {
             throw getBusinessLogicException("uploadRequestAdvance forbidden");
         }
 
@@ -239,9 +226,9 @@ public class DispatcherPageService {
         String fileUuid = bStoreService.getFileUuid(filename);
         if (fileUuid != null) {
             if (ordersApiService.saveTripDocuments(trip.getOrderId(), trip.getId(), fileUuid)) {
-                tripRequestAdvancePayment.setUuidAdvanceApplicationFile(fileUuid);
-                tripRequestAdvancePayment.setIsDownloadedAdvanceApplication(true);
-                advanceRequestRepository.save(tripRequestAdvancePayment);
+                tripAdvance.setUuidAdvanceApplicationFile(fileUuid);
+                tripAdvance.setIsDownloadedAdvanceApplication(true);
+                advanceRepository.save(tripAdvance);
                 return new ResponseEntity<>(HttpStatus.OK);
             } else {
                 return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -257,13 +244,16 @@ public class DispatcherPageService {
         url.append("https://reports.oboz.com/reportserver/reportserver/httpauthexport?" +
             "key=avance_request&user=bertathar&apikey=nzybc16h&p_trip_num="
         );
-        TripRequestAdvancePayment tripRequestAdvancePayment = advanceRequestRepository.find(tripNum);
-        if (tripRequestAdvancePayment != null) {
+
+        //TODO: check it
+        // сумма и пеня в урле?
+        TripAdvance tripAdvance = advanceRepository.find(tripNum);
+        if (tripAdvance != null) {
             url.append(tripNum)
                 .append("&p_avance_sum=")
-                .append(tripRequestAdvancePayment.getAdvancePaymentSum().toString())
+                .append(tripAdvance.getAdvancePaymentSum().toString())
                 .append("&p_avance_comission=")
-                .append(tripRequestAdvancePayment.getRegistrationFee().toString())
+                .append(tripAdvance.getRegistrationFee().toString())
                 .append("&format=PDF");
             response = restService.requestResource(url.toString(), new HttpHeaders());
             if (response != null) {
@@ -271,18 +261,18 @@ public class DispatcherPageService {
                 return response;
             }
         }
-        log.error("server {} returned bad response, tripRequestAdvancePayment is: {}", url, tripRequestAdvancePayment);
+        log.error("server {} returned bad response, tripAdvance is: {}", url, tripAdvance);
         return null;
     }
 
     public ResponseEntity<Void> addContactCarrier(CarrierContactDTO carrierContactDTO) {
-        Optional<ContractorAdvancePaymentContact> contractorAdvancePaymentContact = advanceContactRepository.find(
+        Optional<AdvanceContact> contractorAdvancePaymentContact = advanceContactRepository.find(
             carrierContactDTO.getContractorId()
         );
         if (contractorAdvancePaymentContact.isPresent()) {
             throw getBusinessLogicException("ContractorAdvancePaymentContact is present");
         }
-        final ContractorAdvancePaymentContact entity = new ContractorAdvancePaymentContact();
+        final AdvanceContact entity = new AdvanceContact();
         entity.setFullName(carrierContactDTO.getFullName());
         entity.setContractorId(carrierContactDTO.getContractorId());
         entity.setPhone(carrierContactDTO.getPhoneNumber());
@@ -292,10 +282,10 @@ public class DispatcherPageService {
     }
 
     public ResponseEntity<Void> updateContactCarrier(CarrierContactDTO carrierContactDTO) {
-        Optional<ContractorAdvancePaymentContact> contractorAdvancePaymentContact = advanceContactRepository.find(
+        Optional<AdvanceContact> contractorAdvancePaymentContact = advanceContactRepository.find(
             carrierContactDTO.getContractorId()
         );
-        ContractorAdvancePaymentContact entity = contractorAdvancePaymentContact.orElseThrow(() ->
+        AdvanceContact entity = contractorAdvancePaymentContact.orElseThrow(() ->
             getBusinessLogicException("ContractorAdvancePaymentContact not found")
         );
         entity.setFullName(carrierContactDTO.getFullName());
@@ -307,59 +297,59 @@ public class DispatcherPageService {
     }
 
     public ResponseEntity<CarrierContactDTO> getContactCarrier(Long contractorId) {
-        ContractorAdvancePaymentContact contact = advanceContactRepository
+        AdvanceContact contact = advanceContactRepository
             .find(contractorId)
-            .orElseGet(ContractorAdvancePaymentContact::new);
+            .orElseGet(AdvanceContact::new);
         CarrierContactDTO carrierContactDTO = getCarrierContactDTO(contact);
         return new ResponseEntity<>(carrierContactDTO, HttpStatus.OK);
     }
 
-    private CarrierContactDTO getCarrierContactDTO(ContractorAdvancePaymentContact contractorAdvancePaymentContact) {
+    private CarrierContactDTO getCarrierContactDTO(AdvanceContact advanceContact) {
         CarrierContactDTO carrierContactDTO = new CarrierContactDTO();
-        carrierContactDTO.setContractorId(contractorAdvancePaymentContact.getContractorId());
-        carrierContactDTO.setEmail(contractorAdvancePaymentContact.getEmail());
-        carrierContactDTO.setFullName(contractorAdvancePaymentContact.getFullName());
-        carrierContactDTO.setPhoneNumber(contractorAdvancePaymentContact.getPhone());
+        carrierContactDTO.setContractorId(advanceContact.getContractorId());
+        carrierContactDTO.setEmail(advanceContact.getEmail());
+        carrierContactDTO.setFullName(advanceContact.getFullName());
+        carrierContactDTO.setPhoneNumber(advanceContact.getPhone());
         return carrierContactDTO;
     }
 
-    private TripRequestAdvancePayment createTripRequestAdvancePayment(
+    private TripAdvance createTripAdvance(
         Boolean isAuto,
         Double tripCostWithNds,
-        AdvancePaymentCost advancePaymentCost,
+        AdvancePaymentCostDict advancePaymentCostDict,
         Trip trip,
         String tripRequestDocsUUID
     ) {
-        TripRequestAdvancePayment tripRequestAdvancePayment = new TripRequestAdvancePayment();
-        tripRequestAdvancePayment.setAuthorId(SecurityUtils.getAuthPersonId())
-            .setTripId(advancePaymentCost.getId())
+        TripAdvance tripAdvance = new TripAdvance()
+            .setAuthorId(SecurityUtils.getAuthPersonId().longValue())
+            .setTripId(advancePaymentCostDict.getId())
             .setIsPushedUnfButton(false)
             .setTripCost(tripCostWithNds)
-            .setAdvancePaymentSum(advancePaymentCost.getAdvancePaymentSum())
-            .setRegistrationFee(advancePaymentCost.getRegistrationFee())
+            .setAdvancePaymentSum(advancePaymentCostDict.getAdvancePaymentSum())
+            .setRegistrationFee(advancePaymentCostDict.getRegistrationFee())
             .setIsCancelled(false)
             .setContractorId(trip.getContractorId())
             .setDriverId(trip.getDriverId())
             .setCreatedAt(OffsetDateTime.now())
             .setPushButtonAt(OffsetDateTime.now())
             .setTripId(trip.getId())
-            .setIsUnfSend(false)
-            .setTripTypeCode(trip.getTripTypeCode())
-            .setLoadingComplete(false)
-            .setPaymentContractorId(trip.getPaymentContractorId())
-            .setPageCarrierUrlIsAccess(true)
-            .setIsDownloadedAdvanceApplication(false)
-            .setIsDownloadedContractApplication(true)
-            .setIsPaid(false)
+            .setUnfSend(false)
+            .setIsAuto(isAuto)
+            .setAdvanceUuid(UUID.randomUUID())
             .setIs1CSendAllowed(false)
             .setIsSmsSent(false)
             .setIsEmailRead(false)
             .setCancelledComment("")
             .setIsDownloadedContractApplication(true)
-            .setUuidContractApplicationFile(tripRequestDocsUUID)
-            .setIsAutomationRequest(isAuto)
-            .setAdvanceUuid(UUID.randomUUID());
-        return tripRequestAdvancePayment;
+            .setUuidContractApplicationFile(tripRequestDocsUUID);
+           // .setTripTypeCode(trip.getTripTypeCode())
+           // .setLoadingComplete(false)
+//            .setPaymentContractorId(trip.getPaymentContractorId())
+//            .setPageCarrierUrlIsAccess(true)
+//            .setIsDownloadedAdvanceApplication(false)
+//            .setIsDownloadedContractApplication(true)
+//            .setIsPaid(false)
+        return tripAdvance;
     }
 
     private void setPersonInfo(IsAdvancedRequestResponse isAdvancedRequestResponse, Long authorId) {
@@ -370,9 +360,6 @@ public class DispatcherPageService {
         isAdvancedRequestResponse.setAuthorId(authorId);
     }
 
-    private ContractorAdvancePaymentContact getAdvancePaymentContact(Long contractorId) {
-        return advanceContactRepository.find(contractorId).orElse(new ContractorAdvancePaymentContact());
-    }
 
     private ResponseEntity<IsAdvancedRequestResponse> getIsAdvancedRequestResponseResponseEntity() {
         return new ResponseEntity<>(new IsAdvancedRequestResponse(), HttpStatus.OK);

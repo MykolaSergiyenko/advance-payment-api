@@ -2,10 +2,10 @@ package online.oboz.trip.trip_carrier_advance_payment_api.service.rest;
 
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.Location;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.Trip;
+import online.oboz.trip.trip_carrier_advance_payment_api.domain.TripAdvance;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.TripInfo;
-import online.oboz.trip.trip_carrier_advance_payment_api.domain.TripRequestAdvancePayment;
 import online.oboz.trip.trip_carrier_advance_payment_api.error.BusinessLogicException;
-import online.oboz.trip.trip_carrier_advance_payment_api.repository.AdvanceRequestRepository;
+import online.oboz.trip.trip_carrier_advance_payment_api.repository.TripAdvanceRepository;
 import online.oboz.trip.trip_carrier_advance_payment_api.repository.LocationRepository;
 import online.oboz.trip.trip_carrier_advance_payment_api.repository.TripRepository;
 import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.Error;
@@ -23,58 +23,70 @@ import java.util.UUID;
 public class CarrierPageService {
     private static final Logger log = LoggerFactory.getLogger(CarrierPageService.class);
 
-    private final AdvanceRequestRepository advanceRequestRepository;
+    private final TripAdvanceRepository tripAdvanceRepository;
     private final TripRepository tripRepository;
     private final LocationRepository locationRepository;
 
     public CarrierPageService(
-        AdvanceRequestRepository advanceRequestRepository,
+        TripAdvanceRepository tripAdvanceRepository,
         TripRepository tripRepository,
         LocationRepository locationRepository
     ) {
-        this.advanceRequestRepository = advanceRequestRepository;
+        this.tripAdvanceRepository = tripAdvanceRepository;
         this.tripRepository = tripRepository;
         this.locationRepository = locationRepository;
     }
 
     public ResponseEntity<FrontAdvancePaymentResponse> searchAdvancePaymentRequestByUuid(UUID uuid) {
         FrontAdvancePaymentResponse frontAdvancePaymentResponse = new FrontAdvancePaymentResponse();
-        TripRequestAdvancePayment t = getTripRequestAdvancePaymentByUUID(uuid);
-        if (t.getPageCarrierUrlIsAccess()) {
-            frontAdvancePaymentResponse.setPushButtonAt(t.getPushButtonAt());
-            frontAdvancePaymentResponse.setUrlAdvanceApplication(t.getUuidAdvanceApplicationFile());
-            frontAdvancePaymentResponse.setTripCostWithVat(t.getTripCost());
-            frontAdvancePaymentResponse.setAdvancePaymentSum(t.getAdvancePaymentSum());
-            frontAdvancePaymentResponse.setRegistrationFee(t.getRegistrationFee());
-            frontAdvancePaymentResponse.setIsCancelled(t.getIsCancelled());
-            frontAdvancePaymentResponse.setIsPushedUnfButton(t.getIsPushedUnfButton());
-            setTripInfo(frontAdvancePaymentResponse, t.getTripId());
-            setEmailRead(t);
+        TripAdvance tripAdvance = getTripRequestAdvancePaymentByUUID(uuid);
+        if (tripAdvance.getPageCarrierUrlIsAccess()) {
+            frontAdvancePaymentResponse.setPushButtonAt(
+                tripAdvance.getPushButtonAt());
+            frontAdvancePaymentResponse.setUrlAdvanceApplication(
+                tripAdvance.getUuidAdvanceApplicationFile());
+            frontAdvancePaymentResponse.setTripCostWithVat(
+                tripAdvance.getTripCost());
+            frontAdvancePaymentResponse.setAdvancePaymentSum(
+                tripAdvance.getAdvancePaymentSum());
+            frontAdvancePaymentResponse.setRegistrationFee(
+                tripAdvance.getRegistrationFee());
+            frontAdvancePaymentResponse.setIsCancelled(
+                tripAdvance.getIsCancelled());
+            frontAdvancePaymentResponse.setIsPushedUnfButton(
+                tripAdvance.getIsPushedUnfButton());
+
+            setTripInfo(frontAdvancePaymentResponse,
+                tripAdvance.getTripId());
+
+            //# Fact of e-mail note was read set here
+            //  addresser open advance LK-url
+            setEmailRead(tripAdvance);
         } else {
-            frontAdvancePaymentResponse.setPageCarrierUrlIsAccess(t.getPageCarrierUrlIsAccess());
+            frontAdvancePaymentResponse.setPageCarrierUrlIsAccess(tripAdvance.getPageCarrierUrlIsAccess());
             new ResponseEntity<>(frontAdvancePaymentResponse, HttpStatus.OK);
             log.info("PageCarrierUrlIsAccess is false");
         }
         return new ResponseEntity<>(frontAdvancePaymentResponse, HttpStatus.OK);
     }
 
-    private void setEmailRead(TripRequestAdvancePayment advance) {
+    private void setEmailRead(TripAdvance advance) {
         if (!advance.getIsEmailRead()) {
             advance.setIsEmailRead(true);
             advance.setEmailReadAt(OffsetDateTime.now());
-            advanceRequestRepository.save(advance);
+            tripAdvanceRepository.save(advance);
         }
     }
 
     public ResponseEntity<Void> requestGiveAdvancePaymentForCarrier(UUID uuid) {
-        TripRequestAdvancePayment t = getTripRequestAdvancePaymentByUUID(uuid);
+        TripAdvance t = getTripRequestAdvancePaymentByUUID(uuid);
         if (!t.getPageCarrierUrlIsAccess()) {
             log.error("PageCarrierUrlIsAccess is false");
             throw getBusinessLogicException("PageCarrierUrlIsAccess is false");
         }
         if (t.getPushButtonAt() == null && !t.getIsCancelled()) {
             t.setPushButtonAt(OffsetDateTime.now());
-            advanceRequestRepository.save(t);
+            tripAdvanceRepository.save(t);
             log.error("save ok for advance request with uuid: {} ,PushButtonAt: {}, CancelAdvance: {} ",
                 uuid, t.getPushButtonAt(), t.getIsCancelled()
             );
@@ -104,8 +116,8 @@ public class CarrierPageService {
         frontAdvancePaymentResponse.setLastUnloadingAddress(locDest.getAddress());
     }
 
-    private TripRequestAdvancePayment getTripRequestAdvancePaymentByUUID(UUID uuid) {
-        return advanceRequestRepository.find(uuid).orElseThrow(() ->
+    private TripAdvance getTripRequestAdvancePaymentByUUID(UUID uuid) {
+        return tripAdvanceRepository.find(uuid).orElseThrow(() ->
             getBusinessLogicException("AdvancePaymentRequest not found")
         );
     }

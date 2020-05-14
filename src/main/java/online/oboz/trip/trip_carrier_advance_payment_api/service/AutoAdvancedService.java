@@ -4,8 +4,9 @@ import online.oboz.trip.trip_carrier_advance_payment_api.config.ApplicationPrope
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.*;
 import online.oboz.trip.trip_carrier_advance_payment_api.repository.*;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.integration.OrdersApiService;
-import online.oboz.trip.trip_carrier_advance_payment_api.util.DtoUtils;
-import org.apache.commons.lang.StringUtils;
+
+import online.oboz.trip.trip_carrier_advance_payment_api.service.messages.NewNotificationService;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +31,7 @@ public class AutoAdvancedService {
     private final TripRepository tripRepository;
     private final ContractorRepository contractorRepository;
     private final AdvanceContactRepository advanceContactRepository;
+
     private final ApplicationProperties applicationProperties;
     private final NotificationService notificationService;
     private final NewNotificationService newNotificationService;
@@ -112,61 +114,51 @@ public class AutoAdvancedService {
 
     @Scheduled(cron = "${services.auto-advance-service.cron.creation}")
     void createTripRequestAdvancePayment() {
+        //TODO: maximum concrete this query
+      //Scheduled create autoadvance- and approved- motor-trips
         tripRepository.getAutoApprovedMotorTrips().forEach(trip -> {
-                Double tripCostWithNds = tripRepository.getTripCostWithVat(trip.getId()); // нужно с ндс?
-                AdvancePaymentCost advanceCost = advancePaymentCostRepository.getAdvancePaymentCost(tripCostWithNds);
+                //TODO: use Trip, Costs, Contact checkUniq,
+                // create auto-adcvance from trip, save
+                // notificate for auto-advance
+                TripAdvance advance = newAutoTripRequestAdvancePayment();
+                    //trip
+                    // set fields
+                    advanceRepository.save(advance);
 
-                log.info("start createTripRequestAdvancePayment for tripId: {}, with cost: {}",
-                    trip.getId(), trip.getCost()); // ндс?
+                newNotificationService.notificate(advance);
 
-                if (advanceCost == null) {
-                    log.info("not found cost  for tripId: {} from advancePaymentCostRepository", trip.getId());
-                    return;
-                }
+            });
+//            //TODO: use Trip, Costs, Contact checkUniq,
+//                Long tripId = trip.getId();
+//                Double tripCostWithNds = trip.getCost(); // ндс?
+//                AdvancePaymentCost advanceCost = advancePaymentCostRepository.getAdvancePaymentCost(tripCostWithNds);
+//                log.info("start createTripRequestAdvancePayment for tripId: {}, with cost: {}",
+//                    tripId, tripCostWithNds); // ндс?
+//                if (advanceCost == null) {
+//                    log.info("not found cost  for tripId: {} from advancePaymentCostRepository", tripId);
+//                    return;
+//                }
+//                TripRequestAdvancePayment tripRequestAdvancePayment = newAutoTripRequestAdvancePayment();
+//                log.info("tripRequestAdvancePayment for id : {}, is auto crated", tripRequestAdvancePayment.getId());
+//                Long tripContractorId = trip.getContractorId();
+//                ContractorAdvancePaymentContact contact = advanceContactRepository.find(tripContractorId).orElse(null);
+//
+//                if (contact != null) {
+//                    MessageDto messageDto = new MessageDto(applicationProperties, tripRequestAdvancePayment, contact);
+//                    sendNotifications(messageDto);
+//                } else {
+//                    log.info("Contact not found for trip {}.", trip.getNum());
+//                }
+//            }
+//        );
+   }
 
-                TripRequestAdvancePayment tripRequestAdvancePayment = newTripRequestAdvancePayment(trip, advanceCost);
-                log.info("tripRequestAdvancePayment for id : {}, is auto crated", tripRequestAdvancePayment.getId());
 
-                ContractorAdvancePaymentContact contact = advanceContactRepository.find(trip.getContractorId()).orElse(null);
-
-                if (contact != null) {
-                    MessageDto messageDto = DtoUtils.newMessage(tripRequestAdvancePayment, contact, trip.getNum(),
-                        contractorRepository, applicationProperties);
-                    sendNotifications(messageDto);
-                } else {
-                    log.info("Contact not found for trip {}.", trip.getNum());
-                }
-            }
-        );
-    }
-
-
-    private TripRequestAdvancePayment newTripRequestAdvancePayment(Trip trip, AdvancePaymentCost advanceCost) {
-        TripRequestAdvancePayment tripRequestAdvancePayment = new TripRequestAdvancePayment();
-        tripRequestAdvancePayment.setTripId(trip.getId());
-        tripRequestAdvancePayment.setContractorId(trip.getContractorId());
-        tripRequestAdvancePayment.setDriverId(trip.getDriverId());
-        tripRequestAdvancePayment.setTripTypeCode(trip.getTripTypeCode());
-        tripRequestAdvancePayment.setPaymentContractorId(trip.getPaymentContractorId());
-        tripRequestAdvancePayment.setIsAutomationRequest(true);
-        tripRequestAdvancePayment.setTripCost(trip.getCost());
-        tripRequestAdvancePayment.setAdvancePaymentSum(advanceCost.getAdvancePaymentSum());
-        tripRequestAdvancePayment.setRegistrationFee(advanceCost.getRegistrationFee());
-        tripRequestAdvancePayment.setLoadingComplete(false);
-        tripRequestAdvancePayment.setPageCarrierUrlIsAccess(true);
-        tripRequestAdvancePayment.setIs1CSendAllowed(true);
-        tripRequestAdvancePayment.setIsCancelled(false);
-        tripRequestAdvancePayment.setIsPushedUnfButton(false);
-        tripRequestAdvancePayment.setIsPaid(false);
-        tripRequestAdvancePayment.setComment(AUTO_ADVANCE_COMMENT);
-        tripRequestAdvancePayment.setIsUnfSend(false);
-        tripRequestAdvancePayment.setIsDownloadedAdvanceApplication(false);
-        tripRequestAdvancePayment.setIsDownloadedContractApplication(false);
-        tripRequestAdvancePayment.setAdvanceUuid(UUID.randomUUID());
-        tripRequestAdvancePayment.setIsSmsSent(false);
-        tripRequestAdvancePayment.setIsEmailRead(false);
-        advanceRequestRepository.save(tripRequestAdvancePayment);
-        return tripRequestAdvancePayment;
+    private TripAdvance newAutoTripRequestAdvancePayment() {
+        TripAdvance tripAdvance = new TripAdvance();
+        tripAdvance.setComment(AUTO_ADVANCE_COMMENT); //TODO: drom app.properties
+        advanceRepository.save(tripAdvance);
+        return tripAdvance;
     }
 
 

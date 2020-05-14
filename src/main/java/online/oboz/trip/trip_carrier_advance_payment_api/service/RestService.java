@@ -35,6 +35,7 @@ public class RestService {
         ResponseToken responseToken = requestToken(user, password);
         ACCESS_TOKEN = responseToken.getAccessToken();
         log.info("Success request token. for user  " + applicationProperties.getUsername() + " " + ACCESS_TOKEN);
+        //TODO: у нас теперь есть  еще список имейлов "разрешенных пользовтелей"
     }
 
     public ResponseToken requestToken(String userName, String password) {

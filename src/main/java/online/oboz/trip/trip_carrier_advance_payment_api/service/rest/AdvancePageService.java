@@ -1,13 +1,15 @@
 package online.oboz.trip.trip_carrier_advance_payment_api.service.rest;
 
+import online.oboz.trip.trip_carrier_advance_payment_api.config.ApplicationProperties;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.ContractorAdvanceExclusion;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.Order;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.Trip;
-import online.oboz.trip.trip_carrier_advance_payment_api.domain.TripRequestAdvancePayment;
+import online.oboz.trip.trip_carrier_advance_payment_api.domain.TripAdvance;
 import online.oboz.trip.trip_carrier_advance_payment_api.error.BusinessLogicException;
 import online.oboz.trip.trip_carrier_advance_payment_api.repository.*;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.integration.Integration1cService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.integration.OrdersApiService;
+import online.oboz.trip.trip_carrier_advance_payment_api.util.SecurityUtils;
 import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.AdvancePaymentCommentDTO;
 import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.Error;
 import org.slf4j.Logger;
@@ -15,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import javax.transaction.Transactional;
 import java.util.Map;
@@ -27,55 +30,77 @@ public class AdvancePageService {
     private final TripRepository tripRepository;
     private final OrderRepository orderRepository;
     private final Integration1cService integration1cService;
-    private final AdvanceRequestRepository advanceRequestRepository;
+    private final TripAdvanceRepository advanceRepository;
     private final ContractorExclusionRepository contractorExclusionRepository;
     private final ContractorRepository contractorRepository;
     private final OrdersApiService ordersApiService;
+    private final ApplicationProperties applicationProperties;
 
     public AdvancePageService(
         TripRepository tripRepository,
         OrderRepository orderRepository,
         Integration1cService integration1cService,
-        AdvanceRequestRepository advanceRequestRepository,
+        TripAdvanceRepository advanceRepository,
         ContractorExclusionRepository contractorExclusionRepository,
         ContractorRepository contractorRepository,
-        OrdersApiService ordersApiService
-    ) {
+        OrdersApiService ordersApiService,
+        ApplicationProperties applicationProperties) {
         this.tripRepository = tripRepository;
         this.orderRepository = orderRepository;
         this.integration1cService = integration1cService;
-        this.advanceRequestRepository = advanceRequestRepository;
+        this.advanceRepository = advanceRepository;
         this.contractorExclusionRepository = contractorExclusionRepository;
         this.contractorRepository = contractorRepository;
         this.ordersApiService = ordersApiService;
+        this.applicationProperties = applicationProperties;
     }
 
     @Transactional
-    public ResponseEntity<Void> confirmAdvancePayment(Long requestAdvansePaymentId) {
-        TripRequestAdvancePayment tripRequestAdvancePayment = getTripRequestAdvancePaymentById(requestAdvansePaymentId);
-        Trip trip = tripRepository.findById(tripRequestAdvancePayment.getTripId()).orElseThrow(() ->
+    public ResponseEntity<Void> confirmAdvancePayment(Long tripAdvanceId) {
+        TripAdvance tripAdvance = advanceRepository.find(tripAdvanceId).orElseThrow(() ->
+            getBusinessLogicException("Trip advance not found")
+        );
+
+        // TODO: Test can be nullable?
+        Trip trip = tripRepository.findById(tripAdvance.getTripId()).orElseThrow(() ->
             getBusinessLogicException("trip not found")
         );
+
+        // TODO: Test can be nullable?
         Order order = orderRepository.findById(trip.getOrderId()).orElseThrow(() ->
             getBusinessLogicException("order not found")
         );
+
         boolean downloadAllDocuments = isDownloadAllDocuments(trip);
-        Boolean isCancelled = tripRequestAdvancePayment.getIsCancelled();
-        if (downloadAllDocuments && !tripRequestAdvancePayment.getIsPushedUnfButton() && !isCancelled) {
-            integration1cService.send1cNotification(requestAdvansePaymentId);
-            tripRequestAdvancePayment.setIsPushedUnfButton(true);
-            tripRequestAdvancePayment.setIs1CSendAllowed(false);
-            tripRequestAdvancePayment.setPageCarrierUrlIsAccess(false);
+        Boolean isCancelled = tripAdvance.getIsCancelled();
+        if (downloadAllDocuments && !tripAdvance.getIsPushedUnfButton() && !isCancelled) {
+
+            //TODO: Интеграция с 1с-УНФ?
+            integration1cService.send1cNotification(tripAdvanceId);
+
+            //Where is it set at default
+            tripAdvance.setIsPushedUnfButton(true);
+            tripAdvance.setIs1CSendAllowed(false);
+            tripAdvance.setPageCarrierUrlIsAccess(false);
+
+            //what we update in trip-db?
             tripRepository.save(trip);
-            advanceRequestRepository.save(tripRequestAdvancePayment);
+            advanceRepository.save(tripAdvance);
+
+
+            //why orders?
             final Long orderTypeId = orderRepository.findById(
                 trip.getOrderId()
             ).get().getOrderTypeId();
 
+
+            // exclusion-constraint check always?
+            //проверяем наличие записи контрактора в таблице исключений по типу заказа при  отсутствии  добавляем запись
+
             ContractorAdvanceExclusion contractorAdvanceExclusion = contractorExclusionRepository
                 .find(trip.getContractorId(), order.getOrderTypeId())
                 .orElse(new ContractorAdvanceExclusion());
-            //проверяем наличие записи контрактора в таблице исключений по типу заказа при  отсутствии  добавляем запись
+
             if (contractorAdvanceExclusion.getId() == null) {
                 contractorAdvanceExclusion = new ContractorAdvanceExclusion();
                 contractorAdvanceExclusion.setCarrierId(trip.getContractorId());
@@ -84,6 +109,8 @@ public class AdvancePageService {
                 contractorAdvanceExclusion.setCarrierFullName(
                     contractorRepository.findById(trip.getContractorId()).get().getFullName()
                 );
+
+                //why update?
                 contractorExclusionRepository.save(contractorAdvanceExclusion);
             }
             return new ResponseEntity<>(HttpStatus.OK);
@@ -97,19 +124,24 @@ public class AdvancePageService {
         }
     }
 
+
     public ResponseEntity<Void> cancelAdvancePayment(Long id, String cancelAdvanceComment) {
-        TripRequestAdvancePayment entity = getTripRequestAdvancePaymentById(id);
+        TripAdvance entity = advanceRepository.find(id).orElseThrow(() ->
+            getBusinessLogicException("Trip-advance not found.")
+        );
         if (!entity.getIsCancelled()) {
             entity.setCancelledComment(cancelAdvanceComment);
             entity.setIsCancelled(true);
-            advanceRequestRepository.save(entity);
+            advanceRepository.save(entity);
             log.error(" was cancel AdvancePayment with id: {} and cancel comment: {}", id, cancelAdvanceComment);
         }
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     public ResponseEntity<Void> updateLoadingComplete(Long id, Boolean loadingComplete) {
-        TripRequestAdvancePayment entity = getTripRequestAdvancePaymentById(id);
+        TripAdvance entity = advanceRepository.find(id).orElseThrow(() ->
+            getBusinessLogicException("Trip-advance not found.")
+        );
         Trip tripIgnore = tripRepository.getNotApproveTrip(entity.getTripId()).orElseGet(Trip::new);
         if (!loadingComplete) {
             entity.setIs1CSendAllowed(false);
@@ -124,21 +156,28 @@ public class AdvancePageService {
             log.error("setIs1CSendAllowed is true ");
         }
         entity.setLoadingComplete(loadingComplete);
-        advanceRequestRepository.save(entity);
+        advanceRepository.save(entity);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     public ResponseEntity<Void> changeAdvancePaymentComment(AdvancePaymentCommentDTO advancePaymentCommentDTO) {
-        final TripRequestAdvancePayment entity = getTripRequestAdvancePaymentById(advancePaymentCommentDTO.getId());
+        final TripAdvance entity = advanceRepository.find(advancePaymentCommentDTO.getId()).orElseThrow(() ->
+            getBusinessLogicException("Trip-advance not found.")
+        );
+        ;
         entity.setComment(advancePaymentCommentDTO.getAdvanceComment());
-        advanceRequestRepository.save(entity);
+        advanceRepository.save(entity);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     private Boolean isDownloadAllDocuments(Trip trip) {
-//        использовать только в confirm
-        Map<String, String> fileRequestUuidMap = ordersApiService.findTripRequestDocs(trip);
-        Map<String, String> fileAdvanceRequestUuidMap = ordersApiService.findAdvanceRequestDocs(trip);
+        //использовать только в confirm
+        //TODO: зачем это?
+        Map<String, String> fileRequestUuidMap = ordersApiService.
+            findTripRequestDocs(trip);
+        Map<String, String> fileAdvanceRequestUuidMap = ordersApiService.
+            findAdvanceRequestDocs(trip);
+
         String requestFileUuid = Optional
             .ofNullable(fileRequestUuidMap.get("request"))
             .orElse(fileRequestUuidMap.get("trip_request"));
@@ -147,14 +186,15 @@ public class AdvancePageService {
         if (!isAllDocsUpload) {
             log.info("Не загружены документы. " + trip.getId());
         }
+        // TODO?
         return isAllDocsUpload;
     }
 
-    private TripRequestAdvancePayment getTripRequestAdvancePaymentById(Long id) {
-        Optional<TripRequestAdvancePayment> tripRequestAdvancePayment = advanceRequestRepository.find(id);
-        return tripRequestAdvancePayment.orElseThrow(() ->
-            getBusinessLogicException("TripRequestAdvancePayment not found")
-        );
+    public void checkAccess() {
+        if (SecurityUtils.hasNotAccess(applicationProperties)) {
+            log.info("User hasn't access.");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User permission denied");
+        }
     }
 
     private BusinessLogicException getBusinessLogicException(String s) {
