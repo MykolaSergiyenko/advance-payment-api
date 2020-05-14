@@ -5,7 +5,12 @@ import org.springframework.http.HttpStatus;
 
 import javax.validation.constraints.NotNull;
 
-public class UrlCutterException extends Exception { //extends BadRequestException
+/**
+ * Ошибка преобразования URL'а
+ */
+public class UrlCutterException extends Exception {
+    //extends BadRequestException
+    //TODO: catch timeOut-exception?
     @NotNull
     private final HttpStatus status;
     @NotNull

@@ -19,6 +19,22 @@ import java.net.URL;
 import java.net.URLDecoder;
 
 
+/**
+ * Сервис для "обрезки" ссылок.
+ * Использует API сервиса 'Кликер.ру' ( https://clck.ru/ ) через RestTemplate.
+ * Используется в MessageTextService при формировании текста уведомлений.
+ *
+ * Тестовый ендпоинт - AdvancePaymentTestDelegateImpl#cutUrl(String url).
+ *
+ * Тесты - online.oboz.trip.trip_carrier_advance_payment_api.service.
+ *                  messages.UrlShortenerServiceTest#testUrlByCutter().
+
+ *
+ * @author St_udent
+ * @see UrlService
+ * @see online.oboz.trip.trip_carrier_advance_payment_api.service.messages.common.format.MessageTextService
+ * @see online.oboz.trip.trip_carrier_advance_payment_api.service.AdvancePaymentTestDelegateImpl
+ */
 @Service
 public class UrlShortenerService implements UrlService {
     private static final Logger log = LoggerFactory.getLogger(UrlShortenerService.class);
