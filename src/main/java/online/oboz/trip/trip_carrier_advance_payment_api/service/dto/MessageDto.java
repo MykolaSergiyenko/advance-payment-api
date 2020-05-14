@@ -3,6 +3,8 @@ package online.oboz.trip.trip_carrier_advance_payment_api.service.dto;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
+
+//Dont'use
 public class MessageDto {
     private String tripNum;
     private String contractorName;

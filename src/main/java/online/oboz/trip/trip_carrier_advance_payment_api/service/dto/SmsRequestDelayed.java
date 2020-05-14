@@ -3,6 +3,7 @@ package online.oboz.trip.trip_carrier_advance_payment_api.service.dto;
 import java.util.concurrent.Delayed;
 import java.util.concurrent.TimeUnit;
 
+//Make copy. Don't use
 public class SmsRequestDelayed extends SendSmsRequest implements Delayed {
 
     private final long time;

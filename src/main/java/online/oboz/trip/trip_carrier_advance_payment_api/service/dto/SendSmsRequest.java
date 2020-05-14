@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
+
+//Make cope don't use
 public class SendSmsRequest {
     @JsonProperty("text")
     private String text;
