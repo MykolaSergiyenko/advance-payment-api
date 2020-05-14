@@ -3,16 +3,23 @@ package online.oboz.trip.trip_carrier_advance_payment_api.domain;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 
 @Entity
 @Table(schema = "orders", name = "orders")
 public class Order {
     @Id
+    @NotNull
+    @Column(name = "id", insertable = false, updatable = false)
     private Long id;
+
+    @Column(name = "order_type_id")
     private Long orderTypeId;
+
+    @OneToOne(mappedBy = "order", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    Trip trip;
+
 
     public Order() {
     }

@@ -3,22 +3,26 @@ package online.oboz.trip.trip_carrier_advance_payment_api.domain;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 @Entity
 @Table(schema = "common", name = "contractors")
 public class Contractor {
-
     @Id
     private Long id;
     private String fullName;
+    //Use isVatPayer on vat()?
     private Boolean isVatPayer;
     private Boolean isVerified;
     private String phone;
     private String email;
     private Boolean isAutoAdvancePayment;
+
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumns({
+        @JoinColumn(name = "id", referencedColumnName = "contractor_id")
+    })
+    private AdvanceContact contact;
 
     public Contractor() {
     }

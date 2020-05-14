@@ -4,28 +4,83 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.time.OffsetDateTime;
 
 @Entity
 @Table(schema = "orders", name = "trips")
 public class Trip {
     @Id
+    @NotNull
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", updatable = false, insertable = false)
     private Long id;
-    private Long contractorId;
+
+    @Column(name = "driver_id")
     private Long driverId;
-    private String num;
-    private Long orderId;
-    private Double cost;
-    private Long paymentContractorId;
-    private String vatCode;
+
+    @Column(name = "trip_type_code")
     private String tripTypeCode;
+
+
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumns({
+        @JoinColumn(name = "contractor_id", referencedColumnName = "id")
+    })
+    private Contractor contractor;
+
+
+
+    //map on advance?
+    private String num;
+
+    //map on advance?
+    @Column(name = "order_id", updatable = false, insertable = false)
+    private Long orderId;
+
+    //map on advance?
+    private Double cost;
+
+    @NotNull
+    @Column(name = "payment_contractor_id")
+    private Long paymentContractorId;
+
+    @NotNull
+    @Column(name = "contractor_id", updatable = false, insertable = false)
+    private Long contractorId;
+
+    //map on dict?
+    private String vatCode;
+
+    //map on advance status?
     private String tripStatusCode;
+
+    //what is it?
     private String resourceTypeCode;
     private OffsetDateTime createdAt;
 
     @OneToOne(mappedBy = "trip", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private TripInfo tripInfo;
+
+//
+//    @JoinColumn(name = "driver_id", referencedColumnName = "driver_id"),
+//    @JoinColumn(name = "contractor_id", referencedColumnName = "contractor_id"),
+//    @JoinColumn(name = "payment_contractor_id", referencedColumnName = "payment_contractor_id"),
+//    @JoinColumn(name = "trip_type_code", referencedColumnName = "trip_type_code", columnDefinition = "motor")
+    //or many?
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumns({
+        @JoinColumn(name = "id", referencedColumnName = "trip_id")
+    })
+    private TripAdvance trip_advance;
+
+
+
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumns({
+        @JoinColumn(name = "order_id", referencedColumnName = "id")
+    })
+    private Order order;
 
     public Trip() {
     }
@@ -122,6 +177,14 @@ public class Trip {
         this.resourceTypeCode = resourceTypeCode;
     }
 
+    public Order getOrder() {
+        return order;
+    }
+
+    public void setOrder(Order order) {
+        this.order = order;
+    }
+
     public void setCreatedAt(OffsetDateTime createdAt) {
         this.createdAt = createdAt;
     }
@@ -142,6 +205,15 @@ public class Trip {
 
     public void setTripInfo(TripInfo tripInfo) {
         this.tripInfo = tripInfo;
+    }
+
+
+    public Contractor getContractor() {
+        return contractor;
+    }
+
+    public void setContractor(Contractor contractor) {
+        this.contractor = contractor;
     }
 
     @Override

@@ -9,15 +9,22 @@ import java.time.OffsetDateTime;
 
 @Entity
 @Table(name = "contractor_advance_payment_contact", schema = "common")
-public class ContractorAdvancePaymentContact {
-
+public class AdvanceContact {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
+
+    @Column(name = "contractor_id")
     private Long contractorId;
+
+
     private String fullName;
     private String email;
     private String phone;
+
+    @OneToOne(mappedBy = "contact", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private Contractor contractor;
+
     @NotNull
     @Column(name = "created_at", nullable = false)
     private OffsetDateTime createdAt;
@@ -26,7 +33,7 @@ public class ContractorAdvancePaymentContact {
     @Column(name = "updated_at", nullable = false)
     private OffsetDateTime updatedAt;
 
-    public ContractorAdvancePaymentContact() {
+    public AdvanceContact() {
     }
 
     @PrePersist

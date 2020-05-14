@@ -8,7 +8,7 @@ import java.time.OffsetDateTime;
 
 @Entity
 @Table(name = "advance_payment_cost", schema = "dictionary")
-public class AdvancePaymentCost {
+public class AdvancePaymentCostDict {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
@@ -19,7 +19,7 @@ public class AdvancePaymentCost {
     private Double registrationFee;
     private OffsetDateTime createdAt = OffsetDateTime.now();
 
-    public AdvancePaymentCost() {
+    public AdvancePaymentCostDict() {
     }
 
     public Long getId() {
