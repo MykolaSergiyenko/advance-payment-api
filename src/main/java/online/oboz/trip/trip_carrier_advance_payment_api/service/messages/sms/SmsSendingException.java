@@ -1,4 +1,4 @@
-package online.oboz.trip.trip_carrier_advance_payment_api.error;
+package online.oboz.trip.trip_carrier_advance_payment_api.service.messages.sms;
 
 import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.Error;
 import org.springframework.http.HttpStatus;
