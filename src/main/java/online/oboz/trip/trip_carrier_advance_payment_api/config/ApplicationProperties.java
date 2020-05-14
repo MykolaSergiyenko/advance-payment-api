@@ -71,10 +71,10 @@ public class ApplicationProperties {
      * //TODO: Crons for auto-advance action to check?
      * // created and updated in one?
      */
-    @Value("${services.auto-advance-service.cron.creation: 0 0/30 * * * *}")
+    @Value("${services.auto-advance-service.cron.creation: 0 0/2 * * * *}")
     private String cronCreation;
 
-    @Value("${services.auto-advance-service.cron.update: 0 0/30 * * * *}")
+    @Value("${services.auto-advance-service.cron.update: 0 0/2 * * * *}")
     private String cronUpdate;
 
     /**
