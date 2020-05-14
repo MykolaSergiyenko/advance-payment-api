@@ -39,6 +39,7 @@ public class SwaggerDocumentationConfig {
 
     @Bean
     public Docket swaggerSpringfoxDocket() {
+        // TODO: специально useDefaultResponseMessages(true/false)
         Docket docket = new Docket(DocumentationType.SWAGGER_2)
             .useDefaultResponseMessages(true)
             .apiInfo(apiInfo())

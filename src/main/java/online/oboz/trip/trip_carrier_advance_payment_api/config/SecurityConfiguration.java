@@ -22,6 +22,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         "/api-docs/"
     };
 
+    //TODO: configure email white-list here?
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable().authorizeRequests()

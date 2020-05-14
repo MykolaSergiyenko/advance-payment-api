@@ -3,22 +3,15 @@ package online.oboz.trip.trip_carrier_advance_payment_api.config;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import java.net.URL;
 import java.time.OffsetDateTime;
+import java.util.List;
 
 @ConfigurationProperties(prefix = "application", ignoreInvalidFields = false)
 public class ApplicationProperties {
-
-    @Value("${sms-sender.url:http://sms-sender.r14.k.preprod.oboz:30080}")
-    private String smsSenderUrl;
-    @Value("${cut-link.url:https://clck.ru/--?url=}")
-    private String cutLinkUrl;
-    @Value("${auto-advance.min-count-trip:3}")
-    private Integer minCountTrip;
-    @Value("${auto-advance.min-date-trip:2020-01-01T00:00:00+00:00}")
-    private String strMinDateTrip;
-    private OffsetDateTime minDateTrip;
-    @Value("${required-download-docs:true}")
-    private Boolean requiredDownloadDocs;
+    /**
+     * TODO: check use Spring-mail config here?
+     */
     private String mailHost;
     @Value("${spring.mail.port}")
     private int mailPort = 587;
@@ -32,70 +25,544 @@ public class ApplicationProperties {
     private String mailStarttls;
     @Value("${spring.mail.properties.mail.smtp.auth:true}")
     private String mailAuth;
-    @Value("${notification.lk-url}")
-    private String lkUrl;
-    @Value("${notification.email-enable:true}")
-    private Boolean mailEnable;
+
+
+    /**
+     * accessUsersIds not use
+     */
+    @Deprecated
+    @Value("${accessed-users.ids}")
+    private List<Long> accessUsersIds;
+
+
+    /**
+     * Access-only-emails-list
+     */
+    @Value("${accessed-users.emails}")
+    private List<String> accessUsersEmails;
+
+
+    /**
+     * tokenAuthUrl in RestService
+     * //TODO:keyCloakUrl? make different service or config?
+     */
+    @Value("${services.keycloak.url}")
+    private URL tokenAuthUrl;
     @Value("${services.keycloak.auth.username}")
     private String username;
     @Value("${services.keycloak.auth.password}")
     private String password;
+
+    //Advance
+    // Main-application-services
+
+    /**
+     * requiredDownloadDocs
+     * Strange property for application
+     * //TODO: Get requiredDownloadDocs for activate button in DispatcherService?
+     */
+    @Value("${services.advance-service.required-docs:true}")
+    private Boolean requiredDownloadDocs;
+
+    //Auto-advance
+
+    /**
+     * cron
+     * //TODO: Crons for auto-advance action to check?
+     * // created and updated in one?
+     */
+    @Value("${services.auto-advance-service.cron.creation: 0 0/30 * * * *}")
+    private String cronCreation;
+
+    @Value("${services.auto-advance-service.cron.update: 0 0/30 * * * *}")
+    private String cronUpdate;
+
+    /**
+     * Auto Created-advance comment
+     * TODO: Use auto-created-comment from app.properties
+     */
+    @Value("${services.auto-advance-service.comment}")
+    private String autoCreatedComment;
+
+    /**
+     * @return minimum count, dates of driver's trips for AutoAdvanceService
+     * TODO: Is this is auto-advance rules to be created?
+     * При изменении minCountTrip нужно также поменять minDateTrip наа текущее значение
+     * minimum count, dates of driver's trips for AutoAdvanceService
+     */
+    @Value("${services.auto-advance-service.min-date-trip:2020-01-01T00:00:00+00:00}")
+    private String strMinDateTrip;
+    private OffsetDateTime minDateTrip;
+    @Value("${services.auto-advance-service.min-count-trip:3}")
+    private Integer minCountTrip;
+
+
+    /**
+     * URL for BStore-service
+     * TODO: Is make auth-Request via RestService --> RestTemplate ?
+     */
     @Value("${services.bstore-url}")
-    private String bStoreUrl;
+    private URL bStoreUrl;
+
+    /**
+     * OrdersApi-url for OrdersApiService
+     * TODO: Is make auth-Request via RestService --> RestTemplate ?
+     */
     @Value("${services.orders-api-url}")
-    private String ordersApiUrl;
+    private URL ordersApiUrl;
+
+    /**
+     * ReportServer-url for OrdersApiService
+     * TODO: Is make Request via restService.executeGetAuthRequest() --> RestTemplate ?
+     */
     @Value("${services.report-server-url}")
-    private String reportServerUrl;
-    @Value("${services.keycloak.url}")
-    private String tokenAuthUrl;
-    @Value("${notification.delay.sms-send:60000}")
-    private Integer smsSendDelay;
+    private URL reportServerUrl;
+
+    //Notification - Messaging services
+    /**
+     * Client's advance "dashboard-URL" for NotificationService
+     * TODO: Make template maybe? //? URL, String
+     */
+    @Value("${services.notifications.lk-url}")
+    private URL lkUrl;
+
+    /**
+     * Config-URL for url-CutterService
+     */
+    @Value("${services.notifications.cut-link-url:https://clck.ru/--?url=}")
+    private URL cutLinkUrl;
+
+
+    /**
+     * TODO: set in cron for all messages (sms- and emails)
+     */
+    @Value("${services.notifications.sheduler.notify:0 0/30 * * * *}")
+    String cronCheckNotify;
+
+    /**
+     * TODO: Unread email's interval for sheduled-emails? in NotificationService
+     */
+    @Value("${services.notifications.sheduler.email-newadvance-interval:1 hour}")
+    String emailInterval;
+
+    /**
+     * TODO: Unread email's interval for sms-sheduled-notification NotificationService?
+     * Make logic for intervals - now sheduled-emails unable?
+     * TODO:interval? String? #minutes? #hours?
+     * //${notification.delay.sms-send:60000
+     * milliseconds is too much for all needs
+     */
+    @Value("${services.notifications.sheduler.sms-newadvance-inteval:2 hours}")
+    String smsInterval;
+
+
+    //Email-notification-config for NotificationService
+    /**
+     * Is email-enabled for create-advance simple-notification in NotificationService
+     */
+    @Value("${services.notifications.email.email-enable:true}")
+    private Boolean emailEnable;
+
+    /**
+     * Is email-enabled for create-advance sheduled-notification in NotificationService.
+     * Now is unable
+     */
+    @Value("${services.notifications.email.email-schedule-enable:true}")
+    private Boolean emailScheduleEnable;
+
+
+    /**
+     * Enable cut-links for emails in NotificationService.
+     * Now is unable. Use ShorterService in EmailCreator if enable
+     */
+    @Value("${services.notifications.email.cut-links:false}")
+    private Boolean emailCutLinks;
+
+    //Sender not config here. Use by default Spring's?
+
+    /**
+     * Email-message params\templates. Used in message-TextService only.
+     */
+    @Value("${services.notifications.email.email-header-template}")
+    private String emailHeaderTemplate;
+    @Value("${services.notifications.email.email-message-template}")
+    private String emailMessageTemplate;
+
+
+    //Sms-notification-config for NotificationService
+    /**
+     * Is sms-enabled for create-advance simple-notification in NotificationService
+     * Now unable - sms is delayed and send by cron after email-only-notification.
+     */
+    @Value("${services.services.notifications.sms.enable:false}")
+    private Boolean smsEnable;
+
+    /**
+     * Is sms-enabled for create-advance sheduled-notification in NotificationService.
+     * "Delayed"-sms for unread email's enable.
+     */
+    @Value("${services.notifications.sms.schedule-enable:true}")
+    private Boolean smsScheduleEnable;
+
+
+    /**
+     * Sms-sender-url for SmsSenderService --> via restTemplate
+     * TODO: use via RestService proxy maybe?
+     */
+    @Value("${services.notifications.sms.sender-url:http://sms-sender.r14.k.preprod.oboz:30080}")
+    private URL smsSenderUrl;
+
+    /**
+     * SMS-phone-template and SMS-message-template
+     * for TextService in SmsCreator
+     * TODO: check in SmsCreator?
+     */
+    @Value("${services.notifications.sms.sms-phone-template:7%}")
+    private String smsPhoneTemplate;
+    @Value("${services.notifications.sms.sms-message-template}")
+    private String smsMessageTemplate;
+
+    /**
+     * Enable cut-links for emails in NotificationService.
+     * Now is able for short-sms but not in email.
+     * Use ShorterService in SmsCreator
+     */
+    @Value("${services.notifications.sms.cut-links:true}")
+    private Boolean smsCutLinks;
 
     public ApplicationProperties() {
     }
 
-    public OffsetDateTime getMinDateTrip() {
-        return OffsetDateTime.parse(strMinDateTrip);
+    /**
+     * @return Access-only-emails-list
+     */
+    public List<String> hasAccessUsersEmails() {
+        return this.accessUsersEmails;
     }
 
-    public String getSmsSenderUrl() {
-        return this.smsSenderUrl;
+    /**
+     * @return Set access-only-emails-list
+     */
+    public void setAccessUsersEmails(List<String> emails) {
+        this.accessUsersEmails = emails;
     }
 
-    public String getCutLinkUrl() {
-        return cutLinkUrl;
+    /**
+     * @return Check hasAccess by only-user's emails here,
+     * not give all email's list for SecurityUtils.
+     * TODO: check by contains() or streams.filter() here
+     * by private ApplicationProperties.hasAccess(java.lang.String email)
+     * and authenticateUser.emails, ids, other params from front-end;
+     */
+    @Deprecated
+    private boolean hasAccess(String email) {
+        return hasAccessUsersEmails().contains(email);
     }
 
-    public Integer getMinCountTrip() {
-        return this.minCountTrip;
+
+    /**
+     * @return Get token URL for RestService.getRequestToken(). keykloak?
+     */
+    public URL getTokenAuthUrl() {
+        return this.tokenAuthUrl;
     }
 
-    public String getStrMinDateTrip() {
-        return this.strMinDateTrip;
+    public void setTokenAuthUrl(URL tokenAuthUrl) {
+        this.tokenAuthUrl = tokenAuthUrl;
     }
 
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    /**
+     * @return Get requiredDownloadDocs for activate button in DispatcherService?
+     * //requiredDownloadDocs in app.property??
+     * // звучит не очень
+     */
     public Boolean getRequiredDownloadDocs() {
         return this.requiredDownloadDocs;
     }
 
+    public void setRequiredDownloadDocs(Boolean requiredDownloadDocs) {
+        this.requiredDownloadDocs = requiredDownloadDocs;
+    }
+
+
+    /**
+     * TODO: Use auto-comment from app.properties
+     */
+    public String getAutoCreatedComment() {
+        return autoCreatedComment;
+    }
+
+    public void setAutoCreatedComment(String autoCreatedComment) {
+        this.autoCreatedComment = autoCreatedComment;
+    }
+
+
+    //Config auto-advance properties here. Make some private maybe
+
+    /**
+     * Config auto-advance properties here
+     */
+    public String getCronCreation() {
+        return cronCreation;
+    }
+
+    public void setCronCreation(String cronCreation) {
+        this.cronCreation = cronCreation;
+    }
+
+    public String getCronUpdate() {
+        return cronUpdate;
+    }
+
+    public void setCronUpdate(String cronUpdate) {
+        this.cronUpdate = cronUpdate;
+    }
+
+    /**
+     * Get minimum count, dates of driver's trips for AutoAdvanceService
+     */
+    public Integer getMinCountTrip() {
+        return this.minCountTrip;
+    }
+
+    public void setMinCountTrip(Integer minCountTrip) {
+        this.minCountTrip = minCountTrip;
+    }
+
+    public OffsetDateTime getMinDateTrip() {
+        return OffsetDateTime.parse(getStrMinDateTrip());
+    }
+
+    private String getStrMinDateTrip() {
+        return this.strMinDateTrip;
+    }
+
+    //TODO:check two setters or exception?
+    public void setStrMinDateTrip(String strMinDateTrip) {
+        this.strMinDateTrip = strMinDateTrip;
+        setMinDateTrip(OffsetDateTime.parse(strMinDateTrip));
+    }
+
+    private void setMinDateTrip(OffsetDateTime minDateTrip) {
+        this.minDateTrip = minDateTrip;
+    }
+
+    /**
+     * Get B-Store-url for B-StoreService
+     * //TODO: Is make auth-Request via RestService --> RestTemplate ?
+     */
+    public URL getbStoreUrl() {
+        return bStoreUrl;
+    }
+
+    public void setbStoreUrl(URL bStoreUrl) {
+        this.bStoreUrl = bStoreUrl;
+    }
+
+    /**
+     * Get OrdersApi-url for OrdersApiService
+     * //TODO: Used RestService.executePostAuthRequest() --> restTemplate?
+     */
+    public URL getOrdersApiUrl() {
+        return this.ordersApiUrl;
+    }
+
+    public void setOrdersApiUrl(URL ordersApiUrl) {
+        this.ordersApiUrl = ordersApiUrl;
+    }
+
+    /**
+     * Get reportServer-url for OrdersApiService
+     * //TODO: check how used
+     * TODO: - посмотреть костыли в downloadAvanceRequestTemplate
+     */
+    public URL getReportServerUrl() {
+        return this.reportServerUrl;
+    }
+
+    public void setReportServerUrl(URL reportServerUrl) {
+        this.reportServerUrl = reportServerUrl;
+    }
+
+
+    /**
+     * Config client's advance "LK-URL" for NotificationService
+     */
+    public URL getLkUrl() {
+        return this.lkUrl;
+    }
+
+    public void setLkUrl(URL lkUrl) {
+        this.lkUrl = lkUrl;
+    }
+
+
+    /**
+     * Config for UrlCutterService
+     */
+    public URL getCutLinkUrl() {
+        return cutLinkUrl;
+    }
+
+    public void setCutLinkUrl(URL cutLinkUrl) {
+        this.cutLinkUrl = cutLinkUrl;
+    }
+
+
+    /**
+     * Cron for sheduled NotificationService
+     */
+    public String getCronCheckNotify() {
+        return cronCheckNotify;
+    }
+
+    public void setCronCheckNotify(String cronCheckNotify) {
+        this.cronCheckNotify = cronCheckNotify;
+    }
+
+
+    /**
+     * Unread email's interval for sheduled-emails? NotificationService ?
+     */
+    public String getEmailInterval() {
+        return emailInterval;
+    }
+
+    public void setEmailInterval(String emailInterval) {
+        this.emailInterval = emailInterval;
+    }
+
+    /**
+     * Unread email's interval for sms-sheduled-notification NotificationService?
+     * TODO: Make logic for intervals - now sheduled-emails unable?
+     */
+    public String getSmsInterval() {
+        return smsInterval;
+    }
+
+    public void setSmsInterval(String smsInterval) {
+        this.smsInterval = smsInterval;
+    }
+
+
+    /**
+     * @return Is email-enabled for create-advance simple-notification in NotificationService
+     */
+    public Boolean isEmailEnabled() {
+        return this.emailEnable;
+    }
+
+    public void setEmailEnabled(Boolean emailEnable) {
+        this.emailEnable = emailEnable;
+    }
+
+
+    /**
+     * @return Is email-enabled for create-advance sheduled-notification in NotificationService.
+     * Now is unable
+     */
+    public Boolean isEmailScheduleEnabled() {
+        return emailScheduleEnable;
+    }
+
+    public void setEmailScheduleEnabled(Boolean emailScheduleEnable) {
+        this.emailScheduleEnable = emailScheduleEnable;
+    }
+
+
+    /**
+     * @return Enable cut-links for emails in NotificationService.
+     * Now is unable. Use ShorterService in EmailCreator if enable
+     */
+    public Boolean isEmailCutLinks() {
+        return emailCutLinks;
+    }
+
+    public void setEmailCutLinks(Boolean emailCutLinks) {
+        this.emailCutLinks = emailCutLinks;
+    }
+
+
+    /**
+     * @return Email-message templates for e-mail notification
+     */
+    public String getEmailHeaderTemplate() {
+        return emailHeaderTemplate;
+    }
+
+    public void setEmailHeaderTemplate(String emailHeaderTemplate) {
+        this.emailHeaderTemplate = emailHeaderTemplate;
+    }
+
+    public String getEmailMessageTemplate() {
+        return emailMessageTemplate;
+    }
+
+    public void setEmailMessageTemplate(String emailMessageTemplate) {
+        this.emailMessageTemplate = emailMessageTemplate;
+    }
+
+    /**
+     * Get java-mail-properties configurated for Spring
+     * //TODO: Check used everywhere?
+     * //Make mail-config.java?
+     */
     public String getMailHost() {
         return this.mailHost;
+    }
+
+    public void setMailHost(String mailHost) {
+        this.mailHost = mailHost;
     }
 
     public int getMailPort() {
         return this.mailPort;
     }
 
+    public void setMailPort(int mailPort) {
+        this.mailPort = mailPort;
+    }
+
+
     public String getMailUsername() {
         return this.mailUsername;
+    }
+
+    public void setMailUsername(String mailUsername) {
+        this.mailUsername = mailUsername;
     }
 
     public String getMailPassword() {
         return this.mailPassword;
     }
 
+    public void setMailPassword(String mailPassword) {
+        this.mailPassword = mailPassword;
+    }
+
     public String getPropertiesMailDebug() {
         return this.propertiesMailDebug;
+    }
+
+    public void setPropertiesMailDebug(String propertiesMailDebug) {
+        this.propertiesMailDebug = propertiesMailDebug;
     }
 
     public String getMailStarttls() {
@@ -106,82 +573,6 @@ public class ApplicationProperties {
         return this.mailAuth;
     }
 
-    public String getLkUrl() {
-        return this.lkUrl;
-    }
-
-    public Boolean getMailEnable() {
-        return this.mailEnable;
-    }
-
-    public String getUsername() {
-        return this.username;
-    }
-
-    public String getPassword() {
-        return this.password;
-    }
-
-    public String getBStoreUrl() {
-        return this.bStoreUrl;
-    }
-
-    public String getOrdersApiUrl() {
-        return this.ordersApiUrl;
-    }
-
-    public String getReportServerUrl() {
-        return this.reportServerUrl;
-    }
-
-    public String getTokenAuthUrl() {
-        return this.tokenAuthUrl;
-    }
-
-    public Integer getSmsSendDelay() {
-        return this.smsSendDelay;
-    }
-
-    public void setSmsSenderUrl(String smsSenderUrl) {
-        this.smsSenderUrl = smsSenderUrl;
-    }
-
-    public void setCutLinkUrl(String cutLinkUrl) {
-        this.cutLinkUrl = cutLinkUrl;
-    }
-
-    public void setStrMinDateTrip(String strMinDateTrip) {
-        this.strMinDateTrip = strMinDateTrip;
-    }
-
-    public void setMinDateTrip(OffsetDateTime minDateTrip) {
-        this.minDateTrip = minDateTrip;
-    }
-
-    public void setRequiredDownloadDocs(Boolean requiredDownloadDocs) {
-        this.requiredDownloadDocs = requiredDownloadDocs;
-    }
-
-    public void setMailHost(String mailHost) {
-        this.mailHost = mailHost;
-    }
-
-    public void setMailPort(int mailPort) {
-        this.mailPort = mailPort;
-    }
-
-    public void setMailUsername(String mailUsername) {
-        this.mailUsername = mailUsername;
-    }
-
-    public void setMailPassword(String mailPassword) {
-        this.mailPassword = mailPassword;
-    }
-
-    public void setPropertiesMailDebug(String propertiesMailDebug) {
-        this.propertiesMailDebug = propertiesMailDebug;
-    }
-
     public void setMailStarttls(String mailStarttls) {
         this.mailStarttls = mailStarttls;
     }
@@ -190,67 +581,79 @@ public class ApplicationProperties {
         this.mailAuth = mailAuth;
     }
 
-    public void setLkUrl(String lkUrl) {
-        this.lkUrl = lkUrl;
+
+    //Sms-notification-config for Notification Service
+
+    /**
+     * @return Is sms-enabled for create-advance simple-notification in NotificationService
+     * Now unable - sms is delayed and send by cron after email-only-notification.
+     */
+    public Boolean isSmsEnabled() {
+        return smsEnable;
     }
 
-    public void setMailEnable(Boolean mailEnable) {
-        this.mailEnable = mailEnable;
+    public void setSmsEnable(Boolean smsEnable) {
+        this.smsEnable = smsEnable;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+
+    /**
+     * @return Is sms-enabled for create-advance in sheduled-notification in NotificationService.
+     * This enable "delayed"-sms after unread-email-advances by cron.
+     */
+    public Boolean isSmsScheduleEnabled() {
+        return smsScheduleEnable;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setSmsScheduleEnable(Boolean smsScheduleEnable) {
+        this.smsScheduleEnable = smsScheduleEnable;
     }
 
-    public void setBStoreUrl(String bStoreUrl) {
-        this.bStoreUrl = bStoreUrl;
+    /**
+     * @return Enable cut-links for emails in NotificationService.
+     * Now is able for short-sms but not in email.
+     * Use ShorterService in SmsCreator
+     */
+    public Boolean isSmsCutLinks() {
+        return smsCutLinks;
     }
 
-    public void setOrdersApiUrl(String ordersApiUrl) {
-        this.ordersApiUrl = ordersApiUrl;
+    public void setSmsCutLinks(Boolean smsCutLinks) {
+        this.smsCutLinks = smsCutLinks;
     }
 
-    public void setReportServerUrl(String reportServerUrl) {
-        this.reportServerUrl = reportServerUrl;
+
+    /**
+     * @return URL for restTemplate in SmsSenderService.
+     */
+    public URL getSmsSenderUrl() {
+        return this.smsSenderUrl;
     }
 
-    public void setTokenAuthUrl(String tokenAuthUrl) {
-        this.tokenAuthUrl = tokenAuthUrl;
+    public void setSmsSenderUrl(URL smsSenderUrl) {
+        this.smsSenderUrl = smsSenderUrl;
     }
 
-    public void setSmsSendDelay(Integer smsSendDelay) {
-        this.smsSendDelay = smsSendDelay;
+    /**
+     * @return SMS-phonenumber-template use in SmsCreator?;
+     * TODO: use in text-service?
+     */
+    public String getSmsPhoneTemplate() {
+        return smsPhoneTemplate;
     }
 
-    @Override
-    public String toString() {
-        return "ApplicationProperties{" +
-            "smsSenderUrl='" + smsSenderUrl + '\'' +
-            ", cutLinkUrl='" + cutLinkUrl + '\'' +
-            ", minCountTrip=" + minCountTrip +
-            ", strMinDateTrip='" + strMinDateTrip + '\'' +
-            ", minDateTrip=" + minDateTrip +
-            ", requiredDownloadDocs=" + requiredDownloadDocs +
-            ", mailHost='" + mailHost + '\'' +
-            ", mailPort=" + mailPort +
-            ", mailUsername='" + mailUsername + '\'' +
-            ", mailPassword='" + mailPassword + '\'' +
-            ", propertiesMailDebug='" + propertiesMailDebug + '\'' +
-            ", mailStarttls='" + mailStarttls + '\'' +
-            ", mailAuth='" + mailAuth + '\'' +
-            ", lkUrl='" + lkUrl + '\'' +
-            ", mailEnable=" + mailEnable +
-            ", username='" + username + '\'' +
-            ", password='" + password + '\'' +
-            ", bStoreUrl='" + bStoreUrl + '\'' +
-            ", ordersApiUrl='" + ordersApiUrl + '\'' +
-            ", reportServerUrl='" + reportServerUrl + '\'' +
-            ", tokenAuthUrl='" + tokenAuthUrl + '\'' +
-            ", smsSendDelay=" + smsSendDelay +
-            '}';
+    public void setSmsPhoneTemplate(String smsPhoneTemplate) {
+        this.smsPhoneTemplate = smsPhoneTemplate;
+    }
+
+    /**
+     * @return SMS-message-template for TextService in SmsCreator;
+     */
+    public String getSmsMessageTemplate() {
+        return smsMessageTemplate;
+    }
+
+    public void setSmsMessageTemplate(String smsMessageTemplate) {
+        this.smsMessageTemplate = smsMessageTemplate;
     }
 }
