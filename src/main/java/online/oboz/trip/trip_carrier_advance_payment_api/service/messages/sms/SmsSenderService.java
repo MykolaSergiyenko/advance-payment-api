@@ -1,5 +1,5 @@
 package online.oboz.trip.trip_carrier_advance_payment_api.service.messages.sms;
-import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.Error;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.messages.common.format.MessagingException;
 
 import online.oboz.trip.trip_carrier_advance_payment_api.config.ApplicationProperties;
 import org.slf4j.Logger;
@@ -11,57 +11,46 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
-
-
+/**
+ * <b>Сервис отправки СМС</b>
+ *
+ * @author s‡udent
+ * @see SmsSender
+ * @see RestTemplate
+ * @see SmsContainer
+ */
 @Service
-public class SmsSenderService {
+public class SmsSenderService implements SmsSender {
     Logger log = LoggerFactory.getLogger(SmsSenderService.class);
     private final RestTemplate restTemplate;
     private final ApplicationProperties applicationProperties;
 
-
-
     @Autowired
-    public  SmsSenderService(RestTemplate restTemplate, ApplicationProperties applicationProperties) {
+    public SmsSenderService(RestTemplate restTemplate, ApplicationProperties applicationProperties) {
         this.restTemplate = restTemplate;
         this.applicationProperties = applicationProperties;
     }
 
-    public void sendSms(SmsContainer sms){
-        try{
-            makeRequest(sms);
-            //
-        } catch (SmsSendingException e){
-            log.error("Error while sms-sending to " + sms.getPhone() +
-                ". Messages: "+e.getErrors());
-            // throws higher ?
-        }
-    }
 
-
-    private void makeRequest(SmsContainer sms) throws SmsSendingException {
-        String errMessage = "Ошибка отправки СМС: ";
+    public void sendSms(SmsContainer sms) throws MessagingException {
         try {
             String smsSenderUrl = applicationProperties.getSmsSenderUrl().toString();
             ResponseEntity<String> response = restTemplate.postForEntity(smsSenderUrl, sms, String.class);
             if (response.getStatusCode() != HttpStatus.OK) {
-                throw getSmsException(errMessage, response.getStatusCode());
+                getSmsSendingException("Bad SMS-response. "+response.getBody(), sms);
             } else {
                 // TODO: set advance is sms-sent
             }
             log.info("Success send notification sms to " + sms.getPhone());
-        } catch (HttpServerErrorException | SmsSendingException e) {
-            throw getSmsException(errMessage + ". Error: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (HttpServerErrorException e) {
+            throw getSmsSendingException(e.getMessage(), sms);
         }
     }
 
-    private SmsSendingException getSmsException(String s, HttpStatus status) {
-        Error error = new Error();
-        error.setErrorMessage(s);
-        error.setErrorCode(Integer.toString(status.value()));
-        error.setStatus(status.toString());
-        return new SmsSendingException(status, error);
+    private MessagingException getSmsSendingException(String message, SmsContainer sms){
+        Error error = new Error("Error while sms-sending to "
+            + sms.getPhone()
+            + ". Messages: " + message);
+        return new MessagingException(HttpStatus.BAD_REQUEST, error);
     }
-
-
 }

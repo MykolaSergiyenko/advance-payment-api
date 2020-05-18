@@ -7,39 +7,37 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import static org.junit.Assert.assertEquals;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.sql.DataSource;
 
-import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
+import java.util.List;
 
-@ExtendWith(SpringExtension.class)
+import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
+import static org.mockito.BDDMockito.given;
+import static org.postgresql.hostchooser.HostRequirement.any;
+
+@RunWith(SpringRunner.class)
 @DataJpaTest
 public class TripAdvanceEntityTests {
 
     @Autowired
-    private DataSource dataSource;
-    @Autowired private JdbcTemplate jdbcTemplate;
-    @Autowired private EntityManager entityManager;
-    @Autowired private TripAdvanceRepository tripAdvanceRepository;
+    private TripAdvanceRepository tripAdvanceRepository;
 
 
-//    @Test
-//    void injectedComponentsAreNotNull(){
-//        assertNotNull(dataSource);
-//        assertNotNull(jdbcTemplate);
-//        assertNotNull(entityManager);
-//        assertNotNull(tripAdvanceRepository);
-//    }
-//    @Test
-//    void testTripAdvanceRepository(){
-//
-//        TripAdvance t = tripAdvanceRepository.find(1488l).orElseGet(null);
-//        System.out.println("--- t.id = "+t.getId());
-//    }
+    @Test
+    void testTripAdvanceRepository(){
 
+
+    }
 }

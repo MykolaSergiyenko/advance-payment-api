@@ -60,8 +60,8 @@ public class SmsContainer {
 
     @Override
     public String toString() {
-        return "SmsContainer{" +
-            "text='" + text + '\'' +
+        return "SmsContainer {" +
+            " text='" + text + '\'' +
             ", phone='" + phone + '\'' +
             ", tripNum='" + tripNum + '\'' +
             '}';

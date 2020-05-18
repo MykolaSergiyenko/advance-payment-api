@@ -187,16 +187,16 @@ public class DispatcherPageService {
         //Order trip-type?
         // getTripTypeCode() of order?
         // what is exclusion?
-        ContractorAdvanceExclusion contractorAdvanceExclusion = contractorExclusionRepository.find(
-            tripAdvance.getContractorId(),
-            tripAdvance.getTrip().getOrder().getOrderTypeId()
-        ).orElseGet(ContractorAdvanceExclusion::new);
-
-        if (contractorAdvanceExclusion.getId() == null) {
-             contractorAdvanceExclusion =
-                new ContractorAdvanceExclusion();
-                contractorExclusionRepository.save(contractorAdvanceExclusion);
-        }
+//        ContractorAdvanceExclusion contractorAdvanceExclusion = contractorExclusionRepository.find(
+//            tripAdvance.getContractorId(),
+//            tripAdvance.getTrip().getOrder().getOrderTypeId()
+//        ).orElseGet(ContractorAdvanceExclusion::new);
+//
+//        if (contractorAdvanceExclusion.getId() == null) {
+//             contractorAdvanceExclusion =
+//                new ContractorAdvanceExclusion();
+//                contractorExclusionRepository.save(contractorAdvanceExclusion);
+//        }
 
         // Notificate about new advance created
         newNotificationService.notificate(tripAdvance);

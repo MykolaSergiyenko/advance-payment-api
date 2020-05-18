@@ -23,6 +23,14 @@ public class Trip {
     private String tripTypeCode;
 
 
+    public Contractor getContractor() {
+        return contractor;
+    }
+
+    public void setContractor(Contractor contractor) {
+        this.contractor = contractor;
+    }
+
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumns({
         @JoinColumn(name = "contractor_id", referencedColumnName = "id")
@@ -59,7 +67,7 @@ public class Trip {
     private String resourceTypeCode;
     private OffsetDateTime createdAt;
 
-    @OneToOne(mappedBy = "trip", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(mappedBy = "trip", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private TripInfo tripInfo;
 
 //
@@ -68,10 +76,9 @@ public class Trip {
 //    @JoinColumn(name = "payment_contractor_id", referencedColumnName = "payment_contractor_id"),
 //    @JoinColumn(name = "trip_type_code", referencedColumnName = "trip_type_code", columnDefinition = "motor")
     //or many?
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumns({
-        @JoinColumn(name = "id", referencedColumnName = "trip_id")
-    })
+
+    @OneToOne(mappedBy = "trip", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "id", referencedColumnName = "trip_id")
     private TripAdvance trip_advance;
 
 
@@ -208,13 +215,6 @@ public class Trip {
     }
 
 
-    public Contractor getContractor() {
-        return contractor;
-    }
-
-    public void setContractor(Contractor contractor) {
-        this.contractor = contractor;
-    }
 
     @Override
     public String toString() {

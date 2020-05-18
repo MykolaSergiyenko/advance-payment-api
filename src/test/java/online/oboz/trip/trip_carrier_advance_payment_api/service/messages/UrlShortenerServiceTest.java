@@ -14,11 +14,11 @@ import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
+/**
+ * Тесты для "сокращателя" {@link UrlShortenerService}
+ */
 @RunWith(SpringJUnit4ClassRunner.class)
 public class UrlShortenerServiceTest {
-
-
-
     @Value("${services.notifications.sms.cut-link-url:https://clck.ru/--?url=}")
     URL cutLinkUrl;
 
@@ -46,16 +46,15 @@ public class UrlShortenerServiceTest {
     @Value("ftp://xxxxx")
     String testUrl8;
 
-
     @Value("http://президент.рф")
     String testUrl9;
-
 
     @Value("xxxxx")
     String testUrl10;
 
     @Value("http://президент.рф")
     String testUrl11;
+
     @Value("")
     String testUrl12;
 
@@ -66,7 +65,7 @@ public class UrlShortenerServiceTest {
 
 
     @Test
-    public void testUrlByCutter() {
+    public void testUrlCutter() {
         RestTemplate rest = new RestTemplate();
         System.out.println("***  Set cutLinkUrl to " + cutLinkUrl);
         ApplicationProperties prop = new ApplicationProperties();
@@ -74,8 +73,6 @@ public class UrlShortenerServiceTest {
 
         UrlShortenerService urlShortenerService = new UrlShortenerService(rest, prop);
 
-
-        // edit url string -> string
         String cuttedLink1 = urlShortenerService.editUrl(testUrl1);
         System.out.println("inputUrl1 " + testUrl1);
         System.out.println("outputUrl1 " + cuttedLink1);
@@ -124,20 +121,25 @@ public class UrlShortenerServiceTest {
         System.out.println("inputUrl12 " + testUrl12);
         System.out.println("outputUrl12 " + cuttedLink12);
 
+        // одинаковые ссылки
+        assertEquals(cuttedLink10, cuttedLink7);
 
-        assertEquals(cuttedLink10,cuttedLink7);
-        assertEquals(cuttedLink11,cuttedLink9);
-        assertEquals(cuttedLink2,"https://clck.ru/HR");
+        // одинаковые в кириллице
+        assertEquals(cuttedLink11, cuttedLink9);
 
-        assertNotEquals(cuttedLink5,"");
-        assertEquals(cuttedLink12,"");
+        // "постоянная ссылка" на яндекс
+        assertEquals(cuttedLink2, "https://clck.ru/HR");
 
+        // переданы пустые значения
+        assertEquals(cuttedLink12, "");
+
+        // преобразования дали результат
+        assertNotEquals(cuttedLink5, "");
         assertNotNull(cuttedLink1);
         assertNotNull(cuttedLink2);
         assertNotNull(cuttedLink3);
         assertNotNull(cuttedLink4);
     }
-
 
 }
 

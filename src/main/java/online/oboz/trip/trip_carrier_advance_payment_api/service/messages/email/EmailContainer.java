@@ -19,6 +19,7 @@ public class EmailContainer  {
 
         //from Spring
         SimpleMailMessage message = new SimpleMailMessage();
+
         message.setFrom(from); //app.config
         message.setTo(to); //adcvance contact
         message.setSubject(subject); //app.config, advance
@@ -40,9 +41,7 @@ public class EmailContainer  {
 
     @Override
     public String toString() {
-        return "EmailContainer{" +
-            "message='" + message.toString() + '\'' +
-            '}';
+        return "EmailContainer {message= '" + message.toString() +'}';
     }
 
 }

@@ -20,20 +20,20 @@ import java.net.URLDecoder;
 
 
 /**
- * Сервис для "обрезки" ссылок.
+ * <b>Сервис для "обрезки" ссылок</b>
+ * <p>
  * Использует API сервиса 'Кликер.ру' ( https://clck.ru/ ) через RestTemplate.
- * Используется в MessageTextService при формировании текста уведомлений.
+ * <p>
+ * <p>
+ * Используется в {@link online.oboz.trip.trip_carrier_advance_payment_api.service.messages.common.format.MessageCreateService} при формировании текста уведомлений.
+ * <p>
+ * Тестовый ендпоинт - {@link online.oboz.trip.trip_carrier_advance_payment_api.service.AdvancePaymentTestDelegateImpl#cutUrl(String)}.
+ * <p>
+ * Тесты - online.oboz.trip.trip_carrier_advance_payment_api.service.messages.UrlShortenerServiceTest
+ * <p>
  *
- * Тестовый ендпоинт - AdvancePaymentTestDelegateImpl#cutUrl(String url).
- *
- * Тесты - online.oboz.trip.trip_carrier_advance_payment_api.service.
- *                  messages.UrlShortenerServiceTest#testUrlByCutter().
-
- *
- * @author St_udent
+ * @author s‡udent
  * @see UrlService
- * @see online.oboz.trip.trip_carrier_advance_payment_api.service.messages.common.format.MessageTextService
- * @see online.oboz.trip.trip_carrier_advance_payment_api.service.AdvancePaymentTestDelegateImpl
  */
 @Service
 public class UrlShortenerService implements UrlService {
@@ -48,26 +48,30 @@ public class UrlShortenerService implements UrlService {
 
     @Autowired
     public UrlShortenerService(RestTemplate template, ApplicationProperties properties) {
-        this.template=template;
-        this.properties=properties;
+        this.template = template;
+        this.properties = properties;
     }
 
     public String editUrl(String url) {
-        try{
-            log.info("Input url is "+ url);
+        try {
+            log.info("Input url is " + url);
             return cutUrl(url);
-        } catch (UrlCutterException e){
-            log.info("UrlCutter error: "+ e.getErrors());
+        } catch (UrlCutterException e) {
+            log.info("UrlCutter error: " + e.getErrors());
+            log.info("Return input: " + url);
             return url;
         }
     }
 
     public String editUrl(URL url) {
-        try{
-            log.info("Input url is "+ url.toString());
-            return cutUrl(url);
-        } catch (UrlCutterException e){
-            log.info("UrlCutter error: "+ e.getErrors());
+        try {
+            log.info("Input url is: " + url.toString());
+            String result = cutUrl(url);
+            log.info("Output url is: " + result);
+            return result;
+        } catch (UrlCutterException e) {
+            log.info("UrlCutter error: " + e.getErrors());
+            log.info("Return input url: " + url.toString());
             return url.toString();
         }
     }
@@ -75,26 +79,26 @@ public class UrlShortenerService implements UrlService {
     private String cutUrl(URL url) throws UrlCutterException {
         try {
             return getShortUrl(url);
-        } catch (BadRequestException e){
-            log.info("BadRequestException   "+ e.getMessage());
-            throw getCutterException("Ошибка конвертации урла "+ e.getMessage()
+        } catch (BadRequestException e) {
+            log.info("BadRequestException   " + e.getMessage());
+            throw getCutterException("Bad Request to URL-converter: " + e.getMessage()
                 , HttpStatus.BAD_REQUEST);
         }
     }
 
-    private String cutUrl(String stringUrl) throws UrlCutterException{
+    private String cutUrl(String stringUrl) throws UrlCutterException {
         try {
             return cutUrl(new URL(URLDecoder.decode(stringUrl, "UTF-8")));
-        } catch (MalformedURLException | UnsupportedEncodingException e){
-            log.info("MalformedURLException   "+ e.getMessage());
-            throw getCutterException("URL convertation error: "+ e.getMessage()
+        } catch (MalformedURLException | UnsupportedEncodingException e) {
+            log.info("MalformedURLException   " + e.getMessage());
+            throw getCutterException("URL convertation error: " + e.getMessage()
                 , HttpStatus.BAD_REQUEST);
         }
     }
 
 
-    private String getShortUrl(URL url) throws BadRequestException{
-        if (null == properties.getCutLinkUrl()){
+    private String getShortUrl(URL url) throws BadRequestException {
+        if (null == properties.getCutLinkUrl()) {
             throw new BadRequestException("URL-shortener service link empty.");
         }
 

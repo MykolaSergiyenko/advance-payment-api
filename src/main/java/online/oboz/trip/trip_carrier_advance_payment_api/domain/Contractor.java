@@ -18,10 +18,16 @@ public class Contractor {
     private String email;
     private Boolean isAutoAdvancePayment;
 
+    public AdvanceContact getContact() {
+        return contact;
+    }
+
+    public void setContact(AdvanceContact contact) {
+        this.contact = contact;
+    }
+
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumns({
-        @JoinColumn(name = "id", referencedColumnName = "contractor_id")
-    })
+    @JoinColumn(name = "id", referencedColumnName = "contractor_id")
     private AdvanceContact contact;
 
     public Contractor() {

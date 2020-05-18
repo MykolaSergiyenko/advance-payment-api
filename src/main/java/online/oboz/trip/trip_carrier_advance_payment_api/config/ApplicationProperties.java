@@ -136,23 +136,23 @@ public class ApplicationProperties {
     /**
      * TODO: set in cron for all messages (sms- and emails)
      */
-    @Value("${services.notifications.sheduler.notify:0 0/30 * * * *}")
+    @Value("${services.notifications.scheduler.notify:0 0/30 * * * *}")
     String cronCheckNotify;
 
     /**
-     * TODO: Unread email's interval for sheduled-emails? in NotificationService
+     * TODO: Unread email's interval for scheduled-emails? in NotificationService
      */
-    @Value("${services.notifications.sheduler.email-newadvance-interval:1 hour}")
+    @Value("${services.notifications.scheduler.email-newadvance-interval:1 hour}")
     String emailInterval;
 
     /**
-     * TODO: Unread email's interval for sms-sheduled-notification NotificationService?
-     * Make logic for intervals - now sheduled-emails unable?
+     * TODO: Unread email's interval for sms-scheduled-notification NotificationService?
+     * Make logic for intervals - now scheduled-emails unable?
      * TODO:interval? String? #minutes? #hours?
      * //${notification.delay.sms-send:60000
      * milliseconds is too much for all needs
      */
-    @Value("${services.notifications.sheduler.sms-newadvance-inteval:2 hours}")
+    @Value("${services.notifications.scheduler.sms-newadvance-inteval:2 hours}")
     String smsInterval;
 
 
@@ -164,7 +164,7 @@ public class ApplicationProperties {
     private Boolean emailEnable;
 
     /**
-     * Is email-enabled for create-advance sheduled-notification in NotificationService.
+     * Is email-enabled for create-advance scheduled-notification in NotificationService.
      * Now is unable
      */
     @Value("${services.notifications.email.email-schedule-enable:true}")
@@ -194,11 +194,11 @@ public class ApplicationProperties {
      * Is sms-enabled for create-advance simple-notification in NotificationService
      * Now unable - sms is delayed and send by cron after email-only-notification.
      */
-    @Value("${services.services.notifications.sms.enable:false}")
+    @Value("${services.services.notifications.sms.enable:true}")
     private Boolean smsEnable;
 
     /**
-     * Is sms-enabled for create-advance sheduled-notification in NotificationService.
+     * Is sms-enabled for create-advance scheduled-notification in NotificationService.
      * "Delayed"-sms for unread email's enable.
      */
     @Value("${services.notifications.sms.schedule-enable:true}")
@@ -217,7 +217,7 @@ public class ApplicationProperties {
      * for TextService in SmsCreator
      * TODO: check in SmsCreator?
      */
-    @Value("${services.notifications.sms.sms-phone-template:7%}")
+    @Value("${services.notifications.sms.sms-phone-template:7%s}")
     private String smsPhoneTemplate;
     @Value("${services.notifications.sms.sms-message-template}")
     private String smsMessageTemplate;
@@ -427,7 +427,7 @@ public class ApplicationProperties {
 
 
     /**
-     * Cron for sheduled NotificationService
+     * Cron for scheduled NotificationService
      */
     public String getCronCheckNotify() {
         return cronCheckNotify;
@@ -439,7 +439,7 @@ public class ApplicationProperties {
 
 
     /**
-     * Unread email's interval for sheduled-emails? NotificationService ?
+     * Unread email's interval for scheduled-emails? NotificationService ?
      */
     public String getEmailInterval() {
         return emailInterval;
@@ -450,8 +450,8 @@ public class ApplicationProperties {
     }
 
     /**
-     * Unread email's interval for sms-sheduled-notification NotificationService?
-     * TODO: Make logic for intervals - now sheduled-emails unable?
+     * Unread email's interval for sms-scheduled-notification NotificationService?
+     * TODO: Make logic for intervals - now scheduled-emails unable?
      */
     public String getSmsInterval() {
         return smsInterval;
@@ -475,7 +475,7 @@ public class ApplicationProperties {
 
 
     /**
-     * @return Is email-enabled for create-advance sheduled-notification in NotificationService.
+     * @return Is email-enabled for create-advance scheduled-notification in NotificationService.
      * Now is unable
      */
     public Boolean isEmailScheduleEnabled() {
@@ -598,7 +598,7 @@ public class ApplicationProperties {
 
 
     /**
-     * @return Is sms-enabled for create-advance in sheduled-notification in NotificationService.
+     * @return Is sms-enabled for create-advance in scheduled-notification in NotificationService.
      * This enable "delayed"-sms after unread-email-advances by cron.
      */
     public Boolean isSmsScheduleEnabled() {

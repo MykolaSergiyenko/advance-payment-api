@@ -14,7 +14,6 @@ import java.util.UUID;
 @Entity
 @Table(name = "trip_request_advance_payment", schema = "orders")
 public class TripAdvance {
-    //TODO: need rename table to trip_advance
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
@@ -28,8 +27,21 @@ public class TripAdvance {
     private String tripTypeCode;
 
 
-    @OneToOne(mappedBy = "trip_advance", fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "trip_id")
     private Trip trip;
+
+    public Contractor getContractor() {
+        return contractor;
+    }
+
+    public void setContractor(Contractor contractor) {
+        this.contractor = contractor;
+    }
+
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "contractor_id")
+    private Contractor contractor;
 
     @NotNull
     @Column(name = "driver_id", updatable = false, insertable = false)

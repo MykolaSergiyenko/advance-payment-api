@@ -14,7 +14,7 @@ public class AdvanceContact {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
-    @Column(name = "contractor_id")
+    @Column(name = "contractor_id", updatable = false, insertable = false)
     private Long contractorId;
 
 
@@ -22,7 +22,8 @@ public class AdvanceContact {
     private String email;
     private String phone;
 
-    @OneToOne(mappedBy = "contact", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "contractor_id", referencedColumnName = "id")
     private Contractor contractor;
 
     @NotNull

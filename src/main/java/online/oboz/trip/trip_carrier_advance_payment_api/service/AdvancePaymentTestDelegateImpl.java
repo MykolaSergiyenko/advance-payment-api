@@ -12,37 +12,37 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+/**
+ * Песочница для тестирования сервисов "Авансирования"
+ */
 @Service
 public class AdvancePaymentTestDelegateImpl implements AdvancePaymentTestApiDelegate {
     private static final Logger log = LoggerFactory.getLogger(AdvancePaymentDelegateImpl.class);
 
-    private final UrlService urlShortenerService;
+    private final UrlService shortenerService;
     private final NewNotificationService notificationService;
     private final TripAdvanceRepository advanceRepository;
 
     @Autowired
-    public AdvancePaymentTestDelegateImpl(UrlService urlShortenerService, NewNotificationService notificationService, TripAdvanceRepository advanceRepository) {
-        this.urlShortenerService = urlShortenerService;
+    public AdvancePaymentTestDelegateImpl(UrlService shortenerService, NewNotificationService notificationService, TripAdvanceRepository advanceRepository) {
+        this.shortenerService = shortenerService;
         this.notificationService = notificationService;
         this.advanceRepository = advanceRepository;
     }
 
     @Override
     public ResponseEntity<Void> cutUrl(String stringUrl) {
-        // ShortUrlResponse in open-api
-        log.info("Input url is - " + stringUrl);
-        String result = urlShortenerService.editUrl(stringUrl);
-        log.info("Output url is - " + result);
+        shortenerService.editUrl(stringUrl);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
 
     @Override
     public ResponseEntity<String> createMessage(Long advanceId) {
-        log.info("Make notifications for advance id = " + advanceId);
+        log.info("Make notifications for advance - " + advanceId);
         TripAdvance advance = advanceRepository.find(advanceId).orElse(null);
         notificationService.notificate(advance);
-        log.info("Output of notifications.");
+        log.info("Out of notifications.");
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }

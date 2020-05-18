@@ -40,8 +40,8 @@ spring:
     datasource:
         type: com.zaxxer.hikari.HikariDataSource
         url: jdbc:postgresql://pg-01-01.dev.oboz:5432/elp
-        username: PG_USER
-        password: PG_PASSWORD
+        username: elp
+        password: 5HRSkXzk9HBpTxS
         auto-commit: false
         poolName: main-pool
         hikari:
@@ -110,8 +110,8 @@ services:
         #link-shortener url
         cut-link-url: https://clck.ru/--?url=
 
-        #sheduled-notifications
-        sheduler:
+        #scheduled-notifications
+        scheduler:
             notify: 0 0/30 * * * *
             sms-newadvance-inteval: #1 hour
             email-newadvance-interval: #2 hours #if we wants to sent second e-mail maybe
@@ -120,16 +120,16 @@ services:
         sms:
             # "Simple" (at-moment) SMS-notify unable
             enable: false
-            # Only sheduled SMS-notify enable
+            # Only scheduled SMS-notify enable
             schedule-enable: true
             # Cut LK-links for short-SMS enable
             cut-links: true
             # Sms-sender url
-            sender-url: http://sms-sender:8080/v1/send-sms
+            sender-url: http://sms-sender.r14.k.dev.oboz:30080/
             # SMS-templates
-            sms-phone-template: 7%
+            sms-phone-template: 7%s
             sms-message-template:
-                "Компания «ОБОЗ» предлагает аванс по заказу\n %s на сумму %.0f руб., для просмотра пройдите по ссылке \n%s"
+                "Компания ОБОЗ+ предлагает аванс по заказу %s на сумму %.0f руб., для просмотра пройдите по ссылке \n %s"
             sms-default-number: 8080
 
         # Email-config
@@ -144,4 +144,4 @@ services:
             email-header-template:
                 "Компания ОБОЗ предлагает аванс по заказу %s"
             email-message-template:
-                "Компания ОБОЗ предлагает аванс по заказу\n %s на сумму %.0f руб., для просмотра пройдите по ссылке \n%s"
+                "Компания ОБОЗ предлагает аванс\n по заказу %s на сумму %.0f руб., для просмотра пройдите по ссылке \n%s"
