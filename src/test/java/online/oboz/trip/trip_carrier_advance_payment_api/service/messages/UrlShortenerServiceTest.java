@@ -16,6 +16,13 @@ import static org.junit.Assert.assertNotEquals;
 
 /**
  * Тесты для "сокращателя" {@link UrlShortenerService}
+ *
+ * !!!
+ *
+ * Для запуска удалить:
+ * test {
+ *     useJUnitPlatform()
+ * }
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 public class UrlShortenerServiceTest {
@@ -65,7 +72,7 @@ public class UrlShortenerServiceTest {
 
 
     @Test
-    public void testUrlCutter() {
+    public void testUrlByCutter() {
         RestTemplate rest = new RestTemplate();
         System.out.println("***  Set cutLinkUrl to " + cutLinkUrl);
         ApplicationProperties prop = new ApplicationProperties();
@@ -73,6 +80,8 @@ public class UrlShortenerServiceTest {
 
         UrlShortenerService urlShortenerService = new UrlShortenerService(rest, prop);
 
+
+        // edit url string -> string
         String cuttedLink1 = urlShortenerService.editUrl(testUrl1);
         System.out.println("inputUrl1 " + testUrl1);
         System.out.println("outputUrl1 " + cuttedLink1);
@@ -121,25 +130,20 @@ public class UrlShortenerServiceTest {
         System.out.println("inputUrl12 " + testUrl12);
         System.out.println("outputUrl12 " + cuttedLink12);
 
-        // одинаковые ссылки
-        assertEquals(cuttedLink10, cuttedLink7);
 
-        // одинаковые в кириллице
-        assertEquals(cuttedLink11, cuttedLink9);
+        assertEquals(cuttedLink10,cuttedLink7);
+        assertEquals(cuttedLink11,cuttedLink9);
+        assertEquals(cuttedLink2,"https://clck.ru/HR");
 
-        // "постоянная ссылка" на яндекс
-        assertEquals(cuttedLink2, "https://clck.ru/HR");
+        assertNotEquals(cuttedLink5,"");
+        assertEquals(cuttedLink12,"");
 
-        // переданы пустые значения
-        assertEquals(cuttedLink12, "");
-
-        // преобразования дали результат
-        assertNotEquals(cuttedLink5, "");
         assertNotNull(cuttedLink1);
         assertNotNull(cuttedLink2);
         assertNotNull(cuttedLink3);
         assertNotNull(cuttedLink4);
     }
+
 
 }
 

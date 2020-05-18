@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.net.URL;
 import java.util.IllegalFormatException;
 
 /**
@@ -95,10 +96,19 @@ public class MessageCreateService implements TextService {
     private String getSmsText(TripAdvance advance) throws MessagingException {
         String result = null;
         String template = appProperties.getSmsMessageTemplate();
-        String link = appProperties.getLkUrl().toString();
-        link = link + advance.getAdvanceUuid();
+        URL url = appProperties.getLkUrl();
+        boolean isShortLink = appProperties.isSmsCutLinks() == null ?
+            false : appProperties.isSmsCutLinks();
+
+        if (null == template || null == url ||
+            StringUtils.isBlank(url.toString()) ||
+            StringUtils.isBlank(template)){
+            throw getCreateEmailException("Format email-message error: Empty e-mail creation properties: ", advance.getId().toString());
+        }
+
+        String link = url.toString() + advance.getAdvanceUuid();
         try {
-            if (appProperties.isSmsCutLinks()) {
+            if (isShortLink) {
                 link = urlCutter.editUrl(link);
                 log.info("Short url is: " + link);
             }
@@ -121,10 +131,20 @@ public class MessageCreateService implements TextService {
     private String getEmailText(TripAdvance advance) throws MessagingException {
         String result = null;
         String template = appProperties.getEmailMessageTemplate();
-        String link = appProperties.getLkUrl().toString();
-        link = link + advance.getAdvanceUuid();
+        URL url = appProperties.getLkUrl();
+        boolean isShortLink = appProperties.isEmailCutLinks() == null ?
+                                false : appProperties.isEmailCutLinks();
+
+
+        if (null == template || null == url ||
+                StringUtils.isBlank(url.toString()) ||
+                StringUtils.isBlank(template)){
+            throw getCreateEmailException("Format email-message error: Empty e-mail creation properties: ", advance.getId().toString());
+        }
+
+        String link = url.toString() + advance.getAdvanceUuid();
         try {
-            if (appProperties.isEmailCutLinks()) {
+            if (isShortLink) {
                 link = urlCutter.editUrl(link);
             }
             String tripNum = advance.getTrip().getNum();
@@ -140,8 +160,12 @@ public class MessageCreateService implements TextService {
 
     private String getEmailHeader(TripAdvance advance) throws MessagingException {
         String result = null;
+        String template = appProperties.getEmailHeaderTemplate();
+        if (template == null){
+            throw getCreateEmailException("Format email-header error: Empty property",
+                advance.getId().toString());
+        }
         try {
-            String template = appProperties.getEmailHeaderTemplate();
             String tripNum = advance.getTrip().getNum();
             result = formatMessageHeader(template, tripNum);
         } catch (IllegalFormatException e) {

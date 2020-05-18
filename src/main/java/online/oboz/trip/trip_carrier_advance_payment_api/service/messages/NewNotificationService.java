@@ -41,8 +41,8 @@ public class NewNotificationService implements Notificator {
     @Autowired
     public NewNotificationService(ApplicationProperties applicationProperties,
                                   TextService messageTextService,
-                                  EmailSenderService emailSender,
-                                  SmsSenderService smsSender) {
+                                  EmailSender emailSender,
+                                  SmsSender smsSender) {
         this.applicationProperties = applicationProperties;
         this.messageTextService = messageTextService;
         this.emailSender = emailSender;
