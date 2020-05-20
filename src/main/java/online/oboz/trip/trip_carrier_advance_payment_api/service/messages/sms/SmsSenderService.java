@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import java.net.URL;
+
 /**
  * <b>Сервис отправки СМС</b>
  *
@@ -34,10 +36,12 @@ public class SmsSenderService implements SmsSender {
 
     public void sendSms(SmsContainer sms) throws MessagingException {
         try {
-            String smsSenderUrl = applicationProperties.getSmsSenderUrl().toString();
-            ResponseEntity<String> response = restTemplate.postForEntity(smsSenderUrl, sms, String.class);
+            URL smsSenderUrl = applicationProperties.getSmsSenderUrl();
+            if (null == smsSenderUrl) throw getSmsSendingException("SMS-sender-url is empty for:", sms);
+            String smsSenderLink = smsSenderUrl.toString();
+            ResponseEntity<String> response = restTemplate.postForEntity(smsSenderLink, sms, String.class);
             if (response.getStatusCode() != HttpStatus.OK) {
-                getSmsSendingException("Bad SMS-response. "+response.getBody(), sms);
+                getSmsSendingException("Bad SMS-response. " + response.getBody(), sms);
             } else {
                 // TODO: set advance is sms-sent
             }

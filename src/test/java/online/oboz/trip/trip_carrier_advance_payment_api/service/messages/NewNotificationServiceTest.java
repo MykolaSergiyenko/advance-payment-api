@@ -98,5 +98,47 @@ public class NewNotificationServiceTest {
         } catch (MalformedURLException e ){
             System.out.println("Error with LK-url: "+e.getMessage());
         }
+
+        prop.setMailUsername("test@test.com");
+        notificator.notificate(x);
+    }
+
+
+    @Test
+    void testSms(){
+        Notificator notificator = new NewNotificationService(
+            prop,
+            messageTextService,
+            emailSender,
+            smsSender
+        );
+
+
+        prop.setEmailEnabled(false);
+        prop.setSmsEnable(true);
+
+        TripAdvanceRepository advances = mock(TripAdvanceRepository.class);
+        when(advances.getOne(any())).thenReturn(random(TripAdvance.class));
+
+        TripAdvance x = advances.getOne(666l); //random new TripAdvance();
+        System.out.println("Create random trip-advance: "+x);
+        assertNotNull(x);
+        // errors while sms
+        notificator.notificate(x);
+
+        prop.setSmsMessageTemplate("Компания ОБОЗ+ предлагает аванс по заказу %s на сумму %.0f руб., для просмотра пройдите по ссылке \n %s");
+        notificator.notificate(x);
+
+        prop.setSmsPhoneTemplate("7%s");
+        prop.setSmsCutLinks(true);
+        notificator.notificate(x);
+        try {
+            prop.setCutLinkUrl(new URL("https://clck.ru/--?url="));
+            prop.setSmsSenderUrl(new URL("http://sms-sender.r14.k.dev.oboz:30080/"));
+            prop.setLkUrl(new URL("https://oboz.online/carrier-advance/"));
+            notificator.notificate(x);
+        } catch (MalformedURLException e ){
+            System.out.println("Error with LK-url: "+e.getMessage());
+        }
     }
 }

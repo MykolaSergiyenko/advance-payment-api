@@ -99,7 +99,7 @@ public class NewNotificationService implements Notificator {
                 log.info("SMS is sent for advance " + advance.getId());
                 advance.setIsSmsSent(true);
             } catch (MessagingException e) {
-                log.error("MessagingException while sms:" + e.getMessage());
+                log.error("MessagingException while sms:" + e.getErrors());
             }
         } else {
             log.info("Notification by sms is unable.");
