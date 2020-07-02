@@ -1,4 +1,4 @@
-# online.oboz.trip.trip-carrier-advance-payment-api 
+# online.oboz.trip.trip-carrier-advanceEntity-payment-api 
 
 ## Тербования к окружению
 
@@ -9,8 +9,8 @@
 ## Запус тестов
 
 ## Пример получения файлов с report server
-curl -o f.pdf "https://reports.oboz.com/reportserver/reportserver/httpauthexport?key=avance_request&user=bertathar&apikey=nzybc16h&p_trip_num=157966-1&p_avance_sum=300&p_avance_comission=150&format=PDF"
+curl -o f.pdf "https://reports.oboz.com/reportserver/reportserver/httpauthexport?key=avance_request&tripAdvancePerson=bertathar&apikey=nzybc16h&p_trip_num=157966-1&p_avance_sum=300&p_avance_comission=150&format=PDF"
 
-curl -o ff.pdf "https://reports.oboz.com/reportserver/reportserver/httpauthexport?key=unified_contract_request&user=bertathar&apikey=nzybc16h&p_trip_num=157966-1&format=PDF"
+curl -o ff.pdf "https://reports.oboz.com/reportserver/reportserver/httpauthexport?key=unified_contract_request&tripAdvancePerson=bertathar&apikey=nzybc16h&p_trip_num=157966-1&format=PDF"
 
 sudo keytool -importcert -keystore /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/security/cacerts -storepass changeit -file /home/gmakarov/Downloads/cert.oboz.crt -alias "oboz.com"

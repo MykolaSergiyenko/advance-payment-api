@@ -1,9 +1,9 @@
 package online.oboz.trip.trip_carrier_advance_payment_api.service;
 
-import online.oboz.trip.trip_carrier_advance_payment_api.domain.TripAdvance;
-import online.oboz.trip.trip_carrier_advance_payment_api.repository.TripAdvanceRepository;
+import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.Advance;
+import online.oboz.trip.trip_carrier_advance_payment_api.repository.AdvanceRepository;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.messages.NewNotificationService;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.messages.common.format.urlshorter.UrlService;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.urleditor.UrlService;
 import online.oboz.trip.trip_carrier_advance_payment_api.web.api.controller.AdvancePaymentTestApiDelegate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,10 +21,10 @@ public class AdvancePaymentTestDelegateImpl implements AdvancePaymentTestApiDele
 
     private final UrlService shortenerService;
     private final NewNotificationService notificationService;
-    private final TripAdvanceRepository advanceRepository;
+    private final AdvanceRepository advanceRepository;
 
     @Autowired
-    public AdvancePaymentTestDelegateImpl(UrlService shortenerService, NewNotificationService notificationService, TripAdvanceRepository advanceRepository) {
+    public AdvancePaymentTestDelegateImpl(UrlService shortenerService, NewNotificationService notificationService, AdvanceRepository advanceRepository) {
         this.shortenerService = shortenerService;
         this.notificationService = notificationService;
         this.advanceRepository = advanceRepository;
@@ -40,8 +40,8 @@ public class AdvancePaymentTestDelegateImpl implements AdvancePaymentTestApiDele
     @Override
     public ResponseEntity<String> createMessage(Long advanceId) {
         log.info("Make notifications for advance - " + advanceId);
-        TripAdvance advance = advanceRepository.find(advanceId).orElse(null);
-        notificationService.notificate(advance);
+        Advance advanceEntity = advanceRepository.findByTripId(advanceId).orElse(null);
+        notificationService.notify(advanceEntity);
         log.info("Out of notifications.");
         return new ResponseEntity<>(HttpStatus.OK);
     }

@@ -13,6 +13,14 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.net.URL;
+
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static org.springframework.http.HttpMethod.POST;
+import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpStatus.MOVED_PERMANENTLY;
+import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE;
+
 @Service
 public class RestService {
     private static final Logger log = LoggerFactory.getLogger(RestService.class);
@@ -37,23 +45,17 @@ public class RestService {
         ResponseToken responseToken = requestToken(user, password);
         ACCESS_TOKEN = responseToken.getAccessToken();
         log.info("Success request token. for user  " + applicationProperties.getUsername() + " " + ACCESS_TOKEN);
-        //TODO: у нас теперь есть  еще список имейлов "разрешенных пользовтелей"
     }
 
     public ResponseToken requestToken(String userName, String password) {
         try {
-            String authBody = String.format(
-                "grant_type=password&client_id=elp&username=%s&password=%s",
-                userName,
-                password
-            );
-            ResponseEntity<ResponseToken> response = restTemplate.exchange(
-                applicationProperties.getTokenAuthUrl() + "/token",
-                HttpMethod.POST,
-                createHttpEntityToAuth(authBody),
-                ResponseToken.class
-            );
-            ResponseToken responseToken = response.getBody();
+            String url = applicationProperties.getTokenAuthUrl() + applicationProperties.getTokenUrlPostfix();
+            String authBody = String.format(applicationProperties.getTokenBody(), userName, password);
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.valueOf(APPLICATION_FORM_URLENCODED_VALUE));
+            HttpEntity httpEntity =  new HttpEntity(authBody, headers);
+
+            ResponseToken responseToken = restTemplate.exchange(url, POST, httpEntity, ResponseToken.class).getBody();
             responseToken.setTokenType("Bearer");
             return responseToken;
         } catch (Exception e) {
@@ -61,17 +63,17 @@ public class RestService {
         }
     }
 
-    public ResponseEntity<Resource> authRequestResource(String url) {
+    public ResponseEntity<Resource> authGetRequestResource(String url) {
         HttpHeaders headers = new HttpHeaders();
-        headers.add(HttpHeaders.AUTHORIZATION, "Bearer " + ACCESS_TOKEN);
-        return requestResource(url, headers);
+        headers.add(AUTHORIZATION, "Bearer " + ACCESS_TOKEN);
+        return getRequestResource(url, headers);
     }
 
-    public ResponseEntity<Resource> requestResource(String url, HttpHeaders headers) {
+    public ResponseEntity<Resource> getRequestResource(String url, HttpHeaders headers) {
         try {
             HttpEntity<String> request = new HttpEntity<>(headers);
-            ResponseEntity<Resource> response = restTemplate.exchange(url, HttpMethod.GET, request, Resource.class);
-            if (response.getStatusCode().value() == 200 || response.getStatusCode() == HttpStatus.MOVED_PERMANENTLY) {
+            ResponseEntity<Resource> response = restTemplate.exchange(url, GET, request, Resource.class);
+            if (response.getStatusCode().value() == 200 || response.getStatusCode() == MOVED_PERMANENTLY) {
                 return response;
             }
         } catch (Exception e) {
@@ -80,28 +82,27 @@ public class RestService {
         return null;
     }
 
-    public <T> ResponseEntity<String> executePostAuthRequest(
-        String url,
-        HttpHeaders headers,
-        T body
-    ) {
-        headers.add(HttpHeaders.AUTHORIZATION, "Bearer " + ACCESS_TOKEN);
+    public <T> ResponseEntity<String> authPostRequest(String url, HttpHeaders headers, T body) {
+        headers.add(AUTHORIZATION, "Bearer " + ACCESS_TOKEN);
         HttpEntity<T> request = new HttpEntity<>(body, headers);
-        return restTemplate.exchange(url, HttpMethod.POST, request, String.class);
+        return restTemplate.exchange(url, POST, request, String.class);
     }
 
-    public ResponseEntity<String> executeGetAuthRequest(
-        String url,
-        HttpHeaders headers
-    ) {
-        headers.add(HttpHeaders.AUTHORIZATION, "Bearer " + ACCESS_TOKEN);
+    public ResponseEntity<String> authGetRequest(String url, HttpHeaders headers) {
+        headers.add(AUTHORIZATION, "Bearer " + ACCESS_TOKEN);
         HttpEntity<String> request = new HttpEntity<>(headers);
-        return restTemplate.exchange(url, HttpMethod.GET, request, String.class);
+        return restTemplate.exchange(url, GET, request, String.class);
     }
 
-    private HttpEntity createHttpEntityToAuth(String body) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.valueOf(MediaType.APPLICATION_FORM_URLENCODED_VALUE));
-        return new HttpEntity(body, headers);
+    public ResponseEntity<String> getRequest(String url) {
+        return restTemplate.exchange(url, GET, null, String.class);
     }
+
+    public ResponseEntity<String> postForEntity(URL url, Object container){
+        String strUrl = url.toString();
+        return restTemplate.postForEntity(strUrl, container, String.class);
+    }
+
+
+
 }

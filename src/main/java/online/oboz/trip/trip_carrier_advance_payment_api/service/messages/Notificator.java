@@ -1,7 +1,7 @@
 package online.oboz.trip.trip_carrier_advance_payment_api.service.messages;
 
 import online.oboz.trip.trip_carrier_advance_payment_api.config.ApplicationProperties;
-import online.oboz.trip.trip_carrier_advance_payment_api.domain.TripAdvance;
+import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.Advance;
 
 /**
  * <p>
@@ -9,10 +9,10 @@ import online.oboz.trip.trip_carrier_advance_payment_api.domain.TripAdvance;
  * <p>
  * В общем случае "Уведомления об авансе" выполняются двумя способами:
  * <p>
- * • обычное сообщение {@link Notificator#notificate(online.oboz.trip.trip_carrier_advance_payment_api.domain.TripAdvance)}
+ * • обычное сообщение {@link Notificator#notify(Advance advance)}
  * - в момент создания "Заявки на аванс";
  * <p>
- * • отложенное сообщение {@link Notificator#scheduledNotificate(TripAdvance)} (online.oboz.trip.trip_carrier_advance_payment_api.domain.TripAdvance)} - вызывается по расписанию для "Заявок на аванс",
+ * • отложенное сообщение {@link Notificator#scheduledNotify(Advance advance)} (online.oboz.trip.trip_carrier_advance_payment_api.domain.base.TripAdvance)} - вызывается по расписанию для "Заявок на аванс",
  * у которых есть признак непрочитанных уведомлений ("СМС с задержкой").
  * <p>
  *
@@ -80,7 +80,7 @@ public interface Notificator {
      *                Notificate contractor for advance by "simple" (at-moment) messages:
      *                by sms and e-mail if both pathes enable in {@link ApplicationProperties}.
      */
-    void notificate(TripAdvance advance);
+    void notify(Advance advance);
 
 
     /**
@@ -88,5 +88,5 @@ public interface Notificator {
      *                Notificate contractor for advance by "delayed" (scheduled) messages:
      *                by sms and e-mail if both pathes enable in {@link ApplicationProperties}.
      */
-    void scheduledNotificate(TripAdvance advance);
+    void scheduledNotify(Advance advance);
 }

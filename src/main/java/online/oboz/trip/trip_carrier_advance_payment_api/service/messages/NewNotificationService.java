@@ -2,20 +2,20 @@ package online.oboz.trip.trip_carrier_advance_payment_api.service.messages;
 
 
 import online.oboz.trip.trip_carrier_advance_payment_api.config.ApplicationProperties;
-import online.oboz.trip.trip_carrier_advance_payment_api.domain.TripAdvance;
+import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.Advance;
+import online.oboz.trip.trip_carrier_advance_payment_api.repository.AdvanceRepository;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.messages.common.format.MessagingException;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.messages.common.format.TextService;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.messages.email.EmailContainer;
+import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.notificatoins.EmailContainer;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.messages.email.EmailSender;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.messages.email.EmailSenderService;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.messages.sms.SmsContainer;
+import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.notificatoins.SmsContainer;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.messages.sms.SmsSender;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.messages.sms.SmsSenderService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.time.OffsetDateTime;
 
 
 /**
@@ -37,16 +37,18 @@ public class NewNotificationService implements Notificator {
     private final TextService messageTextService;
     private final EmailSender emailSender;
     private final SmsSender smsSender;
+    private final AdvanceRepository advanceRepository;
 
-    @Autowired
     public NewNotificationService(ApplicationProperties applicationProperties,
                                   TextService messageTextService,
                                   EmailSender emailSender,
-                                  SmsSender smsSender) {
+                                  SmsSender smsSender,
+                                  AdvanceRepository advanceRepository) {
         this.applicationProperties = applicationProperties;
         this.messageTextService = messageTextService;
         this.emailSender = emailSender;
         this.smsSender = smsSender;
+        this.advanceRepository = advanceRepository;
     }
 
     /**
@@ -54,27 +56,35 @@ public class NewNotificationService implements Notificator {
      *  Notificate contractor for advance by "simple" (at-moment) messages:
      *  by sms and e-mail if both enable in application properties.
      */
-    public void notificate(TripAdvance advance) {
+    @Override
+    public void notify(Advance advance) {
         notificate(advance,
             applicationProperties.isEmailEnabled(),
             applicationProperties.isSmsEnabled());
+
+        advance.setNotifiedAt(OffsetDateTime.now());
+        advanceRepository.save(advance);
     }
 
 
     //TODO: must be used by cron-notification
 
     /**
-     * @param advance Аванс ("Заявка на авансирование")
+     * @param advance advance Аванс ("Заявка на авансирование")
      *  Notificate contractor for advance by "simple" (at-moment) messages:
      *  by sms and e-mail if both enable in application properties.
      */
-    public void scheduledNotificate(TripAdvance advance) {
+    @Override
+    public void scheduledNotify(Advance advance) {
         notificate(advance,
             applicationProperties.isEmailScheduleEnabled(),
             applicationProperties.isSmsScheduleEnabled());
+
+        advance.setNotifiedDelayedAt(OffsetDateTime.now());
+        advanceRepository.save(advance);
     }
 
-    private void notificate(TripAdvance advance,
+    private void notificate(Advance advance,
                             boolean emailEnable, boolean smsEnable) {
         if (emailEnable) {
             try {
@@ -84,6 +94,9 @@ public class NewNotificationService implements Notificator {
                 emailSender.sendEmail(email);
                 log.info("E-mail is sent for advance - " + advance.getId());
                 //advance.setEmailSent(true);
+//                advance.setEmailSent(true);
+                advance.setEmailSentAt(OffsetDateTime.now());
+                advanceRepository.save(advance);
             } catch (MessagingException e) {
                 log.error("MessagingException while email - " + e.getErrors());
             }
@@ -97,7 +110,10 @@ public class NewNotificationService implements Notificator {
                 log.info("Create SMS-message: " + container.toString());
                 smsSender.sendSms(container);
                 log.info("SMS is sent for advance " + advance.getId());
-                advance.setIsSmsSent(true);
+
+//                advance.setSmsSent(true);
+                advance.setSmsSentAt(OffsetDateTime.now());
+                advanceRepository.save(advance);
             } catch (MessagingException e) {
                 log.error("MessagingException while sms:" + e.getErrors());
             }
@@ -105,5 +121,4 @@ public class NewNotificationService implements Notificator {
             log.info("Notification by sms is unable.");
         }
     }
-
 }

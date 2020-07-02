@@ -2,9 +2,9 @@ package online.oboz.trip.trip_carrier_advance_payment_api.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import springfox.documentation.spring.web.json.Json;
 
 import java.net.URL;
-import java.time.OffsetDateTime;
 import java.util.List;
 
 @ConfigurationProperties(prefix = "application", ignoreInvalidFields = false)
@@ -26,13 +26,13 @@ public class ApplicationProperties {
     @Value("${spring.mail.properties.mail.smtp.auth:true}")
     private String mailAuth;
 
-
-    /**
-     * accessUsersIds not use
-     */
-    @Deprecated
-    @Value("${accessed-users.ids}")
-    private List<Long> accessUsersIds;
+//
+//    /**
+//     * accessUsersIds not use
+//     */
+//    @Deprecated
+//    @Value("${accessed-users.ids}")
+//    private List<Long> accessUsersIds;
 
 
     /**
@@ -48,8 +48,16 @@ public class ApplicationProperties {
      */
     @Value("${services.keycloak.url}")
     private URL tokenAuthUrl;
+
+    @Value("${services.keycloak.token-postfix}")
+    private String tokenUrlPostfix;
+
+    @Value("${services.keycloak.token-body}")
+    private String tokenBody;
+
     @Value("${services.keycloak.auth.username}")
     private String username;
+
     @Value("${services.keycloak.auth.password}")
     private String password;
 
@@ -63,6 +71,11 @@ public class ApplicationProperties {
      */
     @Value("${services.advance-service.required-docs:true}")
     private Boolean requiredDownloadDocs;
+
+
+
+    @Value("${services.advance-service.min-trip-cost}")
+    private Double  minTripCost;
 
     //Auto-advance
 
@@ -84,39 +97,52 @@ public class ApplicationProperties {
     @Value("${services.auto-advance-service.comment}")
     private String autoCreatedComment;
 
-    /**
-     * @return minimum count, dates of driver's trips for AutoAdvanceService
-     * TODO: Is this is auto-advance rules to be created?
-     * При изменении minCountTrip нужно также поменять minDateTrip наа текущее значение
-     * minimum count, dates of driver's trips for AutoAdvanceService
-     */
-    @Value("${services.auto-advance-service.min-date-trip:2020-01-01T00:00:00+00:00}")
-    private String strMinDateTrip;
-    private OffsetDateTime minDateTrip;
-    @Value("${services.auto-advance-service.min-count-trip:3}")
-    private Integer minCountTrip;
 
+    @Value("${services.auto-advance-service.min-paid-advance-count}")
+    private Long minAdvanceCount;
 
     /**
      * URL for BStore-service
      * TODO: Is make auth-Request via RestService --> RestTemplate ?
      */
-    @Value("${services.bstore-url}")
+    @Value("${services.bstore.url}")
     private URL bStoreUrl;
+
+    @Value("${services.bstore.pdf}")
+    private String bStorePdf;
 
     /**
      * OrdersApi-url for OrdersApiService
      * TODO: Is make auth-Request via RestService --> RestTemplate ?
      */
-    @Value("${services.orders-api-url}")
+    @Value("${services.orders.url}")
     private URL ordersApiUrl;
+
+    @Value("${services.orders.save-body}")
+    private Json ordersApiSaveBody;
 
     /**
      * ReportServer-url for OrdersApiService
      * TODO: Is make Request via restService.executeGetAuthRequest() --> RestTemplate ?
      */
-    @Value("${services.report-server-url}")
-    private URL reportServerUrl;
+    @Value("${services.reports.url}")
+    private URL reportsUrl;
+
+    @Value("${services.reports.type-key}")
+    private String reportsTypeKey;
+
+    @Value("${services.reports.user}")
+    private String reportsUser;
+
+    @Value("${services.reports.api-key}")
+    private String reportsApiKey;
+
+    @Value("${services.reports.format}")
+    private String reportsFormat;
+
+    @Value("${services.reports.template-params}")
+    private String reportsParams;
+
 
     //Notification - Messaging services
     /**
@@ -338,31 +364,15 @@ public class ApplicationProperties {
     /**
      * Get minimum count, dates of driver's trips for AutoAdvanceService
      */
-    public Integer getMinCountTrip() {
-        return this.minCountTrip;
+    public Long getMinAdvanceCount() {
+        return this.minAdvanceCount;
     }
 
-    public void setMinCountTrip(Integer minCountTrip) {
-        this.minCountTrip = minCountTrip;
+    public void setMinAdvanceCount(Long minAdvanceCount) {
+        this.minAdvanceCount = minAdvanceCount;
     }
 
-    public OffsetDateTime getMinDateTrip() {
-        return OffsetDateTime.parse(getStrMinDateTrip());
-    }
 
-    private String getStrMinDateTrip() {
-        return this.strMinDateTrip;
-    }
-
-    //TODO:check two setters or exception?
-    public void setStrMinDateTrip(String strMinDateTrip) {
-        this.strMinDateTrip = strMinDateTrip;
-        setMinDateTrip(OffsetDateTime.parse(strMinDateTrip));
-    }
-
-    private void setMinDateTrip(OffsetDateTime minDateTrip) {
-        this.minDateTrip = minDateTrip;
-    }
 
     /**
      * Get B-Store-url for B-StoreService
@@ -393,12 +403,12 @@ public class ApplicationProperties {
      * //TODO: check how used
      * TODO: - посмотреть костыли в downloadAvanceRequestTemplate
      */
-    public URL getReportServerUrl() {
-        return this.reportServerUrl;
+    public URL getReportsUrl() {
+        return this.reportsUrl;
     }
 
-    public void setReportServerUrl(URL reportServerUrl) {
-        this.reportServerUrl = reportServerUrl;
+    public void setReportsUrl(URL reportsUrl) {
+        this.reportsUrl = reportsUrl;
     }
 
 
@@ -656,4 +666,89 @@ public class ApplicationProperties {
     public void setSmsMessageTemplate(String smsMessageTemplate) {
         this.smsMessageTemplate = smsMessageTemplate;
     }
+
+
+    public Json getOrdersApiSaveBody() {
+        return ordersApiSaveBody;
+    }
+
+    public void setOrdersApiSaveBody(Json ordersApiSaveBody) {
+        this.ordersApiSaveBody = ordersApiSaveBody;
+    }
+
+
+    public String getTokenUrlPostfix() {
+        return tokenUrlPostfix;
+    }
+
+    public void setTokenUrlPostfix(String tokenUrlPostfix) {
+        this.tokenUrlPostfix = tokenUrlPostfix;
+    }
+
+    public String getTokenBody() {
+        return tokenBody;
+    }
+
+    public void setTokenBody(String tokenBody) {
+        this.tokenBody = tokenBody;
+    }
+
+
+
+    public String getbStorePdf() {
+        return bStorePdf;
+    }
+
+    public void setbStorePdf(String bStorePdf) {
+        this.bStorePdf = bStorePdf;
+    }
+
+    public String getReportsTypeKey() {
+        return reportsTypeKey;
+    }
+
+    public void setReportsTypeKey(String reportsTypeKey) {
+        this.reportsTypeKey = reportsTypeKey;
+    }
+
+    public String getReportsUser() {
+        return reportsUser;
+    }
+
+    public void setReportsUser(String reportsUser) {
+        this.reportsUser = reportsUser;
+    }
+
+    public String getReportsApiKey() {
+        return reportsApiKey;
+    }
+
+    public void setReportsApiKey(String reportsApiKey) {
+        this.reportsApiKey = reportsApiKey;
+    }
+
+    public String getReportsFormat() {
+        return reportsFormat;
+    }
+
+    public void setReportsFormat(String reportsFormat) {
+        this.reportsFormat = reportsFormat;
+    }
+
+    public String getReportsParams() {
+        return reportsParams;
+    }
+
+    public void setReportsParams(String reportsParams) {
+        this.reportsParams = reportsParams;
+    }
+
+    public Double getMinTripCost() {
+        return minTripCost;
+    }
+
+    public void setMinTripCost(Double minTripCost) {
+        this.minTripCost = minTripCost;
+    }
+
 }

@@ -1,18 +1,17 @@
 package online.oboz.trip.trip_carrier_advance_payment_api.service.rest;
 
-import online.oboz.trip.trip_carrier_advance_payment_api.domain.Contractor;
-import online.oboz.trip.trip_carrier_advance_payment_api.domain.AdvanceContact;
-import online.oboz.trip.trip_carrier_advance_payment_api.domain.Trip;
-import online.oboz.trip.trip_carrier_advance_payment_api.domain.TripAdvance;
-import online.oboz.trip.trip_carrier_advance_payment_api.repository.TripAdvanceRepository;
-import online.oboz.trip.trip_carrier_advance_payment_api.repository.AdvanceContactRepository;
+
+import online.oboz.trip.trip_carrier_advance_payment_api.config.ApplicationProperties;
+import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.Advance;
+import online.oboz.trip.trip_carrier_advance_payment_api.repository.AdvanceRepository;
+import online.oboz.trip.trip_carrier_advance_payment_api.repository.AdvanceContactsBookRepository;
 import online.oboz.trip.trip_carrier_advance_payment_api.repository.ContractorRepository;
 import online.oboz.trip.trip_carrier_advance_payment_api.repository.TripRepository;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.AutoAdvancedService;
-import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.AdvancePageDTO;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.AdvanceService;
+import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.AdvanceDTO;
+import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.AdvanceDesktopDTO;
 import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.Filter;
 import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.Paginator;
-import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.ResponseAdvancePayment;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,178 +24,41 @@ import java.util.stream.Collectors;
 
 @Service
 public class AdvancePageTabsService {
+    private final ApplicationProperties applicationProperties;
+    private final AdvanceService advanceService;
 
-    private final TripAdvanceRepository advanceRepository;
-    private final ContractorRepository contractorRepository;
-    private final AdvanceContactRepository advanceContactRepository;
-    private final TripRepository tripRepository;
+
+    private final String autoComment;
 
     public AdvancePageTabsService(
-        TripAdvanceRepository tripAdvanceRepository,
-        AdvanceContactRepository advanceContactRepository,
-        ContractorRepository contractorRepository,
-        TripRepository tripRepository
-    ) {
-        this.advanceRepository = tripAdvanceRepository;
-        this.contractorRepository = contractorRepository;
-        this.advanceContactRepository = advanceContactRepository;
-        this.tripRepository = tripRepository;
+        ApplicationProperties applicationProperties,
+        AdvanceService advanceService) {
+        this.applicationProperties = applicationProperties;
+        autoComment = applicationProperties.getAutoCreatedComment();
+        this.advanceService = advanceService;
     }
 
-    public ResponseEntity<ResponseAdvancePayment> searchInWorkRequests(Filter filter) {
-        List<TripAdvance> tripAdvances = advanceRepository.findAll().stream()
-            .filter(request -> !isProblem(request))
-            .filter(request -> !isPaid(request))
-            .filter(request -> !isNotPaid(request))
-            .filter(request -> !isCanceled(request))
-            .collect(Collectors.toList());
-        return new ResponseEntity<>(mapResponse(tripAdvances, getFullMapper(), filter), HttpStatus.OK);
+    public ResponseEntity<AdvanceDesktopDTO> searchInWorkRequests(Filter filter) {
+        return advanceService.searchInWorkRequests(filter);
     }
 
-    public ResponseEntity<ResponseAdvancePayment> searchProblemRequests(Filter filter) {
-        List<TripAdvance> requests = advanceRepository.findAll().stream()
-            .filter(this::isProblem)
-            .collect(Collectors.toList());
-        return new ResponseEntity<>(mapResponse(requests, getMapperWithoutContractorInfo(), filter), HttpStatus.OK);
+    public ResponseEntity<AdvanceDesktopDTO> searchProblemRequests(Filter filter) {
+        return advanceService.searchProblemRequests(filter);
+
     }
 
-    public ResponseEntity<ResponseAdvancePayment> searchPaidRequests(Filter filter) {
-        List<TripAdvance> requests = advanceRepository.findAll().stream()
-            .filter(this::isPaid)
-            .collect(Collectors.toList());
-        return new ResponseEntity<>(mapResponse(requests, getMapperWithoutContractorInfo(), filter), HttpStatus.OK);
+    public ResponseEntity<AdvanceDesktopDTO> searchPaidRequests(Filter filter) {
+        return advanceService.searchPaidRequests(filter);
+
     }
 
-    public ResponseEntity<ResponseAdvancePayment> searchNotPaidRequests(Filter filter) {
-        List<TripAdvance> requests = advanceRepository.findAll().stream()
-            .filter(request -> !isCanceled(request))
-            .filter(this::isNotPaid)
-            .collect(Collectors.toList());
-        return new ResponseEntity<>(mapResponse(requests, getMapperWithoutContractorInfo(), filter), HttpStatus.OK);
+    public ResponseEntity<AdvanceDesktopDTO> searchNotPaidRequests(Filter filter) {
+        return advanceService.searchNotPaidRequests(filter);
+
     }
 
-    public ResponseEntity<ResponseAdvancePayment> searchCanceledRequests(Filter filter) {
-        // TODO: get all cancelled by the only one-query, not filter
-        List<TripAdvance> requests = advanceRepository.findAll().stream()
-            .filter(this::isCanceled)
-            .collect(Collectors.toList());
-        return new ResponseEntity<>(mapResponse(requests, getMapperWithoutContractorInfo(), filter), HttpStatus.OK);
+    public ResponseEntity<AdvanceDesktopDTO> searchCanceledRequests(Filter filter) {
+        return advanceService.searchCanceledRequests(filter);
     }
 
-    private ResponseAdvancePayment mapResponse(
-        List<TripAdvance> TripAdvances,
-        Function<TripAdvance, AdvancePageDTO> mapper,
-        Filter filter
-    ) {
-        TripAdvances.sort(Comparator.comparing(TripAdvance::getId).reversed());
-        List<AdvancePageDTO> responseList = TripAdvances.stream()
-            .skip(getOffset(filter.getPage(), filter.getPer()))
-            .limit(filter.getPer())
-            .map(mapper)
-            .collect(Collectors.toList());
-
-        ResponseAdvancePayment responseAdvancePayment = new ResponseAdvancePayment();
-        responseAdvancePayment.setRequestAdvancePayment(responseList);
-        responseAdvancePayment.setPaginator(
-            new Paginator()
-                .page(filter.getPage())
-                .per(filter.getPer())
-                .total(TripAdvances.size())
-        );
-
-        return responseAdvancePayment;
-    }
-
-    private boolean isCanceled(TripAdvance request) {
-        return request.getIsCancelled();
-    }
-
-    private boolean isNotPaid(TripAdvance request) {
-        return request.getIsDownloadedAdvanceApplication() &&
-            request.getIsDownloadedContractApplication() &&
-            request.getIsPushedUnfButton() &&
-            request.getIsUnfSend() &&
-            !request.getIsPaid();
-    }
-
-    private boolean isPaid(TripAdvance request) {
-        return request.getIsDownloadedAdvanceApplication() &&
-            request.getIsDownloadedContractApplication() &&
-            request.getIsPushedUnfButton() &&
-            request.getIsUnfSend() &&
-            request.getIsPaid() &&
-            request.getPaidAt() != null;
-    }
-
-    private boolean isProblem(TripAdvance request) {
-        return StringUtils.isNotBlank(request.getComment()) &&
-            !request.getComment().equals(AutoAdvancedService.AUTO_ADVANCE_COMMENT);
-    }
-
-    //TODO переделать на маленькие dto для каждой вкладки
-    private AdvancePageDTO mapAdvancePageDTO(
-        TripAdvance rec,
-        AdvanceContact advanceContact,
-        Contractor contractor,
-        String contractorPaymentName,
-        Trip trip
-    ) {
-        AdvancePageDTO frontAdvancePaymentResponse = new AdvancePageDTO();
-        frontAdvancePaymentResponse
-            .id(rec.getId())
-            .tripNum(trip == null ? null : trip.getNum())
-            .createdAt(trip == null ? null : trip.getCreatedAt())
-            .contractorName(contractor == null ? null : contractor.getFullName())
-            .contactFio(advanceContact == null ? null : advanceContact.getFullName())
-            .contactPhone(advanceContact == null ? null : advanceContact.getPhone())
-            .contactEmail(advanceContact == null ? null : advanceContact.getEmail())
-            .paymentContractor(contractorPaymentName)
-            .isAutomationRequest(rec.getIsAuto())
-            .tripCostWithVat(rec.getTripCost())
-            .advancePaymentSum(rec.getAdvancePaymentSum())
-            .registrationFee(rec.getRegistrationFee())
-            //проставляется вручную сотрудниками авансирования
-            .loadingComplete(rec.getLoadingComplete())
-            .urlContractApplication(rec.getUuidContractApplicationFile())
-            .urlAdvanceApplication(rec.getUuidAdvanceApplicationFile())
-            .is1CSendAllowed(rec.getIs1CSendAllowed())
-            .isPushedUnfButton(rec.getIsPushedUnfButton())
-            .isUnfSend(rec.getIsUnfSend())
-            .pushButtonAt(rec.getPushButtonAt())
-            .isPaid(rec.getIsPaid())
-            .paidAt(rec.getPaidAt())
-            .comment(rec.getComment())
-            .isCancelled(rec.getIsCancelled())
-            .cancelledComment(rec.getCancelledComment());
-        return frontAdvancePaymentResponse;
-    }
-
-    private Function<TripAdvance, AdvancePageDTO> getFullMapper() {
-        return request -> {
-            long contractorId = request.getContractorId();
-            AdvanceContact advanceContact = advanceContactRepository.find(contractorId).orElse(null);
-            Contractor contractor = contractorRepository.findById(contractorId).orElse(null);
-            String fullName = contractorRepository.getPaymentContractorName(request.getPaymentContractorId());
-            Trip trip = tripRepository.findById(request.getTripId()).orElse(null);
-            //
-            return mapAdvancePageDTO(request, advanceContact, contractor, fullName, trip);
-        };
-    }
-
-    private Function<TripAdvance, AdvancePageDTO> getMapperWithoutContractorInfo() {
-        return request -> {
-            Trip trip = tripRepository.findById(request.getTripId()).orElse(null);
-            return mapAdvancePageDTO(request, null, null, null, trip);
-        };
-    }
-
-    private int getOffset(int pageNumber, int pageSize) {
-        if (pageNumber < 1) {
-            throw new IllegalArgumentException("pageNumber can not be less than 1");
-        }
-        if (pageSize < 1) {
-            throw new IllegalArgumentException("pageSize can not be less than 1");
-        }
-        return ((pageNumber - 1) * pageSize);
-    }
 }

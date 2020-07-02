@@ -11,7 +11,7 @@ paths:
             security:
                 -   bearerAuth: []
             summary: "Запрос на выдачу аванса"
-            operationId: requestGiveAdvancePayment
+            operationId: giveAdvanceForTrip
             tags:
                 - Advance Payment
             parameters:
@@ -56,13 +56,6 @@ paths:
                         type: integer
                         format: int64
                         minimum: 1
-            #                -   name: is_success
-            #                    in: query
-            #                    description: "Флаг подтверждения выдачи аванса"
-            #                    required: false
-            #                    schema:
-            #                        type: boolean
-            #                        default: false
 
             responses:
                 200:
@@ -103,7 +96,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: "#/components/schemas/isAdvancedRequestResponse"
+                                $ref: "#/components/schemas/isTripAdvanced"
                 default:
                     description: "Some other error"
                     content:
@@ -136,7 +129,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/ResponseAdvancePayment'
+                                $ref: '#/components/schemas/AdvanceDesktopDTO'
                 default:
                     description: "Some other error"
                     content:
@@ -169,7 +162,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/ResponseAdvancePayment'
+                                $ref: '#/components/schemas/AdvanceDesktopDTO'
                 default:
                     description: "Some other error"
                     content:
@@ -202,7 +195,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/ResponseAdvancePayment'
+                                $ref: '#/components/schemas/AdvanceDesktopDTO'
                 default:
                     description: "Some other error"
                     content:
@@ -235,7 +228,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/ResponseAdvancePayment'
+                                $ref: '#/components/schemas/AdvanceDesktopDTO'
                 default:
                     description: "Some other error"
                     content:
@@ -268,7 +261,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/ResponseAdvancePayment'
+                                $ref: '#/components/schemas/AdvanceDesktopDTO'
                 default:
                     description: "Some other error"
                     content:
@@ -463,7 +456,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: "#/components/schemas/AdvancePaymentCommentDTO"
+                            $ref: "#/components/schemas/AdvanceCommentDTO"
             responses:
                 200:
                     description: "OK"
@@ -531,7 +524,7 @@ paths:
             tags:
                 - Application contract
             summary: "Запрос на скачивание подписанного PDF файла заявки на аванс"
-            operationId: downloadAvanseRequest
+            operationId: downloadAdvanceRequest
             parameters:
                 -   name: trip_num
                     in: query
@@ -576,10 +569,9 @@ paths:
                     description: "Ошибка в процессе получения файла"
 
     /advance_payment/carrier/request_by_carrier/{uuid}:
-        #     без авторизации
         post:
             summary: "Хочу аванс экран поставщика"
-            operationId: requestGiveAdvancePaymentForCarrier
+            operationId: carrierWantsAdvance
             tags:
                 - Advance Payment
             parameters:
@@ -627,7 +619,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/FrontAdvancePaymentResponse'
+                                $ref: '#/components/schemas/CarrierPage'
                 default:
                     description: "Some other error"
                     content:
@@ -792,7 +784,7 @@ components:
                 stringUrl:
                     type: string
 
-        AdvancePaymentCommentDTO:
+        AdvanceCommentDTO:
             type: object
             description: "Комментарий"
             required:
@@ -807,18 +799,18 @@ components:
                     type: string
                     description: "Комментарий в авансе"
 
-        ResponseAdvancePayment:
+        AdvanceDesktopDTO:
             type: object
             description: "Список запросов на аванс для страницы авансирования"
             properties:
                 paginator:
                     $ref: "#/components/schemas/Paginator"
-                request_advance_payment:
+                advances:
                     type: array
                     items:
-                        $ref: '#/components/schemas/AdvancePageDTO'
+                        $ref: '#/components/schemas/AdvanceDTO'
 
-        AdvancePageDTO:
+        AdvanceDTO:
             type: object
             description: "Элемент списка запросов на аванс для страницы авансирования"
             properties:
@@ -870,11 +862,11 @@ components:
                 loading_complete:
                     type: boolean
                     description: "Водитель загрузился"
-                url_contract_application:
-                    type: string
+                is_contract_application_loaded:
+                    type: boolean
                     description: "Ссылка на скачивание «Договор-заявка» или «Заявка»"
-                url_advance_application:
-                    type: string
+                is_advance_application_loaded:
+                    type: boolean
                     description: "Ссылка на скачивание заявки на авансирование"
                 is_1C_send_allowed:
                     type: boolean
@@ -902,62 +894,23 @@ components:
                     type: string
                     description: "Комментарий к аннулированию аванса"
 
-        FrontAdvancePaymentResponse:
+        CarrierPage:
             type: object
-            description: "Аванс"
+            description: "Аванс - Страница перевозчика"
             properties:
+                page_carrier_url_is_access:
+                    type: boolean
+                    description: "Признак доступности ссылки в кабинет перевозчика "
                 id:
                     type: integer
                     format: int64
                     description: "ID запроса на авансирование"
-                trip_id:
-                    type: integer
-                    format: int64
-                    description: "ID перевозки"
                 trip_num:
                     type: string
                     description: "Номер перевозки"
-                trip_type_code:
-                    type: string
-                    description: "Тип перевозки"
-                created_at:
-                    type: string
-                    format: date-time
-                    description: "Дата создания заказа поставщика"
-                push_button_at:
-                    type: string
-                    format: date-time
-                    description: "Дата и время нажатия на кнопку"
-                author_id:
-                    type: integer
-                    format: int64
-                    description: "Инициатор запроса на авансирование"
-                contractor_id:
-                    type: integer
-                    format: int64
-                    description: "Исполнитель"
-                contractor_name:
-                    type: string
-                    description: "Исполнитель наименование"
-                contact_fio:
-                    type: string
-                    description: "Контакты исполнителя ФИО"
-                contact_email:
-                    type: string
-                    description: "Контакты исполнителя Почта"
-                contact_phone:
-                    type: string
-                    description: "Контакты исполнителя Телефон"
-                payment_contractor:
-                    type: string
-                    description: "От кого везём"
-                req_created_at:
-                    type: string
-                    format: date-time
-                    description: "Время запроса аванса"
-                is_automation_request:
+                is_cancelled:
                     type: boolean
-                    description: "Признак автоматической выдачи аванса"
+                    description: "Признак аннулирован аванс"
                 trip_cost_with_vat:
                     type: number
                     format: double
@@ -973,78 +926,119 @@ components:
                 loading_complete:
                     type: boolean
                     description: "Водитель загрузился"
-                url_contract_application:
-                    type: string
-                    description: "Ссылка на скачивание «Договор-заявка» или «Заявка»"
-                url_advance_application:
-                    type: string
-                    description: "Ссылка на скачивание заявки на авансирование"
-                is_1C_send_allowed:
-                    type: boolean
-                    description: "Признак доступности отправки в 1с"
-                is_pushed_unf_button:
-                    type: boolean
-                    description: "Признак нажали на кнопку в 1с"
-                is_unf_send:
-                    type: boolean
-                    description: "Признак отправили в УНФ"
-                is_paid:
-                    type: boolean
-                    description: "Оплачен"
-                paid_at:
-                    type: string
-                    format: date-time
-                    description: "Дата оплаты"
-                comment:
-                    type: string
-                    description: "Комментарий"
-                is_cancelled:
-                    type: boolean
-                    description: "Признак аннулирован аванс"
-                cancelled_comment:
-                    type: string
-                    description: "Комментарий к аннулированию аванса"
-                page_carrier_url_is_access:
-                    type: boolean
-                    description: "Признак доступности ссылки в кабинет перевозчика "
-                first_loading_address:
+                loading_address:
                     type: string
                     description: "Адрес первой погрузки"
-                last_unloading_address:
+                unloading_address:
                     type: string
                     description: "Адрес последней разгрузки"
                 loading_date:
                     type: string
                     format: date-time
                     description: "Дата погрузки"
-                loading_tz:
-                    type: string
-                    description: "Таймзона погрузки"
                 unloading_date:
                     type: string
                     format: date-time
                     description: "Дата разгрузки"
+                loading_tz:
+                    type: string
+                    description: "Таймзона погрузки"
                 unloading_tz:
                     type: string
                     description: "Таймзона разгрузки"
-        ContractorResponse:
-            type: array
-            items:
-                $ref: "#/components/schemas/ContractorDTO"
+#                trip_id:
+#                    type: integer
+#                    format: int64
+#                    description: "ID перевозки"
+#                trip_type_code:
+#                    type: string
+#                    description: "Тип перевозки"
+#                created_at:
+#                    type: string
+#                    format: date-time
+#                    description: "Дата создания заказа поставщика"
+#                push_button_at:
+#                    type: string
+#                    format: date-time
+#                    description: "Дата и время нажатия на кнопку"
+#                author_id:
+#                    type: integer
+#                    format: int64
+#                    description: "Инициатор запроса на авансирование"
+#                contractor_id:
+#                    type: integer
+#                    format: int64
+#                    description: "Исполнитель"
+#                contractor_name:
+#                    type: string
+#                    description: "Исполнитель наименование"
+#                contact_fio:
+#                    type: string
+#                    description: "Контакты исполнителя ФИО"
+#                contact_email:
+#                    type: string
+#                    description: "Контакты исполнителя Почта"
+#                contact_phone:
+#                    type: string
+#                    description: "Контакты исполнителя Телефон"
+#                payment_contractor:
+#                    type: string
+#                    description: "От кого везём"
+#                req_created_at:
+#                    type: string
+#                    format: date-time
+#                    description: "Время запроса аванса"
+#                is_automation_request:
+#                    type: boolean
+#                    description: "Признак автоматической выдачи аванса"
+#                url_contract_application:
+#                    type: string
+#                    description: "Ссылка на скачивание «Договор-заявка» или «Заявка»"
+#                url_advance_application:
+#                    type: string
+#                    description: "Ссылка на скачивание заявки на авансирование"
+#                is_1C_send_allowed:
+#                    type: boolean
+#                    description: "Признак доступности отправки в 1с"
+#                is_pushed_unf_button:
+#                    type: boolean
+#                    description: "Признак нажали на кнопку в 1с"
+#                is_unf_send:
+#                    type: boolean
+#                    description: "Признак отправили в УНФ"
+#                is_paid:
+#                    type: boolean
+#                    description: "Оплачен"
+#                paid_at:
+#                    type: string
+#                    format: date-time
+#                    description: "Дата оплаты"
+#                comment:
+#                    type: string
+#                    description: "Комментарий"
+#                cancelled_comment:
+#                    type: string
+#                    description: "Комментарий к аннулированию аванса"
 
-        ContractorDTO:
-            type: object
-            properties:
-                id:
-                    type: integer
-                    format: int32
-                    description: "ID контрагента"
-                full_name:
-                    type: string
-                    description: "Наименование"
-                inn:
-                    type: string
-                    description: "ИНН"
+
+#        ContractorResponse:
+#            type: array
+#            items:
+#                $ref: "#/components/schemas/ContractorDTO"
+#
+#        ContractorDTO:
+#            type: object
+#            properties:
+#                id:
+#                    type: integer
+#                    format: int32
+#                    description: "ID контрагента"
+#                full_name:
+#                    type: string
+#                    description: "Наименование"
+#                inn:
+#                    type: string
+#                    description: "ИНН"
 
         #can use for Messaging?
         CarrierContactDTO:
@@ -1062,19 +1056,29 @@ components:
                     description: "ID"
                 full_name:
                     type: string
-                    description: "Фамилия Имя Отчество"
+                    description: "ФИО контактного лица"
                 phone_number:
                     type: string
-                    #№pattern: "^+),-,0-9*$" use pattern from app.properties?
-                    minLength: 8
-                    maxLength: 19
+                    pattern: '^9\d{9}$'
+                    minLength: 10
+                    maxLength: 10
                     example: "9851112233"
                     description: "Номер телефона"
                 email:
                     type: string
-                    description: "Почта"
+                    description: "Email-адрес"
                     example: user@example.com
                     format: email
+                uuid:
+                    type: string
+                    description: "Идентификатор контакта"
+                    example: 123e4567-e89b-12d3-a456-426655440000
+                    format: uuid
+                created_at:
+                    type: string
+                    format: date-time
+                    example: 2017-07-21T17:32:28Z
+                    description: "Время создания контакта"
 
         Filter:
             type: object
@@ -1111,11 +1115,17 @@ components:
             enum:
                 - trip_num
                 - push_button_at
+                - is_pushed_unf_button
                 - is_automation_request
                 - loading_complete
                 - is_downloaded_contract_application
                 - is_downloaded_advance_application
-                - is_pushed_unf_button
+                - is_paid
+                - is_problem
+                - is_paid_at
+                - is_cancelled
+                - is_cancelled_at
+                - is_notied
 
         SortByDirection:
             type: string
@@ -1123,25 +1133,16 @@ components:
                 - asc
                 - desc
 
-        isAdvancedRequestResponse:
+        isTripAdvanced:
             type: object
-            description: "Статус выдачи аванса"
+            description: "Статус выдачи аванса для Трипа"
             properties:
-                is_paid:
-                    type: boolean
-                    description: "Оплачен"
                 isButtonActive:
                     type: boolean
-                    description: "Доступность выдачи аванса"
-                isDocsUploaded:
+                    description: "Доступность выдачи аванса - когда аванса по трипу нет!"
+                contactsNotFound:
                     type: boolean
-                    description: "Наличие загруженных документов"
-                isContractorLock:
-                    type: boolean
-                    description: "Признак блокировки контрагента "
-                tripTypeCode:
-                    type: string
-                    description: "Тип заказа нужен фронту для отображения кнопки (пока фронт должен отображать только авто (FTL))"
+                    description: "Признак блокировки контрагента - isContractorLock - Используем, если у Контрагента нет контакта авансирования?"
                 authorId:
                     type: integer
                     format: int64
@@ -1159,12 +1160,9 @@ components:
                     type: string
                     format: date-time
                     description: "Время и дата запроса аванса"
-                comment:
-                    type: string
-                    description: "Комментарий"
                 isAutoRequested:
                     type: boolean
-                    description: "Тип заказа нужен фронту для отображения кнопки (пока фронт должен отображать только авто (FTL))"
+                    description: "--- isAutoRequested"
 
         Paginator:
             type: object

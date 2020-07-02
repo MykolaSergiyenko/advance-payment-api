@@ -74,19 +74,43 @@ services:
     # tokenAuthUrl in RestService?
     keycloak:
         url: https://preprod.oboz.online/auth/realms/master/protocol/openid-connect
+        token-postfix: '/token'
+        token-body: 'grant_type=password&client_id=elp&username=%s&password=%s'
         auth:
             username: oboztech_payment@oboz.tech
             password: 1870
 
     # BStore-URL for BStore-service
-    bstore-url: https://oboz.online/api/bstore/
+    bstore:
+        url: https://oboz.online/api/bstore/
+        pdf: 'pdf/'
+
     # OrdersApi-url for OrdersApiService
-    orders-api-url: https://oboz.online/api/orders/dispatcher/orders/%d/trips/%d/documents
-    # ReportServer-url for OrdersApiService
-    report-server-url: http://reports.oboz.com/reportserver/reportserver/httpauthexport?key=avance_request&user=bertathar&apikey=nzybc16h&p_trip_num=
+    orders:
+        url: https://oboz.online/api/orders/dispatcher/orders/%d/trips/%d/documents
+        save-body: '{"trip_document":{"id":null,
+                       "file_id":%s,
+                       "document_type_code":"assignment_advance_request",
+                       "name":"Заявка на авансирование"}}'
+
+    reports:
+        url: http://reports.oboz.com/reportserver/reportserver/httpauthexport?
+        type-key: key=avance_request
+        user: user=bertathar
+        api-key: apikey=nzybc16h
+        format: format=PDF
+        template-params: p_trip_num=%s&p_avance_sum=%s&p_avance_comission=%s
+
+
+    report-server-url: 'http://reports.oboz.com/reportserver/reportserver/httpauthexport?
+                        key=avance_request&user=bertathar&apikey=nzybc16h&p_trip_num=%s
+                        &p_avance_sum=%s&p_avance_comission=%s&format=PDF'
+
 
     #Advance-service
     advance-service:
+        min-trip-cost: 10000.00
+        # deprecated
         # Required download docs for dispatcher? The only main-app property?
         required-docs: true
 
@@ -99,8 +123,8 @@ services:
             creation: 0 0/30 * * * *
             update: 0 0/30 * * * *
         # Is this is auto-advance rules to be created?
-        min-date-trip: "2020-01-01T00:00:00+00:00"
-        min-count-trip: 3
+        #min-date-trip: "2020-01-01T00:00:00+00:00"
+        min-paid-advance-count: 3
 
     #Notification-service
     notifications:

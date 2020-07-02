@@ -28,6 +28,7 @@ public class SwaggerDocumentationConfig {
     private static String ALLOWED_PATHS = "/.*";
 
     private static String SECURED_PATHS = "/v1.*";
+    private static String SECURED_PATHS2 = "/v1/desktop.*";
 
     private static String TITLE = "trip-carrier-advance-payment-api";
 
@@ -66,6 +67,7 @@ public class SwaggerDocumentationConfig {
         return SecurityContext.builder()
             .securityReferences(defaultAuth())
             .forPaths(PathSelectors.regex(SECURED_PATHS))
+            .forPaths(PathSelectors.regex(SECURED_PATHS2))
             .build();
     }
 

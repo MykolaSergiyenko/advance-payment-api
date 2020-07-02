@@ -1,6 +1,7 @@
 package online.oboz.trip.trip_carrier_advance_payment_api.service;
 
-import online.oboz.trip.trip_carrier_advance_payment_api.repository.TripAdvanceRepository;
+import online.oboz.trip.trip_carrier_advance_payment_api.repository.AdvanceRepository;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.fileapps.FileAttachmentsService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.integration.BStoreService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.rest.AdvancePageService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.rest.AdvancePageTabsService;
@@ -23,8 +24,8 @@ import java.util.UUID;
 public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
 
     private static final Logger log = LoggerFactory.getLogger(AdvancePaymentDelegateImpl.class);
-    private final TripAdvanceRepository tripAdvanceRepository;
-    private final BStoreService bStoreService;
+
+    private final AdvanceService advanceService;
     private final DispatcherPageService dispatcherPageService;
     private final CarrierPageService carrierPageService;
     private final AdvancePageService advancePageService;
@@ -32,15 +33,12 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
 
     @Autowired
     public AdvancePaymentDelegateImpl(
-        TripAdvanceRepository tripAdvanceRepository,
-        BStoreService bStoreService,
-        CarrierPageService carrierPageService,
+        AdvanceService advanceService, CarrierPageService carrierPageService,
         DispatcherPageService dispatcherPageService,
         AdvancePageService advancePageService,
         AdvancePageTabsService advancePageTabsService
     ) {
-        this.tripAdvanceRepository = tripAdvanceRepository;
-        this.bStoreService = bStoreService;
+        this.advanceService = advanceService;
         this.dispatcherPageService = dispatcherPageService;
         this.advancePageService = advancePageService;
         this.carrierPageService = carrierPageService;
@@ -48,43 +46,43 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
     }
 
     @Override
-    public ResponseEntity<IsAdvancedRequestResponse> isAdvanced(Long tripId) {
+    public ResponseEntity<IsTripAdvanced> isAdvanced(Long tripId) {
         log.info("Got isAdvanced request tripId - " + tripId);
         return dispatcherPageService.isAdvanced(tripId);
     }
 
     @Override
-    public ResponseEntity<ResponseAdvancePayment> searchInWorkRequests(Filter filter) {
+    public ResponseEntity<AdvanceDesktopDTO> searchInWorkRequests(Filter filter) {
         log.info("Got searchInWorkRequests " + filter);
         return advancePageTabsService.searchInWorkRequests(filter);
     }
 
     @Override
-    public ResponseEntity<ResponseAdvancePayment> searchProblemRequests(Filter filter) {
+    public ResponseEntity<AdvanceDesktopDTO> searchProblemRequests(Filter filter) {
         log.info("Got searchProblemRequests " + filter);
         return advancePageTabsService.searchProblemRequests(filter);
     }
 
     @Override
-    public ResponseEntity<ResponseAdvancePayment> searchPaidRequests(Filter filter) {
+    public ResponseEntity<AdvanceDesktopDTO> searchPaidRequests(Filter filter) {
         log.info("Got searchPaidRequests " + filter);
         return advancePageTabsService.searchPaidRequests(filter);
     }
 
     @Override
-    public ResponseEntity<ResponseAdvancePayment> searchNotPaidRequests(Filter filter) {
+    public ResponseEntity<AdvanceDesktopDTO> searchNotPaidRequests(Filter filter) {
         log.info("Got searchNotPaidRequests " + filter);
         return advancePageTabsService.searchNotPaidRequests(filter);
     }
 
     @Override
-    public ResponseEntity<ResponseAdvancePayment> searchCanceledRequests(Filter filter) {
+    public ResponseEntity<AdvanceDesktopDTO> searchCanceledRequests(Filter filter) {
         log.info("Got searchCanceledRequests " + filter);
         return advancePageTabsService.searchCanceledRequests(filter);
     }
 
     @Override
-    public ResponseEntity<FrontAdvancePaymentResponse> searchAdvancePaymentRequestByUuid(UUID uuid) {
+    public ResponseEntity<CarrierPage> searchAdvancePaymentRequestByUuid(UUID uuid) {
         log.info("Got searchAdvancePaymentRequestByUuid request uuid - " + uuid);
         return carrierPageService.searchAdvancePaymentRequestByUuid(uuid);
     }
@@ -96,63 +94,60 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
     }
 
     @Override
-    public ResponseEntity<Void> requestGiveAdvancePayment(Long tripId) {
+    public ResponseEntity<Void> giveAdvanceForTrip(Long tripId) {
         log.info("Got requestGiveAdvancePayment request tripId - " + tripId);
-        return dispatcherPageService.requestGiveAdvancePayment(tripId);
+        return dispatcherPageService.giveAdvanceForTrip(tripId);
     }
 
     @Override
-    public ResponseEntity<Void> requestGiveAdvancePaymentForCarrier(UUID uuid) {
-        log.info("Got requestGiveAdvancePaymentForCarrier request uuid - " + uuid);
-        return carrierPageService.requestGiveAdvancePaymentForCarrier(uuid);
+    public ResponseEntity<Void> carrierWantsAdvance(UUID uuid) {
+        log.info("Got carrierWantsAdvance request uuid - " + uuid);
+        return carrierPageService.carrierWantsAdvance(uuid);
     }
 
     @Override
-    public ResponseEntity<Void> changeAdvancePaymentComment(AdvancePaymentCommentDTO advancePaymentCommentDTO) {
-        log.info("Got changeAdvancePaymentComment request " + advancePaymentCommentDTO);
-        return advancePageService.changeAdvancePaymentComment(advancePaymentCommentDTO);
-    }
-
-    @Override
-    public ResponseEntity downloadAvanceRequestTemplate(String tripNum) {
-        log.info("Got downloadAvanceRequestTemplate request tripNum - " + tripNum);
-        return dispatcherPageService.downloadAvanceRequestTemplate(tripNum);
-    }
-
-    @Override
-    public ResponseEntity<Resource> downloadAvanseRequest(String tripNum) {
-        log.info("Got downloadAvanseRequest request tripNum - " + tripNum);
-        String uuidFile = tripAdvanceRepository
-            .find(tripNum)
-            .getUuidAdvanceApplicationFile();
-        return bStoreService.requestResourceFromBStore(uuidFile);
-    }
-
-    @Override
-    public ResponseEntity<Resource> downloadRequest(String tripNum) {
-        log.info("Got downloadRequest request tripNum - " + tripNum);
-        String uuidFile = tripAdvanceRepository.find(tripNum)
-            .getUuidContractApplicationFile();
-        return bStoreService.requestResourceFromBStore(uuidFile);
+    public ResponseEntity<Void> changeAdvancePaymentComment(AdvanceCommentDTO commentDTO) {
+        log.info("Got changeAdvancePaymentComment request " + commentDTO);
+        return advancePageService.changeAdvancePaymentComment(commentDTO);
     }
 
     @Override
     public ResponseEntity downloadAvanceRequestTemplateForCarrier(String tripNum) {
         log.info("Got downloadAvanceRequestTemplateForCarrier request tripNum - " + tripNum);
-        return downloadAvanceRequestTemplate(tripNum);
+        return advanceService.downloadAvanceRequestTemplateForCarrier(tripNum);
     }
+
+    @Override
+    public ResponseEntity downloadAvanceRequestTemplate(String tripNum) {
+        log.info("Got downloadAvanceRequestTemplate request tripNum - " + tripNum);
+        return advanceService.downloadAvanceRequestTemplate(tripNum);
+    }
+
+
+    @Override
+    public ResponseEntity<Resource> downloadAdvanceRequest(String tripNum) {
+        log.info("Got downloadAvanseRequest request tripNum - " + tripNum);
+        return advanceService.downloadAdvanceRequest(tripNum);
+    }
+
+    @Override
+    public ResponseEntity<Resource> downloadRequest(String tripNum) {
+        log.info("Got downloadRequest request tripNum - " + tripNum);
+        return advanceService.downloadRequest(tripNum);
+    }
+
+
 
     @Override
     public ResponseEntity<Void> uploadRequestAdvance(MultipartFile filename, String tripNum) {
         log.info("Got uploadRequestAdvance request tripNum - " + tripNum);
-        return dispatcherPageService.uploadRequestAdvance(filename, tripNum);
+        return advanceService.uploadRequestAdvance(filename, tripNum);
     }
 
     @Override
-    public ResponseEntity<Void> uploadRequestAvanceForCarrier(MultipartFile filename, String trip_num) {
-        log.info("Got uploadRequestAvanceForCarrier request tripNum - " + trip_num);
-        uploadRequestAdvance(filename, trip_num);
-        return new ResponseEntity<>(HttpStatus.OK);
+    public ResponseEntity<Void> uploadRequestAvanceForCarrier(MultipartFile filename, String tripNum) {
+        log.info("Got uploadRequestAvanceForCarrier request tripNum - " + tripNum);
+        return advanceService.uploadRequestAdvance(filename, tripNum);
     }
 
     @Override

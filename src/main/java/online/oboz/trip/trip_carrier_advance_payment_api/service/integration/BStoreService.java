@@ -15,7 +15,11 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.multipart.MultipartFile;
 
+
+import static org.springframework.http.HttpStatus.OK;
+
 import java.io.IOException;
+import java.util.UUID;
 
 @Service
 public class BStoreService {
@@ -35,30 +39,30 @@ public class BStoreService {
         this.objectMapper = objectMapper;
     }
 
-    public ResponseEntity<Resource> requestResourceFromBStore(String uuidFile) {
-        String url = applicationProperties.getbStoreUrl() + uuidFile;
-        ResponseEntity<Resource> response = restService.authRequestResource(url);
-        if (response != null) {
+    public ResponseEntity<Resource> requestResourceFromBStore(UUID uuidFile) {
+        String url = applicationProperties.getbStoreUrl() + uuidFile.toString();
+        ResponseEntity<Resource> response = restService.authGetRequestResource(url);
+        if (response.getStatusCode() == OK) {
             return response;
+        } else {
+            log.error("B-Store-server {} returned bad response: {}.", url, response);
+            return null;
         }
-        log.error("server {} returned bad response", url);
-        return null;
     }
 
 
-    //TODO: what is it?
     public String getFileUuid(MultipartFile filename) {
-        String url = applicationProperties.getbStoreUrl() + "pdf/";
+        String url = applicationProperties.getbStoreUrl().toString() +
+            applicationProperties.getbStorePdf();
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.CONTENT_TYPE, "multipart/form-data");
-
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         body.add("file", filename.getResource());
 
-        ResponseEntity<String> response = restService.executePostAuthRequest(url, headers, body);
+        ResponseEntity<String> response = restService.authPostRequest(url, headers, body);
 
         String result = null;
-        if (response.getStatusCode().value() == 200) {
+        if (response.getStatusCode() == OK) {
             try {
                 JsonNode jsonNode = objectMapper.readTree(response.getBody());
                 result = jsonNode.get("file_uuid").asText();

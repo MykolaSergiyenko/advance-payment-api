@@ -1,5 +1,6 @@
 package online.oboz.trip.trip_carrier_advance_payment_api.service.messages.sms;
 
+import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.notificatoins.SmsContainer;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.messages.common.format.MessagingException;
 
 /**

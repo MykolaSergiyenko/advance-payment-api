@@ -1,12 +1,17 @@
 package online.oboz.trip.trip_carrier_advance_payment_api.service.messages;
 
 import online.oboz.trip.trip_carrier_advance_payment_api.config.ApplicationProperties;
-import online.oboz.trip.trip_carrier_advance_payment_api.domain.TripAdvance;
-import online.oboz.trip.trip_carrier_advance_payment_api.repository.TripAdvanceRepository;
+import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.Advance;
+import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.Trip;
+import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.Person;
+import online.oboz.trip.trip_carrier_advance_payment_api.repository.AdvanceRepository;
 
+import online.oboz.trip.trip_carrier_advance_payment_api.repository.TripRepository;
+import online.oboz.trip.trip_carrier_advance_payment_api.repository.PersonRepository;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.RestService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.messages.common.format.MessageCreateService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.messages.common.format.TextService;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.messages.common.format.urlshorter.UrlShortenerService;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.urleditor.UrlShortenerService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.messages.email.EmailSender;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.messages.email.EmailSenderService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.messages.sms.SmsSender;
@@ -30,33 +35,42 @@ import static io.github.benas.randombeans.api.EnhancedRandom.random;
 public class NewNotificationServiceTest {
     private JavaMailSender mailSender;
     private RestTemplate rest;
+    private RestService restService;
     private ApplicationProperties props;
     private TextService messageTextService;
     private EmailSender emailSender;
     private SmsSender smsSender;
     private Notificator notificator;
-    private TripAdvanceRepository advances;
+    private AdvanceRepository advances;
+    private TripRepository trips;
+    private PersonRepository users;
 
     @BeforeEach
     void initTest() {
         System.out.println("--- init ---");
-        rest = new RestTemplate();
-        props = new ApplicationProperties();
 
-        UrlShortenerService urlShortenerService = new UrlShortenerService(rest, props);
+        props = new ApplicationProperties();
+        restService = new RestService(props, rest);
+        UrlShortenerService urlShortenerService = new UrlShortenerService(restService, props);
         messageTextService = new MessageCreateService(props, urlShortenerService);
         mailSender = mock(JavaMailSender.class);
         emailSender = new EmailSenderService(mailSender);
-        smsSender = new SmsSenderService(rest, props);
+        smsSender = new SmsSenderService(restService, props);
         notificator = new NewNotificationService(
             props,
             messageTextService,
             emailSender,
-            smsSender
-        );
+            smsSender,
+            advances);
 
-        advances = mock(TripAdvanceRepository.class);
-        when(advances.getOne(any())).thenReturn(random(TripAdvance.class));
+        users = mock(PersonRepository.class);
+        when(users.getOne(any())).thenReturn(random(Person.class));
+
+        trips = mock(TripRepository.class);
+        when(trips.getOne(any())).thenReturn(random(Trip.class));
+
+        advances = mock(AdvanceRepository.class);
+        when(advances.getOne(any())).thenReturn(random(Advance.class));
     }
 
     @Test
@@ -64,21 +78,34 @@ public class NewNotificationServiceTest {
         System.out.println("--- scheduled sms ---");
         props.setSmsScheduleEnable(true);
         props.setEmailScheduleEnabled(false);
-        TripAdvance x = advances.getOne(669l); //random new TripAdvance();
-        System.out.println("Create random trip-advance: " + x);
-        assertNotNull(x);
-        notificator.scheduledNotificate(x);
+        Advance x = advances.getOne(669l); //random new TripAdvance();
+        System.out.println("Create random trip-advance: " + x.toString());
+
+        Person user = users.getOne(55l);
+        Trip randomTrip = trips.getOne(666l); //
+        System.out.println("--- randomTrip contractor id: " + randomTrip.getContractorId());
+
+//        Advance x2 = new Advance(randomTrip, user);
+//        //TripAdvance x2 = new TripAdvance();
+//        //x2.setAdvanceFromTrip(randomTrip, user);
+//        advances.save(x2);
+//        System.out.println("--- advance contractor id: " + x2.getContact());
+//        System.out.println("Create Random Trip: " + randomTrip);
+//        System.out.println("Create trip-advance of random Trip: " + x2.toString());
+//        assertNotNull(x);
+//        assertNotNull(x2);
+        notificator.scheduledNotify(x);
 
         props.setSmsMessageTemplate("Компания ОБОЗ+ предлагает аванс по заказу %s на сумму %.0f руб., для просмотра пройдите по ссылке \n %s");
-        notificator.scheduledNotificate(x);
+        notificator.scheduledNotify(x);
         props.setSmsPhoneTemplate("7%s");
         props.setSmsCutLinks(true);
-        notificator.scheduledNotificate(x);
+        notificator.scheduledNotify(x);
         try {
             props.setCutLinkUrl(new URL("https://clck.ru/--?url="));
             props.setSmsSenderUrl(new URL("http://sms-sender.r14.k.dev.oboz:30080/"));
             props.setLkUrl(new URL("https://oboz.online/carrier-advance/"));
-            notificator.scheduledNotificate(x);
+            notificator.scheduledNotify(x);
         } catch (MalformedURLException e) {
             System.out.println("Error with LK-url: " + e.getMessage());
         }
@@ -89,24 +116,24 @@ public class NewNotificationServiceTest {
         System.out.println("--- scheduled emails ---");
         props.setEmailScheduleEnabled(true);
         props.setSmsScheduleEnable(false);
-        TripAdvance x = advances.getOne(668l);
+        Advance x = advances.getOne(668l);
         System.out.println("Create random trip-advance: " + x);
         assertNotNull(x);
-        notificator.scheduledNotificate(x);
+        notificator.scheduledNotify(x);
 
         props.setEmailHeaderTemplate("Компания ObOz предлагает аванс по заказу %s");
-        notificator.scheduledNotificate(x);
+        notificator.scheduledNotify(x);
         props.setEmailMessageTemplate("Компания ОБОЗ предлагает аванс\n по заказу %s на сумму %.0f руб., для просмотра пройдите по ссылке \n%s");
-        notificator.scheduledNotificate(x);
+        notificator.scheduledNotify(x);
         try {
             URL lk = new URL("https://oboz.online/carrier-advance/");
             props.setLkUrl(lk);
-            notificator.scheduledNotificate(x);
+            notificator.scheduledNotify(x);
         } catch (MalformedURLException e) {
             System.out.println("Error with LK-url: " + e.getMessage());
         }
         props.setMailUsername("test@test.com");
-        notificator.scheduledNotificate(x);
+        notificator.scheduledNotify(x);
     }
 
     @Test
@@ -114,21 +141,21 @@ public class NewNotificationServiceTest {
         System.out.println("--- sms ---");
         props.setEmailEnabled(false);
         props.setSmsEnable(true);
-        TripAdvance x = advances.getOne(667l);
+        Advance x = advances.getOne(667l);
         System.out.println("Create random trip-advance: " + x);
         assertNotNull(x);
-        notificator.notificate(x);
+        notificator.notify(x);
         // errors while sms-ing
         props.setSmsMessageTemplate("Компания ОБОЗ+ предлагает аванс по заказу %s на сумму %.0f руб., для просмотра пройдите по ссылке \n %s");
-        notificator.notificate(x);
+        notificator.notify(x);
         props.setSmsPhoneTemplate("7%s");
         props.setSmsCutLinks(true);
-        notificator.notificate(x);
+        notificator.notify(x);
         try {
             props.setCutLinkUrl(new URL("https://clck.ru/--?url="));
             props.setSmsSenderUrl(new URL("http://sms-sender.r14.k.dev.oboz:30080/"));
             props.setLkUrl(new URL("https://oboz.online/carrier-advance/"));
-            notificator.notificate(x);
+            notificator.notify(x);
         } catch (MalformedURLException e) {
             System.out.println("Error with LK-url: " + e.getMessage());
         }
@@ -139,23 +166,23 @@ public class NewNotificationServiceTest {
         System.out.println("--- emails ---");
         props.setEmailEnabled(true);
         props.setSmsEnable(false);
-        TripAdvance x = advances.getOne(666l);
+        Advance x = advances.getOne(666l);
         System.out.println("Create random trip-advance: " + x);
         assertNotNull(x);
-        notificator.notificate(x);
+        notificator.notify(x);
         // errors while emailing
         props.setEmailHeaderTemplate("Компания ObOz предлагает аванс по заказу %s");
-        notificator.notificate(x);
+        notificator.notify(x);
         props.setEmailMessageTemplate("Компания ОБОЗ предлагает аванс\n по заказу %s на сумму %.0f руб., для просмотра пройдите по ссылке \n%s");
-        notificator.notificate(x);
+        notificator.notify(x);
         try {
             URL lk = new URL("https://oboz.online/carrier-advance/");
             props.setLkUrl(lk);
-            notificator.notificate(x);
+            notificator.notify(x);
         } catch (MalformedURLException e) {
             System.out.println("Error with LK-url: " + e.getMessage());
         }
         props.setMailUsername("test@test.com");
-        notificator.notificate(x);
+        notificator.notify(x);
     }
 }

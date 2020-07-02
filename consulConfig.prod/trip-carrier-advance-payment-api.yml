@@ -56,11 +56,11 @@ spring:
         virtual-host: events
 
 sms-sender:
-    url: 'http://sms-sender:8080'
+    url: http://sms-sender:8080
 
 
 cut-link:
-    url: 'https://clck.ru/--?url='
+    url: https://clck.ru/--?url=
 
 cron:
     creation: 0 0/30 * * * *
