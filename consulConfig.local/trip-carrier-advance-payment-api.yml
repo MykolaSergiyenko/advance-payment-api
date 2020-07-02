@@ -55,37 +55,117 @@ spring:
         password: 9yOoTul5hQBAylh
         virtual-host: events
 
-sms-sender:
-    url: 'http://sms-sender.r14.k.preprod.oboz:30080'
-
-
-cut-link:
-    url: 'https://clck.ru/--?url='
-
-cron:
-    creation: 0 0/30 * * * *
-    update: 0 0/30 * * * *
-    sms-notify: 0 0/30 * * * *
-
-#    При изменении minCountTrip нужно также поменять minDateTrip наа текущее значение
-auto-advance:
-    min-date-trip: "2020-01-01T00:00:00+00:00"
-    min-count-trip: 3
-    required-download-docs: true
-
-notification:
-    #    msec
-    delay.sms-send: 600000
-    sms-enable: false
-    email-enable: true
-    lk-url: https://preprod.oboz.online/carrier-advance/
+# access-only-emails-list
+accessed-users:
+    ids:
+    emails:
+        ttrunina@oboz.com,
+        tborisova@oboz.com,
+        dpopov@oboz.com,
+        vlaptev@oboz.com,
+        skabanov@oboz.com,
+        kabanovsergey777@gmail.com,
+        ncheglova@oboz.com,
+        vhrol@oboz.com,
+        okostina@oboz.com,
+        vnikitenko@oboz.com
 
 services:
-    bstore-url: https://preprod.oboz.online/api/bstore/
-    orders-api-url: https://preprod.oboz.online/api/orders/dispatcher/orders/%d/trips/%d/documents
-    report-server-url: http://reports.oboz.com/reportserver/reportserver/httpauthexport?key=avance_request&user=bertathar&apikey=nzybc16h&p_trip_num=
+    # tokenAuthUrl in RestService?
     keycloak:
         url: https://preprod.oboz.online/auth/realms/master/protocol/openid-connect
+        token-postfix: '/token'
+        token-body: 'grant_type=password&client_id=elp&username=%s&password=%s'
         auth:
             username: oboztech_payment@oboz.tech
             password: 1870
+
+    # BStore-URL for BStore-service
+    bstore:
+        url: https://oboz.online/api/bstore/
+        pdf: 'pdf/'
+
+    # OrdersApi-url for OrdersApiService
+    orders:
+        url: https://oboz.online/api/orders/dispatcher/orders/%d/trips/%d/documents
+        save-body: '{"trip_document":{"id":null,
+                       "file_id":%s,
+                       "document_type_code":"assignment_advance_request",
+                       "name":"Заявка на авансирование"}}'
+
+    reports:
+        url: http://reports.oboz.com/reportserver/reportserver/httpauthexport?
+        type-key: key=avance_request
+        user: user=bertathar
+        api-key: apikey=nzybc16h
+        format: format=PDF
+        template-params: p_trip_num=%s&p_avance_sum=%s&p_avance_comission=%s
+
+
+    report-server-url: 'http://reports.oboz.com/reportserver/reportserver/httpauthexport?
+                        key=avance_request&user=bertathar&apikey=nzybc16h&p_trip_num=%s
+                        &p_avance_sum=%s&p_avance_comission=%s&format=PDF'
+
+
+    #Advance-service
+    advance-service:
+        min-trip-cost: 10000.00
+        # deprecated
+        # Required download docs for dispatcher? The only main-app property?
+        required-docs: true
+
+    #Autoadvance-service
+    auto-advance-service:
+        # Auto-created advance comment
+        comment: "Auto cccreated"
+        # Auto-advance checker-crons?
+        cron:
+            creation: 0 0/30 * * * *
+            update: 0 0/30 * * * *
+        # Is this is auto-advance rules to be created?
+        #min-date-trip: "2020-01-01T00:00:00+00:00"
+        min-paid-advance-count: 3
+
+    #Notification-service
+    notifications:
+        #create message lk-url
+        lk-url: https://oboz.online/carrier-advance/
+
+        #link-shortener url
+        cut-link-url: https://clck.ru/--?url=
+
+        #scheduled-notifications
+        scheduler:
+            notify: 0 0/30 * * * *
+            sms-newadvance-inteval: #1 hour
+            email-newadvance-interval: #2 hours #if we wants to sent second e-mail maybe
+
+        # SMS-config
+        sms:
+            # "Simple" (at-moment) SMS-notify unable
+            enable: false
+            # Only scheduled SMS-notify enable
+            schedule-enable: true
+            # Cut LK-links for short-SMS enable
+            cut-links: true
+            # Sms-sender url
+            sender-url: http://sms-sender.r14.k.dev.oboz:30080/
+            # SMS-templates
+            sms-phone-template: 7%s
+            sms-message-template:
+                "Компания ОБОЗ+ предлагает аванс по заказу %s на сумму %.0f руб., для просмотра пройдите по ссылке \n %s"
+            sms-default-number: 8080
+
+        # Email-config
+        email:  #  sender config in spring.mail
+            # At-moment simple email-notify enable.
+            email-enable: true
+            # "Delayed" emails is unable now, emails not scheduled.
+            email-schedule-enable: false
+            # Cut-links unable in e-mail now, emails has long-link.
+            cut-links: false
+            # E-mail templates
+            email-header-template:
+                "Компания ОБОЗ предлагает аванс по заказу %s"
+            email-message-template:
+                "Компания ОБОЗ предлагает аванс\n по заказу %s на сумму %.0f руб., для просмотра пройдите по ссылке \n%s"
