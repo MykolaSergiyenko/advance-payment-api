@@ -2,6 +2,8 @@ package online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.dicts.c
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.persistence.*;
 
@@ -9,9 +11,16 @@ import javax.persistence.*;
 @Entity
 @Table(name = "contractor_advance_payment_contact", schema = "common")
 public class AdvanceContactsBook extends AdvanceContact {
+    final static Logger log = LoggerFactory.getLogger(AdvanceContactsBook.class);
 
 
     public AdvanceContactsBook() {
+    }
+
+    @PrePersist
+    @Override
+    public void onCreate() {
+        super.onCreate();
     }
 
 

@@ -1,4 +1,5 @@
 package online.oboz.trip.trip_carrier_advance_payment_api.service.messages.common.format;
+
 import org.springframework.http.HttpStatus;
 
 import javax.validation.constraints.NotNull;
@@ -11,7 +12,7 @@ public class MessagingException extends Exception {
     private final Error errors;
 
     public MessagingException(@NotNull HttpStatus status,
-                                  @NotNull Error errors) {
+                              @NotNull Error errors) {
         super();
         this.status = status;
         this.errors = errors;

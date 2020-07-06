@@ -2,17 +2,24 @@ package online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.pe
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
-import javax.validation.constraints.Pattern;
+import javax.persistence.MappedSuperclass;
 import java.io.Serializable;
 
 @Embeddable
+@MappedSuperclass
 public class SimpleContacts implements Serializable {
+    final static Logger log = LoggerFactory.getLogger(SimpleContacts.class);
+
+    @Column(name = "email")
     private String email;
 
-    @Pattern(regexp = "9\\d{9}", message = "Неверный формат номера телефона.")
+
+    @Column(name = "phone")
     private String phone;
 
     public SimpleContacts() {
@@ -53,4 +60,6 @@ public class SimpleContacts implements Serializable {
             ", phone='" + phone + '\'' +
             '}';
     }
+
+    //@Pattern(regexp = "9\\d{9}", message = "Неверный формат номера телефона.")
 }

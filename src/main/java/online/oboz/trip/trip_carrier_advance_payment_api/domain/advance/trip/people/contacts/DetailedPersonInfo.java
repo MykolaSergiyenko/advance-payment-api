@@ -2,13 +2,18 @@ package online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.pe
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.hibernate.annotations.Formula;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.persistence.*;
 import java.io.Serializable;
 
 @Embeddable
+@AttributeOverride(name = "phone", column = @Column(name = "phone"))
+@AttributeOverride(name = "email", column = @Column(name = "email"))
 public class DetailedPersonInfo extends SimpleContacts implements Serializable {
+    final static Logger log = LoggerFactory.getLogger(DetailedPersonInfo.class);
+
 
     @Column(name = "first_name")
     private String firstName;
@@ -20,10 +25,6 @@ public class DetailedPersonInfo extends SimpleContacts implements Serializable {
 
     @Column(name = "middle_name")
     private String middleName;
-
-//    @Formula(value = "concat(first_name, last_name, middle_name)")
-//    private String fullName;
-
 
 
     public DetailedPersonInfo() {
@@ -81,7 +82,6 @@ public class DetailedPersonInfo extends SimpleContacts implements Serializable {
             "firstName='" + firstName + '\'' +
             ", lastName='" + lastName + '\'' +
             ", middleName='" + middleName + '\'' +
-//            ", fullName='" + fullName + '\'' +
             '}';
     }
 }

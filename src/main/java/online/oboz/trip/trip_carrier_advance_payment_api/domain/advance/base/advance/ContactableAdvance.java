@@ -10,8 +10,6 @@ import javax.persistence.*;
 import java.time.OffsetDateTime;
 
 
-// All about Create "Advance" and its "notifications"
-
 @MappedSuperclass
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public abstract class ContactableAdvance extends TripsAdvance {
@@ -20,11 +18,10 @@ public abstract class ContactableAdvance extends TripsAdvance {
     /**
      * isNotifiableAdvance - признак того, что можем отправить "уведомления" по авансу,
      * т.к. контакты в авансе валидны, все данные для уведомления на месте.
-     *  По умолчанию - false.
-     *
+     * По умолчанию - false.
      */
     @Column(name = "is_notifiable", columnDefinition = "boolean default false")
-    private Boolean isNotifiableAdvance = false;
+    private Boolean isNotifiableAdvance;
 
 
     @Column(name = "notified_at")
@@ -32,7 +29,6 @@ public abstract class ContactableAdvance extends TripsAdvance {
 
     @Column(name = "notified_delayed_at")
     private OffsetDateTime notifiedDelayedAt;
-
 
 
     @Column(name = "email_sent_at")
@@ -43,8 +39,6 @@ public abstract class ContactableAdvance extends TripsAdvance {
     private OffsetDateTime smsSentAt;
 
 
-
-    // set email-read at, when driver go to lk-link
     @Column(name = "read_at")
     private OffsetDateTime readAt;
 
@@ -52,7 +46,6 @@ public abstract class ContactableAdvance extends TripsAdvance {
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "contractor_id", referencedColumnName = "contractor_id")
     private AdvanceContactsBook contact;
-
 
 
     public ContactableAdvance() {
@@ -63,8 +56,6 @@ public abstract class ContactableAdvance extends TripsAdvance {
     public Boolean isNotifiableAdvance() {
         return isNotifiableAdvance;
     }
-
-
 
 
     public OffsetDateTime getEmailSentAt() {
@@ -92,7 +83,6 @@ public abstract class ContactableAdvance extends TripsAdvance {
     public OffsetDateTime getReadAt() {
         return readAt;
     }
-
 
 
     public AdvanceContactsBook getContact() {
@@ -128,6 +118,13 @@ public abstract class ContactableAdvance extends TripsAdvance {
         this.contact = contact;
     }
 
+
+    @PrePersist
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        setNotifiableAdvance(null);
+    }
 
     @Override
     public boolean equals(Object o) {

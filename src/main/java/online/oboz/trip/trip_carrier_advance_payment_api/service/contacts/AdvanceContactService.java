@@ -4,26 +4,27 @@ import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.dicts.co
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.mappers.AdvanceContactMapper;
 import online.oboz.trip.trip_carrier_advance_payment_api.error.BusinessLogicException;
 import online.oboz.trip.trip_carrier_advance_payment_api.repository.AdvanceContactsBookRepository;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.AdvanceService;
 import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.CarrierContactDTO;
+import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.Error;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+
 
 @Service
 public class AdvanceContactService implements ContactService {
     private static final Logger log = LoggerFactory.getLogger(AdvanceContactService.class);
 
-    private final AdvanceService advanceService;
+
     private final AdvanceContactsBookRepository contactsBookRepository;
     private final AdvanceContactMapper contactMapper = AdvanceContactMapper.contactMapper;
 
 
-    public AdvanceContactService(AdvanceService advanceService, AdvanceContactsBookRepository contactsBookRepository) {
-        this.advanceService = advanceService;
+    public AdvanceContactService(AdvanceContactsBookRepository contactsBookRepository) {
         this.contactsBookRepository = contactsBookRepository;
     }
 
@@ -38,8 +39,13 @@ public class AdvanceContactService implements ContactService {
     }
 
     public ResponseEntity<CarrierContactDTO> getContactCarrier(Long contractorId) {
-        return new ResponseEntity<>(contactToDto(
-            getByContractorId(contractorId)), HttpStatus.OK);
+        return new ResponseEntity<>(contactToDto(findByContractor(contractorId)), HttpStatus.OK);
+    }
+
+
+    public AdvanceContactsBook findByContractor(Long contractorId) {
+        return contactsBookRepository.findByContractorId(contractorId).orElseThrow(() ->
+            getContactError("Advance contact for this carrier is not found:" + contractorId));
     }
 
 
@@ -48,7 +54,7 @@ public class AdvanceContactService implements ContactService {
 
     private AdvanceContactsBook createContact(CarrierContactDTO contactDTO) {
         Long contractorId = contactDTO.getContractorId();
-        AdvanceContactsBook contact = getByContractorId(contractorId);
+        AdvanceContactsBook contact = findByContractor(contractorId);
         if (contact != null) {
             log.info("Advance contact for this Carrier is already exists: " + contractorId);
         }
@@ -56,14 +62,10 @@ public class AdvanceContactService implements ContactService {
     }
 
     private AdvanceContactsBook updateContact(CarrierContactDTO contactDTO) {
-        AdvanceContactsBook contact = getByContractorId(contactDTO.getContractorId());
+        AdvanceContactsBook contact = findByContractor(contactDTO.getContractorId());
         return setContactInfo(contactDTO, contact);
     }
 
-    private AdvanceContactsBook getByContractorId(Long contractorId) {
-        return contactsBookRepository.findByContractorId(contractorId).orElseThrow(() ->
-            getContactError("Advance contact for this Carrier is not exists:" + contractorId));
-    }
 
     private AdvanceContactsBook setContactInfo(CarrierContactDTO contactDTO, AdvanceContactsBook contact) {
         contact = dtoToContact(contactDTO);
@@ -79,7 +81,18 @@ public class AdvanceContactService implements ContactService {
         return contactMapper.toContactDTO(contact);
     }
 
-    private BusinessLogicException getContactError(String s) {
-        return advanceService.getEntityServiceError(s, AdvanceContactService.class);
+    private BusinessLogicException getContactError(String message) {
+        return getInternalBusinessError(getServiceError(message), INTERNAL_SERVER_ERROR);
+    }
+
+    private Error getServiceError(String errorMessage) {
+        Error error = new Error();
+        error.setErrorMessage("PersonsService - Business Error: " + errorMessage);
+        return error;
+    }
+
+    private BusinessLogicException getInternalBusinessError(Error error, HttpStatus state) {
+        log.error(state.name() + " : " + error.getErrorMessage());
+        return new BusinessLogicException(state, error);
     }
 }

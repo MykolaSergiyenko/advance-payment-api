@@ -11,31 +11,28 @@ import java.io.Serializable;
 
 
 public enum CurrentAdvanceState implements Serializable {
-    NOTIFIED(10, "notified", "Было уведомление"), //New created --> to Active
-    AUTO_NOTIFIED(11, "delay_notified", "Было отложенное уведомление"), //New created --> to Active
-    SMS_SENT(12, "sent_sms", "Было отложенное уведомление"), //New created --> to Active
-    EMAIL_SENT(13, "sent_email", "Было отложенное уведомление"), //New created --> to Active
 
     NEW(1, "new", "Свежий аванс"), //New created --> to Active
     AUTO_NEW(2, "auto", "Свежий авто-аванс"),  //New auto-created
-
+    DOCS_LOADED(3, "docs_loaded", "Документы загружены."),
     LOADING_COMPLETE(3, "truck_loaded", "Загрузка машины завершена"), //
+    ACTIVE(4, "active", "Активный аванс (активна кнопка 'Отправить в УНф')"),  //Active button "send to unf"
 
-    ACTIVE(4,"active", "Активный аванс (активна кнопка)"),  //Active button --> not Problem
-
-    PROBLEM_ADVANCE(5, "dis_activated", "Дизактированный аванс (потому что содержит не такой комментарий)"),
-
-    CANCELLED(6, "cancelled", "Аванс отменен"), //Succefully_cancel
-
-    TRY_SEND_UNF(7, "try_unf_send" ,"Отправляли в УНФ (нажимали кнопку?)"), // try sent to unf (button pushed. but disActive?)
-    SENT_TO_UNF(4, "unf_sent" ,"Отправляли в УНФ"), // Advance Already Sent_in_Unf. When already Send, button is unActive
     APPROVED(5, "approved", "Аванс утвержден"),  //Succefully_approved --> download documents
+
+    // --> not Problem + loading_complete + docs_loaded
+    PROBLEM_ADVANCE(5, "inactivated", "Дизактированный аванс (потому что содержит не такой комментарий)"),
+    // -->
+    CANCELLED(6, "cancelled", "Аванс отменен"), //Succefully_cancel
+    //TRY_SEND_UNF(7, "try_unf_send", "Отправляли в УНФ (нажимали кнопку?)"), // try sent to unf (button pushed. but disActive?)
 
     PAID(8, "is_paid", "Аванс выплачен в УНФ"), //Succefully_PAID - end
 
-    COMPLETE(9, "complete", "Завершен"); //Succefully_PAID - end
-
-
+    //COMPLETE(9, "complete", "Завершен"), //Succefully_PAID - end
+    NOTIFIED(10, "notified", "Было уведомление"), //New created --> to Active
+    AUTO_NOTIFIED(11, "delay_notified", "Было отложенное уведомление"), //New created --> to Active
+    SMS_SENT(12, "sent_sms", "Было отложенное уведомление"), //New created --> to Active
+    EMAIL_SENT(13, "sent_email", "Было отложенное уведомление"); //New created --> to Active
 
 
     private long advanceStateId;
@@ -50,7 +47,7 @@ public enum CurrentAdvanceState implements Serializable {
 
     public CurrentAdvanceState makeOfString(String advanceStateName) {
         CurrentAdvanceState result = null;
-        if (advanceStateName == null) throw new BusinessLogicException(HttpStatus.CONFLICT,new Error());
+        if (advanceStateName == null) throw new BusinessLogicException(HttpStatus.CONFLICT, new Error());
         else {
             for (CurrentAdvanceState current : this.values()) {
                 if (!advanceStateNameEquals(current.advanceStateName)) {
@@ -60,17 +57,14 @@ public enum CurrentAdvanceState implements Serializable {
             }
         }
         if (result == null)
-            throw new BusinessLogicException(HttpStatus.CONFLICT,new Error());
+            throw new BusinessLogicException(HttpStatus.CONFLICT, new Error());
         return result;
 
     }
 
-    private boolean advanceStateNameEquals(String setName){
+    private boolean advanceStateNameEquals(String setName) {
         return this.getAdvanceStateName().equals(setName);
     }
-
-
-
 
 
     @Override

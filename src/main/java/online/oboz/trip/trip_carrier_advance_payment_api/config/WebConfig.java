@@ -23,10 +23,6 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Bean
     public HttpFirewall allowUrlEncodedSlashHttpFirewall() {
-        // add for url-convertor UrlShortenerService
-        // testing from swagger
-        // problem with utf-8?
-        // can use in application?
         StrictHttpFirewall firewall = new StrictHttpFirewall();
         firewall.setAllowUrlEncodedSlash(true);
         firewall.setAllowUrlEncodedPercent(true);

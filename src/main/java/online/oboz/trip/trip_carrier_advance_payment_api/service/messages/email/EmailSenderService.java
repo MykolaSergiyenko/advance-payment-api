@@ -11,7 +11,6 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 
-
 /**
  * <b>Сервис отправки электронной почты</b>
  *
@@ -41,7 +40,7 @@ public class EmailSenderService implements EmailSender {
         }
     }
 
-    private MessagingException getSendingException(String message, EmailContainer email){
+    private MessagingException getSendingException(String message, EmailContainer email) {
         Error error = new Error("Error while email-sending to "
             + email.getMessage().getTo()[0]
             + ". Messages: " + message);

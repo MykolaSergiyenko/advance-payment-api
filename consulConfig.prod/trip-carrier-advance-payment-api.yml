@@ -102,22 +102,18 @@ services:
         template-params: p_trip_num=%s&p_avance_sum=%s&p_avance_comission=%s
 
 
-    report-server-url: 'http://reports.oboz.com/reportserver/reportserver/httpauthexport?
-                        key=avance_request&user=bertathar&apikey=nzybc16h&p_trip_num=%s
-                        &p_avance_sum=%s&p_avance_comission=%s&format=PDF'
-
-
     #Advance-service
     advance-service:
         min-trip-cost: 10000.00
         # deprecated
         # Required download docs for dispatcher? The only main-app property?
-        required-docs: true
+        #required-docs: true
 
     #Autoadvance-service
     auto-advance-service:
+        auto-author: 62911
         # Auto-created advance comment
-        comment: "Auto cccreated"
+        comment: "Auto created"
         # Auto-advance checker-crons?
         cron:
             creation: 0 0/30 * * * *
@@ -137,7 +133,9 @@ services:
         #scheduled-notifications
         scheduler:
             notify: 0 0/30 * * * *
-            sms-newadvance-inteval: #1 hour
+            #minutes
+            sms-newadvance-inteval: 60
+            #notused
             email-newadvance-interval: #2 hours #if we wants to sent second e-mail maybe
 
         # SMS-config

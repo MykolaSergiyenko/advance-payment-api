@@ -15,15 +15,14 @@ public abstract class AdvancePerson extends HasContractor {
     final static Logger log = LoggerFactory.getLogger(AdvancePerson.class);
 
     @AttributeOverrides({
-        @AttributeOverride(name="phone", column=@Column(name="phone")),
-        @AttributeOverride(name="email", column=@Column(name="email")),
-        @AttributeOverride(name="firstName", column=@Column(name="first_name")),
-        @AttributeOverride(name="middleName", column=@Column(name="middle_name")),
-        @AttributeOverride(name="lastName", column=@Column(name="last_name"))
+        @AttributeOverride(name = "phone", column = @Column(name = "phone")),
+        @AttributeOverride(name = "email", column = @Column(name = "email")),
+        @AttributeOverride(name = "firstName", column = @Column(name = "first_name")),
+        @AttributeOverride(name = "middleName", column = @Column(name = "middle_name")),
+        @AttributeOverride(name = "lastName", column = @Column(name = "last_name"))
     })
     @Embedded
     private DetailedPersonInfo info;
-
 
 
     public AdvancePerson() {
@@ -37,18 +36,6 @@ public abstract class AdvancePerson extends HasContractor {
     public void setInfo(DetailedPersonInfo info) {
         this.info = info;
     }
-
-
-//    public DetailedPersonInfo getDetailedPersonInfo() {
-//        return detailedPersonInfo;
-//    }
-//
-//
-//    public void setDetailedPersonInfo(DetailedPersonInfo personalInfo) {
-//        this.detailedPersonInfo = personalInfo;
-//    }
-
-
 
 
     @Override

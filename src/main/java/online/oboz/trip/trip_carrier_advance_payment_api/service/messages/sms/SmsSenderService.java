@@ -1,6 +1,6 @@
 package online.oboz.trip.trip_carrier_advance_payment_api.service.messages.sms;
+
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.notificatoins.SmsContainer;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.RestService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.messages.common.format.MessagingException;
 
 import online.oboz.trip.trip_carrier_advance_payment_api.config.ApplicationProperties;
@@ -27,12 +27,13 @@ import java.net.URL;
 @Service
 public class SmsSenderService implements SmsSender {
     Logger log = LoggerFactory.getLogger(SmsSenderService.class);
-    private final RestService restService;
+    //private final RestService restService;
+
+    private RestTemplate restTemplate = new RestTemplate();
     private final ApplicationProperties applicationProperties;
 
     @Autowired
-    public SmsSenderService(RestService restService, ApplicationProperties applicationProperties) {
-        this.restService = restService;
+    public SmsSenderService(ApplicationProperties applicationProperties) {
         this.applicationProperties = applicationProperties;
     }
 
@@ -41,7 +42,9 @@ public class SmsSenderService implements SmsSender {
         try {
             URL smsSenderUrl = applicationProperties.getSmsSenderUrl();
             if (null == smsSenderUrl) throw getSmsSendingException("SMS-sender-url is empty for:", sms);
-            ResponseEntity<String> response = restService.postForEntity(smsSenderUrl, sms);
+            //ResponseEntity<String> response = restService.postForEntity(smsSenderUrl, sms);
+            ResponseEntity<String> response = restTemplate.postForEntity(smsSenderUrl.toString(),
+                sms, String.class);
             if (response.getStatusCode() != HttpStatus.OK) {
                 getSmsSendingException("Bad SMS-response. " + response.getBody(), sms);
             } else {
@@ -55,7 +58,7 @@ public class SmsSenderService implements SmsSender {
         }
     }
 
-    private MessagingException getSmsSendingException(String message, SmsContainer sms){
+    private MessagingException getSmsSendingException(String message, SmsContainer sms) {
         Error error = new Error("Error while sms-sending to "
             + sms.getPhone()
             + ". Messages: " + message);

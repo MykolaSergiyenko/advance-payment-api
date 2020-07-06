@@ -1,10 +1,8 @@
 package online.oboz.trip.trip_carrier_advance_payment_api.domain.mappers;
 
-import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.Advance;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.dicts.contacts.AdvanceContactsBook;
 
 import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.CarrierContactDTO;
-import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.CarrierPage;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
 
@@ -26,7 +24,6 @@ public interface AdvanceContactMapper {
 
     @InheritInverseConfiguration
     CarrierContactDTO toContactDTO(AdvanceContactsBook contact);
-
 
 
 }

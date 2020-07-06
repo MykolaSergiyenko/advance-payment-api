@@ -10,7 +10,7 @@ import java.util.List;
 @ConfigurationProperties(prefix = "application", ignoreInvalidFields = false)
 public class ApplicationProperties {
     /**
-     * TODO: check use Spring-mail config here?
+     * Spring mail-sender
      */
     private String mailHost;
     @Value("${spring.mail.port}")
@@ -26,13 +26,10 @@ public class ApplicationProperties {
     @Value("${spring.mail.properties.mail.smtp.auth:true}")
     private String mailAuth;
 
-//
-//    /**
-//     * accessUsersIds not use
-//     */
-//    @Deprecated
-//    @Value("${accessed-users.ids}")
-//    private List<Long> accessUsersIds;
+
+    @Deprecated
+    @Value("${accessed-users.ids}")
+    private List<Long> accessUsersIds;
 
 
     /**
@@ -43,111 +40,138 @@ public class ApplicationProperties {
 
 
     /**
-     * tokenAuthUrl in RestService
-     * //TODO:keyCloakUrl? make different service or config?
+     * Keycloak-url in RestService
      */
     @Value("${services.keycloak.url}")
     private URL tokenAuthUrl;
 
+
+    /**
+     * Get keycloak Token
+     */
     @Value("${services.keycloak.token-postfix}")
     private String tokenUrlPostfix;
 
+
+    /**
+     * Keycloak request
+     */
     @Value("${services.keycloak.token-body}")
     private String tokenBody;
 
+    /**
+     * Keycloak username
+     */
     @Value("${services.keycloak.auth.username}")
     private String username;
 
+    /**
+     * Keycloak password
+     */
     @Value("${services.keycloak.auth.password}")
     private String password;
 
-    //Advance
-    // Main-application-services
 
     /**
-     * requiredDownloadDocs
-     * Strange property for application
-     * //TODO: Get requiredDownloadDocs for activate button in DispatcherService?
+     * Min cost of trip to be advanced
      */
-    @Value("${services.advance-service.required-docs:true}")
-    private Boolean requiredDownloadDocs;
-
-
-
     @Value("${services.advance-service.min-trip-cost}")
-    private Double  minTripCost;
+    private Double minTripCost;
 
     //Auto-advance
 
     /**
-     * cron
-     * //TODO: Crons for auto-advance action to check?
-     * // created and updated in one?
+     * Schedule for Auto-advance service created auto-advances
      */
-    @Value("${services.auto-advance-service.cron.creation: 0 0/2 * * * *}")
+    @Value("${services.auto-advance-service.cron.creation}")
     private String cronCreation;
 
-    @Value("${services.auto-advance-service.cron.update: 0 0/2 * * * *}")
+    /**
+     * Schedule for Auto-advance service updated auto-contractors
+     * and update advance-attachments-uuid's
+     */
+    @Value("${services.auto-advance-service.cron.update}")
     private String cronUpdate;
 
     /**
      * Auto Created-advance comment
-     * TODO: Use auto-created-comment from app.properties
      */
     @Value("${services.auto-advance-service.comment}")
     private String autoCreatedComment;
 
 
+    /**
+     * Min count of 'paid' advances for contractor to become 'automated'
+     */
     @Value("${services.auto-advance-service.min-paid-advance-count}")
     private Long minAdvanceCount;
 
     /**
      * URL for BStore-service
-     * TODO: Is make auth-Request via RestService --> RestTemplate ?
      */
     @Value("${services.bstore.url}")
     private URL bStoreUrl;
 
+    /**
+     * B-store 'pdf'-suffix
+     */
     @Value("${services.bstore.pdf}")
     private String bStorePdf;
 
     /**
-     * OrdersApi-url for OrdersApiService
-     * TODO: Is make auth-Request via RestService --> RestTemplate ?
+     * OrdersApi-url for OrdersApiService - to load documents
      */
     @Value("${services.orders.url}")
     private URL ordersApiUrl;
 
+
+    /**
+     * OrdersApi - Save-file request body
+     */
     @Value("${services.orders.save-body}")
     private Json ordersApiSaveBody;
 
     /**
-     * ReportServer-url for OrdersApiService
-     * TODO: Is make Request via restService.executeGetAuthRequest() --> RestTemplate ?
+     * ReportServer-url for generate 'Advance request template' in PDF
      */
     @Value("${services.reports.url}")
     private URL reportsUrl;
 
+
+    /**
+     * ReportServer - Type-key (preprod-...)
+     */
     @Value("${services.reports.type-key}")
     private String reportsTypeKey;
 
+    /**
+     * ReportServer - User
+     */
     @Value("${services.reports.user}")
     private String reportsUser;
 
+    /**
+     * ReportServer - api-key
+     */
     @Value("${services.reports.api-key}")
     private String reportsApiKey;
 
+    /**
+     * ReportServer - file-format (*.pdf)
+     */
     @Value("${services.reports.format}")
     private String reportsFormat;
 
+    /**
+     * ReportServer - params of Advance for report-template
+     */
     @Value("${services.reports.template-params}")
     private String reportsParams;
 
 
     //Notification - Messaging services
     /**
-     * Client's advance "dashboard-URL" for NotificationService
-     * TODO: Make template maybe? //? URL, String
+     * Advance Client's (carrier-page) URL
      */
     @Value("${services.notifications.lk-url}")
     private URL lkUrl;
@@ -160,29 +184,24 @@ public class ApplicationProperties {
 
 
     /**
-     * TODO: set in cron for all messages (sms- and emails)
+     * Schedule for "Send SMSs for unread letters-advances"
      */
-    @Value("${services.notifications.scheduler.notify:0 0/30 * * * *}")
-    String cronCheckNotify;
+    @Value("${services.notifications.scheduler.notify}")
+    private String cronCheckNotify;
+
+
+    @Deprecated
+    @Value("${services.notifications.scheduler.email-newadvance-interval}")
+    private String emailInterval;
+
 
     /**
-     * TODO: Unread email's interval for scheduled-emails? in NotificationService
+     * Unread letters interval for scheduled notifications - in minutes
      */
-    @Value("${services.notifications.scheduler.email-newadvance-interval:1 hour}")
-    String emailInterval;
-
-    /**
-     * TODO: Unread email's interval for sms-scheduled-notification NotificationService?
-     * Make logic for intervals - now scheduled-emails unable?
-     * TODO:interval? String? #minutes? #hours?
-     * //${notification.delay.sms-send:60000
-     * milliseconds is too much for all needs
-     */
-    @Value("${services.notifications.scheduler.sms-newadvance-inteval:2 hours}")
-    String smsInterval;
+    @Value("${services.notifications.scheduler.sms-newadvance-inteval:60}")
+    private Integer smsInterval;
 
 
-    //Email-notification-config for NotificationService
     /**
      * Is email-enabled for create-advance simple-notification in NotificationService
      */
@@ -204,7 +223,6 @@ public class ApplicationProperties {
     @Value("${services.notifications.email.cut-links:false}")
     private Boolean emailCutLinks;
 
-    //Sender not config here. Use by default Spring's?
 
     /**
      * Email-message params\templates. Used in message-TextService only.
@@ -215,7 +233,6 @@ public class ApplicationProperties {
     private String emailMessageTemplate;
 
 
-    //Sms-notification-config for NotificationService
     /**
      * Is sms-enabled for create-advance simple-notification in NotificationService
      * Now unable - sms is delayed and send by cron after email-only-notification.
@@ -233,7 +250,6 @@ public class ApplicationProperties {
 
     /**
      * Sms-sender-url for SmsSenderService --> via restTemplate
-     * TODO: use via RestService proxy maybe?
      */
     @Value("${services.notifications.sms.sender-url:http://sms-sender.r14.k.preprod.oboz:30080}")
     private URL smsSenderUrl;
@@ -241,7 +257,6 @@ public class ApplicationProperties {
     /**
      * SMS-phone-template and SMS-message-template
      * for TextService in SmsCreator
-     * TODO: check in SmsCreator?
      */
     @Value("${services.notifications.sms.sms-phone-template:7%s}")
     private String smsPhoneTemplate;
@@ -286,9 +301,6 @@ public class ApplicationProperties {
     }
 
 
-    /**
-     * @return Get token URL for RestService.getRequestToken(). keykloak?
-     */
     public URL getTokenAuthUrl() {
         return this.tokenAuthUrl;
     }
@@ -314,23 +326,7 @@ public class ApplicationProperties {
         this.password = password;
     }
 
-    /**
-     * @return Get requiredDownloadDocs for activate button in DispatcherService?
-     * //requiredDownloadDocs in app.property??
-     * // звучит не очень
-     */
-    public Boolean getRequiredDownloadDocs() {
-        return this.requiredDownloadDocs;
-    }
 
-    public void setRequiredDownloadDocs(Boolean requiredDownloadDocs) {
-        this.requiredDownloadDocs = requiredDownloadDocs;
-    }
-
-
-    /**
-     * TODO: Use auto-comment from app.properties
-     */
     public String getAutoCreatedComment() {
         return autoCreatedComment;
     }
@@ -339,8 +335,6 @@ public class ApplicationProperties {
         this.autoCreatedComment = autoCreatedComment;
     }
 
-
-    //Config auto-advance properties here. Make some private maybe
 
     /**
      * Config auto-advance properties here
@@ -373,7 +367,6 @@ public class ApplicationProperties {
     }
 
 
-
     /**
      * Get B-Store-url for B-StoreService
      * //TODO: Is make auth-Request via RestService --> RestTemplate ?
@@ -386,10 +379,7 @@ public class ApplicationProperties {
         this.bStoreUrl = bStoreUrl;
     }
 
-    /**
-     * Get OrdersApi-url for OrdersApiService
-     * //TODO: Used RestService.executePostAuthRequest() --> restTemplate?
-     */
+
     public URL getOrdersApiUrl() {
         return this.ordersApiUrl;
     }
@@ -398,11 +388,7 @@ public class ApplicationProperties {
         this.ordersApiUrl = ordersApiUrl;
     }
 
-    /**
-     * Get reportServer-url for OrdersApiService
-     * //TODO: check how used
-     * TODO: - посмотреть костыли в downloadAvanceRequestTemplate
-     */
+
     public URL getReportsUrl() {
         return this.reportsUrl;
     }
@@ -412,9 +398,6 @@ public class ApplicationProperties {
     }
 
 
-    /**
-     * Config client's advance "LK-URL" for NotificationService
-     */
     public URL getLkUrl() {
         return this.lkUrl;
     }
@@ -424,9 +407,6 @@ public class ApplicationProperties {
     }
 
 
-    /**
-     * Config for UrlCutterService
-     */
     public URL getCutLinkUrl() {
         return cutLinkUrl;
     }
@@ -436,9 +416,6 @@ public class ApplicationProperties {
     }
 
 
-    /**
-     * Cron for scheduled NotificationService
-     */
     public String getCronCheckNotify() {
         return cronCheckNotify;
     }
@@ -448,26 +425,25 @@ public class ApplicationProperties {
     }
 
 
-    /**
-     * Unread email's interval for scheduled-emails? NotificationService ?
-     */
-    public String getEmailInterval() {
-        return emailInterval;
-    }
-
-    public void setEmailInterval(String emailInterval) {
-        this.emailInterval = emailInterval;
-    }
+//    /**
+//     * Unread email's interval for scheduled-emails? NotificationService ?
+//     */
+//    public String getEmailInterval() {
+//        return emailInterval;
+//    }
+//
+//    public void setEmailInterval(String emailInterval) {
+//        this.emailInterval = emailInterval;
+//    }
 
     /**
      * Unread email's interval for sms-scheduled-notification NotificationService?
-     * TODO: Make logic for intervals - now scheduled-emails unable?
      */
-    public String getSmsInterval() {
+    public Integer getSmsInterval() {
         return smsInterval;
     }
 
-    public void setSmsInterval(String smsInterval) {
+    public void setSmsInterval(Integer smsInterval) {
         this.smsInterval = smsInterval;
     }
 
@@ -646,7 +622,6 @@ public class ApplicationProperties {
 
     /**
      * @return SMS-phonenumber-template use in SmsCreator?;
-     * TODO: use in text-service?
      */
     public String getSmsPhoneTemplate() {
         return smsPhoneTemplate;
@@ -692,7 +667,6 @@ public class ApplicationProperties {
     public void setTokenBody(String tokenBody) {
         this.tokenBody = tokenBody;
     }
-
 
 
     public String getbStorePdf() {

@@ -80,7 +80,7 @@ public interface Notificator {
      *                Notificate contractor for advance by "simple" (at-moment) messages:
      *                by sms and e-mail if both pathes enable in {@link ApplicationProperties}.
      */
-    void notify(Advance advance);
+    Advance notify(Advance advance);
 
 
     /**
@@ -88,5 +88,6 @@ public interface Notificator {
      *                Notificate contractor for advance by "delayed" (scheduled) messages:
      *                by sms and e-mail if both pathes enable in {@link ApplicationProperties}.
      */
-    void scheduledNotify(Advance advance);
+    Advance scheduledNotify(Advance advance);
+
 }

@@ -24,7 +24,7 @@ public abstract class UnfAdvanceFields extends CancelableAdvance {
     @Column(name = "paid_at")
     private OffsetDateTime paidAt;
 
-    @Column(name = "is_1c_send_allowed", columnDefinition = "boolean default false")
+    @Column(name = "is_1c_send_allowed", columnDefinition = "boolean default null")
     private Boolean is1CSendAllowed;
 
     @Column(name = "page_carrier_url_is_access", columnDefinition = "boolean default true")
@@ -34,26 +34,26 @@ public abstract class UnfAdvanceFields extends CancelableAdvance {
     private Boolean isPushedUnfButton;
 
     @PrePersist
-    private void setAutoFields() {
-        if (isUnfSend() == null || isPaid() == null || is1CSendAllowed() == null || isCarrierPageAccess() == null ||
-            isPushedUnfButton() == null) {
-                setUnfSend(false);
-                setIs1CSendAllowed(false);
-                setUnfSend(false);
-                setCarrierPageAccess(true);
-                setPaid(false);
-                setPushedUnfButton(false);
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        setUnfFields();
+    }
+
+
+    private void setUnfFields() {
+        if (isUnfSend() == null || isPaid() == null
+            || is1CSendAllowed() == null || isCarrierPageAccess() == null
+            || isPushedUnfButton() == null) {
+            setUnfSend(false);
+            setIs1CSendAllowed(null);
+            setUnfSend(false);
+            setCarrierPageAccess(true);
+            setPaid(false);
+            setPushedUnfButton(false);
         }
     }
 
-
-
-
-    @PreUpdate
-    public void onUpdate() {
-        //log.info("**** On-update CancelableAdvance:" + this.toString());
-//
-    }
 
     public UnfAdvanceFields() {
     }

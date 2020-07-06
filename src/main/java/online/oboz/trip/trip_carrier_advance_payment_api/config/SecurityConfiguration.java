@@ -32,7 +32,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
             .antMatchers(HttpMethod.GET, "/v1/advance_payment/download**").permitAll()
             .antMatchers(HttpMethod.POST, "/v1/advance_payment/carrier/**").permitAll()
             .antMatchers(HttpMethod.GET, "/v1/advance_payment/carrier/**").permitAll()
-            .anyRequest().hasAnyRole()
+            .antMatchers(HttpMethod.POST, "/v1/advance_payment/**").permitAll()
             .anyRequest().authenticated()
             .and().oauth2ResourceServer().jwt();
     }

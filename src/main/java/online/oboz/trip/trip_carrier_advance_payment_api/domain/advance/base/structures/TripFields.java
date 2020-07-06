@@ -4,7 +4,7 @@ package online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.st
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
-import org.hibernate.annotations.Formula;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,20 +12,14 @@ import javax.persistence.*;
 import java.io.Serializable;
 
 
-//@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
-
-
 @Embeddable
-public class TripFields implements Serializable { //extends HasContractor
+public class TripFields implements Serializable {
     final static Logger log = LoggerFactory.getLogger(TripFields.class);
-
 
 
     @Column(name = "trip_id")
     private Long tripId;
 
-    @Column(name = "comment")
-    private String comment;
 
     @Column(name = "num")
     private String num;
@@ -40,16 +34,11 @@ public class TripFields implements Serializable { //extends HasContractor
     private Long paymentContractorId;
 
     @Column(name = "trip_type_code", updatable = false, insertable = false)
-    private String tripTypeCode;
-
-    @Column(name = "trip_status_code")
-    private String tripStatusCode;
+    private String tripTypeCode = "motor";
 
 
     public TripFields() {
     }
-
-
 
 
     public Long getTripId() {
@@ -60,13 +49,6 @@ public class TripFields implements Serializable { //extends HasContractor
         this.tripId = tripId;
     }
 
-    public String getComment() {
-        return comment;
-    }
-
-    public void setComment(String comment) {
-        this.comment = comment;
-    }
 
     public String getNum() {
         return num;
@@ -108,15 +90,6 @@ public class TripFields implements Serializable { //extends HasContractor
         this.tripTypeCode = tripTypeCode;
     }
 
-    public String getTripStatusCode() {
-        return tripStatusCode;
-    }
-
-    public void setTripStatusCode(String tripStatusCode) {
-        this.tripStatusCode = tripStatusCode;
-    }
-
-
 
     @Override
     public boolean equals(Object o) {
@@ -132,14 +105,11 @@ public class TripFields implements Serializable { //extends HasContractor
     public String toString() {
         return "TripFields{" +
             "tripId=" + tripId +
-
-            ", comment='" + comment + '\'' +
             ", num='" + num + '\'' +
             ", driverId=" + driverId +
             ", orderId=" + orderId +
             ", paymentContractorId=" + paymentContractorId +
             ", tripTypeCode='" + tripTypeCode + '\'' +
-            ", tripStatusCode='" + tripStatusCode + '\'' +
             '}';
     }
 }

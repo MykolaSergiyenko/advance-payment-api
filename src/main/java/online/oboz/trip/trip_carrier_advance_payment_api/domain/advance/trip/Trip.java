@@ -10,47 +10,21 @@ import org.slf4j.LoggerFactory;
 import javax.persistence.*;
 
 
-//@DiscriminatorValue("Trip")
-//@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
-
-
 @Entity
 @Table(schema = "orders", name = "trips")
-public class Trip extends BaseTrip { //extends TripFields
+public class Trip extends BaseTrip {
     final static Logger log = LoggerFactory.getLogger(Trip.class);
-//
-//    @AttributeOverrides({
-//        @AttributeOverride(name="tripId",
-//            column=@Column(name="id", updatable = false, insertable = false)),
-//        @AttributeOverride(name="comment",
-//            column=@Column(name="comment")),
-//        @AttributeOverride(name="num",
-//            column=@Column(name="num")),
-//        @AttributeOverride(name="driverId",
-//            column=@Column(name="driver_id")),
-//        @AttributeOverride(name="orderId",
-//            column=@Column(name="order_id")),
-//        @AttributeOverride(name="paymentContractorId",
-//            column=@Column(name="payment_contractor_id")),
-//        @AttributeOverride(name="tripTypeCode",
-//            column=@Column(name="trip_type_code")),
-//        @AttributeOverride(name="tripStatusCode",
-//            column=@Column(name="trip_status_code"))
-//    })
-//    @Embedded
-//    TripFields tripFields;
-//
-//
-//
-//
-//    @AttributeOverrides({
-//        @AttributeOverride(name="cost",
-//            column=@Column(name="cost")),
-//        @AttributeOverride(name="vatCode",
-//            column=@Column(name="vatCode"))
-//    })
-//    @Embedded
-//    TripCostInfo tripCostInfo;
+
+
+    @Column(name = "comment")
+    private String comment;
+
+    @Column(name = "trip_status_code")
+    private String tripStatusCode;
+
+
+    @Column(name = "vat_code", columnDefinition = "default 'twenty_five'")
+    private String vatCode;
 
 
     @Column(name = "is_change_contractor_id")
@@ -101,6 +75,22 @@ public class Trip extends BaseTrip { //extends TripFields
         isFault = fault;
     }
 
+    public String getTripStatusCode() {
+        return tripStatusCode;
+    }
+
+    public void setTripStatusCode(String tripStatusCode) {
+        this.tripStatusCode = tripStatusCode;
+    }
+
+    public String getVatCode() {
+        return vatCode;
+    }
+
+    public void setVatCode(String vatCode) {
+        this.vatCode = vatCode;
+    }
+
 
     @Override
     public boolean equals(Object o) {
@@ -116,8 +106,10 @@ public class Trip extends BaseTrip { //extends TripFields
     @Override
     public String toString() {
         return "Trip{" +
-            super.toString()+
-            "isChangeContractor=" + isChangeContractor +
+            "comment='" + comment + '\'' +
+            ", tripStatusCode='" + tripStatusCode + '\'' +
+            ", vatCode='" + vatCode + '\'' +
+            ", isChangeContractor=" + isChangeContractor +
             ", isCompleted=" + isCompleted +
             ", paymentStatus='" + paymentStatus + '\'' +
             ", isFault=" + isFault +

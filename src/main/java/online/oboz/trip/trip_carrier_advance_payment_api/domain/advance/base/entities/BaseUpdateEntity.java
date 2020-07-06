@@ -1,6 +1,5 @@
 package online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.entities;
 
-import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.entities.BaseEntity;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 

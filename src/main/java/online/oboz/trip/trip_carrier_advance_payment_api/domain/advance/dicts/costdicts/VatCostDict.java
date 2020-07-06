@@ -14,7 +14,7 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "vats", schema = "dictionary")
 public class VatCostDict {
-    final static Logger log = LoggerFactory.getLogger(AdvanceCostDict.class);
+    final static Logger log = LoggerFactory.getLogger(VatCostDict.class);
     @Id
     @Column(name = "code")
     private String code;

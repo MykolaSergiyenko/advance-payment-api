@@ -57,7 +57,6 @@ public abstract class BaseUuidEntity extends BaseUpdateEntity {
     }
 
 
-
     @Override
     public String toString() {
         return "BaseUuidEntity { uuid=" + uuid + "}\n";

@@ -2,6 +2,8 @@ package online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.pe
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.persistence.*;
 import javax.validation.constraints.Max;
@@ -11,6 +13,10 @@ import javax.validation.constraints.Max;
 public class FullNamePersonInfo extends SimpleContacts {
 
 
+    @AttributeOverrides({
+        @AttributeOverride(name="phone", column=@Column(name="phone")),
+        @AttributeOverride(name="email", column=@Column(name="email"))
+    })
     @Column(name = "full_name")
     private String fullName;
 
@@ -25,9 +31,6 @@ public class FullNamePersonInfo extends SimpleContacts {
     public void setFullName(String fullName) {
         this.fullName = fullName;
     }
-
-
-
 
 
     @Override

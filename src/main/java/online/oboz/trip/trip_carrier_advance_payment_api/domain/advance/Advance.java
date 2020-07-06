@@ -2,25 +2,21 @@ package online.oboz.trip.trip_carrier_advance_payment_api.domain.advance;
 
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.advance.ContactableAdvance;
 
-import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.dicts.contacts.AdvanceContact;
-import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.dicts.contacts.AdvanceContactsBook;
-import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.Trip;
+
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.Person;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
-import org.hibernate.annotations.Formula;
+import org.hibernate.annotations.NaturalId;
+import org.hibernate.annotations.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.annotation.PersistenceConstructor;
 
 
 import javax.persistence.*;
-
-import java.time.OffsetDateTime;
+import javax.validation.constraints.NotNull;
 import java.util.UUID;
 
-//@AttributeOverride(name = "trip_comment", column = @Column(name = "trip_comment"))
 
 /**
  * "Заявка на авансирование" или просто "Аванс по трипу"
@@ -32,17 +28,22 @@ import java.util.UUID;
  * <p>
  * Таблица находится в схеме "Заказов" - orders
  * <p>
- * //TODO: Переименовать таблицу в БД в trip_advances
  */
 
 @Entity
 @Table(name = "trip_request_advance_payment", schema = "orders")
+@AttributeOverride(name = "uuid", column = @Column(name = "advance_uuid"))
 public class Advance extends ContactableAdvance {
     final static Logger log = LoggerFactory.getLogger(Advance.class);
-//
-//
-//    @Column(name = "push_button_at")
-//    private OffsetDateTime pushButtonAt;
+
+
+    @NaturalId
+    @NotNull
+    @GeneratedValue
+    @Type(type = "pg-uuid")
+    @Column(name = "advance_uuid", length = 36, updatable = false, insertable = false)
+    private UUID advanceUuid;
+
 
     //TODO: @Type(type = "uuid-char")@Column(length = 36)
     @Column(name = "uuid_contract_application_file")
@@ -57,45 +58,28 @@ public class Advance extends ContactableAdvance {
     private Boolean loadingComplete;
 
 
-
-
     public Advance() {
 
     }
-//
-//    @PersistenceConstructor
-//    public Advance(Trip trip, Person autoAuthor, AdvanceContactsBook contact) {
-//        this.setUuid(UUID.randomUUID());
-//        this.setAdvanceTripFields(trip.getTripFields());
-//        this.setCostInfo(trip.getTripCostInfo());
-//        this.setAuthor(autoAuthor);
-//        this.setContact(contact);
-//        //this.setTripAdvanceInfo();
-//    }
 
+    public Advance(Person author) {
+        setAuthor(author);
+        setAuthorId(author.getId());
+    }
 
 
     @PrePersist
     @Override
     public void onCreate() {
         super.onCreate();
+        setAdvanceUuid(UUID.randomUUID());
         setLoadingComplete(false);
-        onUpdate();
     }
 
-
-
-
-    @PreUpdate
-    public void onUpdate() {
-        log.info("**** On-update advance:"+this.toString());
-//
-    }
 
     public Boolean getLoadingComplete() {
         return loadingComplete;
     }
-
 
 
     public String getUuidContractApplicationFile() {
@@ -112,7 +96,6 @@ public class Advance extends ContactableAdvance {
     }
 
 
-
     public void setUuidContractApplicationFile(String uuidContractApplicationFile) {
         this.uuidContractApplicationFile = uuidContractApplicationFile;
     }
@@ -121,6 +104,14 @@ public class Advance extends ContactableAdvance {
         this.uuidAdvanceApplicationFile = uuidAdvanceApplicationFile;
     }
 
+
+    public UUID getAdvanceUuid() {
+        return advanceUuid;
+    }
+
+    public void setAdvanceUuid(UUID advanceUuid) {
+        this.advanceUuid = advanceUuid;
+    }
 
     @Override
     public boolean equals(Object o) {

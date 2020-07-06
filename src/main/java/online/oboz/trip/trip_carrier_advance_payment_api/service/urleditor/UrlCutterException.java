@@ -17,7 +17,7 @@ public class UrlCutterException extends Exception {
     private final Error errors;
 
     public UrlCutterException(@NotNull HttpStatus status,
-                               @NotNull Error errors) {
+                              @NotNull Error errors) {
         super();
         this.status = status;
         this.errors = errors;

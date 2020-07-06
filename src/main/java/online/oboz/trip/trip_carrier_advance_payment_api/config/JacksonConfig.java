@@ -14,6 +14,7 @@ public class JacksonConfig {
 
     /**
      * Support for Java date and time API.
+     *
      * @return the corresponding Jackson module.
      */
     @Bean

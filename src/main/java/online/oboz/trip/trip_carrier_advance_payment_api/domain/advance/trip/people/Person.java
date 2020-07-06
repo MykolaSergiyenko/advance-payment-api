@@ -1,7 +1,5 @@
 package online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people;
 
-import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.contracts.HasContractor;
-import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.contacts.DetailedPersonInfo;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.slf4j.Logger;
@@ -32,13 +30,10 @@ public class Person extends AdvancePerson implements Serializable {
     }
 
 
-
-
-
     @Override
     public String toString() {
         return "Person{" +
-            super.toString()+
+            super.toString() +
             '}';
     }
 

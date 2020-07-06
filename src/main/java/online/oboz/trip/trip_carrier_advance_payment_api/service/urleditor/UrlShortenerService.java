@@ -2,7 +2,7 @@ package online.oboz.trip.trip_carrier_advance_payment_api.service.urleditor;
 
 import io.undertow.util.BadRequestException;
 import online.oboz.trip.trip_carrier_advance_payment_api.config.ApplicationProperties;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.RestService;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.rest.RestService;
 import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.Error;
 
 import org.slf4j.Logger;
@@ -11,12 +11,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
 
+import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
@@ -42,15 +44,14 @@ public class UrlShortenerService implements UrlService {
     private static final Logger log = LoggerFactory.getLogger(UrlShortenerService.class);
 
     private ApplicationProperties properties;
-    private RestService restService;
+    private RestTemplate restTemplate = new RestTemplate();
 
     public UrlShortenerService() {
     }
 
 
     @Autowired
-    public UrlShortenerService(RestService restService, ApplicationProperties properties) {
-        this.restService = restService;
+    public UrlShortenerService(ApplicationProperties properties) {
         this.properties = properties;
     }
 
@@ -100,13 +101,13 @@ public class UrlShortenerService implements UrlService {
         if (null == shorterUrl) {
             throw new BadRequestException("URL-shortener service link empty.");
         }
-        ResponseEntity<String> response = restService.getRequest(shorterUrl + url.toString());
+        ResponseEntity<String> response = restTemplate.exchange(shorterUrl + url.toString(), GET, null, String.class);
 
         if (response.getStatusCode() != OK) {
             log.error("URL-shortener server returned bad response {}", response);
             throw new BadRequestException("URL-shortener response error.");
         }
-        log.info("Output url is: " + response.getBody().toString());
+        log.info("Short url is: " + response.getBody().toString());
 
         return response.getBody();
     }

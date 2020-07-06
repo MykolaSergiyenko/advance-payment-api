@@ -36,7 +36,6 @@ public abstract class BaseEntity implements Serializable {
     }
 
 
-
     @Override
     public boolean equals(Object o) {
         return EqualsBuilder.reflectionEquals(this, o);

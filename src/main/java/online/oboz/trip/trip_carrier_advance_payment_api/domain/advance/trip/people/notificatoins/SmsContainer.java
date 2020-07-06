@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
 public class SmsContainer {

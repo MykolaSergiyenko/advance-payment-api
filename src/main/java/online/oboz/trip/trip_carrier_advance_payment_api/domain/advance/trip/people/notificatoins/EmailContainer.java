@@ -4,7 +4,7 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.springframework.mail.SimpleMailMessage;
 
-public class EmailContainer  {
+public class EmailContainer {
 
     public SimpleMailMessage getMessage() {
         return message;
@@ -20,10 +20,10 @@ public class EmailContainer  {
         //from Spring
         SimpleMailMessage message = new SimpleMailMessage();
 
-        message.setFrom(from); //app.config
-        message.setTo(to); //adcvance contact
-        message.setSubject(subject); //app.config, advance
-        message.setText(text); //app.config, advance
+        message.setFrom(from);
+        message.setTo(to);
+        message.setSubject(subject);
+        message.setText(text);
 
         this.message = message;
     }
@@ -41,7 +41,7 @@ public class EmailContainer  {
 
     @Override
     public String toString() {
-        return "EmailContainer {message= '" + message.toString() +'}';
+        return "EmailContainer {message= '" + message.toString() + '}';
     }
 
 }

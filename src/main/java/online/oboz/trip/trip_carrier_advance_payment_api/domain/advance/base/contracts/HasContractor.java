@@ -3,24 +3,26 @@ package online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.co
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.entities.BaseUuidEntity;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.hibernate.annotations.Formula;
 
 import javax.persistence.*;
+
 
 @MappedSuperclass
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public abstract class HasContractor extends BaseUuidEntity {
-    //, updatable = false, insertable = false
 
     @Column(name = "contractor_id")
     private Long contractorId;
 
 
-
-
     public HasContractor() {
     }
 
+    @PrePersist
+    @Override
+    public void onCreate() {
+        super.onCreate();
+    }
 
 
     public Long getContractorId() {
@@ -28,12 +30,9 @@ public abstract class HasContractor extends BaseUuidEntity {
     }
 
 
-
     public void setContractorId(Long contractorId) {
         this.contractorId = contractorId;
     }
-
-
 
 
     @Override

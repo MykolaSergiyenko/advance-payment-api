@@ -18,16 +18,15 @@ import java.time.OffsetDateTime;
 public abstract class CancelableAdvance extends HasContractor {
     final static Logger log = LoggerFactory.getLogger(CancelableAdvance.class);
 
-//    public final String autoCreatedComment = "Auto Created...";
 
-    @Column(name = "comment", updatable = false, insertable = false)
+    @Column(name = "comment")
     private String comment;
 
     @Column(name = "cancelled_comment")
     private String cancelledComment;
 
     @Column(name = "is_cancelled", columnDefinition = "boolean default false", nullable = false)
-    private Boolean isCancelled = false;
+    private Boolean isCancelled;
 
 
     @Column(name = "cancelled_at")
@@ -38,7 +37,7 @@ public abstract class CancelableAdvance extends HasContractor {
     private Boolean isAuto;
 
     public boolean isProblem(String autoComment) {
-        return !(this.comment.isEmpty() && this.comment.equals(autoComment));
+        return !(this.comment == null || this.comment.isEmpty() || this.comment.equals(autoComment));
     }
 
 
@@ -55,13 +54,10 @@ public abstract class CancelableAdvance extends HasContractor {
     }
 
 
-//    private void set
-
-
+    @Override
     @PreUpdate
     public void onUpdate() {
-        log.info("**** On-update CancelableAdvance:" + this.toString());
-//
+        super.onUpdate();
     }
 
 
@@ -105,7 +101,6 @@ public abstract class CancelableAdvance extends HasContractor {
     public void setCancelledAt(OffsetDateTime cancelledAt) {
         this.cancelledAt = cancelledAt;
     }
-
 
     @Override
     public boolean equals(Object o) {

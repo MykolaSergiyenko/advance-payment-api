@@ -1,8 +1,11 @@
 package online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.info;
 
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.entities.BaseEntity;
+import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.Trip;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.persistence.*;
 import java.time.OffsetDateTime;
@@ -10,24 +13,17 @@ import java.time.OffsetDateTime;
 @Entity
 @Table(schema = "orders", name = "trip_infos")
 public class TripInfo extends BaseEntity {
-//    @Id
-//    @GeneratedValue(strategy = GenerationType.IDENTITY)
-//    private Long id;
+    final static Logger log = LoggerFactory.getLogger(TripInfo.class);
+
 
     @Column(name = "trip_id", updatable = false, insertable = false)
     private Long tripId;
 
-//    @OneToOne
-//    @JoinColumn(name = "trip_id")
-//    private Trip trip;
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "trip_id")
+    private Trip trip;
 
-//    @OneToMany
-//    @JoinColumns({
-//        @JoinColumn(name = "origin_place_id"),
-//        @JoinColumn(name = "destination_place_id")
-//    })
-//    private Set<CommonLocation> locations;
 
     @Column(name = "origin_place_id", updatable = false, insertable = false)
     private String originPlaceId;
@@ -50,19 +46,17 @@ public class TripInfo extends BaseEntity {
     @Column(name = "end_date")
     private OffsetDateTime endDate;
 
+
+    @OneToOne
+    @JoinColumn(name = "origin_place_id", referencedColumnName = "location_id")
+    private CommonLocation startLocation;
+
+    @OneToOne
+    @JoinColumn(name = "destination_place_id", referencedColumnName = "location_id")
+    private CommonLocation endLocation;
+
     public TripInfo() {
     }
-
-
-
-//    public Set<CommonLocation> getLocations() {
-//        return locations;
-//    }
-//
-//    public void setLocations(Set<CommonLocation> locations) {
-//        this.locations = locations;
-//    }
-
 
 
     public OffsetDateTime getStartDate() {
@@ -72,8 +66,6 @@ public class TripInfo extends BaseEntity {
     public OffsetDateTime getEndDate() {
         return this.endDate;
     }
-
-
 
 
     public void setStartDate(OffsetDateTime startDate) {
@@ -114,18 +106,34 @@ public class TripInfo extends BaseEntity {
     }
 
 
-//    public void setOriginLocation(CommonLocation originLocation) {
-//        this.locations.add(originLocation);
-//    }
+    public Long getTripId() {
+        return tripId;
+    }
 
+    public void setTripId(Long tripId) {
+        this.tripId = tripId;
+    }
 
-//    public CommonLocation getDestLocation() {
-//        return destLocation;
-//    }
+    public String getOriginPlaceId() {
+        return originPlaceId;
+    }
 
-//    public void setDestLocation(CommonLocation destLocation) {
-//        this.locations.add(destLocation);
-//    }
+    public CommonLocation getStartLocation() {
+        return startLocation;
+    }
+
+    public void setStartLocation(CommonLocation startLocation) {
+        this.startLocation = startLocation;
+    }
+
+    public CommonLocation getEndLocation() {
+        return endLocation;
+    }
+
+    public void setEndLocation(CommonLocation endLocation) {
+        this.endLocation = endLocation;
+    }
+
 
     @Override
     public boolean equals(Object o) {
@@ -140,15 +148,16 @@ public class TripInfo extends BaseEntity {
     @Override
     public String toString() {
         return "TripInfo{" +
-
-//            ", trip=" + trip +
-//            ", locations=" + locations +
+            "tripId=" + tripId +
+            ", trip=" + trip +
             ", originPlaceId='" + originPlaceId + '\'' +
             ", originName='" + originName + '\'' +
             ", startDate=" + startDate +
             ", destinationPlaceId='" + destinationPlaceId + '\'' +
             ", destinationName='" + destinationName + '\'' +
             ", endDate=" + endDate +
+            ", startLocation=" + startLocation +
+            ", endLocation=" + endLocation +
             '}';
     }
 }

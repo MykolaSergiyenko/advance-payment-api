@@ -22,17 +22,8 @@ public abstract class AuthorsAdvance extends UnfAdvanceFields {
     @JoinColumn(name = "author_id")
     private Person author;
 
-
-
-
-
-
-
     public AuthorsAdvance() {
     }
-
-
-
 
     public Long getAuthorId() {
         return authorId;
@@ -60,14 +51,6 @@ public abstract class AuthorsAdvance extends UnfAdvanceFields {
     }
 
 
-//    public String getComment() {
-//        return comment;
-//    }
-//
-//    public void setComment(String comment) {
-//        this.comment = comment;
-//    }
-
     @Override
     public boolean equals(Object o) {
         return EqualsBuilder.reflectionEquals(this, o);
@@ -82,13 +65,8 @@ public abstract class AuthorsAdvance extends UnfAdvanceFields {
     @Override
     public String toString() {
         return "AuthorsAdvance{" +
-//            "comment='" + comment + '\'' +
             ", authorId=" + authorId +
             ", author=" + author +
-//            ", tripFields=" + advanceTripFields +
-//            ", tripCostInfo=" + tripCostInfo +
-//            ", tripAdvanceInfo=" + tripAdvanceInfo +
-//            ", locations=" + locations +
             '}';
     }
 }

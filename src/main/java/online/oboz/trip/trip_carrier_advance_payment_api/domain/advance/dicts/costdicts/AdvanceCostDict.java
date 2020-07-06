@@ -10,26 +10,72 @@ import javax.persistence.*;
 import java.time.OffsetDateTime;
 
 
-// Join this dict to trip.Cost (...) somehow via beetween-join?
-
 @Entity
 @Table(name = "advance_payment_cost", schema = "dictionary")
 public class AdvanceCostDict {
-
     final static Logger log = LoggerFactory.getLogger(AdvanceCostDict.class);
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
+
+    @Column(name = "min_value")
     private Double minValue;
+
+    @Column(name = "max_value")
     private Double maxValue;
+
+    @Column(name = "advance_payment_sum")
     private Double advancePaymentSum;
+
+    @Column(name = "registration_fee")
     private Double registrationFee;
-    private OffsetDateTime createdAt = OffsetDateTime.now();
+
+//    @Column(name = "created_at", insertable = false, updatable = false)
+//    private OffsetDateTime createdAt;
 
     public AdvanceCostDict() {
     }
 
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Double getMinValue() {
+        return minValue;
+    }
+
+    public void setMinValue(Double minValue) {
+        this.minValue = minValue;
+    }
+
+    public Double getMaxValue() {
+        return maxValue;
+    }
+
+    public void setMaxValue(Double maxValue) {
+        this.maxValue = maxValue;
+    }
+
+    public Double getAdvancePaymentSum() {
+        return advancePaymentSum;
+    }
+
+    public void setAdvancePaymentSum(Double advancePaymentSum) {
+        this.advancePaymentSum = advancePaymentSum;
+    }
+
+    public Double getRegistrationFee() {
+        return registrationFee;
+    }
+
+    public void setRegistrationFee(Double registrationFee) {
+        this.registrationFee = registrationFee;
+    }
 
 
     @Override
@@ -50,7 +96,7 @@ public class AdvanceCostDict {
             ", maxValue=" + maxValue +
             ", advancePaymentSum=" + advancePaymentSum +
             ", registrationFee=" + registrationFee +
-            ", createdAt=" + createdAt +
+//            ", createdAt=" + createdAt +
             '}';
     }
 }
