@@ -7,6 +7,4 @@ import java.util.UUID;
 
 public interface CarrierService {
     ResponseEntity<CarrierPage> searchAdvancePaymentRequestByUuid(UUID uuid);
-
-    ResponseEntity<Void> carrierWantsAdvance(UUID uuid);
 }

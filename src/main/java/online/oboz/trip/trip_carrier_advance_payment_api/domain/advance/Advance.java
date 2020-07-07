@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 
@@ -56,6 +57,10 @@ public class Advance extends ContactableAdvance {
 
     @Column(name = "loading_complete", columnDefinition = "boolean default false")
     private Boolean loadingComplete;
+
+
+    @Column(name = "push_button_at")
+    private OffsetDateTime pushButtonAt;
 
 
     public Advance() {
@@ -111,6 +116,15 @@ public class Advance extends ContactableAdvance {
 
     public void setAdvanceUuid(UUID advanceUuid) {
         this.advanceUuid = advanceUuid;
+    }
+
+
+    public OffsetDateTime getPushButtonAt() {
+        return pushButtonAt;
+    }
+
+    public void setPushButtonAt(OffsetDateTime pushButtonAt) {
+        this.pushButtonAt = pushButtonAt;
     }
 
     @Override

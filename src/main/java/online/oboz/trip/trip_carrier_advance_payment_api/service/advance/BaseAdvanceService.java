@@ -37,6 +37,8 @@ public interface BaseAdvanceService {
 
     ResponseEntity<Void> setLoadingComplete(Long tripId, Boolean loadingComplete);
 
+    ResponseEntity<Void> setWantsAdvance(UUID advanceUuid);
+
     Advance saveAdvance(Advance advance);
 
     List<Advance> saveAll(List<Advance> advances);

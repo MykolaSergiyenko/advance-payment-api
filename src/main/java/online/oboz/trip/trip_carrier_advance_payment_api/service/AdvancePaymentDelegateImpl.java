@@ -136,7 +136,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
     @Override
     public ResponseEntity<Void> carrierWantsAdvance(UUID uuid) {
         log.info("Got carrierWantsAdvance request uuid - " + uuid);
-        return carrierPageService.carrierWantsAdvance(uuid);
+        return advanceService.setWantsAdvance(uuid);
     }
 
 

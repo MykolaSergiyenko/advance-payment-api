@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
-public class CarrierPageService {
+public class CarrierPageService implements CarrierService {
     private static final Logger log = LoggerFactory.getLogger(CarrierPageService.class);
 
     private final AdvanceService advanceService;
@@ -42,6 +42,7 @@ public class CarrierPageService {
         this.zeroVats = vatService.getZeroCodes();
     }
 
+    @Override
     public ResponseEntity<CarrierPage> searchAdvancePaymentRequestByUuid(UUID uuid) {
         Advance advance = advanceService.findByUuid(uuid);
         CarrierPage page = forCarrier(advance);
@@ -73,26 +74,6 @@ public class CarrierPageService {
         }
         return page;
     }
-
-
-    public ResponseEntity<Void> carrierWantsAdvance(UUID uuid) {
-        Advance a = advanceService.findByUuid(uuid);
-//        if (!t.isCarrierPageAccess()) {
-//            log.error("PageCarrierUrlIsAccess is false");
-//            throw getBusinessLogicException("PageCarrierUrlIsAccess is false");
-//        }
-//        if (t.getPushButtonAt() == null && !t.isCancelled()) {
-//            //t.setPushButtonAt(OffsetDateTime.now());
-//            advanceRepository.save(t);
-//            log.error("save ok for advance request with uuid: {} ,PushButtonAt: {}, CancelAdvance: {} ",
-//                uuid, t.getPushButtonAt(), t.isCancelled()
-//            );
-//        } else {
-//            log.error("Button already pushed or request was cancel");
-//        }
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
-
 
     private BusinessLogicException getCarrierException(String s) {
         Error error = new Error();

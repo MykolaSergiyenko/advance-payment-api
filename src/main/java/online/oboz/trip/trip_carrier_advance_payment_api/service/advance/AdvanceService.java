@@ -187,6 +187,13 @@ public class AdvanceService implements BaseAdvanceService {
         }
     }
 
+    @Override
+    public ResponseEntity<Void> setWantsAdvance(UUID advanceUuid) {
+        Advance advance = findByUuid(advanceUuid);
+        setWantsAdvance(advance);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
 
     @Override
     public ResponseEntity<Void> confirmAdvance(Long advanceId) {
@@ -285,6 +292,14 @@ public class AdvanceService implements BaseAdvanceService {
         advance.setContact(contact);
         costService.setSumsToAdvance(advance, trip);
         return advance;
+    }
+
+
+    private void setWantsAdvance(Advance advance) {
+        if (advance.getPushButtonAt() == null) {
+            advance.setPushButtonAt(OffsetDateTime.now());
+            saveAdvance(advance);
+        }
     }
 
 
