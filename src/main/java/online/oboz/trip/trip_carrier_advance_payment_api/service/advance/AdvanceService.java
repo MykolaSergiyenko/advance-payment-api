@@ -9,14 +9,13 @@ import online.oboz.trip.trip_carrier_advance_payment_api.domain.mappers.AdvanceM
 import online.oboz.trip.trip_carrier_advance_payment_api.error.BusinessLogicException;
 import online.oboz.trip.trip_carrier_advance_payment_api.repository.AdvanceRepository;
 
-import online.oboz.trip.trip_carrier_advance_payment_api.service.contacts.AdvanceContactService;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.costs.AdvanceCostService;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.contacts.ContactService;;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.costs.CostService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.integration.ordersapi.OrdersFilesService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.integration.unf.UnfService;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.messages.NotificationService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.messages.Notificator;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.persons.PersonService;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.trip.TripService;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.persons.BasePersonService;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.trip.BaseTripService;
 import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.*;
 import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.Error;
 import org.slf4j.Logger;
@@ -39,26 +38,25 @@ public class AdvanceService implements BaseAdvanceService {
 
     private final String AUTO_COMMENT;
 
-    private final TripService tripService;
-    private final PersonService personService;
-    private final AdvanceContactService contactService;
-    private final AdvanceCostService costService;
+    private final BaseTripService tripService;
+    private final BasePersonService personService;
+    private final ContactService contactService;
+    private final CostService costService;
     private final OrdersFilesService ordersFilesService;
     private final Notificator notificationService;
     private final UnfService integration1cService;
 
     private final ApplicationProperties applicationProperties;
-
     private final AdvanceRepository advanceRepository;
-    private final AdvanceMapper mapper = AdvanceMapper.INSTANCE;
 
     public AdvanceService(
-        TripService tripService,
-        PersonService personService,
-        AdvanceContactService contactService,
-        AdvanceCostService costService,
+        BaseTripService tripService,
+        BasePersonService personService,
+        ContactService contactService,
+        CostService costService,
 
-        OrdersFilesService ordersFilesService, NotificationService notificationService,
+        OrdersFilesService ordersFilesService,
+        Notificator notificationService,
         UnfService integration1cService,
         ApplicationProperties applicationProperties,
         AdvanceRepository advanceRepository

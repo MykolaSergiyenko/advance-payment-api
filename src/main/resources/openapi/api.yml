@@ -912,6 +912,9 @@ components:
                 is_cancelled:
                     type: boolean
                     description: "Признак аннулирован аванс"
+                is_vat_payer:
+                    type: boolean
+                    description: "Признак плательщика НДС"
                 trip_cost_with_vat:
                     type: number
                     format: double
