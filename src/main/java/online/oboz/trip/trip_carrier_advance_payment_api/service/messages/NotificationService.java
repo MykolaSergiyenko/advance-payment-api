@@ -96,6 +96,14 @@ public class NotificationService implements Notificator {
         return advance;
     }
 
+    private void sentEmail(Advance advance) throws MessagingException {
+        log.info("Email-messages enable. Try to send message for advance - " + advance.getId());
+        EmailContainer email = messageTextService.createEmail(advance);
+        log.info("Create e-mail-message: " + email.getMessage().toString());
+        emailSender.sendEmail(email);
+        log.info("E-mail is sent for advance - " + advance.getId());
+    }
+
     private Advance sendSMSes(Advance advance, boolean smsEnable) {
         if (smsEnable) {
             try {
@@ -119,11 +127,4 @@ public class NotificationService implements Notificator {
         log.info("SMS is sent for advance " + advance.getId());
     }
 
-    private void sentEmail(Advance advance) throws MessagingException {
-        log.info("Email-messages enable. Try to send message for advance - " + advance.getId());
-        EmailContainer email = messageTextService.createEmail(advance);
-        log.info("Create e-mail-message: " + email.getMessage().toString());
-        emailSender.sendEmail(email);
-        log.info("E-mail is sent for advance - " + advance.getId());
-    }
 }

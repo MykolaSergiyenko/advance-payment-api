@@ -49,7 +49,6 @@ public abstract class CancelableAdvance extends HasContractor {
     @Override
     public void onCreate() {
         super.onCreate();
-        //setIsAuto(false);
         setCancelled(false);
     }
 

@@ -113,7 +113,6 @@ public class MessageCreateService implements TextService {
         try {
             if (appProperties.isSmsCutLinks()) {
                 link = urlCutter.editUrl(link);
-                //log.info("Short url is: " + link);
             }
             String tripNum = advance.getAdvanceTripFields().getNum();
             Double sum = advance.getTripAdvanceInfo().getAdvancePaymentSum();

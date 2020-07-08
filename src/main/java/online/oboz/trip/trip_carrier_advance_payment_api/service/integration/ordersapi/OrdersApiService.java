@@ -61,22 +61,24 @@ public class OrdersApiService implements OrdersFilesService {
 
     @Override
     public Boolean saveTripDocuments(Long orderId, Long tripId, String fileUuid) {
-        log.info("Save trip documents for order: {}, trip: {}, fileUuid: {} .", orderId, tripId, fileUuid);
-        String url = String.format(applicationProperties.getOrdersApiUrl().toString(), orderId, tripId);
-        log.info("Save trip documents url: {} .", url);
+        if (fileUuid != null && orderId != null && tripId != null) {
+            log.info("Save trip documents for order: {}, trip: {}, fileUuid: {} .", orderId, tripId, fileUuid);
+            String url = String.format(applicationProperties.getOrdersApiUrl().toString(), orderId, tripId);
+            log.info("Save trip documents url: {} .", url);
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        String requestBody = String.format(applicationProperties.getOrdersApiSaveBody().value(), fileUuid);
-        ResponseEntity<String> response = restService.authPostRequest(url, headers, requestBody);
-        log.info("Save trip documents response: {} .", response);
-        if (response.getStatusCode().value() == 200) {
-            log.info("Success save TripDocuments " + fileUuid);
-            return true;
-        } else {
-            log.error("Failed save TripDocuments {}", response);
-            return false;
-        }
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            String requestBody = String.format(applicationProperties.getOrdersApiSaveBody().value(), fileUuid);
+            ResponseEntity<String> response = restService.authPostRequest(url, headers, requestBody);
+            log.info("Save trip documents response: {} .", response);
+            if (response.getStatusCode().value() == 200) {
+                log.info("Success save TripDocuments " + fileUuid);
+                return true;
+            } else {
+                log.error("Failed save TripDocuments {}", response);
+                return false;
+            }
+        } return false;
     }
 
 

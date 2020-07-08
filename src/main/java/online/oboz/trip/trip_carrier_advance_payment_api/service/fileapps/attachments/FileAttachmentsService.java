@@ -20,8 +20,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.springframework.http.HttpStatus.OK;
-import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+import static org.springframework.http.HttpStatus.*;
 
 @Service
 public class FileAttachmentsService implements AttachmentService {
@@ -150,14 +149,12 @@ public class FileAttachmentsService implements AttachmentService {
     private ResponseEntity<Void> uploadRequestAdvance(Advance advance, MultipartFile filename) {
         try {
             String fileUuid = bStoreService.getFileUuid(filename);
-            if (fileUuid != null) {
-                Long orderId = advance.getAdvanceTripFields().getOrderId();
-                Long tripId = advance.getAdvanceTripFields().getTripId();
-                if (ordersApiService.saveTripDocuments(orderId, tripId, fileUuid)) {
-                    advanceService.setAdvanceApplicationFromBstore(advance, fileUuid);
-                } else {
-                    return new ResponseEntity<>(INTERNAL_SERVER_ERROR);
-                }
+            if (ordersApiService.saveTripDocuments(
+                    advance.getAdvanceTripFields().getOrderId(),
+                    advance.getAdvanceTripFields().getTripId(), fileUuid)) {
+                        advanceService.setAdvanceApplicationFromBstore(advance, fileUuid);
+            } else {
+                return new ResponseEntity<>(FORBIDDEN);
             }
         } catch (BusinessLogicException e) {
             log.error("Upload 'advance-request' file error:" + e.getMessage());

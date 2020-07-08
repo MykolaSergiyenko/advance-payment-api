@@ -81,13 +81,4 @@ public class DispatcherPageService implements DispatcherService {
         return contactService.updateContactCarrier(carrierContactDTO);
     }
 
-
-//    private void setPersonInfo(IsTripAdvanced isTripAdvanced, Long authorId) {
-//        Person author = personService.getPerson(authorId);
-//        isTripAdvanced.setFirstName(author.getInfo().getFirstName());
-//        isTripAdvanced.setLastName(author.getInfo().getLastName());
-//        isTripAdvanced.setMiddleName(author.getInfo().getMiddleName());
-//        isTripAdvanced.setAuthorId(authorId);
-//    }
-
 }
