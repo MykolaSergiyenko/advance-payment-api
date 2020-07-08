@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class OrdersApiService implements OrdersFilesService {
@@ -60,7 +61,7 @@ public class OrdersApiService implements OrdersFilesService {
 
 
     @Override
-    public Boolean saveTripDocuments(Long orderId, Long tripId, String fileUuid) {
+    public Boolean saveTripDocuments(Long orderId, Long tripId, UUID fileUuid) {
         if (fileUuid != null && orderId != null && tripId != null) {
             log.info("Save trip documents for order: {}, trip: {}, fileUuid: {} .", orderId, tripId, fileUuid);
             String url = String.format(applicationProperties.getOrdersApiUrl().toString(), orderId, tripId);
@@ -78,7 +79,8 @@ public class OrdersApiService implements OrdersFilesService {
                 log.error("Failed save TripDocuments {}", response);
                 return false;
             }
-        } return false;
+        }
+        return false;
     }
 
 

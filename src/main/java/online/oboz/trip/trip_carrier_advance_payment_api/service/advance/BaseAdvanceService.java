@@ -41,11 +41,11 @@ public interface BaseAdvanceService {
 
     ResponseEntity<Void> setWantsAdvance(UUID advanceUuid);
 
-    Advance setContractApplication(Advance advance, String uuid);
+    Advance setContractApplication(Advance advance, UUID uuid);
 
-    Advance setAdvanceApplication(Advance advance, String uuid);
+    Advance setAdvanceApplication(Advance advance, UUID uuid);
 
-    Advance setAdvanceApplicationFromBstore(Advance advance, String uuid);
+    Advance setAdvanceApplicationFromBstore(Advance advance, UUID uuid);
 
     Advance saveAdvance(Advance advance);
 

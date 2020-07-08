@@ -9,5 +9,5 @@ import java.util.UUID;
 public interface StoreService {
     ResponseEntity<Resource> requestResourceFromBStore(UUID uuidFile);
 
-    String getFileUuid(MultipartFile filename);
+    UUID getFileUuid(MultipartFile filename);
 }

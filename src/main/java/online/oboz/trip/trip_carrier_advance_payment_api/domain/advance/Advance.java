@@ -7,14 +7,15 @@ import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.peo
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
-import org.hibernate.annotations.NaturalId;
+
 import org.hibernate.annotations.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
+
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
+
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
@@ -37,13 +38,14 @@ public class Advance extends ContactableAdvance {
     final static Logger log = LoggerFactory.getLogger(Advance.class);
 
 
-    //TODO: @Type(type = "uuid-char")@Column(length = 36)
-    @Column(name = "uuid_contract_application_file")
-    private String uuidContractApplicationFile;
+    @Type(type = "pg-uuid")
+    @Column(name = "uuid_contract_application_file", length = 36, nullable = true)
+    private UUID uuidContractApplicationFile;
 
-    //TODO: @Type(type = "uuid-char")@Column(length = 36)
-    @Column(name = "uuid_advance_application_file")
-    private String uuidAdvanceApplicationFile;
+
+    @Type(type = "pg-uuid")
+    @Column(name = "uuid_advance_application_file", length = 36, nullable = true)
+    private UUID uuidAdvanceApplicationFile;
 
 
     @Column(name = "loading_complete", columnDefinition = "boolean default false")
@@ -77,11 +79,11 @@ public class Advance extends ContactableAdvance {
     }
 
 
-    public String getUuidContractApplicationFile() {
+    public UUID getUuidContractApplicationFile() {
         return uuidContractApplicationFile;
     }
 
-    public String getUuidAdvanceApplicationFile() {
+    public UUID getUuidAdvanceApplicationFile() {
         return uuidAdvanceApplicationFile;
     }
 
@@ -91,11 +93,11 @@ public class Advance extends ContactableAdvance {
     }
 
 
-    public void setUuidContractApplicationFile(String uuidContractApplicationFile) {
+    public void setUuidContractApplicationFile(UUID uuidContractApplicationFile) {
         this.uuidContractApplicationFile = uuidContractApplicationFile;
     }
 
-    public void setUuidAdvanceApplicationFile(String uuidAdvanceApplicationFile) {
+    public void setUuidAdvanceApplicationFile(UUID uuidAdvanceApplicationFile) {
         this.uuidAdvanceApplicationFile = uuidAdvanceApplicationFile;
     }
 

@@ -1,6 +1,7 @@
 package online.oboz.trip.trip_carrier_advance_payment_api.service.fileapps.attachments;
 
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.Advance;
+import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.structures.TripFields;
 import online.oboz.trip.trip_carrier_advance_payment_api.error.BusinessLogicException;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.advance.AdvanceService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.fileapps.reports.ReportsTemplateService;
@@ -115,10 +116,11 @@ public class FileAttachmentsService implements AttachmentService {
     private void setContractAttachment(Map<String, String> fileUuidMap, Advance advance) {
         if (!fileUuidMap.isEmpty()) {
             log.info("Advance = {}. File map = {}.", advance.getId(), fileUuidMap);
-            String fileContractRequestUuid = Optional.ofNullable(fileUuidMap.get("request"))
+            String requestUuid = Optional.ofNullable(fileUuidMap.get("request"))
                 .orElse(fileUuidMap.get("trip_request"));
-            advanceService.setContractApplication(advance, fileContractRequestUuid);
-            log.info("Set contract-file uuid {} for advance {}.", fileContractRequestUuid, advance.getId());
+            UUID fileContractUuid = UUID.fromString(requestUuid);
+            advanceService.setContractApplication(advance, fileContractUuid);
+            log.info("Set contract-file uuid {} for advance {}.", fileContractUuid, advance.getId());
         }
     }
 
@@ -126,8 +128,9 @@ public class FileAttachmentsService implements AttachmentService {
         if (!fileUuidMap.isEmpty()) {
             log.info("Advance = {}. File map = {}.", advance.getId(), fileUuidMap);
             String fileAdvanceRequestUuid = fileUuidMap.get("assignment_advance_request");
-            advanceService.setAdvanceApplication(advance, fileAdvanceRequestUuid);
-            log.info("Set advance-request-file uuid {} for advance {}.", fileAdvanceRequestUuid, advance.getId());
+            UUID uuid = UUID.fromString(fileAdvanceRequestUuid);
+            advanceService.setAdvanceApplication(advance, uuid);
+            log.info("Set advance-request-file uuid {} for advance {}.", uuid, advance.getId());
         }
     }
 
@@ -148,12 +151,15 @@ public class FileAttachmentsService implements AttachmentService {
     //        TODO :  catch   big size file and response
     private ResponseEntity<Void> uploadRequestAdvance(Advance advance, MultipartFile filename) {
         try {
-            String fileUuid = bStoreService.getFileUuid(filename);
-            if (ordersApiService.saveTripDocuments(
-                    advance.getAdvanceTripFields().getOrderId(),
-                    advance.getAdvanceTripFields().getTripId(), fileUuid)) {
-                        advanceService.setAdvanceApplicationFromBstore(advance, fileUuid);
+            UUID fileUuid = bStoreService.getFileUuid(filename);
+            TripFields fields = advance.getAdvanceTripFields();
+            if (ordersApiService.saveTripDocuments(fields.getOrderId(), fields.getTripId(), fileUuid)) {
+                advanceService.setAdvanceApplicationFromBstore(advance, fileUuid);
+                log.info("File saved to Orders from BStore. Uuid = {}. Filename = {}. Advance = {}.",
+                    fileUuid, filename, advance);
             } else {
+                log.error("Don't save files to Orders from BStore. Filename = {}. Advance = {}.",
+                    filename, advance);
                 return new ResponseEntity<>(FORBIDDEN);
             }
         } catch (BusinessLogicException e) {
@@ -164,11 +170,11 @@ public class FileAttachmentsService implements AttachmentService {
 
 
     private UUID getContractUuid(Advance advance) {
-        return UUID.fromString(advance.getUuidContractApplicationFile());
+        return advance.getUuidContractApplicationFile();
     }
 
     private UUID getAdvanceRequestUuid(Advance advance) {
-        return UUID.fromString(advance.getUuidAdvanceApplicationFile());
+        return advance.getUuidAdvanceApplicationFile();
     }
 
     private ResponseEntity<Resource> fromBStore(UUID uuid) {

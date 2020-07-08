@@ -226,9 +226,9 @@ public class AdvanceService implements BaseAdvanceService {
 
 
     @Override
-    public Advance setContractApplication(Advance advance, String uuid) {
+    public Advance setContractApplication(Advance advance, UUID uuid) {
         if (uuid != null) {
-            //advance.setDownloadedContractApplication(true);
+
             advance.setUuidContractApplicationFile(uuid);
             saveAdvance(advance);
             // check second file
@@ -242,7 +242,7 @@ public class AdvanceService implements BaseAdvanceService {
     }
 
     @Override
-    public Advance setAdvanceApplication(Advance advance, String uuid) {
+    public Advance setAdvanceApplication(Advance advance, UUID uuid) {
         if (uuid != null) {
             //advance.setDownloadedContractApplication(true);
             setAdvanceApplicationFile(advance, uuid);
@@ -257,7 +257,7 @@ public class AdvanceService implements BaseAdvanceService {
     }
 
     @Override
-    public Advance setAdvanceApplicationFromBstore(Advance advance, String uuid) {
+    public Advance setAdvanceApplicationFromBstore(Advance advance, UUID uuid) {
         if (uuid != null) {
             return setAdvanceApplicationFile(advance, uuid);
         }
@@ -353,9 +353,8 @@ public class AdvanceService implements BaseAdvanceService {
 
 
     private Advance createAutoAdvanceForTrip(Trip trip, Person autoUser) {
-        Advance autoAdvance = null;
         if (advancesNotExistsForTrip(trip)) {
-            autoAdvance = newAdvanceForTripAndAuthor(trip, autoUser);
+            Advance autoAdvance = newAdvanceForTripAndAuthor(trip, autoUser);
             autoAdvance.setIsAuto(true);
             autoAdvance.setComment(AUTO_COMMENT);
             saveAdvance(autoAdvance);
@@ -363,7 +362,7 @@ public class AdvanceService implements BaseAdvanceService {
         } else {
             throw getAdvanceError("Advance for trip id " + trip.getId() + " already exists.");
         }
-        return autoAdvance;
+        return null;
     }
 
     private Advance newAdvanceForTripAndAuthor(Trip trip, Person author) {
@@ -379,7 +378,7 @@ public class AdvanceService implements BaseAdvanceService {
     }
 
 
-    private Advance setAdvanceApplicationFile(Advance advance, String uuid) {
+    private Advance setAdvanceApplicationFile(Advance advance, UUID uuid) {
         advance.setUuidAdvanceApplicationFile(uuid);
         saveAdvance(advance);
         return advance;

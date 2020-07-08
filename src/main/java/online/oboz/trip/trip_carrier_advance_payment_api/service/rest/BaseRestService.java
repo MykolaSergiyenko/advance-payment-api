@@ -11,6 +11,11 @@ public interface BaseRestService {
 
     ResponseEntity<String> getRequest(String url);
 
+    ResponseEntity<String> postForEntity(URL url, Object container);
+
+    void contextRefreshedEvent();
+
+
     ResponseEntity<Resource> authGetRequestResource(String url);
 
     ResponseEntity<Resource> getRequestResource(String url, HttpHeaders headers);
@@ -18,10 +23,6 @@ public interface BaseRestService {
     <T> ResponseEntity<String> authPostRequest(String url, HttpHeaders headers, T body);
 
     ResponseEntity<String> authGetRequest(String url, HttpHeaders headers);
-
-    ResponseEntity<String> postForEntity(URL url, Object container);
-
-    void contextRefreshedEvent();
 
     ResponseToken requestToken(String userName, String password);
 

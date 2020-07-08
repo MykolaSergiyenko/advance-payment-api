@@ -30,6 +30,7 @@ public interface AdvanceMapper {
     @Mapping(source = "tripFields.paymentContractorId", target = "advanceTripFields.paymentContractorId")
     @Mapping(source = "tripFields.tripTypeCode", target = "advanceTripFields.tripTypeCode")
     Advance toAdvance(Trip trip);
+    // don't use. or toAdvance(Trip trip, Person author...) too.
 
 
     @Mapping(source = "id", target = "id")
@@ -50,11 +51,9 @@ public interface AdvanceMapper {
     @Mapping(source = "tripAdvanceInfo.registrationFee", target = "registrationFee")
     @Mapping(source = "loadingComplete", target = "loadingComplete")
     @Mapping(target = "isContractApplicationLoaded",
-        expression = "java(!(null == advance.getUuidContractApplicationFile() || " +
-            "advance.getUuidContractApplicationFile().isEmpty()))")
+        expression = "java(!(null == advance.getUuidContractApplicationFile()))")
     @Mapping(target = "isAdvanceApplicationLoaded",
-        expression = "java(!(null == advance.getUuidAdvanceApplicationFile() || " +
-            "advance.getUuidAdvanceApplicationFile().isEmpty()))")
+        expression = "java(!(null == advance.getUuidAdvanceApplicationFile()))")
     @Mapping(source = "1CSendAllowed", target = "is1CSendAllowed")
     @Mapping(source = "unfSend", target = "isUnfSend")
     @Mapping(target = "isPushedUnfButton", expression = "java(!advance.isUnfSend())")
@@ -87,6 +86,5 @@ public interface AdvanceMapper {
     @Mapping(source = "tripInfo.startDate", target = "loadingDate")
     @Mapping(source = "tripInfo.endDate", target = "unloadingDate")
     CarrierPage toCarrierPage(Advance advance, TripInfo tripInfo);
-
 
 }
