@@ -100,6 +100,10 @@ public class ApplicationProperties {
     private String autoCreatedComment;
 
 
+    @Value("${services.auto-advance-service.auto-author}")
+    private Long autoAuthor;
+
+
     /**
      * Min count of 'paid' advances for contractor to become 'automated'
      */
@@ -723,6 +727,14 @@ public class ApplicationProperties {
 
     public void setMinTripCost(Double minTripCost) {
         this.minTripCost = minTripCost;
+    }
+
+    public Long getAutoAuthor() {
+        return autoAuthor;
+    }
+
+    public void setAutoAuthor(Long autoAuthor) {
+        this.autoAuthor = autoAuthor;
     }
 
 }

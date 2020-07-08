@@ -1,6 +1,7 @@
 package online.oboz.trip.trip_carrier_advance_payment_api.service.persons;
 
 
+import online.oboz.trip.trip_carrier_advance_payment_api.config.ApplicationProperties;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.Person;
 import online.oboz.trip.trip_carrier_advance_payment_api.error.BusinessLogicException;
 import online.oboz.trip.trip_carrier_advance_payment_api.repository.PersonRepository;
@@ -18,15 +19,17 @@ public class PersonService implements BasePersonService {
     private static final Logger log = LoggerFactory.getLogger(PersonService.class);
 
     private final PersonRepository personRepository;
+    private final ApplicationProperties props;
 
-    public PersonService(PersonRepository personRepository) {
+
+    public PersonService(PersonRepository personRepository, ApplicationProperties props) {
         this.personRepository = personRepository;
+        this.props = props;
     }
 
     @Override
     public Person getAdvanceSystemUser() {
-        return personRepository.findById(47700l).orElse(null);
-
+        return getPerson(props.getAutoAuthor());
     }
 
     @Override
@@ -47,12 +50,15 @@ public class PersonService implements BasePersonService {
 
 
     private BusinessLogicException getPersonInternalError(String message) {
-        return getInternalBusinessError(getServiceError(message), INTERNAL_SERVER_ERROR);
+        HttpStatus status = INTERNAL_SERVER_ERROR;
+        Error error = getServiceError(status, message);
+        return getInternalBusinessError(error, status);
     }
 
-    private Error getServiceError(String errorMessage) {
-        Error error = new Error();
-        error.setErrorMessage("PersonsService - Business Error: " + errorMessage);
+    private Error getServiceError(HttpStatus state, String message) {
+        Error error = new Error().status(state.toString());
+        error.errorCode(((Integer) state.value()).toString());
+        error.setErrorMessage("PersonsService - Business Error: " + message);
         return error;
     }
 
