@@ -73,7 +73,7 @@ public class AdvanceService implements BaseAdvanceService {
         AUTO_COMMENT = applicationProperties.getAutoCreatedComment();
         log.info("Auto-created-advance comment is: " + AUTO_COMMENT);
         autoUser = personService.getAdvanceSystemUser();
-        log.info("Found auto-advance system user is: " + autoUser);
+        log.info("Found auto-advance system user is: " + autoUser.getInfo().toString());
     }
 
     @Override
