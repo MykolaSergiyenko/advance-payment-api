@@ -96,7 +96,7 @@ public class AdvanceService implements BaseAdvanceService {
             saveAdvance(advance);
             notifyAboutAdvance(advance);
             log.info("Advance (uuid = {}) was created for author {}.",
-                advance.getAdvanceUuid(), advance.getAuthorId());
+                advance.getUuid(), advance.getAuthorId());
             return advance;
         } else {
             throw getAdvanceError("Advance for trip id " + tripId + " already exists.");

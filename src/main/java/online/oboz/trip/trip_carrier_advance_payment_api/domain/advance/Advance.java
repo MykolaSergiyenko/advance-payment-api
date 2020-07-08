@@ -33,17 +33,8 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "trip_request_advance_payment", schema = "orders")
-@AttributeOverride(name = "uuid", column = @Column(name = "advance_uuid"))
 public class Advance extends ContactableAdvance {
     final static Logger log = LoggerFactory.getLogger(Advance.class);
-
-
-    @NaturalId
-    @NotNull
-    @GeneratedValue
-    @Type(type = "pg-uuid")
-    @Column(name = "advance_uuid", length = 36, updatable = false, insertable = false)
-    private UUID advanceUuid;
 
 
     //TODO: @Type(type = "uuid-char")@Column(length = 36)
@@ -77,7 +68,6 @@ public class Advance extends ContactableAdvance {
     @Override
     public void onCreate() {
         super.onCreate();
-        setAdvanceUuid(UUID.randomUUID());
         setLoadingComplete(false);
     }
 
@@ -107,15 +97,6 @@ public class Advance extends ContactableAdvance {
 
     public void setUuidAdvanceApplicationFile(String uuidAdvanceApplicationFile) {
         this.uuidAdvanceApplicationFile = uuidAdvanceApplicationFile;
-    }
-
-
-    public UUID getAdvanceUuid() {
-        return advanceUuid;
-    }
-
-    public void setAdvanceUuid(UUID advanceUuid) {
-        this.advanceUuid = advanceUuid;
     }
 
 

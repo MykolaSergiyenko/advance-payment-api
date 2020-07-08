@@ -20,7 +20,7 @@ public interface AdvanceRepository extends JpaRepository<Advance, Long> {
 
     @Query("select pc " +
         "from Advance pc " +
-        "where pc.advanceUuid = :uuid ")
+        "where pc.uuid = :uuid ")
     Optional<Advance> findByUuid(@Param("uuid") UUID uuid);
 
     @Query("select pc " +
@@ -33,13 +33,6 @@ public interface AdvanceRepository extends JpaRepository<Advance, Long> {
         " from Advance pc " +
         " where pc.advanceTripFields.num = :trip_num ")
     Optional<Advance> findByTripNum(@Param("trip_num") String tripNum);
-
-
-//    @Query(nativeQuery = true,
-//        value = "select * from trip_request_advance_payment t where " +
-//            "t.read_at is null and t.sms_sent_at = null " +
-//            "and t.created_at < (now() - make_interval(minutes => :minutes))")
-//    List<Advance> findUnreadAdvances(@Param("minutes") int minutes);
 
 
     @Query(nativeQuery = true,
