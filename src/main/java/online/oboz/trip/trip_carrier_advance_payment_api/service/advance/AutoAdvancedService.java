@@ -37,7 +37,7 @@ public class AutoAdvancedService implements BaseAutoAdvanceService {
     ///@Scheduled(cron = "0 0/3 * * * *")
 
     @Override
-    @Scheduled(cron = "0 0/1 * * * *")
+    @Scheduled(cron = "${services.auto-advance-service.cron.update}")
     public void updateFileUuid() {
         log.info("Auto-advance: update attachment's uuids schedule started.");
         try {
@@ -49,7 +49,7 @@ public class AutoAdvancedService implements BaseAutoAdvanceService {
 
 
     @Override
-    @Scheduled(cron = "0 0/1 * * * *")
+    @Scheduled(cron = "${services.auto-advance-service.cron.update}")
     public void updateAutoAdvanceForContractors() {
         try {
             advanceContractorService.updateAutoAdvanceForContractors();
@@ -60,7 +60,7 @@ public class AutoAdvancedService implements BaseAutoAdvanceService {
 
 
     @Override
-    @Scheduled(cron = "0 0/1 * * * *")
+    @Scheduled(cron = "${services.auto-advance-service.cron.creation}")
     public void createAutoAdvances() {
         try {
             advanceService.giveAutoAdvances();
@@ -71,7 +71,7 @@ public class AutoAdvancedService implements BaseAutoAdvanceService {
 
 
     @Override
-    @Scheduled(cron = "0 0/10 * * * *")
+    @Scheduled(cron = "${services.notifications.scheduler.notify}")
     public void notifyAgain() {
         try {
             advanceService.notifyUnread();
