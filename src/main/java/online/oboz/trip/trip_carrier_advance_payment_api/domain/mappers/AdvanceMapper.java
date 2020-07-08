@@ -2,10 +2,8 @@ package online.oboz.trip.trip_carrier_advance_payment_api.domain.mappers;
 
 
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.Advance;
-import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.dicts.contacts.AdvanceContact;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.Trip;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.info.TripInfo;
-import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.Person;
 import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.AdvanceCommentDTO;
 import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.AdvanceDTO;
 import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.CarrierPage;
@@ -33,23 +31,6 @@ public interface AdvanceMapper {
     @Mapping(source = "tripFields.tripTypeCode", target = "advanceTripFields.tripTypeCode")
     Advance toAdvance(Trip trip);
 
-//
-//    @Mapping(target = "cancelled", defaultValue = "false")
-//    @Mapping(source = "trip.id", target = "advanceTripFields.tripId")
-//    @Mapping(source = "trip.tripFields.num", target = "advanceTripFields.num")
-//    @Mapping(source = "trip.tripCostInfo.cost", target = "costInfo.cost")
-//    @Mapping(source = "trip.tripFields.orderId", target = "advanceTripFields.orderId")
-//    @Mapping(source = "trip.tripFields.driverId", target = "advanceTripFields.driverId")
-//    @Mapping(source = "trip.tripFields.paymentContractorId", target = "advanceTripFields.paymentContractorId")
-//    @Mapping(source = "trip.tripFields.tripTypeCode", target = "advanceTripFields.tripTypeCode")
-//    @Mapping(source = "author.id", target = "authorId")
-//    @Mapping(source = "contact.contractorId", target = "contractorId")
-//    @Mapping(source = "contact", target = "contact")
-//    @Mapping(target = "id", ignore = true)
-//    @Mapping(target = "createdAt", ignore = true)
-//    @Mapping(target = "updatedAt", ignore = true)
-//    @Mapping(target = "uuid", ignore = true)
-//    Advance toAdvance(Trip trip, Person author, AdvanceContact contact);
 
     @Mapping(source = "id", target = "id")
     @Mapping(source = "advanceComment", target = "comment")
@@ -107,13 +88,5 @@ public interface AdvanceMapper {
     @Mapping(source = "tripInfo.endDate", target = "unloadingDate")
     CarrierPage toCarrierPage(Advance advance, TripInfo tripInfo);
 
-
-    //    @Mapping(source = "advances", target = "advances")
-    //    AdvanceDesktopDTO toPageDTO(List<Advance> advances);
-
-
-    //@Mapping(target = "pageCarrierUrlIsAccess", expression = "java(!advance.is1CSendAllowed())")
-    //@Mapping(source = "originName", target = "loadingAddress")
-    //@Mapping(source = "destinationName", target = "unloadingAddress")
 
 }
