@@ -2,7 +2,6 @@ package online.oboz.trip.trip_carrier_advance_payment_api.service.urleditor;
 
 import io.undertow.util.BadRequestException;
 import online.oboz.trip.trip_carrier_advance_payment_api.config.ApplicationProperties;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.rest.RestService;
 import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.Error;
 
 import org.slf4j.Logger;

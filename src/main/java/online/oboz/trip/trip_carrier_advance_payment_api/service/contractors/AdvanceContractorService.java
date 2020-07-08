@@ -2,12 +2,9 @@ package online.oboz.trip.trip_carrier_advance_payment_api.service.contractors;
 
 import online.oboz.trip.trip_carrier_advance_payment_api.config.ApplicationProperties;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.contractor.AdvanceContractor;
-import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.contractor.Contractor;
 import online.oboz.trip.trip_carrier_advance_payment_api.error.BusinessLogicException;
 import online.oboz.trip.trip_carrier_advance_payment_api.repository.ContractorRepository;
-import online.oboz.trip.trip_carrier_advance_payment_api.repository.PersonRepository;
 import online.oboz.trip.trip_carrier_advance_payment_api.util.ErrorUtils;
-import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.Error;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -15,8 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-
-import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 
 @Service
 public class AdvanceContractorService implements ContractorService {
@@ -26,16 +21,18 @@ public class AdvanceContractorService implements ContractorService {
     private final ApplicationProperties applicationProperties;
     private final ContractorRepository contractorRepository;
 
-    public AdvanceContractorService(ApplicationProperties applicationProperties, ContractorRepository contractorRepository, PersonRepository personRepository) {
+    public AdvanceContractorService(
+        ApplicationProperties applicationProperties,
+        ContractorRepository contractorRepository
+    ) {
         this.applicationProperties = applicationProperties;
         this.contractorRepository = contractorRepository;
     }
 
     @Override
     public AdvanceContractor findContractor(Long contractorId) {
-        return contractorRepository.findById(contractorId).orElseThrow(() -> getContractorError(
-            "Contractor not found."
-        ));
+        return contractorRepository.findById(contractorId).
+            orElseThrow(() -> getContractorError("Contractor not found."));
     }
 
 

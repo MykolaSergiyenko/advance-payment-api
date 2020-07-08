@@ -2,15 +2,17 @@ package online.oboz.trip.trip_carrier_advance_payment_api.service.rest.dispatche
 
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.Advance;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.Trip;
-import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.Person;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.advance.AdvanceService;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.contacts.AdvanceContactService;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.persons.PersonService;
+
+import online.oboz.trip.trip_carrier_advance_payment_api.service.advance.BaseAdvanceService;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.contacts.ContactService;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.persons.BasePersonService;
+
 import online.oboz.trip.trip_carrier_advance_payment_api.util.SecurityUtils;
 import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.CarrierContactDTO;
 import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.IsTripAdvanced;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -20,14 +22,15 @@ import org.springframework.stereotype.Service;
 public class DispatcherPageService implements DispatcherService {
     private static final Logger log = LoggerFactory.getLogger(DispatcherPageService.class);
 
-    private final AdvanceService advanceService;
-    private final PersonService personService;
-    private final AdvanceContactService contactService;
+    private final BaseAdvanceService advanceService;
+    private final BasePersonService personService;
+    private final ContactService contactService;
 
-
+    @Autowired
     public DispatcherPageService(
-        AdvanceService advanceService,
-        PersonService personService, AdvanceContactService contactService
+        BaseAdvanceService advanceService,
+        BasePersonService personService,
+        ContactService contactService
     ) {
         this.advanceService = advanceService;
         this.personService = personService;

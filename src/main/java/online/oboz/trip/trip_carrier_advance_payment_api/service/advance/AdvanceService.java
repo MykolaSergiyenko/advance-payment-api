@@ -17,7 +17,6 @@ import online.oboz.trip.trip_carrier_advance_payment_api.service.persons.BasePer
 import online.oboz.trip.trip_carrier_advance_payment_api.service.trip.BaseTripService;
 import online.oboz.trip.trip_carrier_advance_payment_api.util.ErrorUtils;
 import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.*;
-import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.Error;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -28,8 +27,6 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
-
-import static org.springframework.http.HttpStatus.*;
 
 
 @Service

@@ -6,14 +6,13 @@ import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.peo
 import online.oboz.trip.trip_carrier_advance_payment_api.error.BusinessLogicException;
 import online.oboz.trip.trip_carrier_advance_payment_api.repository.PersonRepository;
 import online.oboz.trip.trip_carrier_advance_payment_api.util.ErrorUtils;
-import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.Error;
 import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.IsTripAdvanced;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 
 @Service
 public class PersonService implements BasePersonService {
@@ -22,8 +21,11 @@ public class PersonService implements BasePersonService {
     private final PersonRepository personRepository;
     private final ApplicationProperties props;
 
-
-    public PersonService(PersonRepository personRepository, ApplicationProperties props) {
+    @Autowired
+    public PersonService(
+        PersonRepository personRepository,
+        ApplicationProperties props
+    ) {
         this.personRepository = personRepository;
         this.props = props;
     }

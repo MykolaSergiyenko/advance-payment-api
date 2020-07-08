@@ -5,16 +5,13 @@ import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.Tri
 import online.oboz.trip.trip_carrier_advance_payment_api.error.BusinessLogicException;
 import online.oboz.trip.trip_carrier_advance_payment_api.repository.TripRepository;
 import online.oboz.trip.trip_carrier_advance_payment_api.util.ErrorUtils;
-import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.Error;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-
-import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 
 @Service
 public class TripService implements BaseTripService {
@@ -23,7 +20,11 @@ public class TripService implements BaseTripService {
     private final TripRepository tripRepository;
     private final ApplicationProperties applicationProperties;
 
-    public TripService(TripRepository tripRepository, ApplicationProperties applicationProperties) {
+    @Autowired
+    public TripService(
+        TripRepository tripRepository,
+        ApplicationProperties applicationProperties
+    ) {
         this.tripRepository = tripRepository;
         this.applicationProperties = applicationProperties;
     }
@@ -47,6 +48,4 @@ public class TripService implements BaseTripService {
     private BusinessLogicException getTripsInternalError(String message) {
         return ErrorUtils.getInternalError("Trip-service internal error: " + message);
     }
-
-
 }

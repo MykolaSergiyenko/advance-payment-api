@@ -18,7 +18,7 @@ public class AutoAdvancedService implements BaseAutoAdvanceService {
 
     private static final Logger log = LoggerFactory.getLogger(AutoAdvancedService.class);
     private final ContractorService advanceContractorService;
-    private final AdvanceService advanceService;
+    private final BaseAdvanceService advanceService;
 
     private final FileAttachmentsService fileAttachmentsService;
 
@@ -26,7 +26,7 @@ public class AutoAdvancedService implements BaseAutoAdvanceService {
     @Autowired
     public AutoAdvancedService(
         ContractorService advanceContractorService,
-        AdvanceService advanceService,
+        BaseAdvanceService advanceService,
         FileAttachmentsService fileAttachmentsService
     ) {
         this.advanceContractorService = advanceContractorService;

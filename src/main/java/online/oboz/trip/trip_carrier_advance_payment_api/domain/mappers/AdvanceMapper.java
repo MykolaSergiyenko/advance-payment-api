@@ -19,7 +19,7 @@ import java.util.UUID;
 
 @Mapper(componentModel = "spring", imports = {UUID.class, OffsetDateTime.class})
 public interface AdvanceMapper {
-    AdvanceMapper INSTANCE = Mappers.getMapper(AdvanceMapper.class);
+    AdvanceMapper advanceMapper = Mappers.getMapper(AdvanceMapper.class);
 
 
     @Mapping(source = "id", target = "advanceTripFields.tripId")

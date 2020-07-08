@@ -2,11 +2,12 @@ package online.oboz.trip.trip_carrier_advance_payment_api.service.rest.desktop;
 
 import online.oboz.trip.trip_carrier_advance_payment_api.config.ApplicationProperties;
 
-import online.oboz.trip.trip_carrier_advance_payment_api.service.advance.AdvanceService;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.advance.BaseAdvanceService;
 import online.oboz.trip.trip_carrier_advance_payment_api.util.SecurityUtils;
 import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.AdvanceCommentDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -18,12 +19,14 @@ import javax.transaction.Transactional;
 @Service
 public class AdvancePageService implements AdvanceManager {
     private static final Logger log = LoggerFactory.getLogger(AdvancePageService.class);
-    private final AdvanceService advanceService;
+    private final BaseAdvanceService advanceService;
     private final ApplicationProperties applicationProperties;
 
+    @Autowired
     public AdvancePageService(
-        AdvanceService advanceService,
-        ApplicationProperties applicationProperties) {
+        BaseAdvanceService advanceService,
+        ApplicationProperties applicationProperties
+    ) {
         this.advanceService = advanceService;
         this.applicationProperties = applicationProperties;
     }

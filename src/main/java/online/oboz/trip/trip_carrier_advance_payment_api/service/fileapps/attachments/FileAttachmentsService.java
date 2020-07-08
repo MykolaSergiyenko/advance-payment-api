@@ -3,16 +3,16 @@ package online.oboz.trip.trip_carrier_advance_payment_api.service.fileapps.attac
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.Advance;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.structures.TripFields;
 import online.oboz.trip.trip_carrier_advance_payment_api.error.BusinessLogicException;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.advance.AdvanceService;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.advance.BaseAdvanceService;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.fileapps.reports.ReportService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.fileapps.reports.ReportsTemplateService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.integration.bstore.StoreService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.integration.ordersapi.OrdersFilesService;
 import online.oboz.trip.trip_carrier_advance_payment_api.util.ErrorUtils;
-import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.Error;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -30,13 +30,15 @@ public class FileAttachmentsService implements AttachmentService {
 
     private final OrdersFilesService ordersApiService;
     private final StoreService bStoreService;
-    private final ReportsTemplateService reportsService;
-    private final AdvanceService advanceService;
+    private final ReportService reportsService;
+    private final BaseAdvanceService advanceService;
 
+    @Autowired
     public FileAttachmentsService(
         OrdersFilesService ordersApiService,
         StoreService bStoreService,
-        ReportsTemplateService reportsService, AdvanceService advanceService
+        ReportsTemplateService reportsService,
+        BaseAdvanceService advanceService
     ) {
         this.ordersApiService = ordersApiService;
         this.bStoreService = bStoreService;

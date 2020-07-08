@@ -37,10 +37,13 @@ public class NotificationService implements Notificator {
     private final EmailSender emailSender;
     private final SmsSender smsSender;
 
-    public NotificationService(ApplicationProperties applicationProperties,
-                               TextService messageTextService,
-                               EmailSender emailSender,
-                               SmsSender smsSender) {
+
+    public NotificationService(
+        ApplicationProperties applicationProperties,
+        TextService messageTextService,
+        EmailSender emailSender,
+        SmsSender smsSender
+    ) {
         this.applicationProperties = applicationProperties;
         this.messageTextService = messageTextService;
         this.emailSender = emailSender;

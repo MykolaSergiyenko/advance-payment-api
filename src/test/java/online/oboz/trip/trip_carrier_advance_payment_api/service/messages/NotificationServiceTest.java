@@ -10,15 +10,15 @@ import online.oboz.trip.trip_carrier_advance_payment_api.repository.AdvanceRepos
 
 import online.oboz.trip.trip_carrier_advance_payment_api.repository.TripRepository;
 import online.oboz.trip.trip_carrier_advance_payment_api.repository.PersonRepository;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.advance.AdvanceService;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.advance.BaseAdvanceService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.contacts.ContactService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.persons.BasePersonService;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.persons.PersonService;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.rest.BaseRestService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.rest.RestService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.messages.common.format.MessageCreateService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.messages.common.format.TextService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.trip.BaseTripService;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.trip.TripService;
+
 import online.oboz.trip.trip_carrier_advance_payment_api.service.urleditor.UrlShortenerService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.messages.email.EmailSender;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.messages.email.EmailSenderService;
@@ -29,7 +29,6 @@ import org.junit.runner.RunWith;
 import org.junit.jupiter.api.Test;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.client.RestTemplate;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -44,7 +43,7 @@ import static io.github.benas.randombeans.api.EnhancedRandom.random;
 public class NotificationServiceTest {
     private JavaMailSender mailSender;
     private RestTemplate rest;
-    private RestService restService;
+    private BaseRestService restService;
     private ApplicationProperties props;
     private TextService messageTextService;
     private EmailSender emailSender;
@@ -55,7 +54,7 @@ public class NotificationServiceTest {
     private PersonRepository users;
     private AdvanceContactsBookRepository contacts;
 
-    private AdvanceService advanceService;
+    private BaseAdvanceService advanceService;
     private BaseTripService tripService;
     private BasePersonService personService;
     private ContactService contactService;

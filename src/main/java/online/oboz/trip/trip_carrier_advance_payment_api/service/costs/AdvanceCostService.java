@@ -7,11 +7,12 @@ import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.dicts.co
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.Trip;
 import online.oboz.trip.trip_carrier_advance_payment_api.error.BusinessLogicException;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.contractors.ContractorService;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.costs.advancedict.AdvanceCostDictService;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.costs.advancedict.CostDictService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.costs.vats.VatCostService;
 import online.oboz.trip.trip_carrier_advance_payment_api.util.ErrorUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -21,11 +22,14 @@ public class AdvanceCostService implements CostService {
 
     private final ContractorService contractorService;
     private final VatCostService vatCostService;
-    private final AdvanceCostDictService costDictService;
+    private final CostDictService costDictService;
 
+    @Autowired
     public AdvanceCostService(
         ContractorService contractorService,
-        VatCostService vatCostService, AdvanceCostDictService costDictService) {
+        VatCostService vatCostService,
+        CostDictService costDictService
+    ) {
         this.contractorService = contractorService;
         this.vatCostService = vatCostService;
         this.costDictService = costDictService;

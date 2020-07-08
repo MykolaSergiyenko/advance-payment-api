@@ -1,8 +1,8 @@
 package online.oboz.trip.trip_carrier_advance_payment_api.service;
 
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.Advance;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.advance.AdvanceService;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.messages.NotificationService;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.advance.BaseAdvanceService;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.messages.Notificator;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.urleditor.UrlService;
 import online.oboz.trip.trip_carrier_advance_payment_api.web.api.controller.AdvancePaymentTestApiDelegate;
 import org.slf4j.Logger;
@@ -20,14 +20,15 @@ public class AdvancePaymentTestDelegateImpl implements AdvancePaymentTestApiDele
     private static final Logger log = LoggerFactory.getLogger(AdvancePaymentDelegateImpl.class);
 
     private final UrlService shortenerService;
-    private final NotificationService notificationService;
-    private final AdvanceService service;
+    private final Notificator notificationService;
+    private final BaseAdvanceService service;
 
     @Autowired
     public AdvancePaymentTestDelegateImpl(
         UrlService shortenerService,
-        NotificationService notificationService,
-        AdvanceService service) {
+        Notificator notificationService,
+        BaseAdvanceService service
+    ) {
         this.shortenerService = shortenerService;
         this.notificationService = notificationService;
         this.service = service;

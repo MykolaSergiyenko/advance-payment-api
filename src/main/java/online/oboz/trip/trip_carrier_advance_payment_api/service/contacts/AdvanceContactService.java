@@ -6,14 +6,11 @@ import online.oboz.trip.trip_carrier_advance_payment_api.error.BusinessLogicExce
 import online.oboz.trip.trip_carrier_advance_payment_api.repository.AdvanceContactsBookRepository;
 import online.oboz.trip.trip_carrier_advance_payment_api.util.ErrorUtils;
 import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.CarrierContactDTO;
-import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.Error;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-
-import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 
 
 @Service
@@ -22,6 +19,7 @@ public class AdvanceContactService implements ContactService {
 
 
     private final AdvanceContactsBookRepository contactsBookRepository;
+
     private final AdvanceContactMapper contactMapper = AdvanceContactMapper.contactMapper;
 
 

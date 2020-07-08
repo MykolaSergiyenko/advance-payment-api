@@ -1,11 +1,11 @@
 package online.oboz.trip.trip_carrier_advance_payment_api.service;
 
-import online.oboz.trip.trip_carrier_advance_payment_api.service.advance.AdvanceService;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.advance.BaseAdvanceService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.fileapps.attachments.AttachmentService;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.rest.desktop.AdvancePageService;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.rest.desktop.AdvancePageTabsService;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.rest.carrier.CarrierPageService;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.rest.dispatcher.DispatcherPageService;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.rest.carrier.CarrierService;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.rest.desktop.AdvanceManager;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.rest.desktop.AdvanceTabManager;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.rest.dispatcher.DispatcherService;
 import online.oboz.trip.trip_carrier_advance_payment_api.web.api.controller.AdvancePaymentApiDelegate;
 import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.*;
 import org.slf4j.Logger;
@@ -23,21 +23,21 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
 
     private static final Logger log = LoggerFactory.getLogger(AdvancePaymentDelegateImpl.class);
 
-    private final AdvanceService advanceService;
+    private final BaseAdvanceService advanceService;
     private final AttachmentService attachmentService;
-    private final DispatcherPageService dispatcherPageService;
-    private final CarrierPageService carrierPageService;
-    private final AdvancePageService advancePageService;
-    private final AdvancePageTabsService advancePageTabsService;
+    private final DispatcherService dispatcherPageService;
+    private final CarrierService carrierPageService;
+    private final AdvanceManager advancePageService;
+    private final AdvanceTabManager advancePageTabsService;
 
     @Autowired
     public AdvancePaymentDelegateImpl(
-        AdvanceService advanceService,
+        BaseAdvanceService advanceService,
         AttachmentService attachmentService,
-        CarrierPageService carrierPageService,
-        DispatcherPageService dispatcherPageService,
-        AdvancePageService advancePageService,
-        AdvancePageTabsService advancePageTabsService
+        CarrierService carrierPageService,
+        DispatcherService dispatcherPageService,
+        AdvanceManager advancePageService,
+        AdvanceTabManager advancePageTabsService
     ) {
         this.advanceService = advanceService;
         this.attachmentService = attachmentService;
@@ -46,11 +46,6 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
         this.carrierPageService = carrierPageService;
         this.advancePageTabsService = advancePageTabsService;
     }
-
-
-    /*
-        advancePageService
-     */
 
 
     @Override
@@ -78,9 +73,6 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
         log.info("Got updateLoadingComplete request AdvanceRequestId - {} loadingComplete - {}", id, loadingComplete);
         return advancePageService.updateLoadingComplete(id, loadingComplete);
     }
-
-
-
 
 
     @Override
@@ -124,7 +116,6 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
         log.info("Got searchAdvancePaymentRequestByUuid request uuid - " + uuid);
         return carrierPageService.searchAdvancePaymentRequestByUuid(uuid);
     }
-
 
 
     @Override
@@ -191,14 +182,11 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
     }
 
 
-
-
     @Override
     public ResponseEntity<CarrierContactDTO> getContactCarrier(Long contractorId) {
         log.info("Got getContactCarrier request contractorId -" + contractorId);
         return dispatcherPageService.getContactCarrier(contractorId);
     }
-
 
 
 }

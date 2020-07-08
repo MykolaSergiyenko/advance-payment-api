@@ -1,7 +1,6 @@
 package online.oboz.trip.trip_carrier_advance_payment_api.service.messages;
 
 import online.oboz.trip.trip_carrier_advance_payment_api.config.ApplicationProperties;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.rest.RestService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.urleditor.UrlShortenerService;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -44,7 +43,6 @@ public class UrlShortenerServiceTest {
             System.out.println("---  Set cutLinkUrl to " + cutLinkUrl);
             ApplicationProperties prop = new ApplicationProperties();
             prop.setCutLinkUrl(cutLinkUrl);
-            RestService restService = new RestService(prop, rest);
             UrlShortenerService urlShortenerService = new UrlShortenerService(prop);
 
 
@@ -98,12 +96,12 @@ public class UrlShortenerServiceTest {
             System.out.println("outputUrl12 " + cuttedLink12);
 
 
-            assertEquals(cuttedLink10,cuttedLink7);
-            assertEquals(cuttedLink11,cuttedLink9);
-            assertEquals(cuttedLink2,"https://clck.ru/HR");
+            assertEquals(cuttedLink10, cuttedLink7);
+            assertEquals(cuttedLink11, cuttedLink9);
+            assertEquals(cuttedLink2, "https://clck.ru/HR");
 
-            assertNotEquals(cuttedLink5,"");
-            assertEquals(cuttedLink12,"");
+            assertNotEquals(cuttedLink5, "");
+            assertEquals(cuttedLink12, "");
 
             assertNotNull(cuttedLink1);
             assertNotNull(cuttedLink2);
@@ -111,8 +109,7 @@ public class UrlShortenerServiceTest {
             assertNotNull(cuttedLink4);
 
 
-
-        } catch (MalformedURLException e){
+        } catch (MalformedURLException e) {
             System.out.println("Fail to set cut-link URL.");
 
         }

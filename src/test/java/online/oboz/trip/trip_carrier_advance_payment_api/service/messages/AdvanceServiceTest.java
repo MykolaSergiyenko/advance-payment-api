@@ -1,36 +1,24 @@
 package online.oboz.trip.trip_carrier_advance_payment_api.service.messages;
 
 import online.oboz.trip.trip_carrier_advance_payment_api.config.ApplicationProperties;
-import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.Advance;
-import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.dicts.contacts.AdvanceContactsBook;
-import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.Trip;
-import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.Person;
+
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.mappers.AdvanceMapper;
-import online.oboz.trip.trip_carrier_advance_payment_api.domain.mappers.AdvanceMapperImpl;
-import online.oboz.trip.trip_carrier_advance_payment_api.domain.response.dto.TripDocuments;
-import online.oboz.trip.trip_carrier_advance_payment_api.repository.AdvanceContactsBookRepository;
+
 import online.oboz.trip.trip_carrier_advance_payment_api.repository.AdvanceRepository;
-import online.oboz.trip.trip_carrier_advance_payment_api.repository.PersonRepository;
-import online.oboz.trip.trip_carrier_advance_payment_api.repository.TripRepository;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.advance.AdvanceService;
+
+import online.oboz.trip.trip_carrier_advance_payment_api.service.advance.BaseAdvanceService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.contacts.AdvanceContactService;
+
+
 import online.oboz.trip.trip_carrier_advance_payment_api.service.contacts.ContactService;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.costs.AdvanceCostService;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.integration.ordersapi.OrdersApiService;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.costs.CostService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.integration.ordersapi.OrdersFilesService;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.integration.unf.Integration1cService;
+
 import online.oboz.trip.trip_carrier_advance_payment_api.service.integration.unf.UnfService;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.messages.common.format.MessageCreateService;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.messages.email.EmailSenderService;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.messages.sms.SmsSenderService;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.persons.PersonService;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.rest.RestService;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.trip.TripService;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.urleditor.UrlShortenerService;
-import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.AdvanceDTO;
-import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.CarrierContactDTO;
-import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.CarrierPage;
-import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.ResponseToken;
+
+import online.oboz.trip.trip_carrier_advance_payment_api.service.rest.BaseRestService;
+
+
 import org.junit.Test;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.runner.RunWith;
@@ -39,28 +27,14 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
-
-import static io.github.benas.randombeans.api.EnhancedRandom.random;
-import static io.github.benas.randombeans.api.EnhancedRandom.randomListOf;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
 
 @RunWith(SpringRunner.class)
 public class AdvanceServiceTest {
 
-    private TripService tripService;
-    private PersonService personService;
-    private AdvanceContactService contactService;
-    private AdvanceCostService costService;
+    private BaseRestService tripService;
+    private BaseAdvanceService personService;
+    private ContactService contactService;
+    private CostService costService;
     private OrdersFilesService ordersFilesService;
     private Notificator notificationService;
     private UnfService integration1cService;
@@ -69,10 +43,9 @@ public class AdvanceServiceTest {
 
     private AdvanceRepository advanceRepository;
 
-    private AdvanceService advanceService;
+    private BaseAdvanceService advanceService;
 
     private AdvanceMapper mapper;
-
 
 
 //

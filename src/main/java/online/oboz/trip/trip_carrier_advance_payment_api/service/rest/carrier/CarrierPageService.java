@@ -4,14 +4,14 @@ import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.Advance;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.Trip;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.mappers.AdvanceMapper;
 import online.oboz.trip.trip_carrier_advance_payment_api.error.BusinessLogicException;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.advance.AdvanceService;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.advance.BaseAdvanceService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.contractors.ContractorService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.costs.vats.VatService;
 import online.oboz.trip.trip_carrier_advance_payment_api.util.ErrorUtils;
-import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.Error;
 import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.CarrierPage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -23,17 +23,17 @@ import java.util.UUID;
 public class CarrierPageService implements CarrierService {
     private static final Logger log = LoggerFactory.getLogger(CarrierPageService.class);
 
-    private final AdvanceService advanceService;
+    private final BaseAdvanceService advanceService;
     private final ContractorService advanceContractorService;
     private final VatService vatService;
     private final List<String> zeroVats;
 
 
-    private final AdvanceMapper advanceMapper = AdvanceMapper.INSTANCE;
+    private final AdvanceMapper advanceMapper = AdvanceMapper.advanceMapper;
 
-
+    @Autowired
     public CarrierPageService(
-        AdvanceService advanceService,
+        BaseAdvanceService advanceService,
         ContractorService advanceContractorService,
         VatService vatService
     ) {
@@ -77,6 +77,6 @@ public class CarrierPageService implements CarrierService {
     }
 
     private BusinessLogicException getCarrierException(String s) {
-        return ErrorUtils.getInternalError("Carrier-page error: "+s);
+        return ErrorUtils.getInternalError("Carrier-page error: " + s);
     }
 }

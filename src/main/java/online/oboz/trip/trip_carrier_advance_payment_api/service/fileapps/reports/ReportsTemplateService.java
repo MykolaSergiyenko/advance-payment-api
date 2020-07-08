@@ -4,30 +4,31 @@ package online.oboz.trip.trip_carrier_advance_payment_api.service.fileapps.repor
 import online.oboz.trip.trip_carrier_advance_payment_api.config.ApplicationProperties;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.Advance;
 import online.oboz.trip.trip_carrier_advance_payment_api.error.BusinessLogicException;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.rest.RestService;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.rest.BaseRestService;
 import online.oboz.trip.trip_carrier_advance_payment_api.util.ErrorUtils;
-import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.Error;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import static org.springframework.http.HttpStatus.OK;
-import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 
 @Service
 public class ReportsTemplateService implements ReportService {
 
     private static final Logger log = LoggerFactory.getLogger(ReportsTemplateService.class);
 
-    private final RestService restService;
+    private final BaseRestService restService;
     private final ApplicationProperties applicationProperties;
 
+    @Autowired
     public ReportsTemplateService(
-        RestService restService,
-        ApplicationProperties applicationProperties) {
+        BaseRestService restService,
+        ApplicationProperties applicationProperties
+    ) {
         this.restService = restService;
         this.applicationProperties = applicationProperties;
     }
@@ -66,6 +67,6 @@ public class ReportsTemplateService implements ReportService {
     }
 
     private BusinessLogicException getReportsError(String s) {
-        return ErrorUtils.getInternalError("Report-service internal error: "+s);
+        return ErrorUtils.getInternalError("Report-service internal error: " + s);
     }
 }
