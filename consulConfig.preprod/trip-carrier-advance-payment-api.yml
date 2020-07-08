@@ -147,7 +147,7 @@ services:
             # Cut LK-links for short-SMS enable
             cut-links: true
             # Sms-sender url
-            sender-url: http://sms-sender.r14.k.dev.oboz:30080/
+            sender-url: http://sms-sender.r14.k.preprod.oboz:30080
             # SMS-templates
             sms-phone-template: 7%s
             sms-message-template:
