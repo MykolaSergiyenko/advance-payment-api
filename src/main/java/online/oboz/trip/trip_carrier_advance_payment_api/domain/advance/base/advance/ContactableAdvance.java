@@ -52,6 +52,15 @@ public abstract class ContactableAdvance extends TripsAdvance {
 
     }
 
+    public void setContact(AdvanceContactsBook contact) {
+        this.contact = contact;
+    }
+
+
+    public AdvanceContactsBook getContact() {
+        return contact;
+    }
+
 
     public Boolean isNotifiableAdvance() {
         return isNotifiableAdvance;
@@ -85,11 +94,6 @@ public abstract class ContactableAdvance extends TripsAdvance {
     }
 
 
-    public AdvanceContactsBook getContact() {
-        return contact;
-    }
-
-
     public Boolean getNotifiableAdvance() {
         return isNotifiableAdvance;
     }
@@ -114,9 +118,6 @@ public abstract class ContactableAdvance extends TripsAdvance {
         this.notifiedDelayedAt = notifiedDelayedAt;
     }
 
-    public void setContact(AdvanceContactsBook contact) {
-        this.contact = contact;
-    }
 
 
     @PrePersist

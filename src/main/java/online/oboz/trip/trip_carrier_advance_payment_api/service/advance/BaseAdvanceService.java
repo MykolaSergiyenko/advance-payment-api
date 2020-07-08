@@ -13,7 +13,7 @@ public interface BaseAdvanceService {
 
     Trip findTrip(Long tripId);
 
-    void giveAutoAdvances(Person autoUser);
+    void giveAutoAdvances();
 
     Advance createAdvanceForTripAndAuthorId(Long tripId, Long authorId);
 

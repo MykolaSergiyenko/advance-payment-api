@@ -1,11 +1,9 @@
 package online.oboz.trip.trip_carrier_advance_payment_api.service.advance;
 
-import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.Person;
 import online.oboz.trip.trip_carrier_advance_payment_api.error.BusinessLogicException;
 
 import online.oboz.trip.trip_carrier_advance_payment_api.service.contractors.ContractorService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.fileapps.attachments.FileAttachmentsService;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.persons.PersonService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,22 +21,17 @@ public class AutoAdvancedService implements BaseAutoAdvanceService {
     private final AdvanceService advanceService;
 
     private final FileAttachmentsService fileAttachmentsService;
-    private final Person autoUser;
 
 
     @Autowired
     public AutoAdvancedService(
         ContractorService advanceContractorService,
         AdvanceService advanceService,
-        PersonService personService,
         FileAttachmentsService fileAttachmentsService
     ) {
         this.advanceContractorService = advanceContractorService;
         this.advanceService = advanceService;
         this.fileAttachmentsService = fileAttachmentsService;
-
-        this.autoUser = personService.getAdvanceSystemUser();
-        log.info("Auto-advance system user is: " + autoUser);
     }
 
     ///@Scheduled(cron = "0 0/3 * * * *")
@@ -70,7 +63,7 @@ public class AutoAdvancedService implements BaseAutoAdvanceService {
     @Scheduled(cron = "${services.auto-advance-service.cron.creation}")
     public void createAutoAdvances() {
         try {
-            advanceService.giveAutoAdvances(autoUser);
+            advanceService.giveAutoAdvances();
         } catch (BusinessLogicException e) {
             log.error("Auto advance error:" + e.getErrors());
         }

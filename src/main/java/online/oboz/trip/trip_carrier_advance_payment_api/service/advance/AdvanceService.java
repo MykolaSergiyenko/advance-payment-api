@@ -5,7 +5,6 @@ import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.Advance;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.dicts.contacts.AdvanceContactsBook;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.Trip;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.Person;
-import online.oboz.trip.trip_carrier_advance_payment_api.domain.mappers.AdvanceMapper;
 import online.oboz.trip.trip_carrier_advance_payment_api.error.BusinessLogicException;
 import online.oboz.trip.trip_carrier_advance_payment_api.repository.AdvanceRepository;
 
@@ -37,6 +36,7 @@ public class AdvanceService implements BaseAdvanceService {
     private static final Logger log = LoggerFactory.getLogger(AdvanceService.class);
 
     private final String AUTO_COMMENT;
+    private final Person autoUser;
 
     private final BaseTripService tripService;
     private final BasePersonService personService;
@@ -54,7 +54,6 @@ public class AdvanceService implements BaseAdvanceService {
         BasePersonService personService,
         ContactService contactService,
         CostService costService,
-
         OrdersFilesService ordersFilesService,
         Notificator notificationService,
         UnfService integration1cService,
@@ -65,15 +64,16 @@ public class AdvanceService implements BaseAdvanceService {
         this.personService = personService;
         this.contactService = contactService;
         this.costService = costService;
-
         this.ordersFilesService = ordersFilesService;
         this.notificationService = notificationService;
         this.integration1cService = integration1cService;
-
         this.advanceRepository = advanceRepository;
         this.applicationProperties = applicationProperties;
 
         AUTO_COMMENT = applicationProperties.getAutoCreatedComment();
+        log.info("Auto-created-advance comment is: " + AUTO_COMMENT);
+        autoUser = personService.getAdvanceSystemUser();
+        log.info("Found auto-advance system user is: " + autoUser);
     }
 
     @Override
@@ -334,15 +334,15 @@ public class AdvanceService implements BaseAdvanceService {
     }
 
     @Override
-    public void giveAutoAdvances(Person autoUser) {
+    public void giveAutoAdvances() {
         List<Trip> autoTrips = tripService.getAutoAdvanceTrips();
-        log.info("Found {} trips for auto-contractors.", autoTrips.size());
+        long size = autoTrips.size();
+        log.info("Found {} trips for auto-contractors.", size);
+        if (size > 0) log.info("Auto-advance technical account: {}.", autoUser);
         autoTrips.forEach(trip -> {
             try {
                 log.info("Try create auto-advance for trip {}.", trip.getId());
-
                 Advance autoAdvance = createAutoAdvanceForTrip(trip, autoUser);
-
                 log.info("Auto-advance {} was created for trip {}.", autoAdvance.getId(),
                     autoAdvance.getAdvanceTripFields().getTripId());
             } catch (Exception e) {
