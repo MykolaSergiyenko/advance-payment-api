@@ -909,6 +909,9 @@ components:
                 trip_num:
                     type: string
                     description: "Номер перевозки"
+                is_auto:
+                    type: boolean
+                    description: "Авто-аванс"
                 is_cancelled:
                     type: boolean
                     description: "Признак аннулирован аванс"

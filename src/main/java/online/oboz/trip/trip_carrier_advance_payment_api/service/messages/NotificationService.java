@@ -3,7 +3,6 @@ package online.oboz.trip.trip_carrier_advance_payment_api.service.messages;
 
 import online.oboz.trip.trip_carrier_advance_payment_api.config.ApplicationProperties;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.Advance;
-import online.oboz.trip.trip_carrier_advance_payment_api.repository.AdvanceRepository;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.messages.common.format.MessagingException;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.messages.common.format.TextService;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.notificatoins.EmailContainer;
@@ -56,15 +55,12 @@ public class NotificationService implements Notificator {
      */
     @Override
     public Advance notify(Advance advance) {
-        notificate(advance,
+        advance = notificate(advance,
             applicationProperties.isEmailEnabled(),
             applicationProperties.isSmsEnabled());
-//        advance.setNotifiedAt(OffsetDateTime.now());
         return advance;
     }
 
-
-    //TODO: must be used by cron-notification
 
     /**
      * @param advance advance Аванс ("Заявка на авансирование")
@@ -76,33 +72,34 @@ public class NotificationService implements Notificator {
         notificate(advance,
             applicationProperties.isEmailScheduleEnabled(),
             applicationProperties.isSmsScheduleEnabled());
-
         return advance;
     }
 
-    private void notificate(Advance advance,
-                            boolean emailEnable, boolean smsEnable) {
+
+    private Advance notificate(Advance advance, boolean emailEnable, boolean smsEnable) {
+        advance = sendEmails(advance, emailEnable);
+        advance = sendSMSes(advance, smsEnable);
+        return advance;
+    }
+
+    private Advance sendEmails(Advance advance, boolean emailEnable) {
         if (emailEnable) {
             try {
-                log.info("Email-messages enable. Try to send message for advance - " + advance.getId());
-                EmailContainer email = messageTextService.createEmail(advance);
-                log.info("Create e-mail-message: " + email.getMessage().toString());
-                emailSender.sendEmail(email);
-                log.info("E-mail is sent for advance - " + advance.getId());
+                sentEmail(advance);
                 advance.setEmailSentAt(OffsetDateTime.now());
-            } catch (Exception e) {
-                log.error("MessagingException while email - " + e.getMessage());
+            } catch (MessagingException e) {
+                log.error("MessagingException while email:" + e.getErrors());
             }
         } else {
             log.info("Notification by e-mail is unable.");
         }
+        return advance;
+    }
+
+    private Advance sendSMSes(Advance advance, boolean smsEnable) {
         if (smsEnable) {
             try {
-                log.info("SMS-messages enable. Try to send message for advance - " + advance.getId());
-                SmsContainer container = messageTextService.createSms(advance);
-                log.info("Create SMS-message: " + container.toString());
-                smsSender.sendSms(container);
-                log.info("SMS is sent for advance " + advance.getId());
+                sentSms(advance);
                 advance.setSmsSentAt(OffsetDateTime.now());
             } catch (MessagingException e) {
                 log.error("MessagingException while sms:" + e.getErrors());
@@ -110,5 +107,23 @@ public class NotificationService implements Notificator {
         } else {
             log.info("Notification by sms is unable.");
         }
+        return advance;
+    }
+
+
+    private void sentSms(Advance advance) throws MessagingException {
+        log.info("SMS-messages enable. Try to send message for advance - " + advance.getId());
+        SmsContainer container = messageTextService.createSms(advance);
+        log.info("Create SMS-message: " + container.toString());
+        smsSender.sendSms(container);
+        log.info("SMS is sent for advance " + advance.getId());
+    }
+
+    private void sentEmail(Advance advance) throws MessagingException {
+        log.info("Email-messages enable. Try to send message for advance - " + advance.getId());
+        EmailContainer email = messageTextService.createEmail(advance);
+        log.info("Create e-mail-message: " + email.getMessage().toString());
+        emailSender.sendEmail(email);
+        log.info("E-mail is sent for advance - " + advance.getId());
     }
 }

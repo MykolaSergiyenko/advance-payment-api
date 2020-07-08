@@ -2,7 +2,6 @@ package online.oboz.trip.trip_carrier_advance_payment_api.service.messages.commo
 
 import online.oboz.trip.trip_carrier_advance_payment_api.config.ApplicationProperties;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.Advance;
-import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.dicts.contacts.AdvanceContactsBook;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.contacts.ContactService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.urleditor.UrlShortenerService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.urleditor.UrlService;
@@ -35,8 +34,6 @@ import java.util.IllegalFormatException;
 public class MessageCreateService implements TextService {
     private static final Logger log = LoggerFactory.getLogger(MessageCreateService.class);
 
-
-
     private final ApplicationProperties appProperties;
     private final ContactService contactService;
     private final UrlService urlCutter;
@@ -47,7 +44,8 @@ public class MessageCreateService implements TextService {
     public MessageCreateService(
         ApplicationProperties appProperties,
         ContactService contactService,
-        UrlService urlCutter) {
+        UrlService urlCutter
+    ) {
         this.appProperties = appProperties;
         this.urlCutter = urlCutter;
         this.contactService = contactService;
@@ -58,7 +56,9 @@ public class MessageCreateService implements TextService {
     @Override
     public SmsContainer createSms(Advance advance) throws MessagingException {
         String text = getSmsText(advance);
-        String phone = getPhoneNumber(advance.getContact().getInfo().getPhone());
+        String phone = getPhoneNumber
+            (contactService.findByContractor(advance.getContractorId()).
+                getInfo().getPhone());
         String tripNum = advance.getAdvanceTripFields().getNum();
         if (StringUtils.isEmptyStrings(tripNum, phone, text)) {
             throw getCreateSmsException("Empty sms-fields for advance ", advance.getId().toString());
@@ -72,7 +72,9 @@ public class MessageCreateService implements TextService {
     public EmailContainer createEmail(Advance advance) throws MessagingException {
         // Send notifications from app.props email?
         String from = sendFromEmail;
-        String to = contactService.findByContractor(advance.getContractorId()).getInfo().getEmail();
+        String to = contactService.
+            findByContractor(advance.getContractorId()).
+            getInfo().getEmail();
 
         String subject = getEmailHeader(advance);
         String text = getEmailText(advance);
@@ -111,7 +113,7 @@ public class MessageCreateService implements TextService {
         try {
             if (appProperties.isSmsCutLinks()) {
                 link = urlCutter.editUrl(link);
-                log.info("Short url is: " + link);
+                //log.info("Short url is: " + link);
             }
             String tripNum = advance.getAdvanceTripFields().getNum();
             Double sum = advance.getTripAdvanceInfo().getAdvancePaymentSum();

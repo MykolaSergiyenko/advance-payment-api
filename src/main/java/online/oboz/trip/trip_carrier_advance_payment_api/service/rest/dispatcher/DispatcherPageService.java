@@ -25,7 +25,6 @@ public class DispatcherPageService implements DispatcherService {
     private final AdvanceContactService contactService;
 
 
-
     public DispatcherPageService(
         AdvanceService advanceService,
         PersonService personService, AdvanceContactService contactService
@@ -47,21 +46,21 @@ public class DispatcherPageService implements DispatcherService {
     @Override
     public ResponseEntity<IsTripAdvanced> isAdvanced(Long tripId) {
         log.debug("--- Advance state request for trip: {} and author: {} ", tripId);
-        //Trip trip = advanceService.findTrip(tripId);
 
-        Advance advance = advanceService.findByTripId(tripId);
+        Trip trip = advanceService.findTrip(tripId);
+        Boolean advanceNotExists = advanceService.advancesNotExistsForTrip(trip);
 
         //or use isTripAdvanceMapper --> (trip, advance, author)?
         IsTripAdvanced isTripAdvanced = new IsTripAdvanced();
-        if (advance != null) {
-            isTripAdvanced.setIsButtonActive(false);
-        } else {
+        if (advanceNotExists) {
             isTripAdvanced.setIsButtonActive(true);
+        } else {
+            isTripAdvanced.setIsButtonActive(false);
+            Advance advance = advanceService.findByTripId(tripId);
+            personService.setAuthorInfo(isTripAdvanced, advance.getAuthorId());
         }
-        personService.setAuthorInfo(isTripAdvanced, advance.getAuthorId());
         return new ResponseEntity<>(isTripAdvanced, HttpStatus.OK);
     }
-
 
 
     @Override
@@ -81,8 +80,6 @@ public class DispatcherPageService implements DispatcherService {
         log.debug("--- Update advance-contact request: {} ", carrierContactDTO);
         return contactService.updateContactCarrier(carrierContactDTO);
     }
-
-
 
 
 //    private void setPersonInfo(IsTripAdvanced isTripAdvanced, Long authorId) {

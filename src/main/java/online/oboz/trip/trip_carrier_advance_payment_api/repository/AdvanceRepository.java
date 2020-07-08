@@ -52,10 +52,9 @@ public interface AdvanceRepository extends JpaRepository<Advance, Long> {
     @Query("select case when count(pc)> 0 then true else false end from Advance pc where " +
         "pc.advanceTripFields.tripId = :trip_id and pc.contractorId = :contractor_id and " +
         "pc.advanceTripFields.orderId = :order_id and pc.advanceTripFields.driverId = :driver_id and " +
-        "pc.advanceTripFields.num = :trip_num ")
-    Boolean existsByIds(@Param("trip_id") Long tripId, @Param("contractor_id") Long contractorId,
-                        @Param("driver_id") Long driverId, @Param("order_id") Long orderId,
-                        @Param("trip_num") String tripNum);
-
+        "pc.advanceTripFields.num = :trip_num and pc.isCancelled = false ")
+    Boolean existsActualByIds(@Param("trip_id") Long tripId, @Param("contractor_id") Long contractorId,
+                              @Param("driver_id") Long driverId, @Param("order_id") Long orderId,
+                              @Param("trip_num") String tripNum);
 
 }

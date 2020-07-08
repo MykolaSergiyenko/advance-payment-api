@@ -84,15 +84,42 @@ public class AdvanceService implements BaseAdvanceService {
 
     @Override
     public Advance createAdvanceForTripAndAuthorId(Long tripId, Long authorId) {
+        log.info("Request for Advance-creation from {} for Trip {}.", authorId, tripId);
         Trip trip = findTrip(tripId);
         if (advancesNotExistsForTrip(trip)) {
             Person author = personService.getPerson(authorId);
+            log.info("Found advance Author-person: {} {} {}.",
+                author.getInfo().getFirstName(),
+                author.getInfo().getMiddleName(),
+                author.getInfo().getLastName());
             Advance advance = newAdvanceForTripAndAuthor(trip, author);
             saveAdvance(advance);
             notifyAboutAdvance(advance);
+            log.info("Advance (uuid = {}) was created for author {}.",
+                advance.getAdvanceUuid(), advance.getAuthorId());
             return advance;
         } else {
             throw getAdvanceError("Advance for trip id " + tripId + " already exists.");
+        }
+    }
+
+    @Override
+    public Boolean advancesNotExistsForTrip(Trip trip) {
+        Long tripId = trip.getId();
+        Boolean exsts = advanceExists(tripId,
+            trip.getContractorId(),
+            trip.getTripFields().getDriverId(),
+            trip.getTripFields().getOrderId(),
+            trip.getTripFields().getNum());
+        logExist(exsts, tripId);
+        return !exsts;
+    }
+
+    private void logExist(boolean exsts, long tripId) {
+        if (exsts) {
+            log.info("Advance is exists already for Trip {}.", tripId);
+        } else {
+            log.info("Advance for Trip {} not exists yet.", tripId);
         }
     }
 
@@ -173,6 +200,7 @@ public class AdvanceService implements BaseAdvanceService {
     @Override
     public void notifyUnread() {
         List<Advance> advances = findUnreadAdvances();
+        log.info("Found 'unread' advances {}.", advances.size());
         advances.forEach(advance -> {
             notifyAboutAdvanceScheduled(advance);
         });
@@ -184,6 +212,7 @@ public class AdvanceService implements BaseAdvanceService {
         if (advance.getReadAt() == null) {
             advance.setReadAt(OffsetDateTime.now());
             saveAdvance(advance);
+            log.info("Set 'email-read-at' in {}.", advance.getId());
         }
     }
 
@@ -191,7 +220,48 @@ public class AdvanceService implements BaseAdvanceService {
     public ResponseEntity<Void> setWantsAdvance(UUID advanceUuid) {
         Advance advance = findByUuid(advanceUuid);
         setWantsAdvance(advance);
+        log.info("Update 'wants-advance' in {}.", advance.getId());
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+
+    @Override
+    public Advance setContractApplication(Advance advance, String uuid) {
+        if (uuid != null) {
+            //advance.setDownloadedContractApplication(true);
+            advance.setUuidContractApplicationFile(uuid);
+            saveAdvance(advance);
+            // check second file
+            if (advance.getUuidAdvanceApplicationFile() != null) {
+                setAllowedToSent(advance);
+            }
+            log.info("Update contract-application-file in {}. Set uuid = {} ", advance.getId(),
+                advance.getUuidContractApplicationFile());
+        }
+        return advance;
+    }
+
+    @Override
+    public Advance setAdvanceApplication(Advance advance, String uuid) {
+        if (uuid != null) {
+            //advance.setDownloadedContractApplication(true);
+            setAdvanceApplicationFile(advance, uuid);
+            // check second file
+            if (advance.getUuidContractApplicationFile() != null) {
+                setAllowedToSent(advance);
+            }
+            log.info("Update advance-application-file in {}. Set uuid = {} ", advance.getId(),
+                advance.getUuidAdvanceApplicationFile());
+        }
+        return advance;
+    }
+
+    @Override
+    public Advance setAdvanceApplicationFromBstore(Advance advance, String uuid) {
+        if (uuid != null) {
+            return setAdvanceApplicationFile(advance, uuid);
+        }
+        return advance;
     }
 
 
@@ -215,6 +285,7 @@ public class AdvanceService implements BaseAdvanceService {
             //advance.setCarrierPageAccess(false);
 
             saveAdvance(advance);
+            log.info("Advance is confirmed {}.", advance.getId());
             return new ResponseEntity<>(HttpStatus.OK);
         }
         if (!downloadAllDocuments) {
@@ -231,6 +302,7 @@ public class AdvanceService implements BaseAdvanceService {
         try {
             Advance advance = findByTripId(tripId);
             setCancelled(advance, withComment);
+            log.info("Set cancelled with comment '{}' for advance {}.", withComment, advance.getId());
         } catch (BusinessLogicException ex) {
             log.error("Advance cancel is failed for tripId: " + tripId + ". Errors:" + ex.getErrors());
         }
@@ -241,6 +313,7 @@ public class AdvanceService implements BaseAdvanceService {
     public ResponseEntity<Void> changeAdvanceComment(AdvanceCommentDTO commentDTO) {
         try {
             setComment(commentDTO);
+            log.info("Set comment for advance = {}.", commentDTO.toString());
         } catch (BusinessLogicException ex) {
             log.error("Advance comment changing is failed for advance id: " + commentDTO.getId() +
                 ". Errors:" + ex.getErrors());
@@ -253,6 +326,7 @@ public class AdvanceService implements BaseAdvanceService {
         try {
             Advance advance = findById(id);
             setCompleteLoading(advance, loadingComplete);
+            log.info("Loading-completed= {} set for advance {}.", loadingComplete, advance.getId());
         } catch (BusinessLogicException e) {
             log.error("Advance 'loading-comlete' setting is failed for advance: " + id + " Errors:" + e.getErrors());
         }
@@ -262,9 +336,15 @@ public class AdvanceService implements BaseAdvanceService {
     @Override
     public void giveAutoAdvances(Person autoUser) {
         List<Trip> autoTrips = tripService.getAutoAdvanceTrips();
+        log.info("Found {} trips for auto-contractors.", autoTrips.size());
         autoTrips.forEach(trip -> {
             try {
-                createAutoAdvanceForTrip(trip, autoUser);
+                log.info("Try create auto-advance for trip {}.", trip.getId());
+
+                Advance autoAdvance = createAutoAdvanceForTrip(trip, autoUser);
+
+                log.info("Auto-advance {} was created for trip {}.", autoAdvance.getId(),
+                    autoAdvance.getAdvanceTripFields().getTripId());
             } catch (Exception e) {
                 log.info("Auto-advance error for trip: " + trip.getId() + ". Error:" + e.getMessage());
             }
@@ -273,12 +353,16 @@ public class AdvanceService implements BaseAdvanceService {
 
 
     private Advance createAutoAdvanceForTrip(Trip trip, Person autoUser) {
-        Advance autoAdvance = newAdvanceForTripAndAuthor(trip, autoUser);
-        autoAdvance.setIsAuto(true);
-        autoAdvance.setComment(AUTO_COMMENT);
-        log.info("Auto-created advance's comment is: " + AUTO_COMMENT);
-        saveAdvance(autoAdvance);
-        notifyAboutAdvance(autoAdvance);
+        Advance autoAdvance = null;
+        if (advancesNotExistsForTrip(trip)) {
+            autoAdvance = newAdvanceForTripAndAuthor(trip, autoUser);
+            autoAdvance.setIsAuto(true);
+            autoAdvance.setComment(AUTO_COMMENT);
+            saveAdvance(autoAdvance);
+            notifyAboutAdvance(autoAdvance);
+        } else {
+            throw getAdvanceError("Advance for trip id " + trip.getId() + " already exists.");
+        }
         return autoAdvance;
     }
 
@@ -291,6 +375,22 @@ public class AdvanceService implements BaseAdvanceService {
         advance.setAdvanceTripFields(trip.getTripFields());
         advance.setContact(contact);
         costService.setSumsToAdvance(advance, trip);
+        return advance;
+    }
+
+
+    private Advance setAdvanceApplicationFile(Advance advance, String uuid) {
+        advance.setUuidAdvanceApplicationFile(uuid);
+        saveAdvance(advance);
+        return advance;
+    }
+
+    private Advance setAllowedToSent(Advance advance) {
+        if (advance.is1CSendAllowed() == null) {
+            advance.setIs1CSendAllowed(true);
+            saveAdvance(advance);
+            log.info("Set 's1CSendAllowed' for advance {}", advance.getId());
+        }
         return advance;
     }
 
@@ -331,16 +431,11 @@ public class AdvanceService implements BaseAdvanceService {
         saveAdvance(advance);
     }
 
+    // Здесь проверка на существование аванса
+    // по "сложному внешнему ключу"
+    // - все поля - проекция полей Трипа
     private Boolean advanceExists(Long tripId, Long contractorId, Long driverId, Long orderId, String tripNum) {
-        return advanceRepository.existsByIds(tripId, contractorId, driverId, orderId, tripNum);
-    }
-
-    private Boolean advancesNotExistsForTrip(Trip trip) {
-        return !(advanceExists(trip.getId(),
-            trip.getContractorId(),
-            trip.getTripFields().getDriverId(),
-            trip.getTripFields().getOrderId(),
-            trip.getTripFields().getNum()));
+        return advanceRepository.existsActualByIds(tripId, contractorId, driverId, orderId, tripNum);
     }
 
 

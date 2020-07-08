@@ -96,8 +96,9 @@ public interface AdvanceMapper {
     @Mapping(source = "advance.tripAdvanceInfo.advancePaymentSum", target = "advancePaymentSum")
     @Mapping(source = "advance.tripAdvanceInfo.registrationFee", target = "registrationFee")
     @Mapping(source = "advance.loadingComplete", target = "loadingComplete")
+    @Mapping(source = "advance.auto", target = "isAuto")
     @Mapping(target = "isWanted", expression = "java(!(null == advance.getPushButtonAt() || " +
-        "advance.getPushButtonAt().toString().isEmpty()))")
+        "advance.getPushButtonAt().toString().isEmpty()) && advance.isAuto())")
     @Mapping(source = "tripInfo.startLocation.locationTz", target = "loadingTz")
     @Mapping(source = "tripInfo.endLocation.locationTz", target = "unloadingTz")
     @Mapping(source = "tripInfo.startLocation.address", target = "loadingAddress")

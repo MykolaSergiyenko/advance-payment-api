@@ -105,35 +105,31 @@ public class FileAttachmentsService implements AttachmentService {
     @Override
     public void updateFileUuids() {
         List<Advance> advances = advanceService.findAdvancesWithoutFiles();
+        log.info("Found {} advances without attachments. Try to update it.", advances.size());
         advances.forEach(advance -> {
-            if (null != advance.getAdvanceTripFields().getTripId()) {
-                Map<String, String> fileUuidMap = ordersApiService.findTripRequestDocs(advance);
-                if (!fileUuidMap.isEmpty()) {
-                    String fileContractRequestUuid = Optional.ofNullable(fileUuidMap.get("request"))
-                        .orElse(fileUuidMap.get("trip_request"));
-
-                    if (fileContractRequestUuid != null) {
-                        //advance.setDownloadedContractApplication(true);
-                        advance.setUuidContractApplicationFile(fileContractRequestUuid);
-                        log.info("UuidContractApplicationFile is: {}", advance.getUuidContractApplicationFile());
-                    }
-
-                    String fileAdvanceRequestUuid = fileUuidMap.get("assignment_advance_request");
-                    if (fileAdvanceRequestUuid != null) {
-                        //advance.setDownloadedContractApplication(true);
-                        advance.setUuidAdvanceApplicationFile(fileAdvanceRequestUuid);
-                        log.info("UuidAdvanceApplicationFile is: {}", advance.getUuidAdvanceApplicationFile());
-                    }
-
-                    if (advance.getUuidContractApplicationFile() != null &&
-                        advance.getUuidAdvanceApplicationFile() != null) {
-                        advance.setIs1CSendAllowed(true);
-                        log.info("Is1CSendAllowed set true for advance: {}", advance);
-                    }
-                }
-            }
-            advanceService.saveAdvance(advance);
+            Map<String, String> fileUuidMap = ordersApiService.findTripRequestDocs(advance);
+            setContractAttachment(fileUuidMap, advance);
+            setAdvanceAttachment(fileUuidMap, advance);
         });
+    }
+
+    private void setContractAttachment(Map<String, String> fileUuidMap, Advance advance) {
+        if (!fileUuidMap.isEmpty()) {
+            log.info("Advance = {}. File map = {}.", advance.getId(), fileUuidMap);
+            String fileContractRequestUuid = Optional.ofNullable(fileUuidMap.get("request"))
+                .orElse(fileUuidMap.get("trip_request"));
+            advanceService.setContractApplication(advance, fileContractRequestUuid);
+            log.info("Set contract-file uuid {} for advance {}.", fileContractRequestUuid, advance.getId());
+        }
+    }
+
+    private void setAdvanceAttachment(Map<String, String> fileUuidMap, Advance advance) {
+        if (!fileUuidMap.isEmpty()) {
+            log.info("Advance = {}. File map = {}.", advance.getId(), fileUuidMap);
+            String fileAdvanceRequestUuid = fileUuidMap.get("assignment_advance_request");
+            advanceService.setAdvanceApplication(advance, fileAdvanceRequestUuid);
+            log.info("Set advance-request-file uuid {} for advance {}.", fileAdvanceRequestUuid, advance.getId());
+        }
     }
 
     @Override
@@ -158,7 +154,7 @@ public class FileAttachmentsService implements AttachmentService {
                 Long orderId = advance.getAdvanceTripFields().getOrderId();
                 Long tripId = advance.getAdvanceTripFields().getTripId();
                 if (ordersApiService.saveTripDocuments(orderId, tripId, fileUuid)) {
-                    advance.setUuidAdvanceApplicationFile(fileUuid);
+                    advanceService.setAdvanceApplicationFromBstore(advance, fileUuid);
                 } else {
                     return new ResponseEntity<>(INTERNAL_SERVER_ERROR);
                 }

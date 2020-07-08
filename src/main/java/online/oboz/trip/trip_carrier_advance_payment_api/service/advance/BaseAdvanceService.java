@@ -17,6 +17,8 @@ public interface BaseAdvanceService {
 
     Advance createAdvanceForTripAndAuthorId(Long tripId, Long authorId);
 
+    Boolean advancesNotExistsForTrip(Trip trip);
+
     List<Advance> getAllAdvances();
 
     Advance findById(Long id);
@@ -38,6 +40,12 @@ public interface BaseAdvanceService {
     ResponseEntity<Void> setLoadingComplete(Long tripId, Boolean loadingComplete);
 
     ResponseEntity<Void> setWantsAdvance(UUID advanceUuid);
+
+    Advance setContractApplication(Advance advance, String uuid);
+
+    Advance setAdvanceApplication(Advance advance, String uuid);
+
+    Advance setAdvanceApplicationFromBstore(Advance advance, String uuid);
 
     Advance saveAdvance(Advance advance);
 

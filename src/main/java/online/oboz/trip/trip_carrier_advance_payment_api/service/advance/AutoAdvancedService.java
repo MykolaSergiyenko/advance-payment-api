@@ -41,9 +41,12 @@ public class AutoAdvancedService implements BaseAutoAdvanceService {
         log.info("Auto-advance system user is: " + autoUser);
     }
 
+    ///@Scheduled(cron = "0 0/3 * * * *")
+
     @Override
     @Scheduled(cron = "${services.auto-advance-service.cron.update}")
     public void updateFileUuid() {
+        log.info("Auto-advance: update attachment's uuids schedule started.");
         try {
             fileAttachmentsService.updateFileUuids();
         } catch (BusinessLogicException e) {
