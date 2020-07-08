@@ -5,13 +5,19 @@ import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.str
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.structures.TripCostInfo;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.dicts.costdicts.AdvanceCostDict;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.Trip;
+import online.oboz.trip.trip_carrier_advance_payment_api.error.BusinessLogicException;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.contractors.ContractorService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.costs.advancedict.AdvanceCostDictService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.costs.vats.VatCostService;
+import online.oboz.trip.trip_carrier_advance_payment_api.util.ErrorUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 @Service
 public class AdvanceCostService implements CostService {
+    private static final Logger log = LoggerFactory.getLogger(AdvanceCostService.class);
+
 
     private final ContractorService contractorService;
     private final VatCostService vatCostService;
@@ -36,7 +42,6 @@ public class AdvanceCostService implements CostService {
         Double cost = trip.getTripCostInfo().getCost();
         String vatCode = trip.getVatCode();
         Boolean isVatPayer = contractorService.isVatPayer(contractorId);
-
         TripCostInfo costInfo = new TripCostInfo(calculateNdsCost(cost, vatCode, isVatPayer));
         advance.setCostInfo(costInfo);
 
@@ -50,5 +55,9 @@ public class AdvanceCostService implements CostService {
 
     private Double getVatValue(String code) {
         return vatCostService.getVatValue(code);
+    }
+
+    private BusinessLogicException getCostServiceError(String message) {
+        return ErrorUtils.getInternalError("Cost-service internal error: " + message);
     }
 }

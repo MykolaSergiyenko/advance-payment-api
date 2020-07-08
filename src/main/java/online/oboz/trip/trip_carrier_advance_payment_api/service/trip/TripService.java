@@ -4,6 +4,7 @@ import online.oboz.trip.trip_carrier_advance_payment_api.config.ApplicationPrope
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.Trip;
 import online.oboz.trip.trip_carrier_advance_payment_api.error.BusinessLogicException;
 import online.oboz.trip.trip_carrier_advance_payment_api.repository.TripRepository;
+import online.oboz.trip.trip_carrier_advance_payment_api.util.ErrorUtils;
 import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.Error;
 
 import org.slf4j.Logger;
@@ -29,7 +30,7 @@ public class TripService implements BaseTripService {
 
     @Override
     public Trip findTripById(Long tripId) {
-        log.info("--- findTripById: "+tripId);
+        log.info("--- findTripById: " + tripId);
         return tripRepository.findById(tripId).
             orElseThrow(() ->
                 getTripsInternalError("Trip not found by id: " + tripId));
@@ -38,25 +39,13 @@ public class TripService implements BaseTripService {
     @Override
     public List<Trip> getAutoAdvanceTrips() {
         Double minCost = applicationProperties.getMinTripCost();
-        log.info("--- getAutoAdvanceTrips for minCost: "+minCost);
+        log.info("--- getAutoAdvanceTrips for minCost: " + minCost);
         return tripRepository.getTripsForAutoAdvance(minCost);
     }
 
 
     private BusinessLogicException getTripsInternalError(String message) {
-        log.error(message);
-        return getInternalBusinessError(getServiceError(message), INTERNAL_SERVER_ERROR);
-    }
-
-    private Error getServiceError(String errorMessage) {
-        Error error = new Error();
-        error.setErrorMessage("TripsService - Business Error: " + errorMessage);
-        return error;
-    }
-
-    private BusinessLogicException getInternalBusinessError(Error error, HttpStatus state) {
-        log.error(state.name() + " : " + error.getErrorMessage());
-        return new BusinessLogicException(state, error);
+        return ErrorUtils.getInternalError("Trip-service internal error: " + message);
     }
 
 

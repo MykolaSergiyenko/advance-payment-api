@@ -5,6 +5,7 @@ import online.oboz.trip.trip_carrier_advance_payment_api.config.ApplicationPrope
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.Person;
 import online.oboz.trip.trip_carrier_advance_payment_api.error.BusinessLogicException;
 import online.oboz.trip.trip_carrier_advance_payment_api.repository.PersonRepository;
+import online.oboz.trip.trip_carrier_advance_payment_api.util.ErrorUtils;
 import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.Error;
 import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.IsTripAdvanced;
 import org.slf4j.Logger;
@@ -50,20 +51,7 @@ public class PersonService implements BasePersonService {
 
 
     private BusinessLogicException getPersonInternalError(String message) {
-        HttpStatus status = INTERNAL_SERVER_ERROR;
-        Error error = getServiceError(status, message);
-        return getInternalBusinessError(error, status);
+        return ErrorUtils.getInternalError("Person-service error:" + message);
     }
 
-    private Error getServiceError(HttpStatus state, String message) {
-        Error error = new Error().status(state.toString());
-        error.errorCode(((Integer) state.value()).toString());
-        error.setErrorMessage("PersonsService - Business Error: " + message);
-        return error;
-    }
-
-    private BusinessLogicException getInternalBusinessError(Error error, HttpStatus state) {
-        log.error(state.name() + " : " + error.getErrorMessage());
-        return new BusinessLogicException(state, error);
-    }
 }

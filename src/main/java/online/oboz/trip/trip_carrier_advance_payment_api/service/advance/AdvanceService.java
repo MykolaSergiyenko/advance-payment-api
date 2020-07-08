@@ -15,6 +15,7 @@ import online.oboz.trip.trip_carrier_advance_payment_api.service.integration.unf
 import online.oboz.trip.trip_carrier_advance_payment_api.service.messages.Notificator;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.persons.BasePersonService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.trip.BaseTripService;
+import online.oboz.trip.trip_carrier_advance_payment_api.util.ErrorUtils;
 import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.*;
 import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.Error;
 import org.slf4j.Logger;
@@ -342,9 +343,13 @@ public class AdvanceService implements BaseAdvanceService {
         autoTrips.forEach(trip -> {
             try {
                 log.info("Try create auto-advance for trip {}.", trip.getId());
+
                 Advance autoAdvance = createAutoAdvanceForTrip(trip, autoUser);
-                log.info("Auto-advance {} was created for trip {}.", autoAdvance.getId(),
-                    autoAdvance.getAdvanceTripFields().getTripId());
+
+                if (null != autoAdvance) {
+                    log.info("Auto-advance {} was created for trip {}.",
+                        autoAdvance.getId(), autoAdvance.getAdvanceTripFields().getTripId());
+                }
             } catch (Exception e) {
                 log.info("Auto-advance error for trip: " + trip.getId() + ". Error:" + e.getMessage());
             }
@@ -359,10 +364,10 @@ public class AdvanceService implements BaseAdvanceService {
             autoAdvance.setComment(AUTO_COMMENT);
             saveAdvance(autoAdvance);
             notifyAboutAdvance(autoAdvance);
+            return autoAdvance;
         } else {
             throw getAdvanceError("Advance for trip id " + trip.getId() + " already exists.");
         }
-        return null;
     }
 
     private Advance newAdvanceForTripAndAuthor(Trip trip, Person author) {
@@ -442,20 +447,7 @@ public class AdvanceService implements BaseAdvanceService {
         return advanceRepository.findUnreadAdvances(applicationProperties.getSmsInterval());
     }
 
-
     private BusinessLogicException getAdvanceError(String message) {
-        return getInternalBusinessError(getServiceError(message), INTERNAL_SERVER_ERROR);
-    }
-
-
-    private Error getServiceError(String errorMessage) {
-        Error error = new Error();
-        error.setErrorMessage("Business Error in Advance-Service: '" + errorMessage);
-        return error;
-    }
-
-    private BusinessLogicException getInternalBusinessError(Error error, HttpStatus state) {
-        log.error(state.name() + " : " + error.getErrorMessage());
-        return new BusinessLogicException(state, error);
+        return ErrorUtils.getInternalError("Advance-service internal error: " + message);
     }
 }

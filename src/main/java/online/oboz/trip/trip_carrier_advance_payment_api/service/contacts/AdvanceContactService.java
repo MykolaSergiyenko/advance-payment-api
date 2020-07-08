@@ -4,6 +4,7 @@ import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.dicts.co
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.mappers.AdvanceContactMapper;
 import online.oboz.trip.trip_carrier_advance_payment_api.error.BusinessLogicException;
 import online.oboz.trip.trip_carrier_advance_payment_api.repository.AdvanceContactsBookRepository;
+import online.oboz.trip.trip_carrier_advance_payment_api.util.ErrorUtils;
 import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.CarrierContactDTO;
 import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.Error;
 import org.slf4j.Logger;
@@ -82,17 +83,6 @@ public class AdvanceContactService implements ContactService {
     }
 
     private BusinessLogicException getContactError(String message) {
-        return getInternalBusinessError(getServiceError(message), INTERNAL_SERVER_ERROR);
-    }
-
-    private Error getServiceError(String errorMessage) {
-        Error error = new Error();
-        error.setErrorMessage("PersonsService - Business Error: " + errorMessage);
-        return error;
-    }
-
-    private BusinessLogicException getInternalBusinessError(Error error, HttpStatus state) {
-        log.error(state.name() + " : " + error.getErrorMessage());
-        return new BusinessLogicException(state, error);
+        return ErrorUtils.getInternalError("Contact-service internal error: " + message);
     }
 }

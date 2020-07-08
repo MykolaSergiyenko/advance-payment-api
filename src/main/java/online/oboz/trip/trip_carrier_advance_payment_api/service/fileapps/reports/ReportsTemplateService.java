@@ -5,6 +5,7 @@ import online.oboz.trip.trip_carrier_advance_payment_api.config.ApplicationPrope
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.Advance;
 import online.oboz.trip.trip_carrier_advance_payment_api.error.BusinessLogicException;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.rest.RestService;
+import online.oboz.trip.trip_carrier_advance_payment_api.util.ErrorUtils;
 import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.Error;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,8 +66,6 @@ public class ReportsTemplateService implements ReportService {
     }
 
     private BusinessLogicException getReportsError(String s) {
-        Error error = new Error();
-        error.setErrorMessage(s);
-        return new BusinessLogicException(INTERNAL_SERVER_ERROR, error);
+        return ErrorUtils.getInternalError("Report-service internal error: "+s);
     }
 }

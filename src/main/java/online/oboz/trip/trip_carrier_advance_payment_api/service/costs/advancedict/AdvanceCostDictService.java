@@ -3,6 +3,7 @@ package online.oboz.trip.trip_carrier_advance_payment_api.service.costs.advanced
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.dicts.costdicts.AdvanceCostDict;
 import online.oboz.trip.trip_carrier_advance_payment_api.error.BusinessLogicException;
 import online.oboz.trip.trip_carrier_advance_payment_api.repository.AdvanceCostDictRepository;
+import online.oboz.trip.trip_carrier_advance_payment_api.util.ErrorUtils;
 import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.Error;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,17 +29,6 @@ public class AdvanceCostDictService implements CostDictService {
     }
 
     private BusinessLogicException getCostDictError(String message) {
-        return getInternalBusinessError(getServiceError(message), INTERNAL_SERVER_ERROR);
-    }
-
-    private Error getServiceError(String errorMessage) {
-        Error error = new Error();
-        error.setErrorMessage("PersonsService - Business Error: " + errorMessage);
-        return error;
-    }
-
-    private BusinessLogicException getInternalBusinessError(Error error, HttpStatus state) {
-        log.error(state.name() + " : " + error.getErrorMessage());
-        return new BusinessLogicException(state, error);
+        return ErrorUtils.getInternalError("Cost-dict-service internal error: " + message);
     }
 }

@@ -7,6 +7,7 @@ import online.oboz.trip.trip_carrier_advance_payment_api.error.BusinessLogicExce
 import online.oboz.trip.trip_carrier_advance_payment_api.service.advance.AdvanceService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.contractors.ContractorService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.costs.vats.VatService;
+import online.oboz.trip.trip_carrier_advance_payment_api.util.ErrorUtils;
 import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.Error;
 import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.CarrierPage;
 import org.slf4j.Logger;
@@ -76,8 +77,6 @@ public class CarrierPageService implements CarrierService {
     }
 
     private BusinessLogicException getCarrierException(String s) {
-        Error error = new Error();
-        error.setErrorMessage(s);
-        return new BusinessLogicException(HttpStatus.UNPROCESSABLE_ENTITY, error);
+        return ErrorUtils.getInternalError("Carrier-page error: "+s);
     }
 }

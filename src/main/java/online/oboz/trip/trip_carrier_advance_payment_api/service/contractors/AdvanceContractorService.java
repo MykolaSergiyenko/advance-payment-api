@@ -6,6 +6,7 @@ import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.peo
 import online.oboz.trip.trip_carrier_advance_payment_api.error.BusinessLogicException;
 import online.oboz.trip.trip_carrier_advance_payment_api.repository.ContractorRepository;
 import online.oboz.trip.trip_carrier_advance_payment_api.repository.PersonRepository;
+import online.oboz.trip.trip_carrier_advance_payment_api.util.ErrorUtils;
 import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.Error;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,17 +79,6 @@ public class AdvanceContractorService implements ContractorService {
 
 
     private BusinessLogicException getContractorError(String message) {
-        return getInternalBusinessError(getServiceError(message), INTERNAL_SERVER_ERROR);
-    }
-
-    private Error getServiceError(String errorMessage) {
-        Error error = new Error();
-        error.setErrorMessage("PersonsService - Business Error: " + errorMessage);
-        return error;
-    }
-
-    private BusinessLogicException getInternalBusinessError(Error error, HttpStatus state) {
-        log.error(state.name() + " : " + error.getErrorMessage());
-        return new BusinessLogicException(state, error);
+        return ErrorUtils.getInternalError("Contractor-service internal error: " + message);
     }
 }
