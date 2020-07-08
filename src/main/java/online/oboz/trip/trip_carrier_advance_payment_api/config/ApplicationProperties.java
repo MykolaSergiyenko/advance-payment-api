@@ -183,7 +183,7 @@ public class ApplicationProperties {
     /**
      * Config-URL for url-CutterService
      */
-    @Value("${services.notifications.cut-link-url:https://clck.ru/--?url=}")
+    @Value("${services.notifications.cut-link-url}")
     private URL cutLinkUrl;
 
 
@@ -202,21 +202,21 @@ public class ApplicationProperties {
     /**
      * Unread letters interval for scheduled notifications - in minutes
      */
-    @Value("${services.notifications.scheduler.sms-newadvance-inteval:60}")
+    @Value("${services.notifications.scheduler.sms-newadvance-inteval}")
     private Integer smsInterval;
 
 
     /**
      * Is email-enabled for create-advance simple-notification in NotificationService
      */
-    @Value("${services.notifications.email.email-enable:true}")
+    @Value("${services.notifications.email.email-enable}")
     private Boolean emailEnable;
 
     /**
      * Is email-enabled for create-advance scheduled-notification in NotificationService.
      * Now is unable
      */
-    @Value("${services.notifications.email.email-schedule-enable:true}")
+    @Value("${services.notifications.email.email-schedule-enable}")
     private Boolean emailScheduleEnable;
 
 
@@ -224,7 +224,7 @@ public class ApplicationProperties {
      * Enable cut-links for emails in NotificationService.
      * Now is unable. Use ShorterService in EmailCreator if enable
      */
-    @Value("${services.notifications.email.cut-links:false}")
+    @Value("${services.notifications.email.cut-links}")
     private Boolean emailCutLinks;
 
 
@@ -241,28 +241,28 @@ public class ApplicationProperties {
      * Is sms-enabled for create-advance simple-notification in NotificationService
      * Now unable - sms is delayed and send by cron after email-only-notification.
      */
-    @Value("${services.services.notifications.sms.enable:true}")
+    @Value("${services.notifications.sms.enable}")
     private Boolean smsEnable;
 
     /**
      * Is sms-enabled for create-advance scheduled-notification in NotificationService.
      * "Delayed"-sms for unread email's enable.
      */
-    @Value("${services.notifications.sms.schedule-enable:true}")
+    @Value("${services.notifications.sms.schedule-enable}")
     private Boolean smsScheduleEnable;
 
 
     /**
      * Sms-sender-url for SmsSenderService --> via restTemplate
      */
-    @Value("${services.notifications.sms.sender-url:http://sms-sender.r14.k.preprod.oboz:30080}")
+    @Value("${services.notifications.sms.sender-url}")
     private URL smsSenderUrl;
 
     /**
      * SMS-phone-template and SMS-message-template
      * for TextService in SmsCreator
      */
-    @Value("${services.notifications.sms.sms-phone-template:7%s}")
+    @Value("${services.notifications.sms.sms-phone-template}")
     private String smsPhoneTemplate;
     @Value("${services.notifications.sms.sms-message-template}")
     private String smsMessageTemplate;
@@ -272,7 +272,7 @@ public class ApplicationProperties {
      * Now is able for short-sms but not in email.
      * Use ShorterService in SmsCreator
      */
-    @Value("${services.notifications.sms.cut-links:true}")
+    @Value("${services.notifications.sms.cut-links}")
     private Boolean smsCutLinks;
 
     public ApplicationProperties() {
