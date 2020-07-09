@@ -42,10 +42,11 @@ public interface AdvanceRepository extends JpaRepository<Advance, Long> {
     List<Advance> findUnreadAdvances(@Param("minutes") int minutes);
 
 
-    @Query("select case when count(pc)> 0 then true else false end from Advance pc where " +
-        "pc.advanceTripFields.tripId = :trip_id and pc.contractorId = :contractor_id and " +
-        "pc.advanceTripFields.orderId = :order_id and pc.advanceTripFields.driverId = :driver_id and " +
-        "pc.advanceTripFields.num = :trip_num and pc.isCancelled = false ")
+    @Query(nativeQuery = true, value = "select (case when count(pc)> 0 then true else false end) " +
+        "from orders.trip_request_advance_payment pc where " +
+        "(pc.trip_id = :trip_id and pc.contractor_id = :contractor_id and " +
+        "pc.order_id = :order_id and pc.driver_id = :driver_id and " +
+        "pc.trip_num = :trip_num and pc.is_cancelled = false)")
     Boolean existsActualByIds(@Param("trip_id") Long tripId, @Param("contractor_id") Long contractorId,
                               @Param("driver_id") Long driverId, @Param("order_id") Long orderId,
                               @Param("trip_num") String tripNum);
