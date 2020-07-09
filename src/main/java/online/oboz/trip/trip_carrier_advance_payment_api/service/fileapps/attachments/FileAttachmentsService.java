@@ -121,9 +121,13 @@ public class FileAttachmentsService implements AttachmentService {
             log.info("Advance = {}. File map = {}.", advance.getId(), fileUuidMap);
             String requestUuid = Optional.ofNullable(fileUuidMap.get("request"))
                 .orElse(fileUuidMap.get("trip_request"));
-            UUID fileContractUuid = UUID.fromString(requestUuid);
-            advanceService.setContractApplication(advance, fileContractUuid);
-            log.info("Set contract-file uuid {} for advance {}.", fileContractUuid, advance.getId());
+            if (null != requestUuid) {
+                UUID fileContractUuid = UUID.fromString(requestUuid);
+                advanceService.setContractApplication(advance, fileContractUuid);
+                log.info("Set contract-file uuid {} for advance {}.", fileContractUuid, advance.getId());
+            } else {
+                log.info("File-uuid is empty for advance {}.", advance.getId());
+            }
         }
     }
 
@@ -131,9 +135,11 @@ public class FileAttachmentsService implements AttachmentService {
         if (!fileUuidMap.isEmpty()) {
             log.info("Advance = {}. File map = {}.", advance.getId(), fileUuidMap);
             String fileAdvanceRequestUuid = fileUuidMap.get("assignment_advance_request");
-            UUID uuid = UUID.fromString(fileAdvanceRequestUuid);
-            advanceService.setAdvanceApplication(advance, uuid);
-            log.info("Set advance-request-file uuid {} for advance {}.", uuid, advance.getId());
+            if (null != fileAdvanceRequestUuid) {
+                UUID uuid = UUID.fromString(fileAdvanceRequestUuid);
+                advanceService.setAdvanceApplication(advance, uuid);
+                log.info("Set advance-request-file uuid {} for advance {}.", uuid, advance.getId());
+            }
         }
     }
 
@@ -187,6 +193,5 @@ public class FileAttachmentsService implements AttachmentService {
     private BusinessLogicException attachmentsError(String message) {
         return ErrorUtils.getInternalError(message);
     }
-
 
 }

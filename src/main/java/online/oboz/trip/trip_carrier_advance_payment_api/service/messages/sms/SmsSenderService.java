@@ -4,6 +4,7 @@ import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.peo
 import online.oboz.trip.trip_carrier_advance_payment_api.service.messages.common.format.MessagingException;
 
 import online.oboz.trip.trip_carrier_advance_payment_api.config.ApplicationProperties;
+import online.oboz.trip.trip_carrier_advance_payment_api.util.ErrorUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,9 +60,7 @@ public class SmsSenderService implements SmsSender {
     }
 
     private MessagingException getSmsSendingException(String message, SmsContainer sms) {
-        Error error = new Error("Error while sms-sending to "
-            + sms.getPhone()
-            + ". Messages: " + message);
-        return new MessagingException(HttpStatus.BAD_REQUEST, error);
+        return ErrorUtils.getMessagingError("Sms-sending error: While sms-sending to " + sms.getPhone() +
+            ". Messages: " + message);
     }
 }

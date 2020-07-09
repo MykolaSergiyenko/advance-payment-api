@@ -7,6 +7,7 @@ import online.oboz.trip.trip_carrier_advance_payment_api.service.urleditor.UrlSh
 import online.oboz.trip.trip_carrier_advance_payment_api.service.urleditor.UrlService;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.notificatoins.EmailContainer;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.notificatoins.SmsContainer;
+import online.oboz.trip.trip_carrier_advance_payment_api.util.ErrorUtils;
 import online.oboz.trip.trip_carrier_advance_payment_api.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,8 +92,7 @@ public class MessageCreateService implements TextService {
             return formatPhone(phoneNumber);
         } catch (IllegalFormatException e) {
             log.error("Format message error: " + e.getMessage());
-            throw getMessagingError("Format phone-number error: " + phoneNumber
-                + " --- " + e.getMessage());
+            throw getMessagingError("Format phone-number error: " + phoneNumber + " --- " + e.getMessage());
         }
     }
 
@@ -179,26 +179,23 @@ public class MessageCreateService implements TextService {
     }
 
     private MessagingException getCreateEmailException(String message, String id) {
-        Error error = new Error("Error while email creating for advance "
-            + id + ". Messages: " + message);
-        return new MessagingException(HttpStatus.INTERNAL_SERVER_ERROR, error);
+        String error = ("Error while email creating for advance " + id + ". Messages: " + message);
+        return ErrorUtils.getMessagingError(error);
     }
 
     private MessagingException getCreateSmsException(String message, String id) {
-        Error error = new Error("Error while creating SMS for advance "
-            + id + ". Messages: " + message);
-        return new MessagingException(HttpStatus.INTERNAL_SERVER_ERROR, error);
+        String error = ("Error while creating SMS for advance " + id + ". Messages: " + message);
+        return ErrorUtils.getMessagingError(error);
     }
 
     private MessagingException getFormatException(String message, String id) {
-        Error error = new Error("Error while formatting message:"
-            + id + ". Messages: " + message);
-        return new MessagingException(HttpStatus.INTERNAL_SERVER_ERROR, error);
+        String error = ("Error while formatting message:" + id + ". Messages: " + message);
+        return ErrorUtils.getMessagingError(error);
     }
 
     private MessagingException getMessagingError(String message) {
-        Error error = new Error("Error while formatting message. Messages: " + message);
-        return new MessagingException(HttpStatus.INTERNAL_SERVER_ERROR, error);
+        String error = ("Error while formatting message. Messages: " + message);
+        return ErrorUtils.getMessagingError(error);
     }
 
 }

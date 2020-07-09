@@ -2,10 +2,10 @@ package online.oboz.trip.trip_carrier_advance_payment_api.service.messages.email
 
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.notificatoins.EmailContainer;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.messages.common.format.MessagingException;
+import online.oboz.trip.trip_carrier_advance_payment_api.util.ErrorUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
@@ -41,9 +41,7 @@ public class EmailSenderService implements EmailSender {
     }
 
     private MessagingException getSendingException(String message, EmailContainer email) {
-        Error error = new Error("Error while email-sending to "
-            + email.getMessage().getTo()[0]
-            + ". Messages: " + message);
-        return new MessagingException(HttpStatus.BAD_REQUEST, error);
+        return ErrorUtils.getMessagingError("Sms-sending error: While email-sending to " +
+            email.getMessage().getTo()[0] + ". Messages: " + message);
     }
 }
