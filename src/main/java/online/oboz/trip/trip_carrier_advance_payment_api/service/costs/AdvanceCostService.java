@@ -17,8 +17,8 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class AdvanceCostService implements CostService {
-    private static final Logger log = LoggerFactory.getLogger(AdvanceCostService.class);
 
+    private static final Logger log = LoggerFactory.getLogger(AdvanceCostService.class);
 
     private final ContractorService contractorService;
     private final VatCostService vatCostService;

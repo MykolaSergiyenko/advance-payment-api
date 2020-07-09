@@ -10,14 +10,13 @@ import online.oboz.trip.trip_carrier_advance_payment_api.repository.AdvanceRepos
 
 import online.oboz.trip.trip_carrier_advance_payment_api.repository.TripRepository;
 import online.oboz.trip.trip_carrier_advance_payment_api.repository.PersonRepository;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.advance.BaseAdvanceService;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.advance.AdvanceService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.contacts.ContactService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.persons.BasePersonService;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.rest.BaseRestService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.rest.RestService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.messages.common.format.MessageCreateService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.messages.common.format.TextService;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.trip.BaseTripService;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.trip.TripService;
 
 import online.oboz.trip.trip_carrier_advance_payment_api.service.urleditor.UrlShortenerService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.messages.email.EmailSender;
@@ -43,7 +42,7 @@ import static io.github.benas.randombeans.api.EnhancedRandom.random;
 public class NotificationServiceTest {
     private JavaMailSender mailSender;
     private RestTemplate rest;
-    private BaseRestService restService;
+    private RestService restService;
     private ApplicationProperties props;
     private TextService messageTextService;
     private EmailSender emailSender;
@@ -54,8 +53,8 @@ public class NotificationServiceTest {
     private PersonRepository users;
     private AdvanceContactsBookRepository contacts;
 
-    private BaseAdvanceService advanceService;
-    private BaseTripService tripService;
+    private AdvanceService advanceService;
+    private TripService tripService;
     private BasePersonService personService;
     private ContactService contactService;
 

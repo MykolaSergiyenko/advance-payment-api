@@ -3,7 +3,7 @@ package online.oboz.trip.trip_carrier_advance_payment_api.service.rest.dispatche
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.Advance;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.Trip;
 
-import online.oboz.trip.trip_carrier_advance_payment_api.service.advance.BaseAdvanceService;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.advance.AdvanceService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.contacts.ContactService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.persons.BasePersonService;
 
@@ -22,13 +22,13 @@ import org.springframework.stereotype.Service;
 public class DispatcherPageService implements DispatcherService {
     private static final Logger log = LoggerFactory.getLogger(DispatcherPageService.class);
 
-    private final BaseAdvanceService advanceService;
+    private final AdvanceService advanceService;
     private final BasePersonService personService;
     private final ContactService contactService;
 
     @Autowired
     public DispatcherPageService(
-        BaseAdvanceService advanceService,
+        AdvanceService advanceService,
         BasePersonService personService,
         ContactService contactService
     ) {

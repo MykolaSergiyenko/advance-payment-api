@@ -7,7 +7,7 @@ import org.springframework.http.ResponseEntity;
 
 import java.net.URL;
 
-public interface BaseRestService {
+public interface RestTemplateService {
 
     ResponseEntity<String> getRequest(String url);
 

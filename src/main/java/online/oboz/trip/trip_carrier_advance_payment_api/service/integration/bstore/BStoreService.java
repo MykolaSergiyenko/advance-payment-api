@@ -3,7 +3,7 @@ package online.oboz.trip.trip_carrier_advance_payment_api.service.integration.bs
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import online.oboz.trip.trip_carrier_advance_payment_api.config.ApplicationProperties;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.rest.BaseRestService;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.rest.RestService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,13 +26,13 @@ public class BStoreService implements StoreService {
     private static final Logger log = LoggerFactory.getLogger(BStoreService.class);
 
     private final ApplicationProperties applicationProperties;
-    private final BaseRestService restService;
+    private final RestService restService;
     private final ObjectMapper objectMapper;
 
     @Autowired
     public BStoreService(
         ApplicationProperties applicationProperties,
-        BaseRestService restService,
+        RestService restService,
         ObjectMapper objectMapper
     ) {
         this.applicationProperties = applicationProperties;

@@ -3,7 +3,7 @@ package online.oboz.trip.trip_carrier_advance_payment_api.service.rest.desktop;
 import online.oboz.trip.trip_carrier_advance_payment_api.config.ApplicationProperties;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.Advance;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.mappers.AdvanceMapper;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.advance.BaseAdvanceService;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.advance.AdvanceService;
 import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.*;
 
 import org.slf4j.Logger;
@@ -21,12 +21,12 @@ public class AdvancePageTabsService implements AdvanceTabManager {
     private static final Logger log = LoggerFactory.getLogger(AdvancePageTabsService.class);
 
     private final AdvanceMapper mapper = AdvanceMapper.advanceMapper;
-    private final BaseAdvanceService advanceService;
+    private final AdvanceService advanceService;
     private final ApplicationProperties applicationProperties;
 
     @Autowired
     public AdvancePageTabsService(
-        BaseAdvanceService advanceService,
+        AdvanceService advanceService,
         ApplicationProperties applicationProperties
     ) {
         this.advanceService = advanceService;

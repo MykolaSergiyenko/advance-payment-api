@@ -1,7 +1,7 @@
 package online.oboz.trip.trip_carrier_advance_payment_api.service;
 
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.Advance;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.advance.BaseAdvanceService;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.advance.AdvanceService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.messages.Notificator;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.urleditor.UrlService;
 import online.oboz.trip.trip_carrier_advance_payment_api.web.api.controller.AdvancePaymentTestApiDelegate;
@@ -21,13 +21,13 @@ public class AdvancePaymentTestDelegateImpl implements AdvancePaymentTestApiDele
 
     private final UrlService shortenerService;
     private final Notificator notificationService;
-    private final BaseAdvanceService service;
+    private final AdvanceService service;
 
     @Autowired
     public AdvancePaymentTestDelegateImpl(
         UrlService shortenerService,
         Notificator notificationService,
-        BaseAdvanceService service
+        AdvanceService service
     ) {
         this.shortenerService = shortenerService;
         this.notificationService = notificationService;

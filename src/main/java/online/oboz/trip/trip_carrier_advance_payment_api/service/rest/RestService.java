@@ -22,7 +22,7 @@ import static org.springframework.http.HttpStatus.MOVED_PERMANENTLY;
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE;
 
 @Service
-public class RestService implements BaseRestService {
+public class RestService implements RestTemplateService {
     // Use RestTemplate here
 
     private static final Logger log = LoggerFactory.getLogger(RestService.class);

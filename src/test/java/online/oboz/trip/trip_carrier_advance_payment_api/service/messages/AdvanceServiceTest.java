@@ -6,8 +6,7 @@ import online.oboz.trip.trip_carrier_advance_payment_api.domain.mappers.AdvanceM
 
 import online.oboz.trip.trip_carrier_advance_payment_api.repository.AdvanceRepository;
 
-import online.oboz.trip.trip_carrier_advance_payment_api.service.advance.BaseAdvanceService;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.contacts.AdvanceContactService;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.advance.AdvanceService;
 
 
 import online.oboz.trip.trip_carrier_advance_payment_api.service.contacts.ContactService;
@@ -16,23 +15,18 @@ import online.oboz.trip.trip_carrier_advance_payment_api.service.integration.ord
 
 import online.oboz.trip.trip_carrier_advance_payment_api.service.integration.unf.UnfService;
 
-import online.oboz.trip.trip_carrier_advance_payment_api.service.rest.BaseRestService;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.rest.RestService;
 
 
-import org.junit.Test;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.runner.RunWith;
-import org.springframework.http.ResponseEntity;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.web.client.RestTemplate;
 
 
 @RunWith(SpringRunner.class)
 public class AdvanceServiceTest {
 
-    private BaseRestService tripService;
-    private BaseAdvanceService personService;
+    private RestService tripService;
+    private AdvanceService personService;
     private ContactService contactService;
     private CostService costService;
     private OrdersFilesService ordersFilesService;
@@ -43,7 +37,7 @@ public class AdvanceServiceTest {
 
     private AdvanceRepository advanceRepository;
 
-    private BaseAdvanceService advanceService;
+    private AdvanceService advanceService;
 
     private AdvanceMapper mapper;
 

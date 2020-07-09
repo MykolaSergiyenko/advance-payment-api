@@ -3,7 +3,7 @@ package online.oboz.trip.trip_carrier_advance_payment_api.service.integration.or
 import com.fasterxml.jackson.databind.ObjectMapper;
 import online.oboz.trip.trip_carrier_advance_payment_api.config.ApplicationProperties;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.Advance;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.rest.BaseRestService;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.rest.RestService;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.response.dto.TripDocuments;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,13 +22,13 @@ public class OrdersApiService implements OrdersFilesService {
     private static final Logger log = LoggerFactory.getLogger(OrdersApiService.class);
 
     private final ApplicationProperties applicationProperties;
-    private final BaseRestService restService;
+    private final RestService restService;
     private final ObjectMapper objectMapper;
 
     @Autowired
     public OrdersApiService(
         ApplicationProperties applicationProperties,
-        BaseRestService restService,
+        RestService restService,
         ObjectMapper objectMapper
     ) {
         this.applicationProperties = applicationProperties;

@@ -1,6 +1,6 @@
 package online.oboz.trip.trip_carrier_advance_payment_api.service;
 
-import online.oboz.trip.trip_carrier_advance_payment_api.service.advance.BaseAdvanceService;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.advance.AdvanceService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.fileapps.attachments.AttachmentService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.rest.carrier.CarrierService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.rest.desktop.AdvanceManager;
@@ -23,7 +23,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
 
     private static final Logger log = LoggerFactory.getLogger(AdvancePaymentDelegateImpl.class);
 
-    private final BaseAdvanceService advanceService;
+    private final AdvanceService advanceService;
     private final AttachmentService attachmentService;
     private final DispatcherService dispatcherPageService;
     private final CarrierService carrierPageService;
@@ -32,7 +32,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
 
     @Autowired
     public AdvancePaymentDelegateImpl(
-        BaseAdvanceService advanceService,
+        AdvanceService advanceService,
         AttachmentService attachmentService,
         CarrierService carrierPageService,
         DispatcherService dispatcherPageService,

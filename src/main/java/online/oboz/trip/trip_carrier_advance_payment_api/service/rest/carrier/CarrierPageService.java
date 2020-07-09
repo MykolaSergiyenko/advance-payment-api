@@ -4,7 +4,7 @@ import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.Advance;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.Trip;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.mappers.AdvanceMapper;
 import online.oboz.trip.trip_carrier_advance_payment_api.error.BusinessLogicException;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.advance.BaseAdvanceService;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.advance.AdvanceService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.contractors.ContractorService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.costs.vats.VatService;
 import online.oboz.trip.trip_carrier_advance_payment_api.util.ErrorUtils;
@@ -23,7 +23,7 @@ import java.util.UUID;
 public class CarrierPageService implements CarrierService {
     private static final Logger log = LoggerFactory.getLogger(CarrierPageService.class);
 
-    private final BaseAdvanceService advanceService;
+    private final AdvanceService advanceService;
     private final ContractorService advanceContractorService;
     private final VatService vatService;
     private final List<String> zeroVats;
@@ -33,7 +33,7 @@ public class CarrierPageService implements CarrierService {
 
     @Autowired
     public CarrierPageService(
-        BaseAdvanceService advanceService,
+        AdvanceService advanceService,
         ContractorService advanceContractorService,
         VatService vatService
     ) {

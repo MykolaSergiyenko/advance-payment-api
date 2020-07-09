@@ -3,7 +3,7 @@ package online.oboz.trip.trip_carrier_advance_payment_api.service.fileapps.attac
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.Advance;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.structures.TripFields;
 import online.oboz.trip.trip_carrier_advance_payment_api.error.BusinessLogicException;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.advance.BaseAdvanceService;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.advance.AdvanceService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.fileapps.reports.ReportService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.fileapps.reports.ReportsTemplateService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.integration.bstore.StoreService;
@@ -31,14 +31,14 @@ public class FileAttachmentsService implements AttachmentService {
     private final OrdersFilesService ordersApiService;
     private final StoreService bStoreService;
     private final ReportService reportsService;
-    private final BaseAdvanceService advanceService;
+    private final AdvanceService advanceService;
 
     @Autowired
     public FileAttachmentsService(
         OrdersFilesService ordersApiService,
         StoreService bStoreService,
         ReportsTemplateService reportsService,
-        BaseAdvanceService advanceService
+        AdvanceService advanceService
     ) {
         this.ordersApiService = ordersApiService;
         this.bStoreService = bStoreService;

@@ -15,11 +15,10 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class AdvanceContactService implements ContactService {
+
     private static final Logger log = LoggerFactory.getLogger(AdvanceContactService.class);
 
-
     private final AdvanceContactsBookRepository contactsBookRepository;
-
     private final AdvanceContactMapper contactMapper = AdvanceContactMapper.contactMapper;
 
 

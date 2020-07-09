@@ -1,7 +1,8 @@
-package online.oboz.trip.trip_carrier_advance_payment_api.service.advance;
+package online.oboz.trip.trip_carrier_advance_payment_api.service.advance.auto;
 
 import online.oboz.trip.trip_carrier_advance_payment_api.error.BusinessLogicException;
 
+import online.oboz.trip.trip_carrier_advance_payment_api.service.advance.AdvanceService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.contractors.ContractorService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.fileapps.attachments.FileAttachmentsService;
 import org.slf4j.Logger;
@@ -14,11 +15,11 @@ import org.springframework.stereotype.Service;
 
 @Service
 @EnableScheduling
-public class AutoAdvancedService implements BaseAutoAdvanceService {
+public class AutoAdvancedService implements AutoService {
 
     private static final Logger log = LoggerFactory.getLogger(AutoAdvancedService.class);
     private final ContractorService advanceContractorService;
-    private final BaseAdvanceService advanceService;
+    private final AdvanceService advanceService;
 
     private final FileAttachmentsService fileAttachmentsService;
 
@@ -26,7 +27,7 @@ public class AutoAdvancedService implements BaseAutoAdvanceService {
     @Autowired
     public AutoAdvancedService(
         ContractorService advanceContractorService,
-        BaseAdvanceService advanceService,
+        AdvanceService advanceService,
         FileAttachmentsService fileAttachmentsService
     ) {
         this.advanceContractorService = advanceContractorService;
