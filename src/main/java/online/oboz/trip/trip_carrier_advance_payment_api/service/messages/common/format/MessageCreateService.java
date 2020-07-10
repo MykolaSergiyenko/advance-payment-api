@@ -63,7 +63,7 @@ public class MessageCreateService implements TextService {
         if (StringUtils.isEmptyStrings(tripNum, phone, text)) {
             throw getCreateSmsException("Empty sms-fields for advance ", advance.getId().toString());
         }
-        SendSmsRequest container = new SendSmsRequest(text, phone, tripNum);
+        SendSmsRequest container = new SendSmsRequest(text, phone);
         return container;
     }
 
