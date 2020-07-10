@@ -82,12 +82,12 @@ services:
 
     # BStore-URL for BStore-service
     bstore:
-        url: https://oboz.online/api/bstore/
+        url: https://preprod.oboz.online/api/bstore/
         pdf: 'pdf/'
 
     # OrdersApi-url for OrdersApiService
     orders:
-        url: https://oboz.online/api/orders/dispatcher/orders/%d/trips/%d/documents
+        url: https://preprod.oboz.online/api/orders/dispatcher/orders/%d/trips/%d/documents
         save-body: '{"trip_document":{"id":null,
                        "file_id":%s,
                        "document_type_code":"assignment_advance_request",
@@ -125,7 +125,7 @@ services:
     #Notification-service
     notifications:
         #create message lk-url
-        lk-url: https://oboz.online/carrier-advance/
+        lk-url: https://preprod.oboz.online/carrier-advance/
 
         #link-shortener url
         cut-link-url: https://clck.ru/--?url=
