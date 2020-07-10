@@ -7,7 +7,7 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 
 import javax.validation.constraints.Pattern;
 
-public class SmsContainer {
+public class SendSmsRequest {
     @JsonProperty("text")
     private String text;
 
@@ -19,13 +19,13 @@ public class SmsContainer {
     @JsonIgnore
     private String tripNum;
 
-    public SmsContainer(String text, String phone, String tripNum) {
+    public SendSmsRequest(String text, String phone, String tripNum) {
         this.text = text;
         this.phone = phone;
         this.tripNum = tripNum;
     }
 
-    public SmsContainer() {
+    public SendSmsRequest() {
     }
 
     public String getText() {

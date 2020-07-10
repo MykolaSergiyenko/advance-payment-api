@@ -6,13 +6,12 @@ import online.oboz.trip.trip_carrier_advance_payment_api.service.contacts.Contac
 import online.oboz.trip.trip_carrier_advance_payment_api.service.urleditor.UrlShortenerService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.urleditor.UrlService;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.notificatoins.EmailContainer;
-import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.notificatoins.SmsContainer;
+import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.notificatoins.SendSmsRequest;
 import online.oboz.trip.trip_carrier_advance_payment_api.util.ErrorUtils;
 import online.oboz.trip.trip_carrier_advance_payment_api.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.net.URL;
@@ -55,7 +54,7 @@ public class MessageCreateService implements TextService {
 
 
     @Override
-    public SmsContainer createSms(Advance advance) throws MessagingException {
+    public SendSmsRequest createSms(Advance advance) throws MessagingException {
         String text = getSmsText(advance);
         String phone = getPhoneNumber
             (contactService.findByContractor(advance.getContractorId()).
@@ -64,7 +63,7 @@ public class MessageCreateService implements TextService {
         if (StringUtils.isEmptyStrings(tripNum, phone, text)) {
             throw getCreateSmsException("Empty sms-fields for advance ", advance.getId().toString());
         }
-        SmsContainer container = new SmsContainer(text, phone, tripNum);
+        SendSmsRequest container = new SendSmsRequest(text, phone, tripNum);
         return container;
     }
 

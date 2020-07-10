@@ -7,7 +7,7 @@ import online.oboz.trip.trip_carrier_advance_payment_api.service.messages.common
 import online.oboz.trip.trip_carrier_advance_payment_api.service.messages.common.format.TextService;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.notificatoins.EmailContainer;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.messages.email.EmailSender;
-import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.notificatoins.SmsContainer;
+import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.notificatoins.SendSmsRequest;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.messages.sms.SmsSender;
 
 import org.slf4j.Logger;
@@ -124,7 +124,7 @@ public class NotificationService implements Notificator {
 
     private void sentSms(Advance advance) throws MessagingException {
         log.info("SMS-messages enable. Try to send message for advance - " + advance.getId());
-        SmsContainer container = messageTextService.createSms(advance);
+        SendSmsRequest container = messageTextService.createSms(advance);
         log.info("Create SMS-message: " + container.toString());
         smsSender.sendSms(container);
         log.info("SMS is sent for advance " + advance.getId());

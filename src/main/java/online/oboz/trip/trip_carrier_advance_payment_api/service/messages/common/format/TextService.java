@@ -2,7 +2,7 @@ package online.oboz.trip.trip_carrier_advance_payment_api.service.messages.commo
 
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.Advance;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.notificatoins.EmailContainer;
-import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.notificatoins.SmsContainer;
+import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.notificatoins.SendSmsRequest;
 
 /**
  * Интерфейс формирования текста сообщений по "Заявке на аванс"
@@ -14,7 +14,7 @@ public interface TextService {
      * @param advance
      * @return SmsContainer sms-message
      */
-    SmsContainer createSms(Advance advance) throws MessagingException;
+    SendSmsRequest createSms(Advance advance) throws MessagingException;
 
     /**
      * @param advance

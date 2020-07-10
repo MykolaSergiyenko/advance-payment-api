@@ -1,6 +1,6 @@
 package online.oboz.trip.trip_carrier_advance_payment_api.service.messages.sms;
 
-import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.notificatoins.SmsContainer;
+import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.notificatoins.SendSmsRequest;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.messages.common.format.MessagingException;
 
 import online.oboz.trip.trip_carrier_advance_payment_api.config.ApplicationProperties;
@@ -23,7 +23,7 @@ import java.net.URL;
  * @author s‡udent
  * @see SmsSender
  * @see RestTemplate
- * @see SmsContainer
+ * @see SendSmsRequest
  */
 @Service
 public class SmsSenderService implements SmsSender {
@@ -39,7 +39,7 @@ public class SmsSenderService implements SmsSender {
     }
 
 
-    public void sendSms(SmsContainer sms) throws MessagingException {
+    public void sendSms(SendSmsRequest sms) throws MessagingException {
         try {
             URL smsSenderUrl = applicationProperties.getSmsSenderUrl();
             if (null == smsSenderUrl) throw getSmsSendingException("SMS-sender-url is empty for:", sms);
@@ -59,7 +59,7 @@ public class SmsSenderService implements SmsSender {
         }
     }
 
-    private MessagingException getSmsSendingException(String message, SmsContainer sms) {
+    private MessagingException getSmsSendingException(String message, SendSmsRequest sms) {
         return ErrorUtils.getMessagingError("Sms-sending error: While sms-sending to " + sms.getPhone() +
             ". Messages: " + message);
     }
