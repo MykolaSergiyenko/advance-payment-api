@@ -16,13 +16,13 @@ public class SendSmsRequest {
     @JsonProperty("phone")
     private String phone;
 
-    @JsonIgnore
-    private String tripNum;
+//    @JsonIgnore
+//    private String tripNum;
 
-    public SendSmsRequest(String text, String phone, String tripNum) {
+    public SendSmsRequest(String text, String phone) {
         this.text = text;
         this.phone = phone;
-        this.tripNum = tripNum;
+//        this.tripNum = tripNum;
     }
 
     public SendSmsRequest() {
@@ -36,9 +36,9 @@ public class SendSmsRequest {
         return this.phone;
     }
 
-    public String getTripNum() {
-        return this.tripNum;
-    }
+//    public String getTripNum() {
+//        return this.tripNum;
+//    }
 
     public void setText(String text) {
         this.text = text;
@@ -48,9 +48,9 @@ public class SendSmsRequest {
         this.phone = phone;
     }
 
-    public void setTripNum(String tripNum) {
-        this.tripNum = tripNum;
-    }
+//    public void setTripNum(String tripNum) {
+//        this.tripNum = tripNum;
+//    }
 
     @Override
     public boolean equals(Object o) {
@@ -67,7 +67,7 @@ public class SendSmsRequest {
         return "SmsContainer {" +
             " text='" + text + '\'' +
             ", phone='" + phone + '\'' +
-            ", tripNum='" + tripNum + '\'' +
+//            ", tripNum='" + tripNum + '\'' +
             '}';
     }
 }
