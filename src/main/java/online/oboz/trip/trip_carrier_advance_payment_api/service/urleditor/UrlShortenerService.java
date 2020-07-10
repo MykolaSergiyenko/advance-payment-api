@@ -67,7 +67,6 @@ public class UrlShortenerService implements UrlService {
 
     public String editUrl(URL url) {
         try {
-            log.info("Input url is: " + url.toString());
             return cutUrl(url);
         } catch (UrlCutterException e) {
             log.info("UrlCutter error: " + e.getErrors());
@@ -106,7 +105,7 @@ public class UrlShortenerService implements UrlService {
             log.error("URL-shortener server returned bad response {}", response);
             throw new BadRequestException("URL-shortener response error.");
         }
-        log.info("Short url is: " + response.getBody().toString());
+        log.info("Short url is: " + response.getBody());
 
         return response.getBody();
     }
