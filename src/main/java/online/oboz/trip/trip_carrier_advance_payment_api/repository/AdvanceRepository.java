@@ -36,9 +36,12 @@ public interface AdvanceRepository extends JpaRepository<Advance, Long> {
 
 
     @Query(nativeQuery = true,
-        value = "select * from orders.trip_request_advance_payment t where " +
-            "t.read_at is null and t.sms_sent_at is null " +
-            "and t.created_at < (now() - (:minutes || ' minutes ') \\:\\:interval )")
+        value = "select * from orders.trip_request_advance_payment a " +
+            "inner join orders.trips t on (t.id = a.trip_id and t.order_id = a.order_id and "+
+            "t.driver_id = a.driver_id and t.contractor_id = a.contractor_id) "+
+            "where t.trip_status_code = 'assigned' and t.trip_type_code = 'motor' and a.is_cancelled = false " +
+            "and a.read_at is null and a.sms_sent_at is null " +
+            "and a.created_at < (now() - (:minutes || ' minutes ') \\:\\:interval )")
     List<Advance> findUnreadAdvances(@Param("minutes") int minutes);
 
 
