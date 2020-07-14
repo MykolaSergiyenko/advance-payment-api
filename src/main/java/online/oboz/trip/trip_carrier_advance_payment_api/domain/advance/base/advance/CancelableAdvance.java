@@ -34,7 +34,7 @@ public abstract class CancelableAdvance extends HasContractor {
 
 
     @Column(name = "is_automation_request", columnDefinition = "boolean default false", nullable = false)
-    private Boolean isAuto;
+    private Boolean isAuto = false;
 
     public boolean isProblem(String autoComment) {
         return !(this.comment == null || this.comment.isEmpty() || this.comment.equals(autoComment));

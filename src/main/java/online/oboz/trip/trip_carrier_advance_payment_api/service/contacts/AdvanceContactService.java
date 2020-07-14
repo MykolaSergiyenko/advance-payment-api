@@ -51,12 +51,7 @@ public class AdvanceContactService implements ContactService {
 
 
     private AdvanceContactsBook createContact(CarrierContactDTO contactDTO) {
-        Long contractorId = contactDTO.getContractorId();
-        AdvanceContactsBook contact = findByContractor(contractorId);
-        if (contact != null) {
-            log.info("Advance contact for this Carrier is already exists: " + contractorId);
-        }
-        return setContactInfo(contactDTO, contact);
+        return setContactInfo(contactDTO, new AdvanceContactsBook());
     }
 
     private AdvanceContactsBook updateContact(CarrierContactDTO contactDTO) {
