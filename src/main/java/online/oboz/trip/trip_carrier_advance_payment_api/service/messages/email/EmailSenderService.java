@@ -41,7 +41,7 @@ public class EmailSenderService implements EmailSender {
     }
 
     private MessagingException getSendingException(String message, EmailContainer email) {
-        return ErrorUtils.getMessagingError("Sms-sending error: While email-sending to " +
+        return ErrorUtils.getMessagingError("E-mail-sending error: While e-mail-sending to " +
             email.getMessage().getTo()[0] + ". Messages: " + message);
     }
 }
