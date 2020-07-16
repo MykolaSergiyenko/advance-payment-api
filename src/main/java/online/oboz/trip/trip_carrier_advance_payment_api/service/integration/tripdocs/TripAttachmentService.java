@@ -28,7 +28,12 @@ public class TripAttachmentService implements TripDocumentsService {
     }
 
     public Boolean isAllTripDocumentsLoaded(Long tripId){
-        List<TripAttachment> attachments = getTripAttachments(tripId);
+        List<TripAttachment> attachments = null;
+        try {
+           attachments = getTripAttachments(tripId);
+        } catch (BusinessLogicException e){
+            log.error("Trip-documents not found for tripId = {}", tripId);
+        }
         return (getRequestUuidOrTripRequestUuid(attachments) != null &&
             getAssignmentRequestUuid(attachments)!= null);
     }
