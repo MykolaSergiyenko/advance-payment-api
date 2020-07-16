@@ -143,7 +143,7 @@ services:
             # "Simple" (at-moment) SMS-notify unable
             enable: false
             # Only scheduled SMS-notify enable
-            schedule-enable: true
+            schedule-enable: false
             # Cut LK-links for short-SMS enable
             cut-links: true
             # Sms-sender url
