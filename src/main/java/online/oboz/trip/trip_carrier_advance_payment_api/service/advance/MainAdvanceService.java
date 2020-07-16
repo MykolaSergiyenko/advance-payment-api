@@ -209,11 +209,17 @@ public class MainAdvanceService implements AdvanceService {
 
 
     @Override
-    public void setEmailRead(Advance advance) {
-        if (advance.getReadAt() == null) {
-            advance.setReadAt(OffsetDateTime.now());
-            saveAdvance(advance);
-            log.info("Set 'email-read-at' in {}.", advance.getId());
+    public void setRead(Advance advance) {
+        if (advance.getEmailSentAt() != null || advance.getSmsSentAt() != null) {
+            if (advance.getReadAt() == null) {
+                advance.setReadAt(OffsetDateTime.now());
+                saveAdvance(advance);
+                log.info("Set 'read-at' for advance: {}.", advance.getId());
+            } else {
+                log.info("Message is already 'read' for advance: {}.", advance.getId());
+            }
+        } else {
+            log.info("Messages weren't been sent yet for advance: {}.", advance.getId());
         }
     }
 

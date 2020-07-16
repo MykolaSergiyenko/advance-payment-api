@@ -57,6 +57,6 @@ public interface AdvanceService {
 
     void notifyUnread();
 
-    void setEmailRead(Advance advance);
+    void setRead(Advance advance);
 
 }
