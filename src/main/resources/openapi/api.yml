@@ -872,12 +872,6 @@ components:
                 is_1C_send_allowed:
                     type: boolean
                     description: "Признак доступности отправки в 1с"
-                is_pushed_unf_button:
-                    type: boolean
-                    description: "Признак нажали на кнопку в 1с"
-                is_unf_send:
-                    type: boolean
-                    description: "Признак отправили в УНФ"
                 is_paid:
                     type: boolean
                     description: "Оплачен"
@@ -894,6 +888,13 @@ components:
                 cancelled_comment:
                     type: string
                     description: "Комментарий к аннулированию аванса"
+                is_unf_send:
+                    type: boolean
+                    description: "Признак отправили в УНФ"
+#                is_pushed_unf_button:
+#                    type: boolean
+#                    description: "Признак нажали на кнопку в 1с"
+
 
         CarrierPage:
             type: object

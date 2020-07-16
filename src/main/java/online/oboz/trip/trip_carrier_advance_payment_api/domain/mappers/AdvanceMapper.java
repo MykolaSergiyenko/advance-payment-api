@@ -55,8 +55,7 @@ public interface AdvanceMapper {
     @Mapping(target = "isAdvanceApplicationLoaded",
         expression = "java(!(null == advance.getUuidAdvanceApplicationFile()))")
     @Mapping(source = "1CSendAllowed", target = "is1CSendAllowed")
-    @Mapping(source = "unfSend", target = "isUnfSend")
-    @Mapping(target = "isPushedUnfButton", expression = "java(!advance.isUnfSend())")
+    @Mapping(source = "unfSend", target = "isUnfSend") // Is it necessary?
     @Mapping(source = "paid", target = "isPaid")
     @Mapping(source = "paidAt", target = "paidAt")
     @Mapping(source = "comment", target = "comment")

@@ -20,6 +20,13 @@ public abstract class UnfAdvanceFields extends CancelableAdvance {
     final static Logger log = LoggerFactory.getLogger(UnfAdvanceFields.class);
 
     /**
+     * Used in 'integration1c' only?
+     * TODO: Is it necessary?
+     */
+    @Column(name = "is_unf_send", columnDefinition = "boolean default false")
+    private Boolean isUnfSend;
+
+    /**
      * Advance was paid
      * (flag come from UNF in 'integration1c'-service)
      */
@@ -50,7 +57,7 @@ public abstract class UnfAdvanceFields extends CancelableAdvance {
 
 
     private void setUnfFields() {
-        if (isPaid() == null|| is1CSendAllowed() == null) {
+        if (isUnfSend() == null ||isPaid() == null|| is1CSendAllowed() == null) {
             setIs1CSendAllowed(null);
             setPaid(false);
         }
@@ -58,6 +65,14 @@ public abstract class UnfAdvanceFields extends CancelableAdvance {
 
 
     public UnfAdvanceFields() {
+    }
+
+    public Boolean isUnfSend() {
+        return isUnfSend;
+    }
+
+    public void setUnfSend(Boolean unfSend) {
+        isUnfSend = unfSend;
     }
 
 
