@@ -16,14 +16,47 @@ public interface RestTemplateService {
     void contextRefreshedEvent();
 
 
-    ResponseEntity<Resource> authGetRequestResource(String url);
-
-    ResponseEntity<Resource> getRequestResource(String url, HttpHeaders headers);
-
+    /**
+     * POST-запрос с авторизацией
+     * @param url
+     * @param headers
+     * @param body
+     * @param <T>
+     * @return
+     */
     <T> ResponseEntity<String> authPostRequest(String url, HttpHeaders headers, T body);
 
+    /**
+     * GET-запрос с авторизацией
+     * @param url
+     * @param headers
+     * @return
+     */
     ResponseEntity<String> authGetRequest(String url, HttpHeaders headers);
 
+
+
+    /**
+     * GET-запрос с авторизацией к ресурсу
+     * @param url
+     * @return Resource
+     */
+    ResponseEntity<Resource> authGetRequestResource(String url);
+
+    /**
+     * GET-запрос к ресурсу
+     * @param url
+     * @param headers
+     * @return Resource
+     */
+    ResponseEntity<Resource> getRequestResource(String url, HttpHeaders headers);
+
+    /**
+     * Запрос токена для технического пользователя
+     * @param userName
+     * @param password
+     * @return
+     */
     ResponseToken requestToken(String userName, String password);
 
 

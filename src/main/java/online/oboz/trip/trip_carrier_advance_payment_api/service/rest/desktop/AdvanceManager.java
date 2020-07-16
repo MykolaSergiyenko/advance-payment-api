@@ -5,14 +5,35 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 
+/**
+ * Сервис для управления "Авансами"
+ */
 public interface AdvanceManager {
     Logger log = LoggerFactory.getLogger(AdvanceManager.class);
 
-    ResponseEntity<Void> confirmAdvancePayment(Long tripAdvanceId);
+    /**
+     * Утвердить аванс (отправить в УНФ)
+     * @param advanceId - аванс
+     */
+    ResponseEntity<Void> confirmAdvancePayment(Long advanceId);
 
+    /**
+     * Отменить аванс по Трипу
+     * @param tripId - трип
+     * @param cancelComment - комментарий
+     */
     ResponseEntity<Void> cancelAdvancePayment(Long tripId, String cancelComment);
 
-    ResponseEntity<Void> updateLoadingComplete(Long id, Boolean loadingComplete);
+    /**
+     * Обновить факт загрузки водителя
+     * @param advanceId - аванс
+     * @param loadingComplete - значение признака
+     */
+    ResponseEntity<Void> updateLoadingComplete(Long advanceId, Boolean loadingComplete);
 
+    /**
+     * Изменить комментарий в авансе
+     * @param comment - структура данных комментария
+     */
     ResponseEntity<Void> changeAdvancePaymentComment(AdvanceCommentDTO comment);
 }

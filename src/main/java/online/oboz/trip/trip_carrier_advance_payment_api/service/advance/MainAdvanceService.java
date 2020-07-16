@@ -320,13 +320,13 @@ public class MainAdvanceService implements AdvanceService {
     }
 
     @Override
-    public ResponseEntity<Void> setLoadingComplete(Long id, Boolean loadingComplete) {
+    public ResponseEntity<Void> setLoadingComplete(Long advanceId, Boolean loadingComplete) {
         try {
-            Advance advance = findById(id);
+            Advance advance = findById(advanceId);
             setCompleteLoading(advance, loadingComplete);
             log.info("Loading-completed= {} set for advance {}.", loadingComplete, advance.getId());
         } catch (BusinessLogicException e) {
-            log.error("Advance 'loading-comlete' setting is failed for advance: " + id + " Errors:" + e.getErrors());
+            log.error("Advance 'loading-comlete' setting is failed for advance: " + advanceId + " Errors:" + e.getErrors());
         }
         return new ResponseEntity<>(HttpStatus.OK);
     }

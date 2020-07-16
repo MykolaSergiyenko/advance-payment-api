@@ -5,6 +5,14 @@ import org.springframework.http.ResponseEntity;
 
 import java.util.UUID;
 
+/**
+ * Сервис "Авансирование" - страница перевозчика
+ */
 public interface CarrierService {
+    /**
+     * Запрос страницы "Аванса" для перевозчика
+     * @param uuid - аванс
+     * @return CarrierPage - страница
+     */
     ResponseEntity<CarrierPage> searchAdvancePaymentRequestByUuid(UUID uuid);
 }

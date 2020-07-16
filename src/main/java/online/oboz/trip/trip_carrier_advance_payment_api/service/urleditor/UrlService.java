@@ -9,5 +9,10 @@ import java.net.URL;
 public interface UrlService {
     String editUrl(URL url);
 
+    /**
+     * Редактировать URL
+     * @param url
+     * @return URL in String
+     */
     String editUrl(String url);
 }

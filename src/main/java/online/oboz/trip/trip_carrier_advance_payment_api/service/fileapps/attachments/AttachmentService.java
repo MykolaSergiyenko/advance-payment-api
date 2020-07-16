@@ -6,28 +6,75 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
 
+/**
+ * Сервис для работы с файлами-вложениями
+ */
 public interface AttachmentService {
 
+    /**
+     * Обновить uuid`ы файлов в "Авансах" без файлов
+     */
     void updateFileUuids();
 
+    /**
+     * Загрузить "Заявку на аванс" из "B-Store"
+     * @param advance
+     * @return
+     */
     ResponseEntity<Resource> downloadAdvanceRequestFromBstore(Advance advance);
 
+    /**
+     * Загрузить "Заявку" из "B-Store"
+     * @param advance
+     * @return
+     */
     ResponseEntity<Resource> downloadRequestFromBstore(Advance advance);
 
     ResponseEntity<Resource> downloadAdvanceRequestTemplate(Advance advance);
 
+    /**
+     * Загрузить "Заявку" в Трип
+     * @param file - файл
+     * @param tripNum - номер трипа
+     * @return
+     */
     ResponseEntity<Void> uploadRequestAdvance(MultipartFile file, String tripNum);
 
-    //ResponseEntity<Boolean> isDownloadAllDocuments(Advance advance);
 
+    /**
+     * Загрузить шаблон "заявки" по трипу
+     * @param tripNum
+     * @return
+     */
     ResponseEntity downloadAvanceRequestTemplate(String tripNum);
 
+    /**
+     * Загрузить шаблон "заявки" по трипу со страницы перевозчика
+     * @param tripNum
+     * @return
+     */
     ResponseEntity downloadAvanceRequestTemplateForCarrier(String tripNum);
 
+    /**
+     * Скачать "Заявку на аванс" по Трипу
+     * @param tripNum
+     * @return
+     */
     ResponseEntity<Resource> downloadAdvanceRequest(String tripNum);
 
+    /**
+     * Скачать "Заявку" по Трипу
+     * @param tripNum
+     * @return
+     */
     ResponseEntity<Resource> downloadRequest(String tripNum);
 
+    /**
+     * Загрузить "Заявку на аванс" со страницы перевозчика
+     * @param file
+     * @param tripNum
+     * @return
+     */
     ResponseEntity<Void> uploadRequestAvanceForCarrier(MultipartFile file, String tripNum);
 
 

@@ -32,16 +32,16 @@ public class AdvancePageService implements AdvanceManager {
     }
 
     @Transactional
-    public ResponseEntity<Void> confirmAdvancePayment(Long tripAdvanceId) {
-        return advanceService.confirmAdvance(tripAdvanceId);
+    public ResponseEntity<Void> confirmAdvancePayment(Long advanceId) {
+        return advanceService.confirmAdvance(advanceId);
     }
 
     public ResponseEntity<Void> cancelAdvancePayment(Long tripId, String cancelComment) {
         return advanceService.cancelAdvancePayment(tripId, cancelComment);
     }
 
-    public ResponseEntity<Void> updateLoadingComplete(Long id, Boolean loadingComplete) {
-        return advanceService.setLoadingComplete(id, loadingComplete);
+    public ResponseEntity<Void> updateLoadingComplete(Long advanceId, Boolean loadingComplete) {
+        return advanceService.setLoadingComplete(advanceId, loadingComplete);
     }
 
     public ResponseEntity<Void> changeAdvancePaymentComment(AdvanceCommentDTO comment) {
