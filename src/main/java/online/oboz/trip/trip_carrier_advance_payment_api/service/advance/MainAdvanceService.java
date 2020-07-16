@@ -244,7 +244,7 @@ public class MainAdvanceService implements AdvanceService {
             log.info("Update contract-application-file in {}. Set uuid = {} ", advance.getId(),
                 advance.getUuidContractApplicationFile());
         } else {
-            throw getAdvanceError("Advance-application-file uuid can't be null.");
+            throw getAdvanceError("Advance-contract-file uuid can't be null.");
         }
         return advance;
     }
