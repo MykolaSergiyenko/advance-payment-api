@@ -29,13 +29,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         http.csrf().disable().authorizeRequests()
             .antMatchers(HttpMethod.GET, AUTH_WHITELIST).permitAll()
             .antMatchers(HttpMethod.POST, AUTH_WHITELIST).permitAll()
-            .antMatchers(HttpMethod.GET, "/v1/advance_payment/**").permitAll()
-            .antMatchers(HttpMethod.POST, "/v1/advance_payment/**").permitAll()
-            .antMatchers(HttpMethod.PUT, "/v1/advance_payment/**").permitAll()
-//            .antMatchers(HttpMethod.GET, "/v1/advance_payment/carrier/**").permitAll()
-//            .antMatchers(HttpMethod.GET, "/v1/advance_payment/contact/**").permitAll()
-//            .antMatchers(HttpMethod.POST, "/v1/advance_payment/contact/**").permitAll()
-//            .antMatchers(HttpMethod.PUT, "/v1/advance_payment/contact/**").permitAll()
+            .antMatchers(HttpMethod.GET, "/v1/advance_payment/download**").permitAll()
+            .antMatchers(HttpMethod.POST, "/v1/advance_payment/carrier/**").permitAll()
+            .antMatchers(HttpMethod.GET, "/v1/advance_payment/carrier/**").permitAll()
             .anyRequest().authenticated()
             .and().oauth2ResourceServer().jwt();
     }
