@@ -16,7 +16,7 @@ public interface AttachmentService {
 
     ResponseEntity<Resource> downloadAdvanceRequestTemplate(Advance advance);
 
-    ResponseEntity<Void> uploadRequestAdvance(MultipartFile filename, String tripNum);
+    ResponseEntity<Void> uploadRequestAdvance(MultipartFile file, String tripNum);
 
     //ResponseEntity<Boolean> isDownloadAllDocuments(Advance advance);
 
@@ -28,7 +28,7 @@ public interface AttachmentService {
 
     ResponseEntity<Resource> downloadRequest(String tripNum);
 
-    ResponseEntity<Void> uploadRequestAvanceForCarrier(MultipartFile filename, String tripNum);
+    ResponseEntity<Void> uploadRequestAvanceForCarrier(MultipartFile file, String tripNum);
 
 
 }

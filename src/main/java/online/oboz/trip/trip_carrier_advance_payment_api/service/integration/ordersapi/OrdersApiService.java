@@ -3,8 +3,10 @@ package online.oboz.trip.trip_carrier_advance_payment_api.service.integration.or
 import com.fasterxml.jackson.databind.ObjectMapper;
 import online.oboz.trip.trip_carrier_advance_payment_api.config.ApplicationProperties;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.Advance;
+import online.oboz.trip.trip_carrier_advance_payment_api.error.BusinessLogicException;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.rest.RestService;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.response.dto.TripDocuments;
+import online.oboz.trip.trip_carrier_advance_payment_api.util.ErrorUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +14,8 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -24,6 +28,8 @@ public class OrdersApiService implements OrdersFilesService {
     private final ApplicationProperties applicationProperties;
     private final RestService restService;
     private final ObjectMapper objectMapper;
+    private URL ordersApiUrl;
+    private String saveAssignmentBody;
 
     @Autowired
     public OrdersApiService(
@@ -34,6 +40,15 @@ public class OrdersApiService implements OrdersFilesService {
         this.applicationProperties = applicationProperties;
         this.restService = restService;
         this.objectMapper = objectMapper;
+        try {
+            this.ordersApiUrl = new URL("https://oboz.online/api/orders/dispatcher/orders/%d/trips/%d/documents");
+            this.saveAssignmentBody = "{\"trip_document\":{\"id\":null,\n" +
+                "                       \"file_id\":%s,\n" +
+                "                       \"document_type_code\":\"assignment_advance_request\",\n" +
+                "                       \"name\":\"Заявка на авансирование\"}}";
+        } catch (MalformedURLException e) {
+            throw ordersApiError("Wrong service Orders-api-service URL.");
+        }
     }
 
 
@@ -66,12 +81,12 @@ public class OrdersApiService implements OrdersFilesService {
     public Boolean saveTripDocuments(Long orderId, Long tripId, UUID fileUuid) {
         if (fileUuid != null && orderId != null && tripId != null) {
             log.info("Save trip documents for order: {}, trip: {}, fileUuid: {} .", orderId, tripId, fileUuid);
-            String url = String.format(applicationProperties.getOrdersApiUrl().toString(), orderId, tripId);
+            String url = String.format(ordersApiUrl.toString(), orderId, tripId);
             log.info("Save trip documents url: {} .", url);
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
-            String requestBody = String.format(applicationProperties.getOrdersApiSaveBody().value(), fileUuid);
+            String requestBody = String.format(saveAssignmentBody, fileUuid);
             ResponseEntity<String> response = restService.authPostRequest(url, headers, requestBody);
             log.info("Save trip documents response: {} .", response);
             if (response.getStatusCode().value() == 200) {
@@ -101,7 +116,7 @@ public class OrdersApiService implements OrdersFilesService {
     }
 
     private String getDocumentWithUuidFiles(Long orderId, Long tripId) {
-        String formattedUrl = String.format(applicationProperties.getOrdersApiUrl().toString(), orderId, tripId);
+        String formattedUrl = String.format(ordersApiUrl.toString(), orderId, tripId);
         try {
             ResponseEntity<String> response = restService.authGetRequest(formattedUrl, new HttpHeaders());
             if (response.getStatusCode().value() == 200) {
@@ -115,4 +130,9 @@ public class OrdersApiService implements OrdersFilesService {
             return null;
         }
     }
+
+    private BusinessLogicException ordersApiError(String message) {
+        return ErrorUtils.getInternalError(message);
+    }
+
 }

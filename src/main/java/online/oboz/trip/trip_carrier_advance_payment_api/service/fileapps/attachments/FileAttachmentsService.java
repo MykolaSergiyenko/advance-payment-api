@@ -1,13 +1,14 @@
 package online.oboz.trip.trip_carrier_advance_payment_api.service.fileapps.attachments;
 
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.Advance;
-import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.structures.TripFields;
+import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.attachments.TripAttachment;
 import online.oboz.trip.trip_carrier_advance_payment_api.error.BusinessLogicException;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.advance.AdvanceService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.fileapps.reports.ReportService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.fileapps.reports.ReportsTemplateService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.integration.bstore.StoreService;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.integration.ordersapi.OrdersFilesService;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.integration.tripdocs.TripAttachmentService;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.integration.tripdocs.TripDocumentsService;
 import online.oboz.trip.trip_carrier_advance_payment_api.util.ErrorUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpStatus.*;
 
@@ -28,19 +30,19 @@ import static org.springframework.http.HttpStatus.*;
 public class FileAttachmentsService implements AttachmentService {
     private static final Logger log = LoggerFactory.getLogger(FileAttachmentsService.class);
 
-    private final OrdersFilesService ordersApiService;
+    private final TripDocumentsService tripAttachmentService;
     private final StoreService bStoreService;
     private final ReportService reportsService;
     private final AdvanceService advanceService;
 
     @Autowired
     public FileAttachmentsService(
-        OrdersFilesService ordersApiService,
+        TripDocumentsService tripAttachmentService,
         StoreService bStoreService,
         ReportsTemplateService reportsService,
         AdvanceService advanceService
     ) {
-        this.ordersApiService = ordersApiService;
+        this.tripAttachmentService = tripAttachmentService;
         this.bStoreService = bStoreService;
         this.reportsService = reportsService;
         this.advanceService = advanceService;
@@ -99,9 +101,9 @@ public class FileAttachmentsService implements AttachmentService {
     }
 
     @Override
-    public ResponseEntity<Void> uploadRequestAvanceForCarrier(MultipartFile filename, String tripNum) {
+    public ResponseEntity<Void> uploadRequestAvanceForCarrier(MultipartFile file, String tripNum) {
         log.info("Got uploadRequestAvanceForCarrier request tripNum - " + tripNum);
-        return uploadRequestAdvance(filename, tripNum);
+        return uploadRequestAdvance(file, tripNum);
     }
 
 
@@ -110,67 +112,36 @@ public class FileAttachmentsService implements AttachmentService {
         List<Advance> advances = advanceService.findAdvancesWithoutFiles();
         log.info("Found {} advances without attachments. Try to update it.", advances.size());
         advances.forEach(advance -> {
-            Map<String, String> fileUuidMap = ordersApiService.findTripRequestDocs(advance);
-            setContractAttachment(fileUuidMap, advance);
-            setAdvanceAttachment(fileUuidMap, advance);
+            try {
+                setUuids(tripAttachmentService.getTripAttachments(advance.getAdvanceTripFields().getTripId()),
+                    advance);
+            } catch (Exception e) {
+                log.error("Error while updating file-uuids: {}", e.getMessage());
+            }
         });
     }
 
-    private void setContractAttachment(Map<String, String> fileUuidMap, Advance advance) {
-        if (!fileUuidMap.isEmpty()) {
-            log.info("Advance = {}. File map = {}.", advance.getId(), fileUuidMap);
-            String requestUuid = Optional.ofNullable(fileUuidMap.get("request"))
-                .orElse(fileUuidMap.get("trip_request"));
-            if (null != requestUuid) {
-                UUID fileContractUuid = UUID.fromString(requestUuid);
-                advanceService.setContractApplication(advance, fileContractUuid);
-                log.info("Set contract-file uuid {} for advance {}.", fileContractUuid, advance.getId());
-            } else {
-                log.info("File-uuid is empty for advance {}.", advance.getId());
-            }
-        }
-    }
-
-    private void setAdvanceAttachment(Map<String, String> fileUuidMap, Advance advance) {
-        if (!fileUuidMap.isEmpty()) {
-            log.info("Advance = {}. File map = {}.", advance.getId(), fileUuidMap);
-            String fileAdvanceRequestUuid = fileUuidMap.get("assignment_advance_request");
-            if (null != fileAdvanceRequestUuid) {
-                UUID uuid = UUID.fromString(fileAdvanceRequestUuid);
-                advanceService.setAdvanceApplication(advance, uuid);
-                log.info("Set advance-request-file uuid {} for advance {}.", uuid, advance.getId());
-            }
-        }
-    }
 
     @Override
-    public ResponseEntity<Void> uploadRequestAdvance(MultipartFile filename, String tripNum) {
+    public ResponseEntity<Void> uploadRequestAdvance(MultipartFile file, String tripNum) {
         log.info("Got uploadRequestAdvance request tripNum - " + tripNum);
         Advance advance = findAdvanceByNum(tripNum);
-        if (advance.isPushedUnfButton()) {
+        if (advance.is1CSendAllowed() == null) {
             throw attachmentsError("Uploading of 'request-advance'-file forbidden. " +
                 "Send to UNF after docs uploaded.");
         }
-        uploadRequestAdvance(advance, filename);
-        saveAdvance(advance);
+        uploadRequestAdvance(advance, file);
         return new ResponseEntity<>(OK);
     }
 
 
-    //        TODO :  catch   big size file and response
-    private ResponseEntity<Void> uploadRequestAdvance(Advance advance, MultipartFile filename) {
+    //TODO :  catch   big size file and response
+
+    private ResponseEntity<Void> uploadRequestAdvance(Advance advance, MultipartFile file) {
         try {
-            UUID fileUuid = bStoreService.getFileUuid(filename);
-            TripFields fields = advance.getAdvanceTripFields();
-            if (ordersApiService.saveTripDocuments(fields.getOrderId(), fields.getTripId(), fileUuid)) {
-                advanceService.setAdvanceApplicationFromBstore(advance, fileUuid);
-                log.info("File saved to Orders from BStore. Uuid = {}. Filename = {}. Advance = {}.",
-                    fileUuid, filename, advance);
-            } else {
-                log.error("Don't save files to Orders from BStore. Filename = {}. Advance = {}.",
-                    filename, advance);
-                return new ResponseEntity<>(FORBIDDEN);
-            }
+            UUID fileUuid = saveToBStore(file);
+            saveFromBStore(advance, fileUuid);
+            log.info("File was saved from BStore. Uuid = {}. Filename = {}. Advance = {}.", fileUuid, file, advance);
         } catch (BusinessLogicException e) {
             log.error("Upload 'advance-request' file error:" + e.getMessage());
         }
@@ -188,6 +159,47 @@ public class FileAttachmentsService implements AttachmentService {
 
     private ResponseEntity<Resource> fromBStore(UUID uuid) {
         return bStoreService.requestResourceFromBStore(uuid);
+    }
+
+    private UUID saveToBStore(MultipartFile file) {
+        log.info("Try to save file to BStore: {}", file.getName());
+        return bStoreService.saveFile(file);
+    }
+
+    private void saveFromBStore(Advance advance, UUID fileUuid) {
+        Long tripId = advance.getAdvanceTripFields().getTripId();
+        log.info("Try to save file-uuid from BStore to Trip: {}.", tripId);
+        saveToTripAttachments(tripId, fileUuid);
+        log.info("Try to save file-uuid from BStore to Advance: {}.", advance.getId());
+        saveToAdvance(advance, fileUuid);
+    }
+
+    private void saveToTripAttachments(Long tripId, UUID fileUuid) {
+        tripAttachmentService.saveAssignmentAdvanceRequestUuid(tripId, fileUuid);
+
+    }
+
+    private void saveToAdvance(Advance advance, UUID fileUuid) {
+        advanceService.setAdvanceApplicationFromBstore(advance, fileUuid);
+    }
+
+    private void setUuids(List<TripAttachment> attachments, Advance advance) {
+        int attachSize = attachments.size();
+        log.info("Found {} file-attachments for advance {}.", attachSize, advance.getId());
+        if (attachSize > 0) {
+            setRequestUuid(advance, attachments);
+            setAssignmentRequestUuid(advance, attachments);
+        }
+    }
+
+    private void setRequestUuid(Advance advance, List<TripAttachment> attachments) {
+        UUID uuid = tripAttachmentService.getRequestUuidOrTripRequestUuid(attachments);
+        advanceService.setContractApplication(advance, uuid);
+    }
+
+    private void setAssignmentRequestUuid(Advance advance, List<TripAttachment> attachments) {
+        UUID uuid = tripAttachmentService.getAssignmentRequestUuid(attachments);
+        advanceService.setAdvanceApplication(advance, uuid);
     }
 
     private BusinessLogicException attachmentsError(String message) {

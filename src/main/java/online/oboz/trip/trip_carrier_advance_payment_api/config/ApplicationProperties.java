@@ -122,18 +122,18 @@ public class ApplicationProperties {
     @Value("${services.bstore.pdf}")
     private String bStorePdf;
 
-    /**
-     * OrdersApi-url for OrdersApiService - to load documents
-     */
-    @Value("${services.orders.url}")
-    private URL ordersApiUrl;
+//    /**
+//     * OrdersApi-url for OrdersApiService - to load documents
+//     */
+//    @Value("${services.orders.url}")
+//    private URL ordersApiUrl;
 
 
-    /**
-     * OrdersApi - Save-file request body
-     */
-    @Value("${services.orders.save-body}")
-    private Json ordersApiSaveBody;
+//    /**
+//     * OrdersApi - Save-file request body
+//     */
+//    @Value("${services.orders.save-body}")
+//    private Json ordersApiSaveBody;
 
     /**
      * ReportServer-url for generate 'Advance request template' in PDF
@@ -383,14 +383,14 @@ public class ApplicationProperties {
         this.bStoreUrl = bStoreUrl;
     }
 
-
-    public URL getOrdersApiUrl() {
-        return this.ordersApiUrl;
-    }
-
-    public void setOrdersApiUrl(URL ordersApiUrl) {
-        this.ordersApiUrl = ordersApiUrl;
-    }
+//
+//    public URL getOrdersApiUrl() {
+//        return this.ordersApiUrl;
+//    }
+//
+//    public void setOrdersApiUrl(URL ordersApiUrl) {
+//        this.ordersApiUrl = ordersApiUrl;
+//    }
 
 
     public URL getReportsUrl() {
@@ -647,13 +647,13 @@ public class ApplicationProperties {
     }
 
 
-    public Json getOrdersApiSaveBody() {
-        return ordersApiSaveBody;
-    }
-
-    public void setOrdersApiSaveBody(Json ordersApiSaveBody) {
-        this.ordersApiSaveBody = ordersApiSaveBody;
-    }
+//    public Json getOrdersApiSaveBody() {
+//        return ordersApiSaveBody;
+//    }
+//
+//    public void setOrdersApiSaveBody(Json ordersApiSaveBody) {
+//        this.ordersApiSaveBody = ordersApiSaveBody;
+//    }
 
 
     public String getTokenUrlPostfix() {

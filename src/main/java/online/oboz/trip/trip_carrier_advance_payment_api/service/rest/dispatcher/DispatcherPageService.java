@@ -5,6 +5,7 @@ import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.Tri
 
 import online.oboz.trip.trip_carrier_advance_payment_api.service.advance.AdvanceService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.contacts.ContactService;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.integration.tripdocs.TripDocumentsService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.persons.BasePersonService;
 
 import online.oboz.trip.trip_carrier_advance_payment_api.util.SecurityUtils;
@@ -25,16 +26,19 @@ public class DispatcherPageService implements DispatcherService {
     private final AdvanceService advanceService;
     private final BasePersonService personService;
     private final ContactService contactService;
+    private final TripDocumentsService documentsService;
+
 
     @Autowired
     public DispatcherPageService(
         AdvanceService advanceService,
         BasePersonService personService,
-        ContactService contactService
-    ) {
+        ContactService contactService,
+        TripDocumentsService documentsService) {
         this.advanceService = advanceService;
         this.personService = personService;
         this.contactService = contactService;
+        this.documentsService = documentsService;
     }
 
     @Override
@@ -49,18 +53,17 @@ public class DispatcherPageService implements DispatcherService {
     @Override
     public ResponseEntity<IsTripAdvanced> isAdvanced(Long tripId) {
         log.debug("--- Advance state request for trip: {} and author: {} ", tripId);
-
+        IsTripAdvanced isTripAdvanced = new IsTripAdvanced();
         Trip trip = advanceService.findTrip(tripId);
         Boolean advanceNotExists = advanceService.advancesNotExistsForTrip(trip);
-
-        //or use isTripAdvanceMapper --> (trip, advance, author)?
-        IsTripAdvanced isTripAdvanced = new IsTripAdvanced();
-        if (advanceNotExists) {
-            isTripAdvanced.setIsButtonActive(true);
-        } else {
-            isTripAdvanced.setIsButtonActive(false);
+        Boolean contactNotFound = contactService.notExistsByContractor(trip.getContractorId());
+        isTripAdvanced.contactsNotFound(contactNotFound);
+        isTripAdvanced.setIsButtonActive(advanceNotExists && !contactNotFound);
+        isTripAdvanced.setTripDocsNotFound(!documentsService.isAllTripDocumentsLoaded(tripId));
+        if (!advanceNotExists) {
             Advance advance = advanceService.findByTripId(tripId);
             personService.setAuthorInfo(isTripAdvanced, advance.getAuthorId());
+            isTripAdvanced.setIsAutoRequested(advance.isAuto());
         }
         return new ResponseEntity<>(isTripAdvanced, HttpStatus.OK);
     }

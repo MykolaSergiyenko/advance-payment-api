@@ -1,22 +1,13 @@
 package online.oboz.trip.trip_carrier_advance_payment_api.service.messages;
 
 import online.oboz.trip.trip_carrier_advance_payment_api.config.ApplicationProperties;
-
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.mappers.AdvanceMapper;
-
 import online.oboz.trip.trip_carrier_advance_payment_api.repository.AdvanceRepository;
-
 import online.oboz.trip.trip_carrier_advance_payment_api.service.advance.AdvanceService;
-
-
 import online.oboz.trip.trip_carrier_advance_payment_api.service.contacts.ContactService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.costs.CostService;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.integration.ordersapi.OrdersFilesService;
-
 import online.oboz.trip.trip_carrier_advance_payment_api.service.integration.unf.UnfService;
-
 import online.oboz.trip.trip_carrier_advance_payment_api.service.rest.RestService;
-
 
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -29,7 +20,6 @@ public class AdvanceServiceTest {
     private AdvanceService personService;
     private ContactService contactService;
     private CostService costService;
-    private OrdersFilesService ordersFilesService;
     private Notificator notificationService;
     private UnfService integration1cService;
 

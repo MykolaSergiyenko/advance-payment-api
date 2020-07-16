@@ -11,12 +11,13 @@ import online.oboz.trip.trip_carrier_advance_payment_api.repository.AdvanceRepos
 
 import online.oboz.trip.trip_carrier_advance_payment_api.service.contacts.ContactService;;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.costs.CostService;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.integration.ordersapi.OrdersFilesService;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.integration.tripdocs.TripDocumentsService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.integration.unf.UnfService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.messages.Notificator;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.persons.BasePersonService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.trip.TripService;
 import online.oboz.trip.trip_carrier_advance_payment_api.util.ErrorUtils;
+import online.oboz.trip.trip_carrier_advance_payment_api.util.StringUtils;
 import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,8 +42,9 @@ public class MainAdvanceService implements AdvanceService {
     private final BasePersonService personService;
     private final ContactService contactService;
     private final CostService costService;
-    private final OrdersFilesService ordersFilesService;
+
     private final Notificator notificationService;
+    private final TripDocumentsService documentsService;
     private final UnfService integration1cService;
 
     private final ApplicationProperties applicationProperties;
@@ -53,7 +55,7 @@ public class MainAdvanceService implements AdvanceService {
         BasePersonService personService,
         ContactService contactService,
         CostService costService,
-        OrdersFilesService ordersFilesService,
+        TripDocumentsService documentsService,
         Notificator notificationService,
         UnfService integration1cService,
         ApplicationProperties applicationProperties,
@@ -63,7 +65,7 @@ public class MainAdvanceService implements AdvanceService {
         this.personService = personService;
         this.contactService = contactService;
         this.costService = costService;
-        this.ordersFilesService = ordersFilesService;
+        this.documentsService = documentsService;
         this.notificationService = notificationService;
         this.integration1cService = integration1cService;
         this.advanceRepository = advanceRepository;
@@ -227,7 +229,6 @@ public class MainAdvanceService implements AdvanceService {
     @Override
     public Advance setContractApplication(Advance advance, UUID uuid) {
         if (uuid != null) {
-
             advance.setUuidContractApplicationFile(uuid);
             saveAdvance(advance);
             // check second file
@@ -236,6 +237,8 @@ public class MainAdvanceService implements AdvanceService {
             }
             log.info("Update contract-application-file in {}. Set uuid = {} ", advance.getId(),
                 advance.getUuidContractApplicationFile());
+        } else {
+            throw getAdvanceError("Advance-application-file uuid can't be null.");
         }
         return advance;
     }
@@ -251,6 +254,8 @@ public class MainAdvanceService implements AdvanceService {
             }
             log.info("Update advance-application-file in {}. Set uuid = {} ", advance.getId(),
                 advance.getUuidAdvanceApplicationFile());
+        } else {
+            throw getAdvanceError("Advance-application-file uuid can't be null.");
         }
         return advance;
     }
@@ -267,32 +272,20 @@ public class MainAdvanceService implements AdvanceService {
     @Override
     public ResponseEntity<Void> confirmAdvance(Long advanceId) {
         Advance advance = findById(advanceId);
+        Long tripId = advance.getAdvanceTripFields().getTripId();
 
-        //Trip trip = tripService.findTripById(advance.getAdvanceTripFields().getTripId());
-        //Order order = orderRepository.findById(trip.getTripFields().getOrderId()).orElseThrow(() ->
-        //getAdvanceInternalError("order not found") );
-
-        Boolean downloadAllDocuments = ordersFilesService.isDownloadAllDocuments(advance);
-        Boolean isCancelled = advance.isCancelled();
-        if (downloadAllDocuments && !advance.isPushedUnfButton() && !isCancelled) {
-            //TODO: Интеграция с 1с-УНФ?
+        if (!documentsService.isAllDocumentsLoaded(advance)) {
+            throw getAdvanceError("Not all documents are loaded for trip: " + tripId);
+        } else if (advance.isCancelled()) {
+            throw getAdvanceError("Advance was cancelled: " + advanceId);
+        } else if (advance.is1CSendAllowed() == false) {
+            throw getAdvanceError("Advance was already sent to UNF.");
+        } else {
             integration1cService.send1cNotification(advanceId);
-
-            //Where is it set at default
-            //advance.setPushedUnfButton(true);
             advance.setIs1CSendAllowed(false);
-            //advance.setCarrierPageAccess(false);
-
             saveAdvance(advance);
             log.info("Advance is confirmed {}.", advance.getId());
             return new ResponseEntity<>(HttpStatus.OK);
-        }
-        if (!downloadAllDocuments) {
-            throw getAdvanceError("no download All Documents");
-        } else if (isCancelled) {
-            throw getAdvanceError("isCancelled is true");
-        } else {
-            throw getAdvanceError("unf already send");
         }
     }
 
@@ -437,7 +430,14 @@ public class MainAdvanceService implements AdvanceService {
     // по "сложному внешнему ключу"
     // - все поля - проекция полей Трипа
     private Boolean advanceExists(Long tripId, Long contractorId, Long driverId, Long orderId, String tripNum) {
+        checkEmpty(tripNum, tripId, contractorId, driverId, orderId);
         return advanceRepository.existsActualByIds(tripId, contractorId, driverId, orderId, tripNum);
+    }
+
+    private void checkEmpty(String num, Long... ids) {
+        if (StringUtils.isEmptyLongs(ids) || StringUtils.isEmptyString(num)) {
+            throw getAdvanceError("Empty params for advanceExists: " + StringUtils.getIds(ids) + "; num = " + num);
+        }
     }
 
 

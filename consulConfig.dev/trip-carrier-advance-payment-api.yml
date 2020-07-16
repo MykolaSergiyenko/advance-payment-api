@@ -85,13 +85,13 @@ services:
         url: https://oboz.online/api/bstore/
         pdf: 'pdf/'
 
-    # OrdersApi-url for OrdersApiService
-    orders:
-        url: https://oboz.online/api/orders/dispatcher/orders/%d/trips/%d/documents
-        save-body: '{"trip_document":{"id":null,
-                       "file_id":%s,
-                       "document_type_code":"assignment_advance_request",
-                       "name":"Заявка на авансирование"}}'
+    # OrdersApi-url for OrdersApiService - don't use Ruby - orders_api
+#    orders:
+#        url: https://oboz.online/api/orders/dispatcher/orders/%d/trips/%d/documents
+#        save-body: '{"trip_document":{"id":null,
+#                       "file_id":%s,
+#                       "document_type_code":"assignment_advance_request",
+#                       "name":"Заявка на авансирование"}}'
 
     reports:
         url: http://reports.oboz.com/reportserver/reportserver/httpauthexport?

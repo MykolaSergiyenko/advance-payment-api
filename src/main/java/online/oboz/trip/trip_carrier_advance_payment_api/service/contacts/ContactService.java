@@ -13,4 +13,6 @@ public interface ContactService {
     ResponseEntity<CarrierContactDTO> getContactCarrier(Long contractorId);
 
     AdvanceContactsBook findByContractor(Long contractorId);
+
+    Boolean notExistsByContractor(Long contractorId);
 }

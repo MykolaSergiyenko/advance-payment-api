@@ -46,6 +46,11 @@ public class AdvanceContactService implements ContactService {
             getContactError("Advance-contact for this Carrier not found:" + contractorId));
     }
 
+    public Boolean notExistsByContractor(Long contractorId) {
+        AdvanceContactsBook contact = contactsBookRepository.findByContractorId(contractorId).orElse(null);
+        return (contact == null);
+    }
+
 
     // *** internal-functions
 

@@ -13,10 +13,29 @@ public final class StringUtils {
         return (s == null || org.apache.commons.lang.StringUtils.isBlank(s));
     }
 
+    public static Boolean isEmptyNum(Long n) {
+        return (n == null);
+    }
+
     public static Boolean isEmptyStrings(String... strings) {
         for (String s : strings) {
             if (isEmptyString(s)) return true;
         }
         return false;
+    }
+
+    public static Boolean isEmptyLongs(Long... longs) {
+        for (Long s : longs) {
+            if (isEmptyNum(s)) return true;
+        }
+        return false;
+    }
+
+    public static String getIds(Long... ids){
+        String str ="";
+        for (Long id : ids) {
+            str += (str.isEmpty() ? "ids = ": ", ") + id;
+        }
+        return str;
     }
 }

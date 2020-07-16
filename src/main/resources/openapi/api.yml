@@ -1071,10 +1071,13 @@ components:
             properties:
                 isButtonActive:
                     type: boolean
-                    description: "Доступность выдачи аванса - когда аванса по трипу нет!"
+                    description: "Доступность выдачи аванса"
                 contactsNotFound:
                     type: boolean
-                    description: "Признак блокировки контрагента - isContractorLock - Используем, если у Контрагента нет контакта авансирования?"
+                    description: "Нет контактов авансирования для контрагента"
+                tripDocsNotFound:
+                    type: boolean
+                    description: "Не загружены документы в трип"
                 authorId:
                     type: integer
                     format: int64
@@ -1094,7 +1097,7 @@ components:
                     description: "Время и дата запроса аванса"
                 isAutoRequested:
                     type: boolean
-                    description: "--- isAutoRequested"
+                    description: "Признак авто-аванса"
 
         Paginator:
             type: object
