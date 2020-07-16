@@ -47,7 +47,7 @@ public class CarrierPageService implements CarrierService {
     public ResponseEntity<CarrierPage> searchAdvancePaymentRequestByUuid(UUID uuid) {
         Advance advance = advanceService.findByUuid(uuid);
         CarrierPage page = forCarrier(advance);
-        advanceService.setEmailRead(advance);
+        advanceService.setRead(advance);
         return new ResponseEntity<>(page, HttpStatus.OK);
     }
 
