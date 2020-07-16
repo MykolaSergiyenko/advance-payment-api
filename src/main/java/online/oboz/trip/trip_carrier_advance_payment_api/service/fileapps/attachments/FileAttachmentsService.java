@@ -113,9 +113,9 @@ public class FileAttachmentsService implements AttachmentService {
         log.info("Found {} advances without attachments. Try to update it.", advances.size());
         advances.forEach(advance -> {
             try {
-                setUuids(tripAttachmentService.getTripAttachments(advance.getAdvanceTripFields().getTripId()),
-                    advance);
-            } catch (Exception e) {
+                Long tripId = advance.getAdvanceTripFields().getTripId();
+                setUuids(tripAttachmentService.getTripAttachments(tripId), advance);
+            } catch (BusinessLogicException e) {
                 log.error("Error while updating file-uuids: {}", e.getMessage());
             }
         });
