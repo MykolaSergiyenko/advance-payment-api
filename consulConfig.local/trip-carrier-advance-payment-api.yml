@@ -95,11 +95,11 @@ services:
 
     reports:
         url: http://reports.oboz.com/reportserver/reportserver/httpauthexport?
-        type-key: key=avance_request
-        user: user=bertathar
-        api-key: apikey=nzybc16h
+        type-key: key=avance_request&
+        user: user=bertathar&
+        api-key: apikey=nzybc16h&
         format: format=PDF
-        template-params: p_trip_num=%s&p_avance_sum=%s&p_avance_comission=%s
+        template-params: p_trip_num=%s&p_avance_sum=%s&p_avance_comission=%s&
 
 
     #Advance-service
