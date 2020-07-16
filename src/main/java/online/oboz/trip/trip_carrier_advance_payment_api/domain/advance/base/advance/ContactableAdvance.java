@@ -10,6 +10,11 @@ import javax.persistence.*;
 import java.time.OffsetDateTime;
 
 
+/**
+ * "Аванс с уведомлениями"
+ * - в каждом авансе должно быть контактное лицо для уведомлений;
+ * - отправка сообщений по авансу, а так же их прочтение фиксируется в данных полях.
+ */
 @MappedSuperclass
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public abstract class ContactableAdvance extends TripsAdvance {
@@ -24,25 +29,44 @@ public abstract class ContactableAdvance extends TripsAdvance {
     private Boolean isNotifiableAdvance;
 
 
+    /**
+     * Advance was notified (in some way) at
+     */
     @Column(name = "notified_at")
     private OffsetDateTime notifiedAt;
 
+    /**
+     * Advance was scheduled notified (in some way) at
+     */
     @Column(name = "notified_delayed_at")
     private OffsetDateTime notifiedDelayedAt;
 
 
+    /**
+     * Moment of e-mail was sent
+     */
     @Column(name = "email_sent_at")
     private OffsetDateTime emailSentAt;
 
 
+    /**
+     * Moment of sms was sent
+     */
     @Column(name = "sms_sent_at")
     private OffsetDateTime smsSentAt;
 
 
+    /**
+     * Notification (email or sms - first of them)  was read at
+     * (contact go by link in letter)
+     */
     @Column(name = "read_at")
     private OffsetDateTime readAt;
 
 
+    /**
+     * Advance-contact of Contractor
+     */
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "contractor_id", referencedColumnName = "contractor_id")
     private AdvanceContactsBook contact;

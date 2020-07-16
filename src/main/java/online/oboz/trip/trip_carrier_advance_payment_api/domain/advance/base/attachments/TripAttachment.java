@@ -10,26 +10,42 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 import java.util.UUID;
 
+/**
+ * Вложения, загружаемые в Трип
+ */
 @Entity
 @Table(name = "trip_documents", schema = "orders")
 public class TripAttachment extends BaseUpdateEntity {
 
+    /**
+     * UUID файла
+     */
     @NaturalId
     @Column(name = "file_id", nullable = false)
     private UUID fileId;
 
+    /**
+     * ?
+     */
     @Column(name = "template_file_id", nullable = false)
     private UUID templateFileId;
 
+    /**
+     * Trip's id
+     */
     @Column(name = "trip_id", nullable = false)
     private Long tripId;
 
+    /**
+     * Attachment's type code
+     */
     @Column(name = "document_type_code", nullable = false)
     private String documentTypeCode;
 
-//    @Column(name = "document_properties_values")
-//    private Object documentPropertiesValues;
 
+    /**
+     * Attachment's type name
+     */
     @Column(name = "name", nullable = false)
     private String name;
 
@@ -76,13 +92,6 @@ public class TripAttachment extends BaseUpdateEntity {
         this.documentTypeCode = documentTypeCode;
     }
 
-//    public Object getDocumentPropertiesValues() {
-//        return documentPropertiesValues;
-//    }
-
-//    public void setDocumentPropertiesValues(Object documentPropertiesValues) {
-//        this.documentPropertiesValues = documentPropertiesValues;
-//    }
 
     public String getName() {
         return name;

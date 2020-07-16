@@ -16,16 +16,28 @@ public abstract class Contractor extends BaseUuidEntity {
     final static Logger log = LoggerFactory.getLogger(Contractor.class);
 
 
+    /**
+     * Auto-advance-contractor
+     */
     @Column(name = "is_auto_advance_payment")
     private Boolean isAutoContractor;
 
+    /**
+     * Kind of contractors
+     */
     @Column(name = "kind")
     private String kind;
 
+    /**
+     * Is contractor payer of VAT
+     */
     @Column(name = "is_vat_payer")
     private Boolean isVatPayer;
 
 
+    /**
+     * Contractor's self personal info
+     */
     @AttributeOverrides({
         @AttributeOverride(name = "fullName", column = @Column(name = "full_name",
             insertable = false, updatable = false)),
@@ -36,14 +48,12 @@ public abstract class Contractor extends BaseUuidEntity {
     private FullNamePersonInfo contractorContacts;
 
 
+    /**
+     * Full contractor's name
+     */
     @Column(name = "full_name")
     private String fullName;
-//
-//    @Column(name = "phone")
-//    private String phone;
-//
-//    @Column(name = "email")
-//    private String email;
+
 
 
     public String getKind() {

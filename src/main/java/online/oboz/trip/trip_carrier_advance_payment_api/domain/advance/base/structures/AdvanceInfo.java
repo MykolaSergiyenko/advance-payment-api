@@ -5,13 +5,22 @@ import javax.persistence.Column;
 import javax.persistence.Embeddable;
 
 
+/**
+ * Денежные параметры аванса
+ */
 @Embeddable
 public class AdvanceInfo {
 
+    /**
+     * Sum of advance
+     */
     @Column(name = "advance_payment_sum")
     private Double advancePaymentSum;
 
 
+    /**
+     * Fee for documents processing
+     */
     @Column(name = "registration_fee")
     private Double registrationFee;
 

@@ -10,6 +10,9 @@ import javax.persistence.Embeddable;
 import javax.persistence.MappedSuperclass;
 import java.io.Serializable;
 
+/**
+ * Контакты кого-либо
+ */
 @Embeddable
 @MappedSuperclass
 public class SimpleContacts implements Serializable {

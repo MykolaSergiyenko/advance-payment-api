@@ -1,6 +1,5 @@
 package online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.notificatoins;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
@@ -8,21 +7,24 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import javax.validation.constraints.Pattern;
 
 public class SendSmsRequest {
+    /**
+     * Text of message
+     */
     @JsonProperty("text")
     private String text;
 
 
+    /**
+     * Phone number
+     */
     @Pattern(regexp = "7\\d{7}", message = "Неверный номер телефона.")
     @JsonProperty("phone")
     private String phone;
 
-//    @JsonIgnore
-//    private String tripNum;
 
     public SendSmsRequest(String text, String phone) {
         this.text = text;
         this.phone = phone;
-//        this.tripNum = tripNum;
     }
 
     public SendSmsRequest() {
@@ -36,9 +38,6 @@ public class SendSmsRequest {
         return this.phone;
     }
 
-//    public String getTripNum() {
-//        return this.tripNum;
-//    }
 
     public void setText(String text) {
         this.text = text;
@@ -48,9 +47,6 @@ public class SendSmsRequest {
         this.phone = phone;
     }
 
-//    public void setTripNum(String tripNum) {
-//        this.tripNum = tripNum;
-//    }
 
     @Override
     public boolean equals(Object o) {
@@ -64,10 +60,6 @@ public class SendSmsRequest {
 
     @Override
     public String toString() {
-        return "SmsContainer {" +
-            " text='" + text + '\'' +
-            ", phone='" + phone + '\'' +
-//            ", tripNum='" + tripNum + '\'' +
-            '}';
+        return "SmsContainer { text=" + text + ", phone='" + phone + "}";
     }
 }

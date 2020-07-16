@@ -9,20 +9,32 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
 
+/**
+ * Точка маршрута
+ */
 @Entity
 @Table(schema = "common", name = "locations")
 public class CommonLocation extends BaseUpdateEntity {
     final static Logger log = LoggerFactory.getLogger(CommonLocation.class);
 
 
+    /**
+     * Location id
+     */
     @NaturalId
     @NotNull
     @Column(name = "location_id")
     private String locationId;
 
+    /**
+     * Location time-zone
+     */
     @Column(name = "location_tz")
     private String locationTz;
 
+    /**
+     * Location address
+     */
     @Column(name = "address")
     private String address;
 

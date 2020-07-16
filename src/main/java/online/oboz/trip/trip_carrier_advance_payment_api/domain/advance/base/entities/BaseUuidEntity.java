@@ -11,11 +11,17 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.UUID;
 
+/**
+ * Базовая сущность с UUID
+ */
 @MappedSuperclass
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public abstract class BaseUuidEntity extends BaseUpdateEntity {
     final static Logger log = LoggerFactory.getLogger(BaseUuidEntity.class);
 
+    /**
+     * UUID сущностей
+     */
     @NaturalId
     @NotNull
     @GeneratedValue

@@ -8,6 +8,9 @@ import org.slf4j.LoggerFactory;
 
 import javax.persistence.*;
 
+/**
+ * Заказ-ордер - в общем случае может иметь несколько Трипов
+ */
 @Entity
 @Table(schema = "orders", name = "orders")
 public class Order extends BaseUuidEntity {
@@ -15,6 +18,9 @@ public class Order extends BaseUuidEntity {
 
 
     // only .MOTOR orders
+    /**
+     * Order's type
+     */
     @Column(name = "order_type_id")
     private Long orderTypeId = 1l;
 

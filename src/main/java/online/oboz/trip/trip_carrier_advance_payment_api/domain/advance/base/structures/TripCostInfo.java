@@ -7,10 +7,16 @@ import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import java.io.Serializable;
 
+/**
+ * Цены в трипе
+ */
 @Embeddable
 public class TripCostInfo implements Serializable {
 
 
+    /**
+     * Trip's cost without VAT
+     */
     @Column(name = "cost")
     private Double cost;
 

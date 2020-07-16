@@ -14,13 +14,19 @@ import org.slf4j.LoggerFactory;
 
 import javax.persistence.*;
 
+/**
+ * "Аванс для Трипа"
+ * - аванс проецирует на себя много полей из родительского Трипа
+ */
 @MappedSuperclass
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public abstract class TripsAdvance extends AuthorsAdvance {
     final static Logger log = LoggerFactory.getLogger(TripsAdvance.class);
 
 
-
+    /**
+     * Trip fields projected to Advance
+     */
     @AttributeOverrides({
         @AttributeOverride(name = "tripId", column = @Column(name = "trip_id")),
         @AttributeOverride(name = "num", column = @Column(name = "trip_num")),
@@ -33,6 +39,9 @@ public abstract class TripsAdvance extends AuthorsAdvance {
     private TripFields advanceTripFields;
 
 
+    /**
+     * Trip cost-fields projected to Advance
+     */
     @AttributeOverrides({
         @AttributeOverride(name = "cost", column = @Column(name = "trip_cost"))
     })
@@ -40,6 +49,9 @@ public abstract class TripsAdvance extends AuthorsAdvance {
     private TripCostInfo costInfo;
 
 
+    /**
+     * Advance costs calculated by Trip params and dictionaries
+     */
     @AttributeOverrides({
         @AttributeOverride(name = "advancePaymentSum", column = @Column(name = "advance_payment_sum")),
         @AttributeOverride(name = "registrationFee", column = @Column(name = "registration_fee"))

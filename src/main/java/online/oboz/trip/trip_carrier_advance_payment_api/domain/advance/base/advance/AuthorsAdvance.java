@@ -10,14 +10,25 @@ import org.slf4j.LoggerFactory;
 import javax.persistence.*;
 
 
+/**
+ * "Авторский аванс"
+ * - у аванса всегда есть автор
+ */
 @MappedSuperclass
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public abstract class AuthorsAdvance extends UnfAdvanceFields {
     private static final Logger log = LoggerFactory.getLogger(AuthorsAdvance.class);
 
+    /**
+     * Advance author id
+     */
     @Column(name = "author_id", updatable = false, insertable = false)
     private Long authorId;
 
+    /**
+     * Advance author
+     * (Person who push 'Give advance'-button or auto-advance-author)
+     */
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "author_id")
     private Person author;

@@ -10,6 +10,9 @@ public class EmailContainer {
         return message;
     }
 
+    /**
+     * Simple spring-mail message
+     */
     private final SimpleMailMessage message;
 
     public EmailContainer(String from,
@@ -17,7 +20,6 @@ public class EmailContainer {
                           String subject,
                           String text) {
 
-        //from Spring
         SimpleMailMessage message = new SimpleMailMessage();
 
         message.setFrom(from);
@@ -41,7 +43,7 @@ public class EmailContainer {
 
     @Override
     public String toString() {
-        return "EmailContainer {message= '" + message.toString() + '}';
+        return "EmailContainer {message= " + message.toString() + "}";
     }
 
 }

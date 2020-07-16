@@ -9,6 +9,9 @@ import javax.persistence.*;
 import java.io.Serializable;
 
 
+/**
+ * Пользователи
+ */
 @Entity
 @Table(schema = "common", name = "persons")
 public class Person extends AdvancePerson implements Serializable {
@@ -32,9 +35,7 @@ public class Person extends AdvancePerson implements Serializable {
 
     @Override
     public String toString() {
-        return "Person{" +
-            super.toString() +
-            '}';
+        return "Person{" + super.toString() +"}";
     }
 
 }

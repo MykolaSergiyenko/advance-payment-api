@@ -11,6 +11,10 @@ import javax.persistence.*;
 import java.time.OffsetDateTime;
 
 
+/**
+ * "Отменяемый аванс"
+ * - поля аванса, связанные с отменой, созданием, комментированием
+ */
 @MappedSuperclass
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 @AttributeOverride(name = "contractorId",
@@ -19,23 +23,48 @@ public abstract class CancelableAdvance extends HasContractor {
     final static Logger log = LoggerFactory.getLogger(CancelableAdvance.class);
 
 
+    /**
+     * Comment on Advance:
+     * - auto-advances have 'auto created' comments
+     * - problem advances have other comments
+     * - other advances haven't comments
+     */
     @Column(name = "comment")
     private String comment;
 
+
+    /**
+     * Cancellation comment on Advance
+     */
     @Column(name = "cancelled_comment")
     private String cancelledComment;
 
+
+    /**
+     * Advance was cancelled
+     */
     @Column(name = "is_cancelled", columnDefinition = "boolean default false", nullable = false)
     private Boolean isCancelled;
 
 
+    /**
+     * Advance was cancelled at
+     */
     @Column(name = "cancelled_at")
     private OffsetDateTime cancelledAt;
 
 
+    /**
+     * Auto-created advance (default false)
+     */
     @Column(name = "is_automation_request", columnDefinition = "boolean default false", nullable = false)
     private Boolean isAuto = false;
 
+
+    /**
+     * @param autoComment
+     * @return Has advance non-auto comment
+     */
     public boolean isProblem(String autoComment) {
         return !(this.comment == null || this.comment.isEmpty() || this.comment.equals(autoComment));
     }

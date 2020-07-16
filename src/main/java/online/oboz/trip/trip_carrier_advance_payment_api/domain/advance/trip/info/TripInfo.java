@@ -10,47 +10,80 @@ import org.slf4j.LoggerFactory;
 import javax.persistence.*;
 import java.time.OffsetDateTime;
 
+/**
+ * Информация по поездке - содержит конечные точки и даты
+ */
 @Entity
 @Table(schema = "orders", name = "trip_infos")
 public class TripInfo extends BaseEntity {
     final static Logger log = LoggerFactory.getLogger(TripInfo.class);
 
 
+    /**
+     * Trip's id
+     */
     @Column(name = "trip_id", updatable = false, insertable = false)
     private Long tripId;
 
 
+    /**
+     * Trip
+     */
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "trip_id")
     private Trip trip;
 
 
+    /**
+     * Start point
+     */
     @Column(name = "origin_place_id", updatable = false, insertable = false)
     private String originPlaceId;
 
 
+    /**
+     * Start address
+     */
     @Column(name = "origin_name")
     private String originName;
 
+    /**
+     * Start date
+     */
     @Column(name = "start_date")
     private OffsetDateTime startDate;
 
 
+    /**
+     * End point
+     */
     @Column(name = "destination_place_id",
         updatable = false, insertable = false)
     private String destinationPlaceId;
 
+    /**
+     * End address
+     */
     @Column(name = "destination_name")
     private String destinationName;
 
+    /**
+     * End date
+     */
     @Column(name = "end_date")
     private OffsetDateTime endDate;
 
 
+    /**
+     * Start Location
+     */
     @OneToOne
     @JoinColumn(name = "origin_place_id", referencedColumnName = "location_id")
     private CommonLocation startLocation;
 
+    /**
+     * End Location
+     */
     @OneToOne
     @JoinColumn(name = "destination_place_id", referencedColumnName = "location_id")
     private CommonLocation endLocation;

@@ -7,14 +7,23 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.OffsetDateTime;
 
+/**
+ * Базовая обновляемая сущность
+ */
 @MappedSuperclass
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public abstract class BaseUpdateEntity extends BaseEntity {
 
+    /**
+     * Entity created at
+     */
     @Column(name = "created_at", insertable = false, updatable = false)
     private OffsetDateTime createdAt;
 
 
+    /**
+     * Entity updated at
+     */
     @Column(name = "updated_at")
     private OffsetDateTime updatedAt;
 

@@ -9,11 +9,17 @@ import org.slf4j.LoggerFactory;
 
 import javax.persistence.*;
 
+/**
+ * Абстрактная сущность для пользователей ОБОЗ
+ */
 @MappedSuperclass
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 public abstract class AdvancePerson extends HasContractor {
     final static Logger log = LoggerFactory.getLogger(AdvancePerson.class);
 
+    /**
+     * Personal info for OBOZ-users
+     */
     @AttributeOverrides({
         @AttributeOverride(name = "phone", column = @Column(name = "phone")),
         @AttributeOverride(name = "email", column = @Column(name = "email")),
@@ -50,8 +56,6 @@ public abstract class AdvancePerson extends HasContractor {
 
     @Override
     public String toString() {
-        return "AdvancePerson{" +
-            "personInfo=" + info +
-            '}';
+        return "AdvancePerson{ personInfo=" + info +"}";
     }
 }

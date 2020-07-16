@@ -2,7 +2,6 @@ package online.oboz.trip.trip_carrier_advance_payment_api.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import springfox.documentation.spring.web.json.Json;
 
 import java.net.URL;
 import java.time.OffsetDateTime;
@@ -101,9 +100,15 @@ public class ApplicationProperties {
     private String autoCreatedComment;
 
 
+    /**
+     * Auto-advances author personId
+     */
     @Value("${services.auto-advance-service.auto-author}")
     private Long autoAuthor;
 
+    /**
+     * Min-date of trip-assigning for give auto-advance
+     */
     @Value("${services.auto-advance-service.min-date}")
     private OffsetDateTime minDate;
 
@@ -126,18 +131,6 @@ public class ApplicationProperties {
     @Value("${services.bstore.pdf}")
     private String bStorePdf;
 
-//    /**
-//     * OrdersApi-url for OrdersApiService - to load documents
-//     */
-//    @Value("${services.orders.url}")
-//    private URL ordersApiUrl;
-
-
-//    /**
-//     * OrdersApi - Save-file request body
-//     */
-//    @Value("${services.orders.save-body}")
-//    private Json ordersApiSaveBody;
 
     /**
      * ReportServer-url for generate 'Advance request template' in PDF
@@ -344,9 +337,6 @@ public class ApplicationProperties {
     }
 
 
-    /**
-     * Config auto-advance properties here
-     */
     public String getCronCreation() {
         return cronCreation;
     }
@@ -363,9 +353,7 @@ public class ApplicationProperties {
         this.cronUpdate = cronUpdate;
     }
 
-    /**
-     * Get minimum count, dates of driver's trips for AutoAdvanceService
-     */
+
     public Long getMinAdvanceCount() {
         return this.minAdvanceCount;
     }
@@ -375,10 +363,6 @@ public class ApplicationProperties {
     }
 
 
-    /**
-     * Get B-Store-url for B-StoreService
-     * //TODO: Is make auth-Request via RestService --> RestTemplate ?
-     */
     public URL getbStoreUrl() {
         return bStoreUrl;
     }
@@ -386,15 +370,6 @@ public class ApplicationProperties {
     public void setbStoreUrl(URL bStoreUrl) {
         this.bStoreUrl = bStoreUrl;
     }
-
-//
-//    public URL getOrdersApiUrl() {
-//        return this.ordersApiUrl;
-//    }
-//
-//    public void setOrdersApiUrl(URL ordersApiUrl) {
-//        this.ordersApiUrl = ordersApiUrl;
-//    }
 
 
     public URL getReportsUrl() {
@@ -513,11 +488,6 @@ public class ApplicationProperties {
         this.emailMessageTemplate = emailMessageTemplate;
     }
 
-    /**
-     * Get java-mail-properties configurated for Spring
-     * //TODO: Check used everywhere?
-     * //Make mail-config.java?
-     */
     public String getMailHost() {
         return this.mailHost;
     }
@@ -649,15 +619,6 @@ public class ApplicationProperties {
     public void setSmsMessageTemplate(String smsMessageTemplate) {
         this.smsMessageTemplate = smsMessageTemplate;
     }
-
-
-//    public Json getOrdersApiSaveBody() {
-//        return ordersApiSaveBody;
-//    }
-//
-//    public void setOrdersApiSaveBody(Json ordersApiSaveBody) {
-//        this.ordersApiSaveBody = ordersApiSaveBody;
-//    }
 
 
     public String getTokenUrlPostfix() {

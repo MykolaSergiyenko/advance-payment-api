@@ -1,8 +1,6 @@
 package online.oboz.trip.trip_carrier_advance_payment_api.domain.advance;
 
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.advance.ContactableAdvance;
-
-
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.Person;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
@@ -11,11 +9,7 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.hibernate.annotations.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-
-
 import javax.persistence.*;
-
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
@@ -24,34 +18,40 @@ import java.util.UUID;
  * "Заявка на авансирование" или просто "Аванс по трипу"
  * <p>
  * Основная сущность сервиса "Авансирование"
- * и так называемого "Автоавансирования" -
- * мы ее создаем, изменяем и так далее
- * поэтому к ней быть особенно внимательным
  * <p>
- * Таблица находится в схеме "Заказов" - orders
- * <p>
- */
-
+ **/
 @Entity
 @Table(name = "trip_request_advance_payment", schema = "orders")
 public class Advance extends ContactableAdvance {
     final static Logger log = LoggerFactory.getLogger(Advance.class);
 
 
+    /**
+     * UUID of Contract-file
+     */
     @Type(type = "pg-uuid")
     @Column(name = "uuid_contract_application_file", length = 36, nullable = true)
     private UUID uuidContractApplicationFile;
 
 
+    /**
+     * UUID of Advance-application file
+     */
     @Type(type = "pg-uuid")
     @Column(name = "uuid_advance_application_file", length = 36, nullable = true)
     private UUID uuidAdvanceApplicationFile;
 
 
+    /**
+     * Truck loading was completed
+     */
     @Column(name = "loading_complete", columnDefinition = "boolean default false")
     private Boolean loadingComplete;
 
 
+    /**
+     * Contact-person push 'Want advance' at
+     */
     @Column(name = "push_button_at")
     private OffsetDateTime pushButtonAt;
 

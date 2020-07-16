@@ -10,32 +10,56 @@ import org.slf4j.LoggerFactory;
 import javax.persistence.*;
 
 
+/**
+ * Поездки
+ */
 @Entity
 @Table(schema = "orders", name = "trips")
 public class Trip extends BaseTrip {
     final static Logger log = LoggerFactory.getLogger(Trip.class);
 
 
+    /**
+     * Trip's comment
+     */
     @Column(name = "comment")
     private String comment;
 
+    /**
+     * Trip's state
+     */
     @Column(name = "trip_status_code")
     private String tripStatusCode;
 
 
+    /**
+     * Trip's VAT-code
+     */
     @Column(name = "vat_code", columnDefinition = "default 'twenty_five'")
     private String vatCode;
 
 
+    /**
+     * Is contractor changed for Trip
+     */
     @Column(name = "is_change_contractor_id")
     private Boolean isChangeContractor;
 
+    /**
+     * Is Trip completed
+     */
     @Column(name = "is_completed", columnDefinition = "boolean default false")
     private Boolean isCompleted;
 
+    /**
+     * Trip's payment state
+     */
     @Column(name = "payment_status", columnDefinition = "default 'prtly_peid'")
     private String paymentStatus;
 
+    /**
+     * Is trip fault
+     */
     @Column(name = "is_fault", columnDefinition = "boolean default false")
     private Boolean isFault;
 

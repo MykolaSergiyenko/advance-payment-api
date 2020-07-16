@@ -7,10 +7,16 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import javax.persistence.*;
 
 
+/**
+ * Сущности, связанные с контрагентом
+ */
 @MappedSuperclass
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public abstract class HasContractor extends BaseUuidEntity {
 
+    /**
+     * Id контрагента
+     */
     @Column(name = "contractor_id")
     private Long contractorId;
 

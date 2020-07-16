@@ -8,6 +8,9 @@ import org.slf4j.LoggerFactory;
 import javax.persistence.*;
 import java.io.Serializable;
 
+/**
+ * Детальная контактная информация - содержит фамилию, имя, отчество лица
+ */
 @Embeddable
 @AttributeOverride(name = "phone", column = @Column(name = "phone"))
 @AttributeOverride(name = "email", column = @Column(name = "email"))

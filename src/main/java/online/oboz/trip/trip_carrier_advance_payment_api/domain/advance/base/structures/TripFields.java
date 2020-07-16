@@ -17,22 +17,40 @@ public class TripFields implements Serializable {
     final static Logger log = LoggerFactory.getLogger(TripFields.class);
 
 
+    /**
+     * Trip's id
+     */
     @Column(name = "trip_id")
     private Long tripId;
 
 
+    /**
+     * Trip's num
+     */
     @Column(name = "num")
     private String num;
 
+    /**
+     * Trip's driver's id
+     */
     @Column(name = "driver_id")
     private Long driverId;
 
+    /**
+     * Trip's order's id
+     */
     @Column(name = "order_id")
     private Long orderId;
 
+    /**
+     * Trip's payment contractor id
+     */
     @Column(name = "payment_contractor_id")
     private Long paymentContractorId;
 
+    /**
+     * Trip's type code ('motor' only)
+     */
     @Column(name = "trip_type_code", updatable = false, insertable = false)
     private String tripTypeCode = "motor";
 

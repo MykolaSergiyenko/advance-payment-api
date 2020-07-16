@@ -11,11 +11,17 @@ import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
 
+/**
+ * Базовая сущность
+ */
 @MappedSuperclass
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public abstract class BaseEntity implements Serializable {
     final static Logger log = LoggerFactory.getLogger(BaseEntity.class);
 
+    /**
+     * ID for entities
+     */
     @Id
     @NotNull
     @GeneratedValue(strategy = GenerationType.SEQUENCE)

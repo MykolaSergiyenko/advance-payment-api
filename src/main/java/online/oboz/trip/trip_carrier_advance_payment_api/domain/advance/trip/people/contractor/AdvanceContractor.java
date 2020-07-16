@@ -7,6 +7,9 @@ import org.slf4j.LoggerFactory;
 
 import javax.persistence.*;
 
+/**
+ * Контрагенты
+ */
 @Entity
 @Table(schema = "common", name = "contractors")
 public class AdvanceContractor extends Contractor {

@@ -9,6 +9,9 @@ import javax.persistence.*;
 import javax.validation.constraints.Max;
 
 
+/**
+ * Контактаная информация пользователя - содержит полное имя целиком
+ */
 @Embeddable
 public class FullNamePersonInfo extends SimpleContacts {
 

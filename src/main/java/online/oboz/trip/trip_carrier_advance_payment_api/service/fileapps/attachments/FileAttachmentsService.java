@@ -7,7 +7,6 @@ import online.oboz.trip.trip_carrier_advance_payment_api.service.advance.Advance
 import online.oboz.trip.trip_carrier_advance_payment_api.service.fileapps.reports.ReportService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.fileapps.reports.ReportsTemplateService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.integration.bstore.StoreService;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.integration.tripdocs.TripAttachmentService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.integration.tripdocs.TripDocumentsService;
 import online.oboz.trip.trip_carrier_advance_payment_api.util.ErrorUtils;
 import org.slf4j.Logger;
@@ -116,7 +115,7 @@ public class FileAttachmentsService implements AttachmentService {
                 Long tripId = advance.getAdvanceTripFields().getTripId();
                 setUuids(tripAttachmentService.getTripAttachments(tripId), advance);
             } catch (BusinessLogicException e) {
-                log.error("Error while updating file-uuids: {}", e.getMessage());
+                log.error("Error while updating file-uuids: {}", e.getErrors());
             }
         });
     }
@@ -143,7 +142,7 @@ public class FileAttachmentsService implements AttachmentService {
             saveFromBStore(advance, fileUuid);
             log.info("File was saved from BStore. Uuid = {}. Filename = {}. Advance = {}.", fileUuid, file, advance);
         } catch (BusinessLogicException e) {
-            log.error("Upload 'advance-request' file error:" + e.getMessage());
+            log.error("Upload 'advance-request' file error:" + e.getErrors());
         }
         return new ResponseEntity<>(OK);
     }

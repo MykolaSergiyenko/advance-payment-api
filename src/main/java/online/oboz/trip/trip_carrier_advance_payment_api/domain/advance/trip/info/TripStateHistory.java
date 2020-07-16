@@ -10,24 +10,41 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
+/**
+ * История смены статусов трипов
+ */
 @Entity
 @Table(schema = "orders", name = "trip_transition_histories")
 public class TripStateHistory extends BaseUpdateEntity {
     final static Logger log = LoggerFactory.getLogger(TripInfo.class);
 
-
+    /**
+     * Trip's id
+     */
     @Column(name = "trip_id", updatable = false, insertable = false)
     private Long tripId;
 
+    /**
+     * Source state
+     */
     @Column(name = "from_state_code")
     private String fromCode;
 
+    /**
+     * Target state
+     */
     @Column(name = "to_state_code")
     private String toCode;
 
+    /**
+     * Changed author's id
+     */
     @Column(name = "author_id")
     private Long authorId;
 
+    /**
+     * Comment on state changes
+     */
     @Column(name = "comment")
     private String comment;
 

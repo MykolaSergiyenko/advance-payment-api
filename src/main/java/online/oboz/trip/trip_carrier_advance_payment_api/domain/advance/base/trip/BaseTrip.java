@@ -9,11 +9,17 @@ import org.slf4j.LoggerFactory;
 
 import javax.persistence.*;
 
+/**
+ * Базовая сущность Поездки
+ */
 @MappedSuperclass
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public abstract class BaseTrip extends HasContractor {
     final static Logger log = LoggerFactory.getLogger(BaseTrip.class);
 
+    /**
+     * Trip's fieldset
+     */
     @AttributeOverrides({
         @AttributeOverride(name = "tripId",
             column = @Column(name = "id", updatable = false, insertable = false)),
@@ -32,6 +38,9 @@ public abstract class BaseTrip extends HasContractor {
     TripFields tripFields;
 
 
+    /**
+     * Trip's cost info
+     */
     @AttributeOverrides({
         @AttributeOverride(name = "cost",
             column = @Column(name = "cost"))
@@ -40,6 +49,9 @@ public abstract class BaseTrip extends HasContractor {
     TripCostInfo tripCostInfo;
 
 
+    /**
+     * Trip's main infos
+     */
     @OneToOne(mappedBy = "trip")
     private TripInfo info;
 

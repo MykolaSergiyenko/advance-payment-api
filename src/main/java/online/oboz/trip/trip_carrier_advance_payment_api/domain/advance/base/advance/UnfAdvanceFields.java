@@ -9,29 +9,37 @@ import org.slf4j.LoggerFactory;
 import javax.persistence.*;
 import java.time.OffsetDateTime;
 
+/**
+ * "Аванс для УНФ"
+ * - здесь описаны поля связанные с интеграцией Аванса и УНФ.
+ * - большинство полей дублировало логику друг друга.
+ */
 @MappedSuperclass
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public abstract class UnfAdvanceFields extends CancelableAdvance {
     final static Logger log = LoggerFactory.getLogger(UnfAdvanceFields.class);
 
-
-    @Column(name = "is_unf_send", columnDefinition = "boolean default false")
-    private Boolean isUnfSend;
-
+    /**
+     * Advance was paid
+     * (flag come from UNF in 'integration1c'-service)
+     */
     @Column(name = "is_paid", columnDefinition = "boolean default false")
     private Boolean isPaid;
 
+    /**
+     * Advance was paid_at
+     */
     @Column(name = "paid_at")
     private OffsetDateTime paidAt;
 
+    /**
+     * Allowed to send in UNF:
+     * - null - if 'new' advance
+     * - true - if 'truck's loading complete' and 'all docs loaded'
+     * - false - if already sent in UNF
+     */
     @Column(name = "is_1c_send_allowed", columnDefinition = "boolean default null")
     private Boolean is1CSendAllowed;
-
-    @Column(name = "page_carrier_url_is_access", columnDefinition = "boolean default true")
-    private Boolean pageCarrierUrlIsAccess;
-
-    @Column(name = "is_pushed_unf_button", columnDefinition = "boolean default false")
-    private Boolean isPushedUnfButton;
 
     @PrePersist
     @Override
@@ -42,15 +50,9 @@ public abstract class UnfAdvanceFields extends CancelableAdvance {
 
 
     private void setUnfFields() {
-        if (isUnfSend() == null || isPaid() == null
-            || is1CSendAllowed() == null || isCarrierPageAccess() == null
-            || isPushedUnfButton() == null) {
-            setUnfSend(false);
+        if (isPaid() == null|| is1CSendAllowed() == null) {
             setIs1CSendAllowed(null);
-            setUnfSend(false);
-            setCarrierPageAccess(true);
             setPaid(false);
-            setPushedUnfButton(false);
         }
     }
 
@@ -58,14 +60,6 @@ public abstract class UnfAdvanceFields extends CancelableAdvance {
     public UnfAdvanceFields() {
     }
 
-
-    public Boolean isUnfSend() {
-        return isUnfSend;
-    }
-
-    public void setUnfSend(Boolean unfSend) {
-        isUnfSend = unfSend;
-    }
 
     public Boolean isPaid() {
         return isPaid;
@@ -91,22 +85,6 @@ public abstract class UnfAdvanceFields extends CancelableAdvance {
         this.is1CSendAllowed = is1CSendAllowed;
     }
 
-    public Boolean isCarrierPageAccess() {
-        return pageCarrierUrlIsAccess;
-    }
-
-    public void setCarrierPageAccess(Boolean pageCarrierUrlIsAccess) {
-        this.pageCarrierUrlIsAccess = pageCarrierUrlIsAccess;
-    }
-
-    public Boolean isPushedUnfButton() {
-        return isPushedUnfButton;
-    }
-
-    public void setPushedUnfButton(Boolean pushedUnfButton) {
-        isPushedUnfButton = pushedUnfButton;
-    }
-
 
     @Override
     public boolean equals(Object o) {
@@ -121,12 +99,9 @@ public abstract class UnfAdvanceFields extends CancelableAdvance {
     @Override
     public String toString() {
         return "UnfAdvanceFields{" +
-            "isUnfSend=" + isUnfSend +
             ", isPaid=" + isPaid +
             ", paidAt=" + paidAt +
             ", is1CSendAllowed=" + is1CSendAllowed +
-            ", pageCarrierUrlIsAccess=" + pageCarrierUrlIsAccess +
-            ", isPushedUnfButton=" + isPushedUnfButton +
             '}';
     }
 }
