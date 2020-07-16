@@ -5,6 +5,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import springfox.documentation.spring.web.json.Json;
 
 import java.net.URL;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 @ConfigurationProperties(prefix = "application", ignoreInvalidFields = false)
@@ -102,6 +103,9 @@ public class ApplicationProperties {
 
     @Value("${services.auto-advance-service.auto-author}")
     private Long autoAuthor;
+
+    @Value("${services.auto-advance-service.min-date}")
+    private OffsetDateTime minDate;
 
 
     /**
@@ -736,5 +740,15 @@ public class ApplicationProperties {
     public void setAutoAuthor(Long autoAuthor) {
         this.autoAuthor = autoAuthor;
     }
+
+
+    public OffsetDateTime getMinDate() {
+        return minDate;
+    }
+
+    public void setMinDate(OffsetDateTime minDate) {
+        this.minDate = minDate;
+    }
+
 
 }

@@ -112,6 +112,7 @@ services:
     #Autoadvance-service
     auto-advance-service:
         auto-author: 62911
+        min-date: "2020-07-15T00:00:00+00:00"
         # Auto-created advance comment
         comment: "Auto created"
         # Auto-advance checker-crons?

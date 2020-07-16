@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 
 @Service
@@ -40,8 +41,9 @@ public class MainTripService implements TripService {
     @Override
     public List<Trip> getAutoAdvanceTrips() {
         Double minCost = applicationProperties.getMinTripCost();
-        log.info("--- getAutoAdvanceTrips for minCost: " + minCost);
-        return tripRepository.getTripsForAutoAdvance(minCost);
+        OffsetDateTime minDate = applicationProperties.getMinDate();
+        log.info("--- getAutoAdvanceTrips for minCost = {} and minDate = {}", minCost, minDate);
+        return tripRepository.getTripsForAutoAdvance(minCost, minDate);
     }
 
 
