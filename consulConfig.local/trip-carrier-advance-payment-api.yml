@@ -117,11 +117,12 @@ services:
         comment: "Auto created"
         # Auto-advance checker-crons?
         cron:
-            creation: 0 0/30 * * * *
+            # Create auto-advances for auto-contractors trips
+            create: 0 0/30 * * * *
+            # Update: 1) auto-contractors; 2) file's uuid?
             update: 0 0/30 * * * *
-        # Is this is auto-advance rules to be created?
-        #min-date-trip: "2020-01-01T00:00:00+00:00"
-        min-paid-advance-count: 3
+            # Scheduled-notifications (delayed sms)
+            notify: 0 0/30 * * * *
 
     #Notification-service
     notifications:

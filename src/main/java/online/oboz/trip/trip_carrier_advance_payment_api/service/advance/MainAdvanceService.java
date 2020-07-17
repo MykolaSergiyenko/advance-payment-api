@@ -448,7 +448,7 @@ public class MainAdvanceService implements AdvanceService {
 
 
     private List<Advance> findUnreadAdvances() {
-        return advanceRepository.findUnreadAdvances(applicationProperties.getSmsInterval());
+        return advanceRepository.findUnreadAdvances(applicationProperties.getNewTripsInterval());
     }
 
     private BusinessLogicException getAdvanceError(String message) {

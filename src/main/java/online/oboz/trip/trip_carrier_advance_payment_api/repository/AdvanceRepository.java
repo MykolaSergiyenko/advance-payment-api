@@ -42,7 +42,7 @@ public interface AdvanceRepository extends JpaRepository<Advance, Long> {
             "where t.trip_status_code = 'assigned' and t.trip_type_code = 'motor' and a.is_cancelled = false " +
             "and a.read_at is null and a.sms_sent_at is null " +
             "and a.created_at < (now() - (:minutes || ' minutes ') \\:\\:interval )")
-    List<Advance> findUnreadAdvances(@Param("minutes") int minutes);
+    List<Advance> findUnreadAdvances(@Param("minutes") long minutes);
 
 
     @Query(nativeQuery = true, value = "select (case when count(pc)> 0 then true else false end) " +

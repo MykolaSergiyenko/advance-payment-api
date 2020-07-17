@@ -43,6 +43,7 @@ public class MainTripService implements TripService {
         Double minCost = applicationProperties.getMinTripCost();
         OffsetDateTime minDate = applicationProperties.getMinDate();
         log.info("--- getAutoAdvanceTrips for minCost = {} and minDate = {}", minCost, minDate);
+
         return tripRepository.getTripsForAutoAdvance(minCost, minDate);
     }
 

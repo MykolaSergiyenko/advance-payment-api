@@ -44,7 +44,7 @@ import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.Advance;
  * <p>
  * <p>
  * Выборка "Заявок на аванс" для "уведомлений с задержкой" выполняется по расписанию (раз в 30 минут)
- * выполняется для "новых, непрочитанных" "Заявок" в заданном  в {@link ApplicationProperties#getSmsInterval()} интервале.
+ * выполняется для "новых, непрочитанных" "Заявок" в заданном  в {@link ApplicationProperties#getNewTripsInterval()} интервале.
  * <p>
  * <p>
  * Например:

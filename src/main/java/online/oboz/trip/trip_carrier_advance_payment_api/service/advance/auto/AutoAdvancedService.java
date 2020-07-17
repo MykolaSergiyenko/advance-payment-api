@@ -61,7 +61,7 @@ public class AutoAdvancedService implements AutoService {
 
 
     @Override
-    @Scheduled(cron = "${services.auto-advance-service.cron.creation}")
+    @Scheduled(cron = "${services.auto-advance-service.cron.create}")
     public void createAutoAdvances() {
         try {
             advanceService.giveAutoAdvances();
@@ -72,7 +72,7 @@ public class AutoAdvancedService implements AutoService {
 
 
     @Override
-    @Scheduled(cron = "${services.notifications.scheduler.notify}")
+    @Scheduled(cron = "${services.auto-advance-service.cron.notify}")
     public void notifyAgain() {
         try {
             advanceService.notifyUnread();

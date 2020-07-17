@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.net.URL;
-import java.time.OffsetDateTime;
 import java.util.List;
 
 @ConfigurationProperties(prefix = "application", ignoreInvalidFields = false)
@@ -83,8 +82,8 @@ public class ApplicationProperties {
     /**
      * Schedule for Auto-advance service created auto-advances
      */
-    @Value("${services.auto-advance-service.cron.creation}")
-    private String cronCreation;
+    @Value("${services.auto-advance-service.cron.create}")
+    private String cronCreate;
 
     /**
      * Schedule for Auto-advance service updated auto-contractors
@@ -337,12 +336,12 @@ public class ApplicationProperties {
     }
 
 
-    public String getCronCreation() {
-        return cronCreation;
+    public String getCronCreate() {
+        return cronCreate;
     }
 
-    public void setCronCreation(String cronCreation) {
-        this.cronCreation = cronCreation;
+    public void setCronCreate(String cronCreate) {
+        this.cronCreate = cronCreate;
     }
 
     public String getCronUpdate() {
@@ -408,26 +407,12 @@ public class ApplicationProperties {
     }
 
 
-//    /**
-//     * Unread email's interval for scheduled-emails? NotificationService ?
-//     */
-//    public String getEmailInterval() {
-//        return emailInterval;
-//    }
-//
-//    public void setEmailInterval(String emailInterval) {
-//        this.emailInterval = emailInterval;
-//    }
-
-    /**
-     * Unread email's interval for sms-scheduled-notification NotificationService?
-     */
-    public Integer getSmsInterval() {
-        return smsInterval;
+    public Long getNewTripsInterval() {
+        return newTripsInterval;
     }
 
-    public void setSmsInterval(Integer smsInterval) {
-        this.smsInterval = smsInterval;
+    public void setNewTripsInterval(Long newTripsInterval) {
+        this.newTripsInterval = newTripsInterval;
     }
 
 
