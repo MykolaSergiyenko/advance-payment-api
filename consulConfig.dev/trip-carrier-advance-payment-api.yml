@@ -111,17 +111,23 @@ services:
 
     #Autoadvance-service
     auto-advance-service:
+        min-paid-advance-count: 3
+        # TODO: search by e-mail, not id
+        # ID of auto-advance-author-person - 'oboztech_payment@oboz.tech'
         auto-author: 47700
-        min-date: "2020-07-15T00:00:00+00:00"
+        # Interval for operations with 'new advance' in minutes
+        # Use for: search 'new assigned' trips and search 'unread' advances
+        newadvance-inteval: 60
         # Auto-created advance comment
         comment: "Auto created"
         # Auto-advance checker-crons?
         cron:
-            creation: 0 0/30 * * * *
+            # Create auto-advances for auto-contractors trips
+            create: 0 0/30 * * * *
+            # Update: 1) auto-contractors; 2) file's uuid?
             update: 0 0/30 * * * *
-        # Is this is auto-advance rules to be created?
-        #min-date-trip: "2020-01-01T00:00:00+00:00"
-        min-paid-advance-count: 3
+            # Scheduled-notifications (delayed sms)
+            notify: 0 0/30 * * * *
 
     #Notification-service
     notifications:
@@ -130,14 +136,6 @@ services:
 
         #link-shortener url
         cut-link-url: https://clck.ru/--?url=
-
-        #scheduled-notifications
-        scheduler:
-            notify: 0 0/30 * * * *
-            #minutes
-            sms-newadvance-inteval: 60
-            #notused
-            email-newadvance-interval: #2 hours #if we wants to sent second e-mail maybe
 
         # SMS-config
         sms:

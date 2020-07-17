@@ -115,7 +115,9 @@ services:
         # TODO: search by e-mail, not id
         # ID of auto-advance-author-person - 'oboztech_payment@oboz.tech'
         auto-author: 62911
-        min-date: "2020-07-15T00:00:00+00:00"
+        # Interval for operations with 'new advance' in minutes
+        # Use for: search 'new assigned' trips and search 'unread' advances
+        newadvance-inteval: 60
         # Auto-created advance comment
         comment: "Auto created"
         # Auto-advance checker-crons?
