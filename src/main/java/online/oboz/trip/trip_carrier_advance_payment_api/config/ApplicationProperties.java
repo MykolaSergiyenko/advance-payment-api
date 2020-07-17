@@ -79,6 +79,14 @@ public class ApplicationProperties {
 
     //Auto-advance
 
+
+
+    /**
+     * Unread letters interval for scheduled notifications - in minutes
+     */
+    @Value("${services.auto-advance-service.newadvance-inteval}")
+    private Long newTripsInterval;
+
     /**
      * Schedule for Auto-advance service created auto-advances
      */
@@ -92,6 +100,14 @@ public class ApplicationProperties {
     @Value("${services.auto-advance-service.cron.update}")
     private String cronUpdate;
 
+
+    /**
+     * Schedule for "Send SMSs for unread letters-advances"
+     */
+    @Value("${services.auto-advance-service.cron.notify}")
+    private String cronCheckNotify;
+
+
     /**
      * Auto Created-advance comment
      */
@@ -104,12 +120,6 @@ public class ApplicationProperties {
      */
     @Value("${services.auto-advance-service.auto-author}")
     private Long autoAuthor;
-
-    /**
-     * Min-date of trip-assigning for give auto-advance
-     */
-    @Value("${services.auto-advance-service.min-date}")
-    private OffsetDateTime minDate;
 
 
     /**
@@ -183,23 +193,6 @@ public class ApplicationProperties {
     private URL cutLinkUrl;
 
 
-    /**
-     * Schedule for "Send SMSs for unread letters-advances"
-     */
-    @Value("${services.notifications.scheduler.notify}")
-    private String cronCheckNotify;
-
-
-    @Deprecated
-    @Value("${services.notifications.scheduler.email-newadvance-interval}")
-    private String emailInterval;
-
-
-    /**
-     * Unread letters interval for scheduled notifications - in minutes
-     */
-    @Value("${services.notifications.scheduler.sms-newadvance-inteval}")
-    private Integer smsInterval;
 
 
     /**
@@ -686,15 +679,5 @@ public class ApplicationProperties {
     public void setAutoAuthor(Long autoAuthor) {
         this.autoAuthor = autoAuthor;
     }
-
-
-    public OffsetDateTime getMinDate() {
-        return minDate;
-    }
-
-    public void setMinDate(OffsetDateTime minDate) {
-        this.minDate = minDate;
-    }
-
 
 }

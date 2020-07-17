@@ -41,7 +41,9 @@ public class MainTripService implements TripService {
     @Override
     public List<Trip> getAutoAdvanceTrips() {
         Double minCost = applicationProperties.getMinTripCost();
-        OffsetDateTime minDate = applicationProperties.getMinDate();
+        Long tripInterval = applicationProperties.getNewTripsInterval();
+
+        OffsetDateTime minDate = OffsetDateTime.now().minusMinutes(tripInterval);
         log.info("--- getAutoAdvanceTrips for minCost = {} and minDate = {}", minCost, minDate);
 
         return tripRepository.getTripsForAutoAdvance(minCost, minDate);
