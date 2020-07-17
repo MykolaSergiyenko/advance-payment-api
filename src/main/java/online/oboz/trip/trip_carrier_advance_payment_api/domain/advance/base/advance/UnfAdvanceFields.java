@@ -24,7 +24,7 @@ public abstract class UnfAdvanceFields extends CancelableAdvance {
      * TODO: Is it necessary?
      */
     @Column(name = "is_unf_send", columnDefinition = "boolean default false")
-    private Boolean isUnfSend;
+    private Boolean isUnfSend = false;
 
     /**
      * Advance was paid
