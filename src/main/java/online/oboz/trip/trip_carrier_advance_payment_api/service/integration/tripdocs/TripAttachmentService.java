@@ -34,7 +34,7 @@ public class TripAttachmentService implements TripDocumentsService {
         } catch (BusinessLogicException e){
             log.error("Trip-documents not found for tripId = {}", tripId);
         }
-        return (getRequestUuidOrTripRequestUuid(attachments) != null &&
+        return (null != attachments) && (getRequestUuidOrTripRequestUuid(attachments) != null &&
             getAssignmentRequestUuid(attachments)!= null);
     }
 
@@ -56,6 +56,7 @@ public class TripAttachmentService implements TripDocumentsService {
     }
 
     public UUID getRequestUuidOrTripRequestUuid(List<TripAttachment> attachments){
+        if (attachments == null) return null;
         UUID requestUuid = getRequestUuid(attachments);
         log.info("*** UUID requestUuid [1] : {}.", requestUuid);
         if (requestUuid == null) requestUuid = getTripRequestUuid(attachments);
@@ -64,14 +65,17 @@ public class TripAttachmentService implements TripDocumentsService {
     }
 
     public UUID getRequestUuid(List<TripAttachment> attachments){
+        if (attachments == null) return null;
         return getFileUuid(attachments, "request");
     }
 
     public UUID getTripRequestUuid(List<TripAttachment> attachments){
+        if (attachments == null) return null;
         return getFileUuid(attachments, "trip_request");
     }
 
     public UUID getAssignmentRequestUuid(List<TripAttachment> attachments){
+        if (attachments == null) return null;
         return getFileUuid(attachments, "assignment_advance_request");
     }
 
