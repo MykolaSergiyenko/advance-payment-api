@@ -25,6 +25,14 @@ public class AdvanceCostDictService implements CostDictService {
             getCostDictError("Advance sum and fee dictionary record not found for cost:" + ndsCost));
     }
 
+    public Double findMinCost(){
+        return costDictRepository.getMinCost();
+    }
+
+    public Double findMaxCost(){
+        return costDictRepository.getMaxCost();
+    }
+
     private BusinessLogicException getCostDictError(String message) {
         return ErrorUtils.getInternalError("Cost-dict-service internal error: " + message);
     }

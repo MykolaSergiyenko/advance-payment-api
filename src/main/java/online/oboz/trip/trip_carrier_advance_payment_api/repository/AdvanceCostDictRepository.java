@@ -14,4 +14,9 @@ public interface AdvanceCostDictRepository extends JpaRepository<AdvanceCostDict
         " where :cost between cdict.minValue and cdict.maxValue")
     Optional<AdvanceCostDict> getAdvancePaymentCost(@Param("cost") Double cost);
 
+    @Query("select min (cdict.minValue) from AdvanceCostDict cdict")
+    Double getMinCost();
+
+    @Query("select max (cdict.maxValue) from AdvanceCostDict cdict")
+    Double getMaxCost();
 }

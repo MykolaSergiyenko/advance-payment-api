@@ -102,13 +102,6 @@ services:
         template-params: p_trip_num=%s&p_avance_sum=%s&p_avance_comission=%s&
 
 
-    #Advance-service
-    advance-service:
-        min-trip-cost: 10000.00
-        # deprecated
-        # Required download docs for dispatcher? The only main-app property?
-        #required-docs: true
-
     #Autoadvance-service
     auto-advance-service:
         min-paid-advance-count: 3

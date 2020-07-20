@@ -38,4 +38,8 @@ public final class StringUtils {
         }
         return str;
     }
+
+    public static String formatNum(Double d){
+        return String.format("%.03f", d);
+    }
 }

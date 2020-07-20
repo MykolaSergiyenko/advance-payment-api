@@ -14,4 +14,8 @@ public interface CostDictService {
      */
     AdvanceCostDict findAdvanceSumByCost(Double ndsCost);
 
+    Double findMinCost();
+
+    Double findMaxCost();
+
 }

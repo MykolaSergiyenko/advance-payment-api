@@ -71,11 +71,6 @@ public class ApplicationProperties {
     private String password;
 
 
-    /**
-     * Min cost of trip to be advanced
-     */
-    @Value("${services.advance-service.min-trip-cost}")
-    private Double minTripCost;
 
     //Auto-advance
 
@@ -662,14 +657,6 @@ public class ApplicationProperties {
 
     public void setReportsParams(String reportsParams) {
         this.reportsParams = reportsParams;
-    }
-
-    public Double getMinTripCost() {
-        return minTripCost;
-    }
-
-    public void setMinTripCost(Double minTripCost) {
-        this.minTripCost = minTripCost;
     }
 
     public Long getAutoAuthor() {
