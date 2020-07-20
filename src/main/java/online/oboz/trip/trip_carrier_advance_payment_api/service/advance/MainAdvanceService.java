@@ -278,10 +278,9 @@ public class MainAdvanceService implements AdvanceService {
     @Override
     public ResponseEntity<Void> confirmAdvance(Long advanceId) {
         Advance advance = findById(advanceId);
-        Long tripId = advance.getAdvanceTripFields().getTripId();
 
         if (!documentsService.isAllDocumentsLoaded(advance)) {
-            throw getAdvanceError("Not all documents are loaded for trip: " + tripId);
+            throw getAdvanceError("Not all documents are loaded for advance: " + advanceId);
         } else if (advance.isCancelled()) {
             throw getAdvanceError("Advance was cancelled: " + advanceId);
         } else if (advance.is1CSendAllowed() == false) {
