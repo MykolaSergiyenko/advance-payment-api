@@ -57,9 +57,11 @@ public class DispatcherPageService implements DispatcherService {
         Trip trip = advanceService.findTrip(tripId);
         Boolean advanceNotExists = advanceService.advancesNotExistsForTrip(trip);
         Boolean contactNotFound = contactService.notExistsByContractor(trip.getContractorId());
+        Boolean tripDocsNotFound = !documentsService.isAllTripDocumentsLoaded(tripId);
         isTripAdvanced.contactsNotFound(contactNotFound);
-        isTripAdvanced.setIsButtonActive(advanceNotExists && !contactNotFound);
-        isTripAdvanced.setTripDocsNotFound(!documentsService.isAllTripDocumentsLoaded(tripId));
+        isTripAdvanced.setTripDocsNotFound(tripDocsNotFound);
+        isTripAdvanced.setIsButtonActive(advanceNotExists && !contactNotFound && !tripDocsNotFound);
+
         if (!advanceNotExists) {
             Advance advance = advanceService.findByTripId(tripId);
             personService.setAuthorInfo(isTripAdvanced, advance.getAuthorId());
