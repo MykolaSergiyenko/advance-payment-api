@@ -10,22 +10,22 @@ import org.springframework.http.HttpStatus;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 
-public final class ErrorUtils {
-    private static final Logger log = LoggerFactory.getLogger(ErrorUtils.class);
+public interface ErrorUtils {
+    Logger log = LoggerFactory.getLogger(ErrorUtils.class);
 
-    public static MessagingException getMessagingError(String message) {
+    static MessagingException getMessagingError(String message) {
         return getBadRequestError(message);
     }
 
-    public static BusinessLogicException getInternalError(String message) {
+    static BusinessLogicException getInternalError(String message) {
         return getInternalBusinessError(message, INTERNAL_SERVER_ERROR);
     }
 
-    private static MessagingException getBadRequestError(String message) {
+    static MessagingException getBadRequestError(String message) {
         return getBadRequestBusinessError(message, BAD_REQUEST);
     }
 
-    private static BusinessLogicException getInternalBusinessError(String errorMessage, HttpStatus state) {
+    static BusinessLogicException getInternalBusinessError(String errorMessage, HttpStatus state) {
         Error error = new Error();
         error.setStatus(state.toString());
         error.setErrorCode(Integer.toString(state.value()));
@@ -34,8 +34,7 @@ public final class ErrorUtils {
         return new BusinessLogicException(state, error);
     }
 
-
-    private static MessagingException getBadRequestBusinessError(String message, HttpStatus state) {
+    static MessagingException getBadRequestBusinessError(String message, HttpStatus state) {
         Error error = new Error();
         HttpStatus status = state;
         error.setStatus(state.toString());
@@ -44,4 +43,5 @@ public final class ErrorUtils {
         log.error(status.name() + " : " + error.getErrorMessage());
         return new MessagingException(status, error);
     }
+
 }

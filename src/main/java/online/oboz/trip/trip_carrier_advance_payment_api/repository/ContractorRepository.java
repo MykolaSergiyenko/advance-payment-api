@@ -11,8 +11,8 @@ import java.util.List;
 public interface ContractorRepository extends JpaRepository<AdvanceContractor, Long> {
 
     @Query("select contractr from AdvanceContractor contractr " +
-        "where contractr.isAutoContractor <> true and contractr.id in (" +
-        "select contact.contractorId from AdvanceContactsBook contact " +
+        "where contractr.isAutoContractor <> true and contractr.id in " +
+        "(select contact.contractorId from AdvanceContactsBook contact " +
         "inner join Advance adv on (adv.contractorId = contact.contractorId " +
         "and adv.isPaid = true and adv.isCancelled = false) " +
         "group by (contact.contractorId) having count (adv.contractorId) >= :x)")

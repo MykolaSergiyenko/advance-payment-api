@@ -6,7 +6,6 @@ import online.oboz.trip.trip_carrier_advance_payment_api.error.BusinessLogicExce
 import online.oboz.trip.trip_carrier_advance_payment_api.repository.TripRepository;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.costs.advancedict.CostDictService;
 import online.oboz.trip.trip_carrier_advance_payment_api.util.ErrorUtils;
-
 import online.oboz.trip.trip_carrier_advance_payment_api.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,7 +48,7 @@ public class MainTripService implements TripService {
         Double maxCost = costDictService.findMaxCost();
         Long tripInterval = applicationProperties.getNewTripsInterval();
         OffsetDateTime minDate = OffsetDateTime.now().minusMinutes(tripInterval);
-        log.info("--- getAutoAdvanceTrips for minCost = {}, maxCost = {} and minDate = {}",
+        log.info("--- Get auto-advance trips for minCost = {}; maxCost = {}; minDate = {}.",
             format(minCost), format(maxCost), minDate);
         return tripRepository.getTripsForAutoAdvance(minCost, maxCost, minDate);
     }

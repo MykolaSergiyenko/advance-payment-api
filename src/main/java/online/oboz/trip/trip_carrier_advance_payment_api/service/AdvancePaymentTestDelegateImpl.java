@@ -20,17 +20,14 @@ public class AdvancePaymentTestDelegateImpl implements AdvancePaymentTestApiDele
     private static final Logger log = LoggerFactory.getLogger(AdvancePaymentDelegateImpl.class);
 
     private final UrlService shortenerService;
-    private final Notificator notificationService;
     private final AdvanceService service;
 
     @Autowired
     public AdvancePaymentTestDelegateImpl(
         UrlService shortenerService,
-        Notificator notificationService,
         AdvanceService service
     ) {
         this.shortenerService = shortenerService;
-        this.notificationService = notificationService;
         this.service = service;
     }
 

@@ -11,9 +11,9 @@ import java.util.Optional;
 
 public interface VatsRepository extends JpaRepository<VatCostDict, Long> {
 
-    @Query("select (v.value)/100 from VatCostDict v where v.code = :vatCode ")
+    @Query("select (v.value)/100 from VatCostDict v where v.code = :vatCode")
     Optional<Double> findByCode(@Param("vatCode") String vatCode);
 
-    @Query("select v.code from VatCostDict v where v.value = 0 ")
+    @Query("select v.code from VatCostDict v where v.value = 0")
     List<String> finZeroCodes();
 }
