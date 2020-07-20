@@ -30,7 +30,7 @@ public class VatCostService implements VatService {
 
     @Override
     public List<String> getZeroCodes() {
-        return vatsRepository.finZeroCodes();
+        return vatsRepository.findZeroCodes();
     }
 
     private BusinessLogicException getVatDictError(String message) {

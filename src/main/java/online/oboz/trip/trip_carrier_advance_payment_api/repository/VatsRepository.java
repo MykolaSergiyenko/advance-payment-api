@@ -15,5 +15,5 @@ public interface VatsRepository extends JpaRepository<VatCostDict, Long> {
     Optional<Double> findByCode(@Param("vatCode") String vatCode);
 
     @Query("select v.code from VatCostDict v where v.value = 0")
-    List<String> finZeroCodes();
+    List<String> findZeroCodes();
 }
