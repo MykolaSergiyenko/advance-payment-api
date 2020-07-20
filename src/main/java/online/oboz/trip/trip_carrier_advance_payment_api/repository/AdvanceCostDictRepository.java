@@ -10,8 +10,7 @@ import java.util.Optional;
 
 public interface AdvanceCostDictRepository extends JpaRepository<AdvanceCostDict, Long> {
 
-    @Query("select cdict from AdvanceCostDict cdict" +
-        " where :cost between cdict.minValue and cdict.maxValue")
+    @Query("select cdict from AdvanceCostDict cdict where :cost between cdict.minValue and cdict.maxValue")
     Optional<AdvanceCostDict> getAdvancePaymentCost(@Param("cost") Double cost);
 
     @Query("select min (cdict.minValue) from AdvanceCostDict cdict")

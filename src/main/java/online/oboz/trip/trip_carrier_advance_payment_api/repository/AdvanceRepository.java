@@ -13,25 +13,17 @@ import java.util.UUID;
 @Repository
 public interface AdvanceRepository extends JpaRepository<Advance, Long> {
 
-    @Query("select pc " +
-        " from Advance pc " +
-        " where pc.advanceTripFields.tripId = :trip_id ")
+    @Query("select pc from Advance pc where pc.advanceTripFields.tripId = :trip_id")
     Optional<Advance> findByTripId(@Param("trip_id") Long tripId);
 
-    @Query("select pc " +
-        "from Advance pc " +
-        "where pc.uuid = :uuid ")
+    @Query("select pc from Advance pc where pc.uuid = :uuid")
     Optional<Advance> findByUuid(@Param("uuid") UUID uuid);
 
-    @Query("select pc " +
-        " from Advance pc " +
-        " where pc.uuidAdvanceApplicationFile is null " +
-        "   or pc.uuidContractApplicationFile is null ")
+    @Query("select pc from Advance pc where pc.uuidAdvanceApplicationFile is null " +
+        "or pc.uuidContractApplicationFile is null ")
     List<Advance> findRequestsWithoutFiles();
 
-    @Query("select pc " +
-        " from Advance pc " +
-        " where pc.advanceTripFields.num = :trip_num ")
+    @Query("select pc from Advance pc where pc.advanceTripFields.num = :trip_num")
     Optional<Advance> findByTripNum(@Param("trip_num") String tripNum);
 
 

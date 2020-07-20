@@ -10,9 +10,7 @@ import java.util.Optional;
 
 public interface AdvanceContactsBookRepository extends JpaRepository<AdvanceContactsBook, Long> {
 
-    @Query("select  pc " +
-        " from AdvanceContactsBook pc " +
-        " where pc.contractorId = :contractor_id ")
+    @Query("select  pc from AdvanceContactsBook pc where pc.contractorId = :contractor_id")
     Optional<AdvanceContactsBook> findByContractorId(@Param("contractor_id") Long contractorId);
 
 }

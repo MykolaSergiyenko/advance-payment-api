@@ -15,7 +15,6 @@ public interface ContractorRepository extends JpaRepository<AdvanceContractor, L
         "select contact.contractorId from AdvanceContactsBook contact " +
         "inner join Advance adv on (adv.contractorId = contact.contractorId " +
         "and adv.isPaid = true and adv.isCancelled = false) " +
-        "group by (contact.contractorId) " +
-        "having count (adv.contractorId) >= :x)")
+        "group by (contact.contractorId) having count (adv.contractorId) >= :x)")
     List<AdvanceContractor> findByMinCountAdvancesPaid(@Param("x") long minCount);
 }
