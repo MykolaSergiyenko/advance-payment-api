@@ -67,5 +67,5 @@ public interface TripDocumentsService {
      * @param tripId - трип
      * @return true\false
      */
-    Boolean isAllTripDocumentsLoaded(Long tripId);
+    Boolean isAllTripDocumentsLoaded(Long tripId , Boolean checkAssignment);
 }

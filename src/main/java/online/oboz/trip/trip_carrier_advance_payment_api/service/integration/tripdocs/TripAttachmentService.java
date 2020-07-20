@@ -24,18 +24,18 @@ public class TripAttachmentService implements TripDocumentsService {
     }
 
     public Boolean isAllDocumentsLoaded(Advance advance){
-        return isAllTripDocumentsLoaded(advance.getAdvanceTripFields().getTripId());
+        return isAllTripDocumentsLoaded(advance.getAdvanceTripFields().getTripId(), true);
     }
 
-    public Boolean isAllTripDocumentsLoaded(Long tripId){
+    public Boolean isAllTripDocumentsLoaded(Long tripId, Boolean checkAssignment){
         List<TripAttachment> attachments = null;
         try {
            attachments = getTripAttachments(tripId);
         } catch (BusinessLogicException e){
             log.error("Trip-documents not found for tripId = {}", tripId);
         }
-        return (null != attachments) && (getRequestUuidOrTripRequestUuid(attachments) != null &&
-            getAssignmentRequestUuid(attachments)!= null);
+        return (null != attachments) && (getRequestUuidOrTripRequestUuid(attachments) != null) &&
+            (checkAssignment ? (getAssignmentRequestUuid(attachments)!= null) : true);
     }
 
     public List<TripAttachment> getTripAttachments (Long tripId) {
