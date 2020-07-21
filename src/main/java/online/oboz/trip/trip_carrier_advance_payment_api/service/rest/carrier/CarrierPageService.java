@@ -58,7 +58,7 @@ public class CarrierPageService implements CarrierService {
     }
 
     private CarrierPage setCarrierPageAccessAndInfo(CarrierPage page, Advance advance) {
-        if (null == advance.is1CSendAllowed() || advance.is1CSendAllowed() == true) {
+        if (advance.is1CSendAllowed()) {
             try {
                 Trip trip = advanceService.findTrip(advance.getAdvanceTripFields().getTripId());
                 page = advanceMapper.toCarrierPage(advance, trip.getInfo());

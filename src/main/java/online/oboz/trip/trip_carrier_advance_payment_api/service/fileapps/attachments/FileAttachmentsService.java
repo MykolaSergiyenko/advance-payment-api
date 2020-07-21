@@ -122,10 +122,10 @@ public class FileAttachmentsService implements AttachmentService {
     public ResponseEntity<Void> uploadRequestAdvance(MultipartFile file, String tripNum) {
         log.info("Got uploadRequestAdvance request tripNum - " + tripNum);
         Advance advance = findAdvanceByNum(tripNum);
-        if (advance.is1CSendAllowed() == null) {
-            throw attachmentsError("Uploading of 'request-advance'-file forbidden. " +
-                "Send to UNF after docs uploaded.");
-        }
+//        if (advance.is1CSendAllowed() == null) {
+//            throw attachmentsError("Uploading of 'request-advance'-file forbidden. " +
+//                "Send to UNF after docs uploaded.");
+//        }
         uploadRequestAdvance(advance, file);
         return new ResponseEntity<>(OK);
     }

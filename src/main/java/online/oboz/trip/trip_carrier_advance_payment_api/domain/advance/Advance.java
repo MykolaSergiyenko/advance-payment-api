@@ -2,6 +2,7 @@ package online.oboz.trip.trip_carrier_advance_payment_api.domain.advance;
 
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.advance.ContactableAdvance;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.Person;
+import online.oboz.trip.trip_carrier_advance_payment_api.util.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
@@ -9,6 +10,7 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.hibernate.annotations.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import javax.persistence.*;
 import java.time.OffsetDateTime;
 import java.util.UUID;
@@ -30,7 +32,7 @@ public class Advance extends ContactableAdvance {
      * UUID of Contract-file
      */
     @Type(type = "pg-uuid")
-    @Column(name = "uuid_contract_application_file", length = 36, nullable = true)
+    @Column(name = "uuid_contract_application_file", length = 36)
     private UUID uuidContractApplicationFile;
 
 
@@ -38,7 +40,7 @@ public class Advance extends ContactableAdvance {
      * UUID of Advance-application file
      */
     @Type(type = "pg-uuid")
-    @Column(name = "uuid_advance_application_file", length = 36, nullable = true)
+    @Column(name = "uuid_advance_application_file", length = 36)
     private UUID uuidAdvanceApplicationFile;
 
 
@@ -54,6 +56,16 @@ public class Advance extends ContactableAdvance {
      */
     @Column(name = "push_button_at")
     private OffsetDateTime pushButtonAt;
+
+    public Boolean is1CSendAllowed() {
+        return null != getUnfSentAt() ? false :
+            (getLoadingComplete() && !StringUtils.isEmptyStrings(getUuidAdvanceApplicationFile().toString(),
+                getUuidContractApplicationFile().toString()));
+    }
+
+    public Boolean isPaid() {
+        return getPaidAt() != null;
+    }
 
 
     public Advance() {

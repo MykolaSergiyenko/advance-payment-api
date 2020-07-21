@@ -237,10 +237,6 @@ public class MainAdvanceService implements AdvanceService {
         if (uuid != null) {
             advance.setUuidContractApplicationFile(uuid);
             saveAdvance(advance);
-            // check second file
-            if (advance.getUuidAdvanceApplicationFile() != null) {
-                setAllowedToSent(advance);
-            }
             log.info("Update contract-application-file in {}. Set uuid = {} ", advance.getId(),
                 advance.getUuidContractApplicationFile());
         } else {
@@ -252,12 +248,7 @@ public class MainAdvanceService implements AdvanceService {
     @Override
     public Advance setAdvanceApplication(Advance advance, UUID uuid) {
         if (uuid != null) {
-            //advance.setDownloadedContractApplication(true);
             setAdvanceApplicationFile(advance, uuid);
-            // check second file
-            if (advance.getUuidContractApplicationFile() != null) {
-                setAllowedToSent(advance);
-            }
             log.info("Update advance-application-file in {}. Set uuid = {} ", advance.getId(),
                 advance.getUuidAdvanceApplicationFile());
         } else {
@@ -283,11 +274,10 @@ public class MainAdvanceService implements AdvanceService {
             throw getAdvanceError("Not all documents are loaded for advance: " + advanceId);
         } else if (advance.isCancelled()) {
             throw getAdvanceError("Advance was cancelled: " + advanceId);
-        } else if (advance.is1CSendAllowed() == false) {
+        } else if (advance.getUnfSentAt() != null) {
             throw getAdvanceError("Advance was already sent to UNF.");
         } else {
             integration1cService.send1cNotification(advanceId);
-            advance.setIs1CSendAllowed(false);
             saveAdvance(advance);
             log.info("Advance is confirmed {}.", advance.getId());
             return new ResponseEntity<>(HttpStatus.OK);
@@ -386,8 +376,8 @@ public class MainAdvanceService implements AdvanceService {
     }
 
     private Advance setAllowedToSent(Advance advance) {
-        if (advance.is1CSendAllowed() == null) {
-            advance.setIs1CSendAllowed(true);
+        if (advance.is1CSendAllowed()) {
+            //advance.setIs1CSendAllowed(true);
             saveAdvance(advance);
             log.info("Set 's1CSendAllowed' for advance {}", advance.getId());
         }
