@@ -1,6 +1,7 @@
 package online.oboz.trip.trip_carrier_advance_payment_api.service.contacts;
 
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.dicts.contacts.AdvanceContactsBook;
+import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.contacts.FullNamePersonInfo;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.mappers.AdvanceContactMapper;
 import online.oboz.trip.trip_carrier_advance_payment_api.error.BusinessLogicException;
 import online.oboz.trip.trip_carrier_advance_payment_api.repository.AdvanceContactsBookRepository;
@@ -11,6 +12,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
+import java.util.UUID;
 
 
 @Service
@@ -56,23 +59,32 @@ public class AdvanceContactService implements ContactService {
 
 
     private AdvanceContactsBook createContact(CarrierContactDTO contactDTO) {
-        return setContactInfo(contactDTO, new AdvanceContactsBook());
+        return setContactInfo(contactDTO, true);
     }
 
     private AdvanceContactsBook updateContact(CarrierContactDTO contactDTO) {
-        AdvanceContactsBook contact = findByContractor(contactDTO.getContractorId());
-        return setContactInfo(contactDTO, contact);
+        return setContactInfo(contactDTO, false);
     }
 
 
-    private AdvanceContactsBook setContactInfo(CarrierContactDTO contactDTO, AdvanceContactsBook contact) {
-        contact = dtoToContact(contactDTO);
+    private AdvanceContactsBook setContactInfo(CarrierContactDTO contactDTO, Boolean newContact) {
+        AdvanceContactsBook contact;
+        if (newContact){
+            contact = dtoToContact(contactDTO);
+        } else {
+            contact = findByContractor(contactDTO.getContractorId());
+            contact.setInfo(dtoToPersonInfo(contactDTO));
+        }
         contactsBookRepository.save(contact);
         return contact;
     }
 
     private AdvanceContactsBook dtoToContact(CarrierContactDTO contactDTO) {
         return contactMapper.toContactBook(contactDTO);
+    }
+
+    private FullNamePersonInfo dtoToPersonInfo(CarrierContactDTO contactDTO){
+        return contactMapper.toPersonInfo(contactDTO);
     }
 
     private CarrierContactDTO contactToDto(AdvanceContactsBook contact) {

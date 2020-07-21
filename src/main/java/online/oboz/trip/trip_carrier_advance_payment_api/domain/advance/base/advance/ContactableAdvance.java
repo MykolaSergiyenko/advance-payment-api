@@ -1,6 +1,8 @@
 package online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.advance;
 
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.dicts.contacts.AdvanceContactsBook;
+import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.contractor.AdvanceContractor;
+import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.contractor.TripPaymentContractor;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.slf4j.Logger;
@@ -70,6 +72,22 @@ public abstract class ContactableAdvance extends TripsAdvance {
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "contractor_id", referencedColumnName = "contractor_id")
     private AdvanceContactsBook contact;
+
+
+    /**
+     * Contractor
+     */
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "contractor_id", insertable = false, updatable = false)
+    private AdvanceContractor contractor;
+
+
+    /**
+     * PaymentContractor
+     */
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "payment_contractor_id", insertable = false, updatable = false)
+    private TripPaymentContractor paymentContractor;
 
 
     public ContactableAdvance() {
@@ -143,6 +161,21 @@ public abstract class ContactableAdvance extends TripsAdvance {
     }
 
 
+    public AdvanceContractor getContractor() {
+        return contractor;
+    }
+
+    public void setContractor(AdvanceContractor contractor) {
+        this.contractor = contractor;
+    }
+
+    public TripPaymentContractor getPaymentContractor() {
+        return paymentContractor;
+    }
+
+    public void setPaymentContractor(TripPaymentContractor paymentContractor) {
+        this.paymentContractor = paymentContractor;
+    }
 
     @PrePersist
     @Override
@@ -161,10 +194,10 @@ public abstract class ContactableAdvance extends TripsAdvance {
         return HashCodeBuilder.reflectionHashCode(this);
     }
 
+
     @Override
     public String toString() {
         return "ContactableAdvance{" +
-            super.toString() +
             "isNotifiableAdvance=" + isNotifiableAdvance +
             ", notifiedAt=" + notifiedAt +
             ", notifiedDelayedAt=" + notifiedDelayedAt +
@@ -172,6 +205,8 @@ public abstract class ContactableAdvance extends TripsAdvance {
             ", smsSentAt=" + smsSentAt +
             ", readAt=" + readAt +
             ", contact=" + contact +
+            ", contractor=" + contractor +
+            ", paymentContractor=" + paymentContractor +
             '}';
     }
 }

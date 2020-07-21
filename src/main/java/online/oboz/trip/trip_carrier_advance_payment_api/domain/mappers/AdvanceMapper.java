@@ -61,6 +61,8 @@ public interface AdvanceMapper {
     @Mapping(source = "comment", target = "comment")
     @Mapping(source = "cancelled", target = "isCancelled")
     @Mapping(source = "cancelledComment", target = "cancelledComment")
+    @Mapping(source = "contractor.contractorContacts.fullName", target = "contractorName")
+    @Mapping(source = "paymentContractor.contractor.contractorContacts.fullName", target = "paymentContractor")
     AdvanceDTO toAdvanceDTO(Advance advance);
 
 
