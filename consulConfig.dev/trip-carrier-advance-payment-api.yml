@@ -94,7 +94,7 @@ services:
 #                       "name":"Заявка на авансирование"}}'
 
     reports:
-        url: https://reports.oboz.com/reportserver/reportserver/httpauthexport?
+        url: http://reports.oboz.com/reportserver/reportserver/httpauthexport?
         type-key: key=avance_request&
         user: user=bertathar&
         api-key: apikey=nzybc16h&
