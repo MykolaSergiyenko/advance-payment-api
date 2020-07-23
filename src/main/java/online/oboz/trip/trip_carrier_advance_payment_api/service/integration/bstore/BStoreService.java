@@ -72,7 +72,7 @@ public class BStoreService implements StoreService {
                 log.info("Success save file to BStore {}.", fileUuid);
                 return fileUuid;
             } else {
-                log.info("B-Store response isn't OK: {}."+response);
+                log.info("B-Store response isn't OK: {}.", response);
             }
         } catch (IOException e) {
             log.error("Failed parse response from bstore. Filename: {}. Response: {}", file, response);
