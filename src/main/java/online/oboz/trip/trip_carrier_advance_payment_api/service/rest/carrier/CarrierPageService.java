@@ -58,7 +58,8 @@ public class CarrierPageService implements CarrierService {
     }
 
     private CarrierPage setCarrierPageAccessAndInfo(CarrierPage page, Advance advance) {
-        if (advance.is1CSendAllowed()) {
+        // Carrier-Page is accessed while don't send
+        if (null == advance.getUnfSentAt()) {
             try {
                 Trip trip = advanceService.findTrip(advance.getAdvanceTripFields().getTripId());
                 page = advanceMapper.toCarrierPage(advance, trip.getInfo());
