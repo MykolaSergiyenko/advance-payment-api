@@ -88,6 +88,8 @@ public class RestService implements RestTemplateService {
 
     public <T> ResponseEntity<String> authPostRequest(String url, HttpHeaders headers, T body) {
         headers.add(AUTHORIZATION, "Bearer " + ACCESS_TOKEN);
+        log.info("*** authPostRequest headers: {}.", headers);
+        log.info("*** authPostRequest body: {}.", body);
         HttpEntity<T> request = new HttpEntity<>(body, headers);
         return restTemplate.exchange(url, POST, request, String.class);
     }
