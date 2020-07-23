@@ -53,19 +53,17 @@ public class BStoreService implements StoreService {
 
 
     public UUID saveFile(MultipartFile file) {
-        String url = applicationProperties.getbStoreUrl().toString() +
-            applicationProperties.getbStorePdf();
-        log.info("*** B-Store URL is: {}", url);
+        String url = applicationProperties.getbStoreUrl().toString() + applicationProperties.getbStorePdf();
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.CONTENT_TYPE, "multipart/form-data");
+
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         body.add("file", file.getResource());
-        log.info("*** File's resource: {}", file.getResource());
+
         ResponseEntity<String> response = null;
         try {
-            response = restService.authPostRequest(url, headers, new LinkedMultiValueMap<>());
+            response = restService.authPostRequest(url, headers, body);
             if (response.getStatusCode() == OK) {
-                log.info("*** B-Store response is ok: {}.", response);
                 JsonNode jsonNode = objectMapper.readTree(response.getBody());
                 UUID fileUuid = UUID.fromString(jsonNode.get("file_uuid").asText());
 
