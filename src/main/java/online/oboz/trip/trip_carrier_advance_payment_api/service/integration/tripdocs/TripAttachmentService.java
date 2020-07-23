@@ -95,6 +95,8 @@ public class TripAttachmentService implements TripDocumentsService {
 
     private TripAttachment createAssignmentAttachment(Long tripId, UUID fileUuid) {
         TripAttachment assignmentAdvanceRequest = new TripAttachment(tripId, fileUuid);
+        log.info("*** Save file {} to trip {}.", fileUuid, tripId);
+        log.info("*** Trip document: {}.", assignmentAdvanceRequest);
         return saveTripAttachment(assignmentAdvanceRequest);
     }
 
