@@ -1,7 +1,6 @@
 package online.oboz.trip.trip_carrier_advance_payment_api.service.fileapps.attachments;
 
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.Advance;
-import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.attachments.TripAttachment;
 import online.oboz.trip.trip_carrier_advance_payment_api.error.BusinessLogicException;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.advance.AdvanceService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.fileapps.reports.ReportService;
@@ -17,7 +16,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
 import java.util.UUID;
 
 import static org.springframework.http.HttpStatus.*;
@@ -49,9 +47,6 @@ public class FileAttachmentsService implements AttachmentService {
         return advanceService.findByTripNum(tripNum);
     }
 
-    private Advance saveAdvance(Advance advance) {
-        return advanceService.saveAdvance(advance);
-    }
 
 
     @Override
@@ -69,17 +64,12 @@ public class FileAttachmentsService implements AttachmentService {
         return reportsService.downloadAdvanceTemplate(advance);
     }
 
-    @Override
-    public ResponseEntity downloadAvanceRequestTemplateForCarrier(String tripNum) {
-        log.info("Got downloadAvanceRequestTemplateForCarrier request tripNum - " + tripNum);
-        return downloadAvanceRequestTemplate(tripNum);
-    }
 
     @Override
     public ResponseEntity downloadAvanceRequestTemplate(String tripNum) {
         log.info("Got downloadAvanceRequestTemplate request tripNum - " + tripNum);
         Advance advance = findAdvanceByNum(tripNum);
-        return reportsService.downloadAdvanceTemplate(advance);
+        return downloadAdvanceRequestTemplate(advance);
     }
 
     @Override
@@ -103,29 +93,11 @@ public class FileAttachmentsService implements AttachmentService {
     }
 
 
-    @Override
-    public void updateFileUuids() {
-        List<Advance> advances = advanceService.findAdvancesWithoutFiles();
-        log.info("Found {} advances without attachments. Try to update it.", advances.size());
-        advances.forEach(advance -> {
-            try {
-                Long tripId = advance.getAdvanceTripFields().getTripId();
-                setUuids(tripAttachmentService.getTripAttachments(tripId), advance);
-            } catch (BusinessLogicException e) {
-                log.error("Error while updating file-uuids: {}", e.getErrors());
-            }
-        });
-    }
-
 
     @Override
     public ResponseEntity<Void> uploadRequestAdvance(MultipartFile file, String tripNum) {
         log.info("Got uploadRequestAdvance request tripNum - " + tripNum);
         Advance advance = findAdvanceByNum(tripNum);
-//        if (advance.is1CSendAllowed() == null) {
-//            throw attachmentsError("Uploading of 'request-advance'-file forbidden. " +
-//                "Send to UNF after docs uploaded.");
-//        }
         uploadRequestAdvance(advance, file);
         return new ResponseEntity<>(OK);
     }
@@ -179,24 +151,6 @@ public class FileAttachmentsService implements AttachmentService {
         advanceService.setAdvanceApplicationFromBstore(advance, fileUuid);
     }
 
-    private void setUuids(List<TripAttachment> attachments, Advance advance) {
-        int attachSize = attachments.size();
-        log.info("Found {} file-attachments for advance {}.", attachSize, advance.getId());
-        if (attachSize > 0) {
-            setRequestUuid(advance, attachments);
-            setAssignmentRequestUuid(advance, attachments);
-        }
-    }
-
-    private void setRequestUuid(Advance advance, List<TripAttachment> attachments) {
-        UUID uuid = tripAttachmentService.getRequestUuidOrTripRequestUuid(attachments);
-        advanceService.setContractApplication(advance, uuid);
-    }
-
-    private void setAssignmentRequestUuid(Advance advance, List<TripAttachment> attachments) {
-        UUID uuid = tripAttachmentService.getAssignmentRequestUuid(attachments);
-        advanceService.setAdvanceApplication(advance, uuid);
-    }
 
     private BusinessLogicException attachmentsError(String message) {
         return ErrorUtils.getInternalError(message);

@@ -58,6 +58,7 @@ public interface AdvanceMapper {
         expression = "java(advance.is1CSendAllowed())")
     @Mapping(target = "isPaid", expression = "java(advance.isPaid())")
     @Mapping(source = "paidAt", target = "paidAt")
+    @Mapping(target = "isUnfSend", expression = "java(advance.isSentToUnf())")
     @Mapping(source = "comment", target = "comment")
     @Mapping(source = "cancelled", target = "isCancelled")
     @Mapping(source = "cancelledComment", target = "cancelledComment")

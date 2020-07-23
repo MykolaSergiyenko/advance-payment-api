@@ -2,6 +2,7 @@ package online.oboz.trip.trip_carrier_advance_payment_api.service.advance;
 
 import online.oboz.trip.trip_carrier_advance_payment_api.config.ApplicationProperties;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.Advance;
+import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.attachments.TripAttachment;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.dicts.contacts.AdvanceContactsBook;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.Trip;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.Person;
@@ -74,7 +75,7 @@ public class MainAdvanceService implements AdvanceService {
         AUTO_COMMENT = applicationProperties.getAutoCreatedComment();
         log.info("Auto-created-advance comment is: " + AUTO_COMMENT);
         autoUser = personService.getAdvanceSystemUser();
-        log.info("Found auto-advance system user is: {}", autoUser.getInfo());
+        log.info("Auto-advance system-user is: {}", autoUser.getInfo());
     }
 
     @Override
@@ -90,9 +91,8 @@ public class MainAdvanceService implements AdvanceService {
         if (advancesNotExistsForTrip(trip)) {
             Person author = personService.getPerson(authorId);
             DetailedPersonInfo info = author.getInfo();
-            String name = String.join(" ",
-                info.getFirstName(), info.getMiddleName(), info.getLastName());
-            log.info("Found advance Author-person: {}.", name);
+            log.info("Found advance Author-person: {}.", String.join(" ",
+                info.getFirstName(), info.getMiddleName(), info.getLastName()));
             Advance advance = newAdvanceForTripAndAuthor(trip, author);
             saveAdvance(advance);
             notifyAboutAdvance(advance);
@@ -359,12 +359,36 @@ public class MainAdvanceService implements AdvanceService {
     private Advance newAdvanceForTripAndAuthor(Trip trip, Person author) {
         Long contractorId = trip.getContractorId();
         AdvanceContactsBook contact = contactService.findByContractor(contractorId);
+        Advance advance = new Advance(author, trip, contact);
+        advance = costService.setSumsToAdvance(advance, trip);
+        advance = setFileUuidsFromTrip(trip.getId(), advance);
+        return advance;
+    }
 
-        Advance advance = new Advance(author);
-        advance.setContractorId(trip.getContractorId());
-        advance.setAdvanceTripFields(trip.getTripFields());
-        advance.setContact(contact);
-        costService.setSumsToAdvance(advance, trip);
+    private Advance setFileUuidsFromTrip(Long tripId, Advance advance) {
+        try {
+            List<TripAttachment> attachments = documentsService.getTripAttachments(tripId);
+            int attachSize = attachments.size();
+            log.info("Found {} file-attachments in trip {} for advance {}.", attachSize, tripId, advance.getId());
+            if (attachSize > 0) {
+                setRequestUuid(advance, attachments);
+                //setAssignmentRequestUuid(advance, attachments);
+            }
+        } catch (BusinessLogicException e) {
+            log.error("Trip-documents not found for tripId = {}", tripId);
+        }
+        return advance;
+    }
+
+    private Advance setRequestUuid(Advance advance, List<TripAttachment> attachments) {
+        UUID uuid = documentsService.getRequestUuidOrTripRequestUuid(attachments);
+        setContractApplication(advance, uuid);
+        return advance;
+    }
+
+    private Advance setAssignmentRequestUuid(Advance advance, List<TripAttachment> attachments) {
+        UUID uuid = documentsService.getAssignmentRequestUuid(attachments);
+        setAdvanceApplication(advance, uuid);
         return advance;
     }
 

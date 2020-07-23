@@ -11,10 +11,6 @@ import org.springframework.web.multipart.MultipartFile;
  */
 public interface AttachmentService {
 
-    /**
-     * Обновить uuid`ы файлов в "Авансах" без файлов
-     */
-    void updateFileUuids();
 
     /**
      * Загрузить "Заявку на аванс" из "B-Store"
@@ -43,17 +39,11 @@ public interface AttachmentService {
 
     /**
      * Загрузить шаблон "заявки" по трипу
+     * (со страницы перевозчика или нет - не важно)
      * @param tripNum
      * @return
      */
     ResponseEntity downloadAvanceRequestTemplate(String tripNum);
-
-    /**
-     * Загрузить шаблон "заявки" по трипу со страницы перевозчика
-     * @param tripNum
-     * @return
-     */
-    ResponseEntity downloadAvanceRequestTemplateForCarrier(String tripNum);
 
     /**
      * Скачать "Заявку на аванс" по Трипу

@@ -35,7 +35,7 @@ public class ApplicationProperties {
      * Access-only-emails-list
      */
     @Value("${accessed-users.emails}")
-    private List<String> accessUsersEmails;
+    private static List<String> accessUsersEmails;
 
 
     /**
@@ -71,9 +71,7 @@ public class ApplicationProperties {
     private String password;
 
 
-
     //Auto-advance
-
 
 
     /**
@@ -188,8 +186,6 @@ public class ApplicationProperties {
     private URL cutLinkUrl;
 
 
-
-
     /**
      * Is email-enabled for create-advance simple-notification in NotificationService
      */
@@ -262,12 +258,6 @@ public class ApplicationProperties {
     public ApplicationProperties() {
     }
 
-    /**
-     * @return Access-only-emails-list
-     */
-    public List<String> hasAccessUsersEmails() {
-        return this.accessUsersEmails;
-    }
 
     /**
      * @return Set access-only-emails-list
@@ -279,13 +269,9 @@ public class ApplicationProperties {
     /**
      * @return Check hasAccess by only-user's emails here,
      * not give all email's list for SecurityUtils.
-     * TODO: check by contains() or streams.filter() here
-     * by private ApplicationProperties.hasAccess(java.lang.String email)
-     * and authenticateUser.emails, ids, other params from front-end;
      */
-    @Deprecated
-    private boolean hasAccess(String email) {
-        return hasAccessUsersEmails().contains(email);
+    public static boolean hasAccess(String email) {
+        return accessUsersEmails.contains(email);
     }
 
 

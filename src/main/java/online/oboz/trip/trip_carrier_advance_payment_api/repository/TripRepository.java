@@ -15,6 +15,8 @@ public interface TripRepository extends JpaRepository<Trip, Long> {
         "where (t.tripStatusCode = 'assigned' and t.tripFields.tripTypeCode = 'motor') and " +
         "(t.tripCostInfo.cost between :minCost and :maxCost) and " +
         "exists (select h from TripStateHistory h where h.toCode = 'assigned' and h.createdAt > :minDate) and " +
+        "exists (select atc from TripAttachment atc where (atc.documentTypeCode = 'trip_request' or " +
+        "atc.documentTypeCode = 'request') and atc.fileId is not null) and " +
         "not exists (select a from Advance a where t.id = a.advanceTripFields.tripId and " +
         "t.contractorId = a.contractorId and t.tripFields.driverId = a.advanceTripFields.driverId and " +
         "t.tripFields.orderId = a.advanceTripFields.orderId and t.tripFields.num = a.advanceTripFields.num)")

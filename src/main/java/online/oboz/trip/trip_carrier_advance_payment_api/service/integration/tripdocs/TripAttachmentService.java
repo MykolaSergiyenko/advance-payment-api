@@ -23,24 +23,24 @@ public class TripAttachmentService implements TripDocumentsService {
         this.tripDocumentsRepository = tripDocumentsRepository;
     }
 
-    public Boolean isAllDocumentsLoaded(Advance advance){
+    public Boolean isAllDocumentsLoaded(Advance advance) {
         return isAllTripDocumentsLoaded(advance.getAdvanceTripFields().getTripId(), true);
     }
 
-    public Boolean isAllTripDocumentsLoaded(Long tripId, Boolean checkAssignment){
+    public Boolean isAllTripDocumentsLoaded(Long tripId, Boolean checkAssignment) {
         List<TripAttachment> attachments = null;
         try {
-           attachments = getTripAttachments(tripId);
-        } catch (BusinessLogicException e){
+            attachments = getTripAttachments(tripId);
+        } catch (BusinessLogicException e) {
             log.error("Trip-documents not found for tripId = {}", tripId);
         }
         return (null != attachments) && (getRequestUuidOrTripRequestUuid(attachments) != null) &&
-            (checkAssignment ? (getAssignmentRequestUuid(attachments)!= null) : true);
+            (checkAssignment ? (getAssignmentRequestUuid(attachments) != null) : true);
     }
 
-    public List<TripAttachment> getTripAttachments (Long tripId) {
+    public List<TripAttachment> getTripAttachments(Long tripId) {
         List<TripAttachment> attachments = tripDocumentsRepository.findByTripId(tripId);
-        if (attachments.size() == 0) throw tripAttachmentsError("Attachments not found for tripId = "+tripId);
+        if (attachments.size() == 0) throw tripAttachmentsError("Attachments not found for tripId = " + tripId);
         else return attachments;
     }
 
@@ -55,7 +55,7 @@ public class TripAttachmentService implements TripDocumentsService {
         }
     }
 
-    public UUID getRequestUuidOrTripRequestUuid(List<TripAttachment> attachments){
+    public UUID getRequestUuidOrTripRequestUuid(List<TripAttachment> attachments) {
         if (attachments == null) return null;
         UUID requestUuid = getRequestUuid(attachments);
         log.info("*** UUID requestUuid [1] : {}.", requestUuid);
@@ -64,28 +64,33 @@ public class TripAttachmentService implements TripDocumentsService {
         return requestUuid;
     }
 
-    public UUID getRequestUuid(List<TripAttachment> attachments){
+    public UUID getRequestUuid(List<TripAttachment> attachments) {
         if (attachments == null) return null;
         return getFileUuid(attachments, "request");
     }
 
-    public UUID getTripRequestUuid(List<TripAttachment> attachments){
+    public UUID getTripRequestUuid(List<TripAttachment> attachments) {
         if (attachments == null) return null;
         return getFileUuid(attachments, "trip_request");
     }
 
-    public UUID getAssignmentRequestUuid(List<TripAttachment> attachments){
+    public UUID getAssignmentRequestUuid(List<TripAttachment> attachments) {
         if (attachments == null) return null;
         return getFileUuid(attachments, "assignment_advance_request");
     }
 
     //***
 
-    private UUID getFileUuid(List<TripAttachment> attachments, String fileType){
+    private UUID getFileUuid(List<TripAttachment> attachments, String fileType) {
         TripAttachment file = attachments.stream().
             filter(a -> a.getDocumentTypeCode().equals(fileType)).findFirst().orElse(null);
-        if (file == null) log.info("File type not found: {}", fileType);
-        return (file == null) ? null : file.getFileId();
+        if (file == null) {
+            log.info("File type not found: {}", fileType);
+            return null;
+        } else {
+            log.info("File type found: {}", fileType);
+            return file.getFileId();
+        }
     }
 
     private TripAttachment createAssignmentAttachment(Long tripId, UUID fileUuid) {

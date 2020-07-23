@@ -134,7 +134,7 @@ public class AdvancePaymentDelegateImpl implements AdvancePaymentApiDelegate {
     @Override
     public ResponseEntity downloadAvanceRequestTemplateForCarrier(String tripNum) {
         log.info("Got downloadAvanceRequestTemplateForCarrier request tripNum - " + tripNum);
-        return attachmentService.downloadAvanceRequestTemplateForCarrier(tripNum);
+        return attachmentService.downloadAvanceRequestTemplate(tripNum);
     }
 
     @Override

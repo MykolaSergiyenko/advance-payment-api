@@ -1,6 +1,9 @@
 package online.oboz.trip.trip_carrier_advance_payment_api.domain.advance;
 
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.advance.ContactableAdvance;
+import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.structures.TripFields;
+import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.dicts.contacts.AdvanceContactsBook;
+import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.Trip;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.Person;
 import online.oboz.trip.trip_carrier_advance_payment_api.util.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
@@ -10,6 +13,7 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.hibernate.annotations.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.annotation.PersistenceConstructor;
 
 import javax.persistence.*;
 import java.time.OffsetDateTime;
@@ -67,14 +71,23 @@ public class Advance extends ContactableAdvance {
         return getPaidAt() != null;
     }
 
+    public Boolean isSentToUnf() {
+        return getUnfSentAt() != null;
+    }
+
 
     public Advance() {
 
     }
 
-    public Advance(Person author) {
+
+    @PersistenceConstructor
+    public Advance(Person author, Trip trip, AdvanceContactsBook contact) {
         setAuthor(author);
         setAuthorId(author.getId());
+        setContractorId(trip.getContractorId());
+        setContact(contact);
+        setAdvanceTripFields(trip.getTripFields());
     }
 
 

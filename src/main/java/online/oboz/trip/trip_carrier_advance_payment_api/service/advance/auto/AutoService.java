@@ -6,7 +6,7 @@ package online.oboz.trip.trip_carrier_advance_payment_api.service.advance.auto;
  */
 public interface AutoService {
 
-    void updateFileUuid();
+//    void updateFileUuid();
 
     void updateAutoAdvanceForContractors();
 

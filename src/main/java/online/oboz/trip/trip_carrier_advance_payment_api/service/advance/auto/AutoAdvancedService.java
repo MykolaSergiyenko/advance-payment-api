@@ -21,32 +21,31 @@ public class AutoAdvancedService implements AutoService {
     private final ContractorService advanceContractorService;
     private final AdvanceService advanceService;
 
-    private final FileAttachmentsService fileAttachmentsService;
 
 
     @Autowired
     public AutoAdvancedService(
         ContractorService advanceContractorService,
-        AdvanceService advanceService,
-        FileAttachmentsService fileAttachmentsService
+        AdvanceService advanceService
     ) {
         this.advanceContractorService = advanceContractorService;
         this.advanceService = advanceService;
-        this.fileAttachmentsService = fileAttachmentsService;
     }
 
     ///@Scheduled(cron = "0 0/3 * * * *")
 
-    @Override
-    @Scheduled(cron = "${services.auto-advance-service.cron.update}")
-    public void updateFileUuid() {
-        log.info("Auto-advance: update attachment's uuids schedule started.");
-        try {
-            fileAttachmentsService.updateFileUuids();
-        } catch (BusinessLogicException e) {
-            log.error("Error while update file-uuids:" + e.getErrors());
-        }
-    }
+//    @Override
+//    @Scheduled(cron = "${services.auto-advance-service.cron.update}")
+//    public void updateFileUuid() {
+//        log.info("Auto-advance: update attachment's uuids schedule started.");
+//        try {
+//                List<Advance> advances = advanceService.findAdvancesWithoutFiles();
+//                log.info("Found {} advances without attachments. Try to update it.", advances.size());
+//                advances.forEach(advance -> { fileAttachmentsService.setAttachmentsForAdvance(advance);});
+//        } catch (BusinessLogicException e) {
+//            log.error("Error while update file-uuids:" + e.getErrors());
+//        }
+//    }
 
 
     @Override
