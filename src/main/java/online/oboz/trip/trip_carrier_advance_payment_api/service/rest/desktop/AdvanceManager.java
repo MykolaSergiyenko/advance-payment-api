@@ -36,4 +36,7 @@ public interface AdvanceManager {
      * @param comment - структура данных комментария
      */
     ResponseEntity<Void> changeAdvancePaymentComment(AdvanceCommentDTO comment);
+
+
+    void checkAccess();
 }

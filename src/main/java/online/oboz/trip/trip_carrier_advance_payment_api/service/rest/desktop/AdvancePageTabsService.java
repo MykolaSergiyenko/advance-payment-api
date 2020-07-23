@@ -22,19 +22,23 @@ public class AdvancePageTabsService implements AdvanceTabManager {
 
     private final AdvanceMapper mapper = AdvanceMapper.advanceMapper;
     private final AdvanceService advanceService;
+    private final AdvanceManager advanceManager;
     private final ApplicationProperties applicationProperties;
 
     @Autowired
     public AdvancePageTabsService(
         AdvanceService advanceService,
+        AdvanceManager advanceManager,
         ApplicationProperties applicationProperties
     ) {
         this.advanceService = advanceService;
+        this.advanceManager = advanceManager;
         this.applicationProperties = applicationProperties;
     }
 
 
     public ResponseEntity<AdvanceDesktopDTO> searchInWorkRequests(Filter filter) {
+        //advanceManager.checkAccess();
         List<Advance> all = getAllAdvances().stream()
             .filter(advance -> !advance.isProblem(applicationProperties.getAutoCreatedComment())
                 && !advance.isPaid() && !advance.isCancelled()).collect(Collectors.toList());
@@ -105,11 +109,6 @@ public class AdvancePageTabsService implements AdvanceTabManager {
             throw new IllegalArgumentException("pageSize can not be less than 1");
         }
         return ((pageNumber - 1) * pageSize);
-    }
-
-
-    private Advance setComment(AdvanceCommentDTO comment) {
-        return mapper.setComment(comment);
     }
 
 

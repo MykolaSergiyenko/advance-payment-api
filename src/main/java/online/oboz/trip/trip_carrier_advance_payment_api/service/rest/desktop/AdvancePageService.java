@@ -1,7 +1,5 @@
 package online.oboz.trip.trip_carrier_advance_payment_api.service.rest.desktop;
 
-import online.oboz.trip.trip_carrier_advance_payment_api.config.ApplicationProperties;
-
 import online.oboz.trip.trip_carrier_advance_payment_api.service.advance.AdvanceService;
 import online.oboz.trip.trip_carrier_advance_payment_api.util.SecurityUtils;
 import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.AdvanceCommentDTO;
@@ -20,15 +18,12 @@ import javax.transaction.Transactional;
 public class AdvancePageService implements AdvanceManager {
     private static final Logger log = LoggerFactory.getLogger(AdvancePageService.class);
     private final AdvanceService advanceService;
-    private final ApplicationProperties applicationProperties;
 
     @Autowired
     public AdvancePageService(
-        AdvanceService advanceService,
-        ApplicationProperties applicationProperties
+        AdvanceService advanceService
     ) {
         this.advanceService = advanceService;
-        this.applicationProperties = applicationProperties;
     }
 
     @Transactional
@@ -50,7 +45,7 @@ public class AdvancePageService implements AdvanceManager {
 
 
     public void checkAccess() {
-        if (SecurityUtils.hasNotAccess(applicationProperties)) {
+        if (SecurityUtils.hasNotAccess()) {
             log.info("User hasn't access.");
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User permission denied");
         }

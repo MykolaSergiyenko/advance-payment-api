@@ -1,15 +1,16 @@
 package online.oboz.trip.trip_carrier_advance_payment_api.util;
 
 import jdk.nashorn.internal.runtime.JSONListAdapter;
-import online.oboz.trip.trip_carrier_advance_payment_api.config.ApplicationProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 
 import static com.google.common.base.Preconditions.checkState;
+import static online.oboz.trip.trip_carrier_advance_payment_api.config.ApplicationProperties.hasAccess;
 
 public interface SecurityUtils {
     Logger log = LoggerFactory.getLogger(SecurityUtils.class);
@@ -55,13 +56,13 @@ public interface SecurityUtils {
         return hasRole("admin");
     }
 
-    static boolean hasAccessEmail(ApplicationProperties applicationProperties) {
+    static boolean hasAccessEmail() {
         String authPerson = getAuthPersonEmail();
-        return applicationProperties.hasAccessUsersEmails().contains(authPerson);
+        return hasAccess(authPerson);
     }
 
 
-    static boolean hasNotAccess(ApplicationProperties applicationProperties) {
-        return !hasAccessEmail(applicationProperties);
+    static boolean hasNotAccess() {
+        return !hasAccessEmail();
     }
 }
