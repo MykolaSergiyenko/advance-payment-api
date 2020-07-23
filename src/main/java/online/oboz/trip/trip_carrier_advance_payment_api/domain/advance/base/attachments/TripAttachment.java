@@ -7,6 +7,7 @@ import org.hibernate.annotations.NaturalId;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.PrePersist;
 import javax.persistence.Table;
 import java.util.UUID;
 
@@ -24,11 +25,7 @@ public class TripAttachment extends BaseUpdateEntity {
     @Column(name = "file_id", nullable = false)
     private UUID fileId;
 
-    /**
-     * ?
-     */
-    @Column(name = "template_file_id", nullable = false)
-    private UUID templateFileId;
+
 
     /**
      * Trip's id
@@ -49,6 +46,12 @@ public class TripAttachment extends BaseUpdateEntity {
     @Column(name = "name", nullable = false)
     private String name;
 
+    /**
+     * ?
+     */
+    @Column(name = "template_file_id")
+    private UUID templateFileId;
+
 
     public TripAttachment() {
     }
@@ -58,6 +61,12 @@ public class TripAttachment extends BaseUpdateEntity {
         this.setFileId(fileUuid);
         this.setDocumentTypeCode("assignment_advance_request");
         this.setName("Заявка на авансирование");
+    }
+
+    @PrePersist
+    @Override
+    public void onCreate() {
+        super.onCreate();
     }
 
     public UUID getFileId() {
