@@ -1,14 +1,10 @@
 package online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.attachments;
 
-import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.entities.BaseUpdateEntity;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.hibernate.annotations.NaturalId;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.PrePersist;
-import javax.persistence.Table;
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.util.UUID;
 
 /**
@@ -16,12 +12,17 @@ import java.util.UUID;
  */
 @Entity
 @Table(name = "trip_documents", schema = "orders")
-public class TripAttachment extends BaseUpdateEntity {
+public class TripAttachment {
+
+    @Id
+    @NotNull
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @Column(name = "id", updatable = false, nullable = false)
+    private Long id;
 
     /**
      * UUID файла
      */
-    @NaturalId
     @Column(name = "file_id", nullable = false)
     private UUID fileId;
 
@@ -63,11 +64,6 @@ public class TripAttachment extends BaseUpdateEntity {
         setName("Заявка на авансирование");
     }
 
-    @PrePersist
-    @Override
-    public void onCreate() {
-        super.onCreate();
-    }
 
     public UUID getFileId() {
         return fileId;
@@ -111,6 +107,15 @@ public class TripAttachment extends BaseUpdateEntity {
     }
 
 
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+
     @Override
     public boolean equals(Object o) {
         return EqualsBuilder.reflectionEquals(this, o);
@@ -125,11 +130,12 @@ public class TripAttachment extends BaseUpdateEntity {
     @Override
     public String toString() {
         return "TripAttachment{" +
-            "fileId=" + fileId +
-            ", templateFileId=" + templateFileId +
+            "id=" + id +
+            ", fileId=" + fileId +
             ", tripId=" + tripId +
             ", documentTypeCode='" + documentTypeCode + '\'' +
             ", name='" + name + '\'' +
+            ", templateFileId=" + templateFileId +
             '}';
     }
 }
