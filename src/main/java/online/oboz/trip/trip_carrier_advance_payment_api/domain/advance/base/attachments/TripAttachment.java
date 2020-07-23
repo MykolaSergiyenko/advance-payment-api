@@ -57,10 +57,10 @@ public class TripAttachment extends BaseUpdateEntity {
     }
 
     public TripAttachment (Long tripId, UUID fileUuid){
-        this.setTripId(tripId);
-        this.setFileId(fileUuid);
-        this.setDocumentTypeCode("assignment_advance_request");
-        this.setName("Заявка на авансирование");
+        setTripId(tripId);
+        setFileId(fileUuid);
+        setDocumentTypeCode("assignment_advance_request");
+        setName("Заявка на авансирование");
     }
 
     @PrePersist
