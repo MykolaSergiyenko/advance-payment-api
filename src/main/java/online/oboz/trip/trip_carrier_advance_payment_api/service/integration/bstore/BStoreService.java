@@ -53,8 +53,8 @@ public class BStoreService implements StoreService {
 
 
     public UUID saveFile(MultipartFile file) {
-        String url = applicationProperties.getbStoreUrl().toString();// +
-            //applicationProperties.getbStorePdf();
+        String url = applicationProperties.getbStoreUrl().toString() +
+            applicationProperties.getbStorePdf();
         log.info("*** B-Store URL is: {}", url);
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.CONTENT_TYPE, "multipart/form-data");
