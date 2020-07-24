@@ -50,7 +50,6 @@ public class RestService implements RestTemplateService {
     }
 
     public ResponseToken requestToken(String userName, String password) {
-        log.debug("*** RestTemplate - exchange with token:[ {} ], [ {} ]", userName, password);
         try {
             String url = applicationProperties.getTokenAuthUrl() + applicationProperties.getTokenUrlPostfix();
             String authBody = String.format(applicationProperties.getTokenBody(), userName, password);
@@ -73,7 +72,6 @@ public class RestService implements RestTemplateService {
     }
 
     public ResponseEntity<Resource> getRequestResource(String url, HttpHeaders headers) {
-        log.debug("*** RestTemplate - getRequestResource:[ {} ], [ {} ]", url, headers);
         try {
             HttpEntity<String> request = new HttpEntity<>(headers);
             ResponseEntity<Resource> response = restTemplate.exchange(url, GET, request, Resource.class);
@@ -88,8 +86,6 @@ public class RestService implements RestTemplateService {
 
     public <T> ResponseEntity<String> authPostRequest(String url, HttpHeaders headers, T body) {
         headers.add(AUTHORIZATION, "Bearer " + ACCESS_TOKEN);
-        log.info("*** authPostRequest headers: {}.", headers);
-        log.info("*** authPostRequest body: {}.", body);
         HttpEntity<T> request = new HttpEntity<>(body, headers);
         return restTemplate.exchange(url, POST, request, String.class);
     }
@@ -101,12 +97,10 @@ public class RestService implements RestTemplateService {
     }
 
     public ResponseEntity<String> getRequest(String url) {
-        log.info("*** RestTemplate - getEntity:[ {} ]", url);
         return restTemplate.exchange(url, GET, null, String.class);
     }
 
     public ResponseEntity<String> postForEntity(URL url, Object container) {
-        log.info("*** RestTemplate - postForEntity:[ {} ], [ {} ]", url, container);
         String strUrl = url.toString();
         return restTemplate.postForEntity(strUrl, container, String.class);
     }

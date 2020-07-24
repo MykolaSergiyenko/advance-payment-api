@@ -58,9 +58,8 @@ public class TripAttachmentService implements TripDocumentsService {
     public UUID getRequestUuidOrTripRequestUuid(List<TripAttachment> attachments) {
         if (attachments == null) return null;
         UUID requestUuid = getRequestUuid(attachments);
-        log.info("*** UUID requestUuid [1] : {}.", requestUuid);
         if (requestUuid == null) requestUuid = getTripRequestUuid(attachments);
-        log.info("*** UUID requestUuid [2] : {}.", requestUuid);
+        log.info("*** Request Or Trip-request file-uuid is: {}.", requestUuid);
         return requestUuid;
     }
 
@@ -95,8 +94,6 @@ public class TripAttachmentService implements TripDocumentsService {
 
     private TripAttachment createAssignmentAttachment(Long tripId, UUID fileUuid) {
         TripAttachment assignmentAdvanceRequest = new TripAttachment(tripId, fileUuid);
-        log.info("*** Save file {} to trip {}.", fileUuid, tripId);
-        log.info("*** Trip document: {}.", assignmentAdvanceRequest);
         return saveTripAttachment(assignmentAdvanceRequest);
     }
 

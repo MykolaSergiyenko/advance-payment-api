@@ -148,7 +148,7 @@ public class FileAttachmentsService implements AttachmentService {
     }
 
     private void saveToAdvance(Advance advance, UUID fileUuid) {
-        advanceService.setAdvanceApplicationFromBstore(advance, fileUuid);
+        advanceService.setAdvanceApplication(advance, fileUuid);
     }
 
 

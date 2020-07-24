@@ -257,14 +257,6 @@ public class MainAdvanceService implements AdvanceService {
         return advance;
     }
 
-    @Override
-    public Advance setAdvanceApplicationFromBstore(Advance advance, UUID uuid) {
-        if (uuid != null) {
-            return setAdvanceApplicationFile(advance, uuid);
-        }
-        return advance;
-    }
-
 
     @Override
     public ResponseEntity<Void> confirmAdvance(Long advanceId) {

@@ -131,15 +131,6 @@ public interface AdvanceService {
     Advance setAdvanceApplication(Advance advance, UUID uuid);
 
     /**
-     * //TODO: ???
-     * set uuid advance-application-file
-     * @param advance - аванс
-     * @param uuid - uuid вложения
-     * @return Advance - аванс
-     */
-    Advance setAdvanceApplicationFromBstore(Advance advance, UUID uuid);
-
-    /**
      * Сохранить аванс
      * @param advance  - аванс
      * @return Advance - аванс
