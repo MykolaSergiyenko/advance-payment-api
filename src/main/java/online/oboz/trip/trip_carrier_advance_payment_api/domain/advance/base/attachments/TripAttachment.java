@@ -2,6 +2,7 @@ package online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.at
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -16,7 +17,7 @@ public class TripAttachment {
 
     @Id
     @NotNull
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(generator = "orders.trip_documents_id_seq")
     @Column(name = "id", updatable = false, nullable = false)
     private Long id;
 
