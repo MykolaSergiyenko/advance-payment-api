@@ -13,7 +13,8 @@ import javax.persistence.*;
 public class AdvanceContactsBook extends AdvanceContact {
     final static Logger log = LoggerFactory.getLogger(AdvanceContactsBook.class);
 
-
+    // TODO: add sequence generator?
+    //@SequenceGenerator(name = "default_gen", sequenceName = "trip_request_advance_payment_id_seq", allocationSize = 1, schema = "orders")
     public AdvanceContactsBook() {
     }
 

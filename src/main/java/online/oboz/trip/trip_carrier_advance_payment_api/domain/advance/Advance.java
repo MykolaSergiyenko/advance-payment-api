@@ -28,6 +28,7 @@ import java.util.UUID;
  **/
 @Entity
 @Table(name = "trip_request_advance_payment", schema = "orders")
+@SequenceGenerator(name = "default_gen", sequenceName = "trip_request_advance_payment_id_seq", allocationSize = 1, schema = "orders")
 public class Advance extends ContactableAdvance {
     final static Logger log = LoggerFactory.getLogger(Advance.class);
 

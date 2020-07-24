@@ -1,8 +1,8 @@
 package online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.attachments;
 
+import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.entities.BaseEntity;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -13,13 +13,8 @@ import java.util.UUID;
  */
 @Entity
 @Table(name = "trip_documents", schema = "orders")
-public class TripAttachment {
-
-    @Id
-    @NotNull
-    @GeneratedValue(generator = "orders.trip_documents_id_seq")
-    @Column(name = "id", updatable = false, nullable = false)
-    private Long id;
+@SequenceGenerator(name = "default_gen", sequenceName = "trip_documents_id_seq", allocationSize = 1, schema = "orders")
+public class TripAttachment extends BaseEntity {
 
     /**
      * UUID файла
@@ -108,15 +103,6 @@ public class TripAttachment {
     }
 
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-
     @Override
     public boolean equals(Object o) {
         return EqualsBuilder.reflectionEquals(this, o);
@@ -131,7 +117,6 @@ public class TripAttachment {
     @Override
     public String toString() {
         return "TripAttachment{" +
-            "id=" + id +
             ", fileId=" + fileId +
             ", tripId=" + tripId +
             ", documentTypeCode='" + documentTypeCode + '\'' +
