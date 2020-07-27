@@ -41,7 +41,7 @@ public class MainAdvanceService implements AdvanceService {
 
     private final String advanceTitle = "Аванс выдан: ";
     private final String autoTitle = " (в автоматическом режиме).";
-    private final String authorTitle = ";\n Автор: ";
+    private final String authorTitle = ";\nАвтор: ";
 
     private final String AUTO_COMMENT;
     private final Person autoUser;
