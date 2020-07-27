@@ -73,7 +73,7 @@ accessed-users:
 services:
     # tokenAuthUrl in RestService?
     keycloak:
-        url: https://preprod.oboz.online/auth/realms/master/protocol/openid-connect
+        url: http://keycloak.r14.k.dev.oboz:30080/auth/realms/master/protocol/openid-connect
         token-postfix: '/token'
         token-body: 'grant_type=password&client_id=elp&username=%s&password=%s'
         auth:
