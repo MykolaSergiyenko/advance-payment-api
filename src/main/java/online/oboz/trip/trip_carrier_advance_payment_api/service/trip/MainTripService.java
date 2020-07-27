@@ -109,11 +109,13 @@ public class MainTripService implements TripService {
     public IsTripAdvanced checkTripAdvanceState(Trip trip) {
         IsTripAdvanced isTripAdvanced = new IsTripAdvanced();
         if (checkTripCosts(trip, isTripAdvanced)) {
+            String message = "";
             if (contactService.notExistsByContractor(trip.getContractorId())) {
-                isTripAdvanced.setTooptip(contactsTitle);
+                message = contactsTitle;
             } else if (!documentsService.isAllTripDocumentsLoaded(trip.getId(), false)) {
-                isTripAdvanced.setTooptip(docsTitle);
+                message = docsTitle;
             }
+            isTripAdvanced.setTooltip(message);
         }
         return isTripAdvanced;
     }
@@ -124,17 +126,16 @@ public class MainTripService implements TripService {
         try {
             Double ndsCost = calculateTripCost(trip);
             if (ndsCost < minCost || ndsCost > maxCost) {
-                if (ndsCost < minCost) {
-                    request.setTooptip(String.format(costTitle, gt, format(minCost)));
-                } else if (ndsCost > maxCost) {
-                    request.setTooptip(String.format(costTitle, lt, format(maxCost)));
-                }
+                request.setTooltip(
+                    (ndsCost < minCost) ? String.format(costTitle, gt, format(minCost)) :
+                        ((ndsCost > maxCost) ? String.format(costTitle, lt, format(maxCost)) : null)
+                );
                 return false;
             } else {
                 return true;
             }
         } catch (BusinessLogicException e) {
-            request.setTooptip(tripCostError);
+            request.setTooltip(tripCostError);
             return false;
         }
     }
