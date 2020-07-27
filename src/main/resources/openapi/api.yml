@@ -1067,35 +1067,12 @@ components:
             type: object
             description: "Статус выдачи аванса для Трипа"
             properties:
-                isButtonActive:
-                    type: boolean
-                    description: "Доступность выдачи аванса"
-                contactsNotFound:
-                    type: boolean
-                    description: "Нет контактов авансирования для контрагента"
-                tripDocsNotFound:
-                    type: boolean
-                    description: "Не загружены документы в трип"
-                authorId:
-                    type: integer
-                    format: int64
-                    description: "Id того кто нажал кнопку \"Выдать аванс\""
-                firstName:
+                tooptip:
                     type: string
-                    description: "Имя того кто нажал кнопку \"Выдать аванс\""
-                lastName:
+                    description: "Комментарий"
+                state:
                     type: string
-                    description: "Фамилия того кто нажал кнопку \"Выдать аванс\""
-                middleName:
-                    type: string
-                    description: "Отчество того кто нажал кнопку \"Выдать аванс\""
-                createdAt:
-                    type: string
-                    format: date-time
-                    description: "Время и дата запроса аванса"
-                isAutoRequested:
-                    type: boolean
-                    description: "Признак авто-аванса"
+                    description: "Статус аванса"
 
         Paginator:
             type: object

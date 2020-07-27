@@ -7,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.persistence.*;
-import java.time.OffsetDateTime;
 
 
 @Entity
@@ -30,9 +29,6 @@ public class AdvanceCostDict {
 
     @Column(name = "registration_fee")
     private Double registrationFee;
-
-//    @Column(name = "created_at", insertable = false, updatable = false)
-//    private OffsetDateTime createdAt;
 
     public AdvanceCostDict() {
     }
@@ -96,7 +92,6 @@ public class AdvanceCostDict {
             ", maxValue=" + maxValue +
             ", advancePaymentSum=" + advancePaymentSum +
             ", registrationFee=" + registrationFee +
-//            ", createdAt=" + createdAt +
             '}';
     }
 }

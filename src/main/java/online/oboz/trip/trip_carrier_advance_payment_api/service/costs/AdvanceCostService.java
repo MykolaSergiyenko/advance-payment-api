@@ -1,13 +1,8 @@
 package online.oboz.trip.trip_carrier_advance_payment_api.service.costs;
 
-import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.Advance;
-import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.structures.AdvanceInfo;
-import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.structures.TripCostInfo;
-import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.dicts.costdicts.AdvanceCostDict;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.Trip;
 import online.oboz.trip.trip_carrier_advance_payment_api.error.BusinessLogicException;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.contractors.ContractorService;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.costs.advancedict.CostDictService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.costs.vats.VatCostService;
 import online.oboz.trip.trip_carrier_advance_payment_api.util.ErrorUtils;
 import org.slf4j.Logger;
@@ -20,40 +15,34 @@ public class AdvanceCostService implements CostService {
 
     private static final Logger log = LoggerFactory.getLogger(AdvanceCostService.class);
 
+
     private final ContractorService contractorService;
     private final VatCostService vatCostService;
-    private final CostDictService costDictService;
+
 
     @Autowired
     public AdvanceCostService(
         ContractorService contractorService,
-        VatCostService vatCostService,
-        CostDictService costDictService
+        VatCostService vatCostService
     ) {
         this.contractorService = contractorService;
         this.vatCostService = vatCostService;
-        this.costDictService = costDictService;
+    }
+
+    @Override
+    public Double calculateWithNdsForTrip(Trip trip) {
+        Long contractorId = trip.getContractorId();
+        Double cost = trip.getTripCostInfo().getCost();
+        if (null == cost || cost == 0.0) throw getCostServiceError("Trip cost is null or zero.");
+        String vatCode = trip.getVatCode();
+        Boolean isVatPayer = contractorService.isVatPayer(contractorId);
+        return calculateNdsCost(cost, vatCode, isVatPayer);
     }
 
     @Override
     public Double calculateNdsCost(Double tripCost, String vatCode, Boolean isVatPayer) {
         Double ndsCost = tripCost + (isVatPayer ? (tripCost * getVatValue(vatCode)) : 0);
         return ndsCost;
-    }
-
-    public Advance setSumsToAdvance(Advance advance, Trip trip) {
-        Long contractorId = trip.getContractorId();
-        Double cost = trip.getTripCostInfo().getCost();
-        String vatCode = trip.getVatCode();
-        Boolean isVatPayer = contractorService.isVatPayer(contractorId);
-        TripCostInfo costInfo = new TripCostInfo(calculateNdsCost(cost, vatCode, isVatPayer));
-        advance.setCostInfo(costInfo);
-
-        AdvanceCostDict dict = costDictService.findAdvanceSumByCost(costInfo.getCost());
-        AdvanceInfo info = new AdvanceInfo(dict.getAdvancePaymentSum(), dict.getRegistrationFee());
-        advance.setTripAdvanceInfo(info);
-
-        return advance;
     }
 
 

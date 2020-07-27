@@ -29,15 +29,15 @@ public interface StringUtils {
         return false;
     }
 
-    static String getIds(Long... ids){
-        String str ="";
+    static String getIds(Long... ids) {
+        String str = "";
         for (Long id : ids) {
-            str += (str.isEmpty() ? "ids = ": ", ") + id;
+            str += (str.isEmpty() ? "ids = " : ", ") + id;
         }
         return str;
     }
 
-    static String formatNum(Double d){
-        return String.format("%.03f", d);
+    static String formatNum(Double d) {
+        return String.format("%.02f", d);
     }
 }

@@ -11,12 +11,12 @@ import online.oboz.trip.trip_carrier_advance_payment_api.error.BusinessLogicExce
 import online.oboz.trip.trip_carrier_advance_payment_api.repository.AdvanceRepository;
 
 import online.oboz.trip.trip_carrier_advance_payment_api.service.contacts.ContactService;;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.costs.CostService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.integration.tripdocs.TripDocumentsService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.integration.unf.UnfService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.messages.Notificator;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.persons.BasePersonService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.trip.TripService;
+import online.oboz.trip.trip_carrier_advance_payment_api.util.DateUtils;
 import online.oboz.trip.trip_carrier_advance_payment_api.util.ErrorUtils;
 import online.oboz.trip.trip_carrier_advance_payment_api.util.StringUtils;
 import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.*;
@@ -27,7 +27,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -36,13 +38,17 @@ import java.util.stream.Collectors;
 public class MainAdvanceService implements AdvanceService {
     private static final Logger log = LoggerFactory.getLogger(MainAdvanceService.class);
 
+
+    private final String advanceTitle = "Аванс выдан: ";
+    private final String autoTitle = " (в автоматическом режиме).";
+    private final String authorTitle = ";\n Автор: ";
+
     private final String AUTO_COMMENT;
     private final Person autoUser;
 
     private final TripService tripService;
     private final BasePersonService personService;
     private final ContactService contactService;
-    private final CostService costService;
 
     private final Notificator notificationService;
     private final TripDocumentsService documentsService;
@@ -55,7 +61,6 @@ public class MainAdvanceService implements AdvanceService {
         TripService tripService,
         BasePersonService personService,
         ContactService contactService,
-        CostService costService,
         TripDocumentsService documentsService,
         Notificator notificationService,
         UnfService integration1cService,
@@ -65,7 +70,6 @@ public class MainAdvanceService implements AdvanceService {
         this.tripService = tripService;
         this.personService = personService;
         this.contactService = contactService;
-        this.costService = costService;
         this.documentsService = documentsService;
         this.notificationService = notificationService;
         this.integration1cService = integration1cService;
@@ -334,6 +338,15 @@ public class MainAdvanceService implements AdvanceService {
         });
     }
 
+    public IsTripAdvanced checkAdvanceState(Advance advance) {
+        IsTripAdvanced isTripAdvanced = new IsTripAdvanced();
+        String text = advanceTitle + formatDateFront(advance.getCreatedAt()) +
+            (advance.isAuto() ? autoTitle :
+                (authorTitle + personService.getAuthorFullName(advance.getAuthorId())));
+        isTripAdvanced.setTooptip(text);
+        return isTripAdvanced;
+    }
+
 
     private Advance createAutoAdvanceForTrip(Trip trip, Person autoUser) {
         if (advancesNotExistsForTrip(trip)) {
@@ -352,8 +365,7 @@ public class MainAdvanceService implements AdvanceService {
         Long contractorId = trip.getContractorId();
         AdvanceContactsBook contact = contactService.findByContractor(contractorId);
         Advance advance = new Advance(author, trip, contact);
-        advance = costService.setSumsToAdvance(advance, trip);
-        advance = setFileUuidsFromTrip(trip.getId(), advance);
+        advance = setFileUuidsFromTrip(trip.getId(), tripService.setSumsToAdvance(advance, trip));
         return advance;
     }
 
@@ -454,6 +466,10 @@ public class MainAdvanceService implements AdvanceService {
 
     private List<Advance> findUnreadAdvances() {
         return advanceRepository.findUnreadAdvances(applicationProperties.getNewTripsInterval());
+    }
+
+    private String formatDateFront(OffsetDateTime date) {
+        return DateUtils.format(date);
     }
 
     private BusinessLogicException getAdvanceError(String message) {
