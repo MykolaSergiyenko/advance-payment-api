@@ -340,10 +340,10 @@ public class MainAdvanceService implements AdvanceService {
 
     public IsTripAdvanced checkAdvanceState(Advance advance) {
         IsTripAdvanced isTripAdvanced = new IsTripAdvanced();
-        String text = advanceTitle + formatDateFront(advance.getCreatedAt()) +
+        isTripAdvanced.setTooltip( advanceTitle + formatDateFront(advance.getCreatedAt()) +
             (advance.isAuto() ? autoTitle :
-                (authorTitle + personService.getAuthorFullName(advance.getAuthorId())));
-        isTripAdvanced.setTooptip(text);
+                (authorTitle + personService.getAuthorFullName(advance.getAuthorId())))
+        );
         return isTripAdvanced;
     }
 
