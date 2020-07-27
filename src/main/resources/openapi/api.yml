@@ -1067,7 +1067,7 @@ components:
             type: object
             description: "Статус выдачи аванса для Трипа"
             properties:
-                tooptip:
+                tooltip:
                     type: string
                     description: "Комментарий"
                 state:
