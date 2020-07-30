@@ -38,11 +38,11 @@ public interface CarrierService extends AdvanceCarrierApiDelegate {
      * <p>
      * // TODO: использовать ReportService напрямую с фронта ? - все данные для шаблона есть, ссылка на сервис - постоянная.
      *
-     * @param uuid - аванс
+     * @param id - аванс
      * @return PDF-файл щаблонной заявки
      */
     @Override
-    ResponseEntity<Resource> downloadTemplate(UUID uuid);
+    ResponseEntity<Resource> downloadTemplate(Long id);
 
 
     /**

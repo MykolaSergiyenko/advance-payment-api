@@ -466,7 +466,7 @@ paths:
                     schema:
                         type: integer
                         format: int64
-                    description: "Номер заказа поставщика"
+                    description: "Аванс"
             requestBody:
                 required: true
                 content:
@@ -479,19 +479,19 @@ paths:
                 "422":
                     description: "Ошибка в процессе получения файла"
 
-    /advance_carrier/download_template/{uuid}:
+    /advance_carrier/download_template/{id}:
         get:
             tags:
                 - "Экран перевозчика"
             summary: "Запрос на скачивание шаблонной 'Заявки на аванс' - экран перевозчика"
             operationId: downloadTemplate
             parameters:
-                -   name: uuid
-                    in: path
+                -   name: id
+                    in: query
                     schema:
-                        type: string
-                        format: uuid
-                    description: "uuid аванса"
+                        type: integer
+                        format: int64
+                    description: "id аванса"
             responses:
                 "200":
                     description: "PDF-файл шаблона"
