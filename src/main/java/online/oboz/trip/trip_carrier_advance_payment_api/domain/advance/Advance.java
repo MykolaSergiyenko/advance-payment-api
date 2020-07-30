@@ -1,7 +1,6 @@
 package online.oboz.trip.trip_carrier_advance_payment_api.domain.advance;
 
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.advance.ContactableAdvance;
-import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.structures.TripFields;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.dicts.contacts.AdvanceContactsBook;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.Trip;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.Person;

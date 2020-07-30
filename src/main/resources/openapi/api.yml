@@ -267,6 +267,31 @@ paths:
                                 $ref: "#/components/schemas/Error"
 
 
+    /advances/download_file:
+        get:
+            tags:
+                - "Рабочий стол авансирования"
+            summary: "Запрос на скачивание PDF-файла (любого) по UUID в B-Store"
+            operationId: downloadFile
+            parameters:
+                -   name: uuid
+                    in: query
+                    schema:
+                        type: string
+                        format: uuid
+                    description: "uuid вложения"
+            responses:
+                "200":
+                    description: "PDF-файл"
+                    content:
+                        application/pdf:
+                            schema:
+                                type: string
+                                format: binary
+                "422":
+                    description: "Ошибка в процессе скачивания файла"
+
+
     /advance_contacts/get_contact/{contractor_id}:
         get:
             security:
@@ -462,7 +487,7 @@ paths:
             operationId: downloadAdvanceTemplate
             parameters:
                 -   name: id
-                    in: path
+                    in: query
                     schema:
                         type: integer
                         format: int64

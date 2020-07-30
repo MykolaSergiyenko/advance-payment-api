@@ -5,6 +5,8 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.UUID;
+
 
 /**
  * Сервис для работы с файлами-вложениями
@@ -80,6 +82,15 @@ public interface AttachmentService {
      * @return
      */
     ResponseEntity<Void> uploadAssignment(MultipartFile file, Long id);
+
+
+    /**
+     * Скачать файл из хранилища по uuid
+     *
+     * @param uuid
+     * @return
+     */
+    ResponseEntity<Resource> fromBStore(UUID uuid);
 
 
 }

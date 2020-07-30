@@ -45,6 +45,10 @@ public class FileAttachmentsService implements AttachmentService {
         return advanceService.findById(id);
     }
 
+    public ResponseEntity<Resource> fromBStore(UUID uuid) {
+        return bStoreService.requestResourceFromBStore(uuid);
+    }
+
 
     @Override
     public ResponseEntity<Resource> downloadAdvanceRequestFromBstore(Advance advance) {
@@ -110,10 +114,6 @@ public class FileAttachmentsService implements AttachmentService {
 
     private UUID getAdvanceRequestUuid(Advance advance) {
         return advance.getUuidAdvanceApplicationFile();
-    }
-
-    private ResponseEntity<Resource> fromBStore(UUID uuid) {
-        return bStoreService.requestResourceFromBStore(uuid);
     }
 
     private UUID saveToBStore(MultipartFile file) {

@@ -65,6 +65,7 @@ dependencyManagement {
 }
 
 dependencies {
+    compile group: 'org.statefulj', name: 'statefulj-fsm', version: '1.0.12'
     compile('org.springframework.statemachine:spring-statemachine-starter')
     compile "org.springframework.cloud:spring-cloud-starter-stream-rabbit"
     compile "org.springframework.boot:spring-boot-starter-mail"
