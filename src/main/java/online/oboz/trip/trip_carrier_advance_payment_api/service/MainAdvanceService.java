@@ -151,26 +151,24 @@ public class MainAdvanceService implements AdvanceService {
         try {
             int page = (filter.getPage() == null || filter.getPage() == 0) ? 1 : filter.getPage();
             int size = (filter.getPer() == null || filter.getPer() == 0) ? 1 : filter.getPer();
-            SortBy sort = (filter.getSort() == null || filter.getSort().get(0) == null) ? new SortBy() : filter.getSort().get(0);
-            log.info("Get advances: tab = {}, page = {}, pageSize = {}, sortBy = {},{}.",
-                tab, page, size, sort.getKey(), sort.getDir());
+            SortBy sort = (filter.getSort() == null || filter.getSort().size() == 0) ?  null : filter.getSort().get(0);
+            log.info("Get advances: tab = {}, page = {}, pageSize = {}. Filter by: {}.", tab, page, size, sort);
             return mapAdvancesToDesktop(getPage(tab, page, size, sort));
         } catch (Exception e){
-            log.error("Error while grid-building - Filter: {}, tab: {}. Errors: {} {}.", filter, tab, e.getMessage(), e.getCause());
-            log.error("Trace: {}.",  e.getStackTrace().toString());
+            log.error("Error while grid-building - Filter: {}, tab: {}. Errors: {}.", filter, tab, e.getMessage());
             return null;
         }
     }
 
 
     private Page<Advance> getPage(String tab, Integer pageNo, Integer pageSize, SortBy sortBy) {
-        Sort.Direction dir = sortBy.getDir() == null ?
+        Sort.Direction dir = (sortBy == null || sortBy.getDir() == null) ?
             Sort.Direction.ASC : Sort.Direction.fromString(sortBy.getDir().toString());
 
-        SortByField sort = sortBy.getKey() == null ? SortByField.ID : sortBy.getKey();
+        SortByField sort = (sortBy == null || sortBy.getKey() == null) ? SortByField.ID : sortBy.getKey();
 
         Pageable pageable = PageRequest.of(pageNo - 1, pageSize, dir, sort.toString());
-        log.info("--- Load tab: {}. Pageble: {}. ", tab, pageable);
+        log.info("--- Load tab: {}. Pageable: {}. ", tab, pageable);
 
         switch (tab) {
             case ("in_work"):
