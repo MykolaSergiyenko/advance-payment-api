@@ -27,17 +27,17 @@ public interface AdvanceRepository extends JpaRepository<Advance, Long> {
         "or pc.uuidContractApplicationFile is null ")
     List<Advance> findRequestsWithoutFiles();
 
-    @Query("select pc from Advance pc where pc.advanceTripFields.num = :trip_num")
-    Optional<Advance> findByTripNum(@Param("trip_num") String tripNum);
+//    @Query("select pc from Advance pc where pc.advanceTripFields.num = :trip_num")
+//    Optional<Advance> findByTripNum(@Param("trip_num") String tripNum);
 
 
     @Query("select adv from Advance adv where (adv.comment is null or adv.comment = '' or " +
-        "adv.comment = :autoComment) and (adv.paidAt is null) and (adv.cancelledAt is null)")
-    Page<Advance> findInWorkAdvances(Pageable pageable, @Param("autoComment")String autoComment);
+        "adv.comment = :auto_comment) and (adv.paidAt is null) and (adv.cancelledAt is null)")
+    Page<Advance> findInWorkAdvances(Pageable pageable, @Param("auto_comment") String autoComment);
 
-    @Query("select adv from Advance adv where (adv.comment is not null and adv.comment <> '' " +
-        "and adv.comment <> :autoComment)")
-    Page<Advance> findProblemAdvances(Pageable pageable, @Param("autoComment")String autoComment);
+    @Query("select adv from Advance adv where(adv.comment is not null and adv.comment <> '' and " +
+        " adv.comment <> :auto_comment)")
+    Page<Advance> findProblemAdvances(Pageable pageable, @Param("auto_comment") String autoComment);
 
     @Query("select adv from Advance adv where (adv.paidAt is not null)")
     Page<Advance> findPaidAdvances(Pageable pageable);
