@@ -20,8 +20,7 @@ public interface AdvanceRepository extends JpaRepository<Advance, Long> {
     @Query("select pc from Advance pc where pc.advanceTripFields.tripId = :trip_id")
     Optional<Advance> findByTripId(@Param("trip_id") Long tripId);
 
-    @Query(nativeQuery = true,
-        value = "select a from orders.trip_request_advance_payment a where (uuid = :uuid)")
+    @Query("select pc from Advance pc where pc.uuid = :uuid")
     Optional<Advance> findByUuid(@Param("uuid") UUID uuid);
 
     @Query("select pc from Advance pc where pc.uuidAdvanceApplicationFile is null " +
