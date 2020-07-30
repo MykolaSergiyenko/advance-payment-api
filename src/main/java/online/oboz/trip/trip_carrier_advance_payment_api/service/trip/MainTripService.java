@@ -125,22 +125,28 @@ public class MainTripService implements TripService {
     private Boolean checkTripCosts(Trip trip, TripAdvanceState request) {
         Double minCost = getTripMinCost();
         Double maxCost = getTripMaxCost();
-        try {
-            Double ndsCost = calculateTripCost(trip);
-            if (ndsCost < minCost || ndsCost > maxCost) {
-                request.setTooltip(
-                    (ndsCost < minCost) ? String.format(costError, gt, formatCost(minCost)) :
-                        ((ndsCost > maxCost) ? String.format(costError, lt, formatCost(maxCost)) : null)
-                );
+        if (null != trip.getTripCostInfo().getCost() && trip.getTripCostInfo().getCost() > 0.0) {
+            try {
+                Double ndsCost = calculateTripCost(trip);
+                if (ndsCost < minCost || ndsCost > maxCost) {
+                    request.setTooltip(
+                        (ndsCost < minCost) ? String.format(costError, gt, formatCost(minCost)) :
+                            ((ndsCost > maxCost) ? String.format(costError, lt, formatCost(maxCost)) : null)
+                    );
+                    return false;
+                } else {
+                    return true;
+                }
+            } catch (BusinessLogicException e) {
+                request.setTooltip(tripNullCostError);
                 return false;
-            } else {
-                return true;
             }
-        } catch (BusinessLogicException e) {
+        } else {
             request.setTooltip(tripNullCostError);
             return false;
         }
     }
+
 
     private String formatCost(Double d) {
         return StringUtils.formatNum(d);
