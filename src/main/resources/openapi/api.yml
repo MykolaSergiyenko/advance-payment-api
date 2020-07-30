@@ -79,7 +79,7 @@ paths:
                                 $ref: "#/components/schemas/Error"
 
     # Advances Desktop API
-    /advances/search:
+    /advances/search/{tab}:
         post:
             security:
                 -   bearerAuth: []
@@ -94,7 +94,7 @@ paths:
                             $ref: '#/components/schemas/Filter'
             parameters:
                 -   name: tab
-                    in: query
+                    in: path
                     schema:
                         type: string
                     required: true
