@@ -479,19 +479,19 @@ paths:
                 "422":
                     description: "Ошибка в процессе получения файла"
 
-    /advance_carrier/download_template/{id}:
+    /advance_carrier/download_template:
         get:
             tags:
                 - "Экран перевозчика"
             summary: "Запрос на скачивание шаблонной 'Заявки на аванс' - экран перевозчика"
-            operationId: downloadAdvanceTemplate
+            operationId: downloadTemplate
             parameters:
-                -   name: id
+                -   name: uuid
                     in: query
                     schema:
-                        type: integer
-                        format: int64
-                    description: "id аванса"
+                        type: string
+                        format: uuid
+                    description: "uuid аванса"
             responses:
                 "200":
                     description: "PDF-файл шаблона"

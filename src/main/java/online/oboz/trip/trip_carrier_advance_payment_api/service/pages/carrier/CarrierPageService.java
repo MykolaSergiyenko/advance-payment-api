@@ -63,9 +63,9 @@ public class CarrierPageService implements CarrierService {
     }
 
     @Override
-    public ResponseEntity<Resource> downloadAdvanceTemplate(Long id) {
-        log.info("Got download 'Advance-request'-template for carrier for advance - " + id);
-        return attachmentService.downloadAdvanceTemplate(id);
+    public ResponseEntity<Resource> downloadTemplate(UUID uuid) {
+        log.info("Got download 'Advance-request'-template for carrier for advance:", uuid);
+        return attachmentService.downloadTemplate(uuid);
     }
 
     @Override

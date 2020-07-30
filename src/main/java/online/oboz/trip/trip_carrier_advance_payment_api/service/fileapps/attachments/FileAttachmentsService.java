@@ -45,6 +45,10 @@ public class FileAttachmentsService implements AttachmentService {
         return advanceService.findById(id);
     }
 
+    private Advance findAdvanceByUuid(UUID uuid) {
+        return advanceService.findByUuid(uuid);
+    }
+
     public ResponseEntity<Resource> fromBStore(UUID uuid) {
         return bStoreService.requestResourceFromBStore(uuid);
     }
@@ -67,9 +71,17 @@ public class FileAttachmentsService implements AttachmentService {
 
 
     @Override
-    public ResponseEntity downloadAdvanceTemplate(Long id) {
+    public ResponseEntity<Resource> downloadTemplate(Long id) {
         log.info("Attachments: download 'Advance-template-request' for advance: {}.", id);
         Advance advance = findAdvance(id);
+        return downloadAdvanceTemplate(advance);
+    }
+
+
+    @Override
+    public ResponseEntity<Resource> downloadTemplate(UUID uuid) {
+        log.info("Attachments: download 'template' for advance: {}.", uuid);
+        Advance advance = findAdvanceByUuid(uuid);
         return downloadAdvanceTemplate(advance);
     }
 

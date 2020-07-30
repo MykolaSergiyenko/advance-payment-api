@@ -46,7 +46,16 @@ public interface AttachmentService {
      * @param id - аванс
      * @return
      */
-    ResponseEntity downloadAdvanceTemplate(Long id);
+    ResponseEntity<Resource> downloadTemplate(Long id);
+
+
+    /**
+     * Скачать шаблон "заявки" по авансу
+     *
+     * @param uuid - аванс
+     * @return
+     */
+    ResponseEntity<Resource> downloadTemplate(UUID uuid);
 
     /**
      * Скачать "Заявку на аванс" по Трипу
@@ -64,6 +73,7 @@ public interface AttachmentService {
 //     * @return
 //     */
 //    ResponseEntity<Void> uploadRequestAdvance(MultipartFile file, Long id);
+
 
 
     /**
