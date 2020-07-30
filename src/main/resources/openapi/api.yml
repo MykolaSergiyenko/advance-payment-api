@@ -479,7 +479,7 @@ paths:
                 "422":
                     description: "Ошибка в процессе получения файла"
 
-    /advance_carrier/download_template/{id}:
+    /advance_carrier/download_template:
         get:
             tags:
                 - "Экран перевозчика"
@@ -487,7 +487,7 @@ paths:
             operationId: downloadTemplate
             parameters:
                 -   name: id
-                    in: path
+                    in: query
                     schema:
                         type: integer
                         format: int64
