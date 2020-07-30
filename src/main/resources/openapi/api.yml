@@ -97,6 +97,7 @@ paths:
                     in: path
                     schema:
                         type: string
+                    required: true
                     description: "Фильтр (название вкладки раб.стола авансирования)"
             responses:
                 200:
