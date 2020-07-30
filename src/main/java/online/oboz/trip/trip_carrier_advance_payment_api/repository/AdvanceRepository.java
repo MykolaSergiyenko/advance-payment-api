@@ -33,7 +33,7 @@ public interface AdvanceRepository extends JpaRepository<Advance, Long> {
 
     @Query(nativeQuery = true,
         value = "select * from orders.trip_request_advance_payment a where (a.comment is null or a.comment = '' or " +
-            "a.comment = :auto_comment) and (a.paid_at is null) and (adv.cancelled_at is null)")
+            "a.comment = :auto_comment) and (a.paid_at is null) and (a.cancelled_at is null)")
     Page<Advance> findInWorkAdvances(Pageable pageable, @Param("auto_comment") String autoComment);
 
     @Query(nativeQuery = true,
