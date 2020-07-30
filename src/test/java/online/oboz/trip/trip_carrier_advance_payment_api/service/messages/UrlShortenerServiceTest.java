@@ -40,7 +40,7 @@ public class UrlShortenerServiceTest {
             RestTemplate rest = new RestTemplate();
 
             URL cutLinkUrl = new URL("https://clck.ru/--?url=");
-            System.out.println("---  Set cutLinkUrl to " + cutLinkUrl);
+            System.out.println("Set cutLinkUrl to " + cutLinkUrl);
             ApplicationProperties prop = new ApplicationProperties();
             prop.setCutLinkUrl(cutLinkUrl);
             UrlShortenerService urlShortenerService = new UrlShortenerService(prop);

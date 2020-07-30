@@ -90,6 +90,15 @@ public class ApplicationProperties {
     @Value("${services.trip-advance-service.trip-docs-error}")
     private String tripDocsError;
 
+    @Value("${services.trip-advance-service.advance-title}")
+    private String advanceTitle;
+
+    @Value("${services.trip-advance-service.auto-title}")
+    private String autoTitle;
+
+    @Value("${services.trip-advance-service.author-title}")
+    private String authorTitle;
+
 
     //Auto-advance
 
@@ -719,6 +728,30 @@ public class ApplicationProperties {
 
     public void setTripDocsError(String tripDocsError) {
         this.tripDocsError = tripDocsError;
+    }
+
+    public String getAdvanceTitle() {
+        return advanceTitle;
+    }
+
+    public void setAdvanceTitle(String advanceTitle) {
+        this.advanceTitle = advanceTitle;
+    }
+
+    public String getAutoTitle() {
+        return autoTitle;
+    }
+
+    public void setAutoTitle(String autoTitle) {
+        this.autoTitle = autoTitle;
+    }
+
+    public String getAuthorTitle() {
+        return authorTitle;
+    }
+
+    public void setAuthorTitle(String authorTitle) {
+        this.authorTitle = authorTitle;
     }
 
 }

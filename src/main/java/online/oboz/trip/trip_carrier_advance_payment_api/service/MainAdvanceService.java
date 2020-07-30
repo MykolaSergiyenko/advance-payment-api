@@ -1,5 +1,6 @@
 package online.oboz.trip.trip_carrier_advance_payment_api.service;
 
+import online.oboz.trip.trip_carrier_advance_payment_api.config.ApplicationProperties;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.Advance;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.attachments.TripAttachment;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.dicts.contacts.AdvanceContactsBook;
@@ -23,7 +24,6 @@ import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -46,9 +46,9 @@ public class MainAdvanceService implements AdvanceService {
 //    @Autowired
 //    private StateMachine<CurrentAdvanceState, AdvanceEvent> stateMachine;
 
-    private final String advanceTitle = "Аванс выдан: ";
-    private final String autoTitle = " (в автоматическом режиме).";
-    private final String authorTitle = ";\nАвтор: ";
+    private final String advanceTitle;
+    private final String autoTitle;
+    private final String authorTitle;
 
     private final String AUTO_COMMENT;
     private final Person autoUser;
@@ -75,8 +75,7 @@ public class MainAdvanceService implements AdvanceService {
         Notificator notificationService,
         UnfService integration1cService,
         AdvanceRepository advanceRepository,
-        @Value("${services.auto-advance-service.comment}") String autoComment,
-        @Value("${services.auto-advance-service.newadvance-inteval}") Long advanceInterval
+        ApplicationProperties properties
     ) {
         this.tripService = tripService;
         this.personService = personService;
@@ -86,12 +85,17 @@ public class MainAdvanceService implements AdvanceService {
         this.integration1cService = integration1cService;
         this.advanceRepository = advanceRepository;
 
-        AUTO_COMMENT = autoComment;
-        interval = advanceInterval;
-        log.info("Auto-created-advance comment is: " + AUTO_COMMENT);
-        log.info("Auto-advance interval: " + interval);
+        AUTO_COMMENT = properties.getAutoCreatedComment();
+        interval = properties.getNewTripsInterval();
         autoUser = personService.getAdvanceSystemUser();
-        log.info("Auto-advance system-user is: {}", autoUser.getInfo());
+
+        log.info("Init Auto-advance system-user: {}.", autoUser.getInfo());
+        log.info("Init Auto-created-advance comment: '{}'.", AUTO_COMMENT);
+        log.info("Init Auto-advance interval: {} minutes.", interval);
+
+        advanceTitle = properties.getAdvanceTitle();
+        autoTitle = properties.getAutoTitle();
+        authorTitle = properties.getAuthorTitle();
     }
 
     @Override
@@ -152,8 +156,10 @@ public class MainAdvanceService implements AdvanceService {
             int page = (filter.getPage() == null || filter.getPage() == 0) ? 1 : filter.getPage();
             int size = (filter.getPer() == null || filter.getPer() == 0) ? 1 : filter.getPer();
             SortBy sort = (filter.getSort() == null || filter.getSort().size() == 0) ? null : filter.getSort().get(0);
-            log.info("Get advances: tab = {}, page = {}, pageSize = {}. Filter by: {}.", tab, page, size, sort);
-            return mapAdvancesToDesktop(getPage(tab, page, size, sort));
+            AdvanceDesktopDTO desktop = mapAdvancesToDesktop(getPage(tab, page, size, sort));
+            log.info("[Advance-grid]: Tab = {}; page = {}; pageSize = {}. Filter by: {}. Total: {}.",
+                tab, page, size, sort.getKey().toString(), desktop.getPaginator().getTotal());
+            return desktop;
         } catch (Exception e) {
             log.error("Error while grid-building - Filter: {}, tab: {}. Errors: {}.", filter, tab, e.getMessage());
             return null;
@@ -168,7 +174,6 @@ public class MainAdvanceService implements AdvanceService {
         SortByField sort = (sortBy == null || sortBy.getKey() == null) ? SortByField.ID : sortBy.getKey();
 
         Pageable pageable = PageRequest.of(pageNo - 1, pageSize, dir, sort.toString());
-        log.info("--- Load tab: {}. Pageable: {}. ", tab, pageable);
 
         switch (tab) {
             case ("in_work"):
@@ -195,13 +200,17 @@ public class MainAdvanceService implements AdvanceService {
     }
 
     private AdvanceDesktopDTO mapAdvancesToDesktop(Page<Advance> page) {
+
         AdvanceDesktopDTO desktop = new AdvanceDesktopDTO();
-        List<AdvanceDTO> list = mapper.toAdvancesDTO(page == null ? null : page.stream().collect(Collectors.toList()));
+        List<AdvanceDTO> list = mapper.toAdvancesDTO
+            (page == null ? null : page.stream().collect(Collectors.toList()));
         desktop.setAdvances(list);
         desktop.setPaginator(new Paginator().page(page.getPageable().getPageNumber()).
             per(page.getPageable().getPageSize()).total(page.getTotalElements()));
-        log.info("--- Advances count: {}. Total elements page: {}.",
-            (list == null ? '-' : list.size()), page.getTotalElements());
+
+//        log.info("Advances count: {}. Total elements page: {}.",
+//            (list == null ? '-' : list.size()), page.getTotalElements());
+
         return desktop;
     }
 
@@ -220,7 +229,8 @@ public class MainAdvanceService implements AdvanceService {
                 getAdvanceError("Advance not found by uuid: " + uuid));
     }
 
-//    @Override
+
+//    @Deprecated
 //    public Advance findByTripNum(String tripNum) {
 //        return advanceRepository.findByTripNum(tripNum).
 //            orElseThrow(() ->
@@ -454,10 +464,7 @@ public class MainAdvanceService implements AdvanceService {
             List<TripAttachment> attachments = documentsService.getTripAttachments(tripId);
             int attachSize = attachments.size();
             log.info("Found {} file-attachments in trip {} for advance {}.", attachSize, tripId, advance.getId());
-            if (attachSize > 0) {
-                setRequestUuid(advance, attachments);
-                //setAssignmentRequestUuid(advance, attachments);
-            }
+            if (attachSize > 0) { setRequestUuid(advance, attachments); }
         } catch (BusinessLogicException e) {
             log.error("Trip-documents not found for tripId: {}. ", tripId);
         }
@@ -469,12 +476,6 @@ public class MainAdvanceService implements AdvanceService {
         setContractApplication(advance, uuid);
         return advance;
     }
-
-//    private Advance setAssignmentRequestUuid(Advance advance, List<TripAttachment> attachments) {
-//        UUID uuid = documentsService.getAssignmentRequestUuid(attachments);
-//        setAdvanceApplication(advance, uuid);
-//        return advance;
-//    }
 
 
     private Advance setAdvanceApplicationFile(Advance advance, UUID uuid) {

@@ -94,6 +94,10 @@ services:
         trip-contracts-error: "Внесите контакты в раздел «Авансирование» в карточке контрагента."
         trip-docs-error: "Загрузите 'Договор-заявку' или 'Заявку' в разделе «Документы»."
 
+        advance-title: "Аванс выдан: "
+        auto-title: " (в автоматическом режиме)."
+        author-title: ";\nАвтор: "
+
     reports:
         url: https://reports.oboz.com/reportserver/reportserver/httpauthexport?
         type-key: key=avance_request_preprod&

@@ -12,6 +12,7 @@ import online.oboz.trip.trip_carrier_advance_payment_api.service.contacts.Contac
 import online.oboz.trip.trip_carrier_advance_payment_api.service.costs.CostService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.costs.advancedict.CostDictService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.integration.tripdocs.TripDocumentsService;
+import online.oboz.trip.trip_carrier_advance_payment_api.util.DateUtils;
 import online.oboz.trip.trip_carrier_advance_payment_api.util.ErrorUtils;
 import online.oboz.trip.trip_carrier_advance_payment_api.util.StringUtils;
 import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.TripAdvanceState;
@@ -61,7 +62,7 @@ public class MainTripService implements TripService {
 
     @Override
     public Trip findTripById(Long tripId) {
-        log.info("--- findTripById: " + tripId);
+        //log.info("--- findTripById: " + tripId);
         return tripRepository.findById(tripId).
             orElseThrow(() ->
                 getTripsInternalError("Trip not found by id: " + tripId));
@@ -72,8 +73,8 @@ public class MainTripService implements TripService {
         Double minCost = getTripMinCost();
         Double maxCost = getTripMaxCost();
         OffsetDateTime minDate = OffsetDateTime.now().minusMinutes(interval);
-        log.info("--- Get auto-advance trips for minCost = {}; maxCost = {}; minDate = {}.",
-            formatCost(minCost), formatCost(maxCost), minDate);
+        log.info("[Auto-advance]: Get auto-advance trips by minDate: '{}'; cost-interval: {} - {}.",
+            DateUtils.format(minDate).trim(), formatCost(minCost), formatCost(maxCost));
         return tripRepository.getTripsForAutoAdvance(minCost, maxCost, minDate);
     }
 
@@ -118,7 +119,7 @@ public class MainTripService implements TripService {
             }
             tripAdvanceState.setTooltip(message);
         }
-        log.info("Trip-advance tooltip is: {}", tripAdvanceState.getTooltip());
+        log.info("[Trip-advance]: Tooltip is: {}", tripAdvanceState.getTooltip());
         return tripAdvanceState;
     }
 

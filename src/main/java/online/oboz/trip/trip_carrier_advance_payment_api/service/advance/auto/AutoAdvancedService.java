@@ -21,7 +21,6 @@ public class AutoAdvancedService implements AutoService {
     private final AdvanceService advanceService;
 
 
-
     @Autowired
     public AutoAdvancedService(
         ContractorService advanceContractorService,
@@ -40,7 +39,7 @@ public class AutoAdvancedService implements AutoService {
         try {
             advanceContractorService.updateAutoAdvanceForContractors();
         } catch (BusinessLogicException e) {
-            log.error("Auto advance-contractor error:" + e.getErrors());
+            log.error("[Auto-advance]: Contractor error: {}.", e.getErrors());
         }
     }
 
@@ -51,7 +50,7 @@ public class AutoAdvancedService implements AutoService {
         try {
             advanceService.giveAutoAdvances();
         } catch (BusinessLogicException e) {
-            log.error("Auto advance error:" + e.getErrors());
+            log.error("Auto advance error: {}.", e.getErrors());
         }
     }
 
@@ -62,8 +61,7 @@ public class AutoAdvancedService implements AutoService {
         try {
             advanceService.notifyUnread();
         } catch (BusinessLogicException e) {
-            log.error("Scheduled Notifier error: " + e.getErrors());
+            log.error("Scheduled Notifier error: {}.", e.getErrors());
         }
     }
-
 }

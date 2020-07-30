@@ -105,7 +105,7 @@ public class MessageCreateService implements TextService {
             return formatPhone(phoneNumber);
         } catch (IllegalFormatException e) {
             log.error("Format message error: " + e.getMessage());
-            throw getMessagingError("Format phone-number error: " + phoneNumber + " --- " + e.getMessage());
+            throw getMessagingError("Format phone-number error: " + phoneNumber + ". Errors:" + e.getMessage());
         }
     }
 

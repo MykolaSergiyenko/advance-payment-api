@@ -59,7 +59,7 @@ public class TripAttachmentService implements TripDocumentsService {
         if (attachments == null) return null;
         UUID requestUuid = getRequestUuid(attachments);
         if (requestUuid == null) requestUuid = getTripRequestUuid(attachments);
-        log.info("*** Request Or Trip-request file-uuid is: {}.", requestUuid);
+        log.info("Request Or Trip-request file-uuid is: {}.", requestUuid);
         return requestUuid;
     }
 

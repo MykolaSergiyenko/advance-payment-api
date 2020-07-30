@@ -22,8 +22,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         "/api-docs/"
     };
 
-    //TODO: configure email white-list here?
-
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable().authorizeRequests()
@@ -31,18 +29,17 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
             .antMatchers(HttpMethod.POST, AUTH_WHITELIST).permitAll()
             .antMatchers(HttpMethod.GET, "/v1/advance_carrier/**").permitAll()
             .antMatchers(HttpMethod.POST, "/v1/advance_carrier/**").permitAll()
-
-            .antMatchers(HttpMethod.GET, "/v1/trip_advance/**").permitAll()
-            .antMatchers(HttpMethod.POST, "/v1/trip_advance/**").permitAll()
-            .antMatchers(HttpMethod.POST, "/v1/advances/**").permitAll()
-            .antMatchers(HttpMethod.PUT, "/v1/advances/**").permitAll()
-            .antMatchers(HttpMethod.GET, "/v1/advance_contacts/**").permitAll()
-            .antMatchers(HttpMethod.POST, "/v1/advance_contacts/**").permitAll()
-            .antMatchers(HttpMethod.PUT, "/v1/advance_contacts/**").permitAll()
             .anyRequest().authenticated()
             .and().oauth2ResourceServer().jwt();
-
-
-
     }
+
+    //TODO: configure email white-list here?
+
+//        .antMatchers(HttpMethod.GET, "/v1/trip_advance/**").permitAll()
+//        .antMatchers(HttpMethod.POST, "/v1/trip_advance/**").permitAll()
+//        .antMatchers(HttpMethod.POST, "/v1/advances/**").permitAll()
+//        .antMatchers(HttpMethod.PUT, "/v1/advances/**").permitAll()
+//        .antMatchers(HttpMethod.GET, "/v1/advance_contacts/**").permitAll()
+//        .antMatchers(HttpMethod.POST, "/v1/advance_contacts/**").permitAll()
+//        .antMatchers(HttpMethod.PUT, "/v1/advance_contacts/**").permitAll()
 }
