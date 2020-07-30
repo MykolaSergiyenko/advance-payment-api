@@ -160,8 +160,14 @@ public class MainAdvanceService implements AdvanceService {
     }
 
     private Page<Advance> getPage(String tab, Integer pageNo, Integer pageSize, SortBy sortBy) {
-        Pageable pageable = PageRequest.of(pageNo - 1, pageSize,
-            Sort.Direction.fromString(sortBy.getDir().toString()), sortBy.getKey().toString());
+        if (pageNo == 0) pageNo = 1;
+
+        Sort.Direction dir = sortBy.getDir() == null ?
+            Sort.Direction.ASC : Sort.Direction.fromString(sortBy.getDir().toString());
+
+        SortByField sort = sortBy.getKey() == null ? SortByField.ID : sortBy.getKey();
+
+        Pageable pageable = PageRequest.of(pageNo - 1, pageSize, dir, sort.toString());
         log.info("--- Load tab: {}. Pageble: {}. ", tab, pageable);
 
         switch (tab) {
