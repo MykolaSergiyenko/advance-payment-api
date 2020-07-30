@@ -148,10 +148,16 @@ public class MainAdvanceService implements AdvanceService {
 
     @Override
     public AdvanceDesktopDTO getAdvances(String tab, Filter filter) {
-        int page = (filter.getPage() == null || filter.getPage() == 0) ? 1 : filter.getPage();
-        int size = (filter.getPer() == null || filter.getPer() == 0) ? 1 : filter.getPer();
-        SortBy sort = (filter.getSort() == null || filter.getSort().get(0) == null) ? new SortBy() : filter.getSort().get(0);
-        return getAdvances(tab, page, size, sort);
+        try {
+            int page = (filter.getPage() == null || filter.getPage() == 0) ? 1 : filter.getPage();
+            int size = (filter.getPer() == null || filter.getPer() == 0) ? 1 : filter.getPer();
+            SortBy sort = (filter.getSort() == null || filter.getSort().get(0) == null) ? new SortBy() : filter.getSort().get(0);
+            return getAdvances(tab, page, size, sort);
+        } catch (Exception e){
+            log.error("Error while grid-building - Filter: {}, tab: {}. Errors: {}.", filter, tab, e.getMessage());
+            log.error("Trace: {}.",  e.getStackTrace());
+            return null;
+        }
     }
 
 
