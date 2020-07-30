@@ -14,58 +14,72 @@ public interface AttachmentService {
 
     /**
      * Загрузить "Заявку на аванс" из "B-Store"
+     *
      * @param advance
      * @return
      */
     ResponseEntity<Resource> downloadAdvanceRequestFromBstore(Advance advance);
 
     /**
-     * Загрузить "Заявку" из "B-Store"
+     * Скачать "Заявку" из "B-Store"
+     *
      * @param advance
      * @return
      */
     ResponseEntity<Resource> downloadRequestFromBstore(Advance advance);
 
-    ResponseEntity<Resource> downloadAdvanceRequestTemplate(Advance advance);
 
     /**
-     * Загрузить "Заявку" в Трип
-     * @param file - файл
-     * @param tripNum - номер трипа
+     * Скачать шаблон "заявки" по авансу
+     *
+     * @param advance - аванс
      * @return
      */
-    ResponseEntity<Void> uploadRequestAdvance(MultipartFile file, String tripNum);
+    ResponseEntity<Resource> downloadAdvanceTemplate(Advance advance);
 
 
     /**
-     * Загрузить шаблон "заявки" по трипу
-     * (со страницы перевозчика или нет - не важно)
-     * @param tripNum
+     * Скачать шаблон "заявки" по авансу
+     *
+     * @param id - аванс
      * @return
      */
-    ResponseEntity downloadAvanceRequestTemplate(String tripNum);
+    ResponseEntity downloadAdvanceTemplate(Long id);
 
     /**
      * Скачать "Заявку на аванс" по Трипу
-     * @param tripNum
+     *
+     * @param id - id аванса
      * @return
      */
-    ResponseEntity<Resource> downloadAdvanceRequest(String tripNum);
+    ResponseEntity<Resource> downloadAdvanceRequest(Long id);
+
+//    /**
+//     * Загрузить "Заявку" в Аванс?
+//     *
+//     * @param file    - файл
+//     * @param id -  id аванса
+//     * @return
+//     */
+//    ResponseEntity<Void> uploadRequestAdvance(MultipartFile file, Long id);
+
 
     /**
-     * Скачать "Заявку" по Трипу
-     * @param tripNum
+     * Скачать "Заявку" из "Аванса"
+     *
+     * @param id - id аванса
      * @return
      */
-    ResponseEntity<Resource> downloadRequest(String tripNum);
+    ResponseEntity<Resource> downloadRequest(Long id);
 
     /**
-     * Загрузить "Заявку на аванс" со страницы перевозчика
-     * @param file
-     * @param tripNum
+     * Загрузить подписанный файл в аванс
+     *
+     * @param file - файл
+     * @param id - аванс
      * @return
      */
-    ResponseEntity<Void> uploadRequestAvanceForCarrier(MultipartFile file, String tripNum);
+    ResponseEntity<Void> uploadAssignment(MultipartFile file, Long id);
 
 
 }

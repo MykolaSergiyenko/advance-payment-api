@@ -1,12 +1,10 @@
 package online.oboz.trip.trip_carrier_advance_payment_api.service.integration.bstore;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import online.oboz.trip.trip_carrier_advance_payment_api.config.ApplicationProperties;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.rest.RestService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -19,29 +17,31 @@ import org.springframework.web.multipart.MultipartFile;
 import static org.springframework.http.HttpStatus.OK;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.UUID;
 
 @Service
 public class BStoreService implements StoreService {
     private static final Logger log = LoggerFactory.getLogger(BStoreService.class);
 
-    private final ApplicationProperties applicationProperties;
     private final RestService restService;
     private final ObjectMapper objectMapper;
+    private final URL bStoreUrl;
+    private final String bStoreSuffix;
 
-    @Autowired
     public BStoreService(
         ApplicationProperties applicationProperties,
         RestService restService,
         ObjectMapper objectMapper
     ) {
-        this.applicationProperties = applicationProperties;
         this.restService = restService;
         this.objectMapper = objectMapper;
+        this.bStoreUrl = applicationProperties.getbStoreUrl();
+        this.bStoreSuffix = applicationProperties.getbStorePdf();
     }
 
     public ResponseEntity<Resource> requestResourceFromBStore(UUID uuidFile) {
-        String url = applicationProperties.getbStoreUrl() + uuidFile.toString();
+        String url = bStoreUrl + uuidFile.toString();
         ResponseEntity<Resource> response = restService.authGetRequestResource(url);
         if (response.getStatusCode() == OK) {
             return response;
@@ -53,7 +53,7 @@ public class BStoreService implements StoreService {
 
 
     public UUID saveFile(MultipartFile file) {
-        String url = applicationProperties.getbStoreUrl().toString() + applicationProperties.getbStorePdf();
+        String url = bStoreUrl.toString() + bStoreSuffix;
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.CONTENT_TYPE, "multipart/form-data");
 
@@ -64,9 +64,7 @@ public class BStoreService implements StoreService {
         try {
             response = restService.authPostRequest(url, headers, body);
             if (response.getStatusCode() == OK) {
-                JsonNode jsonNode = objectMapper.readTree(response.getBody());
-                UUID fileUuid = UUID.fromString(jsonNode.get("file_uuid").asText());
-
+                UUID fileUuid = UUID.fromString(objectMapper.readTree(response.getBody()).get("file_uuid").asText());
                 log.info("Success save file to BStore {}.", fileUuid);
                 return fileUuid;
             } else {

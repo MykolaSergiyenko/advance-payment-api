@@ -6,6 +6,8 @@ import online.oboz.trip.trip_carrier_advance_payment_api.domain.response.dto.Tri
 import java.util.Map;
 import java.util.UUID;
 
+
+@Deprecated
 public interface OrdersFilesService {
 
     Boolean isDownloadAllDocuments(Advance advance);

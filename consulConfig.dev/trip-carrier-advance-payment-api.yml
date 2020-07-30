@@ -85,14 +85,7 @@ services:
         url: https://oboz.online/api/bstore/
         pdf: 'pdf/'
 
-    # OrdersApi-url for OrdersApiService - don't use Ruby - orders_api
-#    orders:
-#        url: https://oboz.online/api/orders/dispatcher/orders/%d/trips/%d/documents
-#        save-body: '{"trip_document":{"id":null,
-#                       "file_id":%s,
-#                       "document_type_code":"assignment_advance_request",
-#                       "name":"Заявка на авансирование"}}'
-
+    #Report-service for download advance-template for carrier
     reports:
         url: http://reports.oboz.com/reportserver/reportserver/httpauthexport?
         type-key: key=avance_request&
@@ -100,6 +93,15 @@ services:
         api-key: apikey=nzybc16h&
         format: format=PDF
         template-params: p_trip_num=%s&p_avance_sum=%s&p_avance_comission=%s&
+
+    #Trip-advance service for check advance-state of trip and give advance.
+    trip-advance-service:
+        trip-null-cost-error: "Укажите стоимость заказа поставщика."
+        trip-cost-error: "Стоимость заказа поставщика должна быть %s %s руб."
+        trip-cost-gt: "больше, чем"
+        trip-cost-lt: "меньше, чем"
+        trip-contracts-error: "Внесите контакты в раздел «Авансирование» в карточке контрагента."
+        trip-docs-error: "Загрузите 'Договор-заявку' или 'Заявку' в разделе «Документы»."
 
 
     #Autoadvance-service

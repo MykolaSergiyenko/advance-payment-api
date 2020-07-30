@@ -13,12 +13,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.UUID;
-
 
 @Service
 public class AdvanceContactService implements ContactService {
-
     private static final Logger log = LoggerFactory.getLogger(AdvanceContactService.class);
 
     private final AdvanceContactsBookRepository contactsBookRepository;
@@ -29,26 +26,31 @@ public class AdvanceContactService implements ContactService {
         this.contactsBookRepository = contactsBookRepository;
     }
 
-    public ResponseEntity<Void> addContactCarrier(CarrierContactDTO carrierContactDTO) {
+    @Override
+    public ResponseEntity<Void> addContact(CarrierContactDTO carrierContactDTO) {
         createContact(carrierContactDTO);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    public ResponseEntity<Void> updateContactCarrier(CarrierContactDTO carrierContactDTO) {
-        updateContact(carrierContactDTO);
+
+    @Override
+    public ResponseEntity<Void> updateContact(CarrierContactDTO carrierContactDTO) {
+        setContact(carrierContactDTO);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    public ResponseEntity<CarrierContactDTO> getContactCarrier(Long contractorId) {
+    @Override
+    public ResponseEntity<CarrierContactDTO> getContact(Long contractorId) {
         return new ResponseEntity<>(contactToDto(findByContractor(contractorId)), HttpStatus.OK);
     }
 
-
+    @Override
     public AdvanceContactsBook findByContractor(Long contractorId) {
         return contactsBookRepository.findByContractorId(contractorId).orElseThrow(() ->
             getContactError("Advance-contact for this Carrier not found:" + contractorId));
     }
 
+    @Override
     public Boolean notExistsByContractor(Long contractorId) {
         AdvanceContactsBook contact = contactsBookRepository.findByContractorId(contractorId).orElse(null);
         return (contact == null);
@@ -62,14 +64,14 @@ public class AdvanceContactService implements ContactService {
         return setContactInfo(contactDTO, true);
     }
 
-    private AdvanceContactsBook updateContact(CarrierContactDTO contactDTO) {
+    private AdvanceContactsBook setContact(CarrierContactDTO contactDTO) {
         return setContactInfo(contactDTO, false);
     }
 
 
     private AdvanceContactsBook setContactInfo(CarrierContactDTO contactDTO, Boolean newContact) {
         AdvanceContactsBook contact;
-        if (newContact){
+        if (newContact) {
             contact = dtoToContact(contactDTO);
         } else {
             contact = findByContractor(contactDTO.getContractorId());
@@ -83,7 +85,7 @@ public class AdvanceContactService implements ContactService {
         return contactMapper.toContactBook(contactDTO);
     }
 
-    private FullNamePersonInfo dtoToPersonInfo(CarrierContactDTO contactDTO){
+    private FullNamePersonInfo dtoToPersonInfo(CarrierContactDTO contactDTO) {
         return contactMapper.toPersonInfo(contactDTO);
     }
 

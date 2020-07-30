@@ -34,10 +34,18 @@ import java.util.IllegalFormatException;
 public class MessageCreateService implements TextService {
     private static final Logger log = LoggerFactory.getLogger(MessageCreateService.class);
 
-    private final ApplicationProperties appProperties;
     private final ContactService contactService;
     private final UrlService urlCutter;
+    private final URL carrierUrl;
+
+    private final String phoneTemplate;
+    private final String smsTemplate;
+    private final Boolean cutSmsUrl;
+
     private final String sendFromEmail;
+    private final String emailTemplate;
+    private final String emailHeaderTemplate;
+    private final Boolean cutEmailUrl;
 
 
     @Autowired
@@ -46,10 +54,16 @@ public class MessageCreateService implements TextService {
         ContactService contactService,
         UrlService urlCutter
     ) {
-        this.appProperties = appProperties;
         this.urlCutter = urlCutter;
         this.contactService = contactService;
         this.sendFromEmail = appProperties.getMailUsername();
+        this.phoneTemplate = appProperties.getSmsPhoneTemplate();
+        this.smsTemplate = appProperties.getSmsMessageTemplate();
+        this.carrierUrl = appProperties.getLkUrl();
+        this.cutSmsUrl = appProperties.isSmsCutLinks();
+        this.emailTemplate = appProperties.getEmailMessageTemplate();
+        this.emailHeaderTemplate = appProperties.getEmailHeaderTemplate();
+        this.cutEmailUrl = appProperties.isEmailCutLinks();
     }
 
 
@@ -96,7 +110,7 @@ public class MessageCreateService implements TextService {
     }
 
     private String formatPhone(String num) throws MessagingException {
-        String template = appProperties.getSmsPhoneTemplate();
+        String template = phoneTemplate;
         if (StringUtils.isEmptyStrings(template, num)) {
             log.error("Empty phone number fields.");
             throw getMessagingError("Empty phone number fields for advance ");
@@ -106,11 +120,10 @@ public class MessageCreateService implements TextService {
 
 
     private String getSmsText(Advance advance) throws MessagingException {
-        String template = appProperties.getSmsMessageTemplate();
-        URL url = appProperties.getLkUrl();
-        String link = url.toString() + advance.getUuid();
+        String template = smsTemplate;
+        String link = carrierUrl.toString() + advance.getUuid();
         try {
-            if (appProperties.isSmsCutLinks()) {
+            if (cutSmsUrl) {
                 link = urlCutter.editUrl(link);
             }
             String tripNum = advance.getAdvanceTripFields().getNum();
@@ -124,11 +137,10 @@ public class MessageCreateService implements TextService {
 
 
     private String getEmailText(Advance advance) throws MessagingException {
-        String template = appProperties.getEmailMessageTemplate();
-        URL url = appProperties.getLkUrl();
-        String link = url.toString() + advance.getUuid();
+        String template = emailTemplate;
+        String link = carrierUrl.toString() + advance.getUuid();
         try {
-            if (appProperties.isEmailCutLinks()) {
+            if (cutEmailUrl) {
                 link = urlCutter.editUrl(link);
             }
             String tripNum = advance.getAdvanceTripFields().getNum();
@@ -142,10 +154,9 @@ public class MessageCreateService implements TextService {
     }
 
     private String getEmailHeader(Advance advance) throws MessagingException {
-        String template = appProperties.getEmailHeaderTemplate();
         try {
             String tripNum = advance.getAdvanceTripFields().getNum();
-            return formatMessageHeader(template, tripNum);
+            return formatMessageHeader(emailHeaderTemplate, tripNum);
         } catch (IllegalFormatException e) {
             log.info("Format message error: " + e.getMessage());
             throw getCreateEmailException("Format email-header error: " + e.getMessage(),

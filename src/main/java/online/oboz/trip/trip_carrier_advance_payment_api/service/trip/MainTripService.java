@@ -14,7 +14,7 @@ import online.oboz.trip.trip_carrier_advance_payment_api.service.costs.advancedi
 import online.oboz.trip.trip_carrier_advance_payment_api.service.integration.tripdocs.TripDocumentsService;
 import online.oboz.trip.trip_carrier_advance_payment_api.util.ErrorUtils;
 import online.oboz.trip.trip_carrier_advance_payment_api.util.StringUtils;
-import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.IsTripAdvanced;
+import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.TripAdvanceState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,34 +27,36 @@ import java.util.List;
 public class MainTripService implements TripService {
     private static final Logger log = LoggerFactory.getLogger(MainTripService.class);
 
-    private final String tripCostError = "Задайте стоимость заказа поставщика.";
-    private final String gt = "больше минимальной";
-    private final String lt = "меньше максимальной";
-    private final String costTitle = "Стоимость заказа поставщика должна быть %s стоимости в справочнике - %s руб.";
-    private final String contactsTitle = "Не указаны контакты контрагента в разделе «Авансирование».";
-    private final String docsTitle = "Загрузите 'Договор-заявку' или 'Заявку' в разделе «Документы».";
-
+    private final String tripNullCostError, costError, contactsError, docsError, gt, lt;
 
     private final TripRepository tripRepository;
     private final CostDictService costDictService;
     private final CostService costService;
     private final ContactService contactService;
     private final TripDocumentsService documentsService;
-    private final ApplicationProperties applicationProperties;
+    private final Long interval;
 
     @Autowired
     public MainTripService(
         TripRepository tripRepository,
         CostDictService costDictService,
         CostService costService,
-        ContactService contactService, TripDocumentsService documentsService, ApplicationProperties applicationProperties
+        ContactService contactService,
+        TripDocumentsService documentsService,
+        ApplicationProperties applicationProperties
     ) {
         this.tripRepository = tripRepository;
         this.costDictService = costDictService;
         this.costService = costService;
         this.contactService = contactService;
         this.documentsService = documentsService;
-        this.applicationProperties = applicationProperties;
+        this.interval = applicationProperties.getNewTripsInterval();
+        this.tripNullCostError = applicationProperties.getNullCostError();
+        this.gt = applicationProperties.getTripCostGt();
+        this.lt = applicationProperties.getTripCostLt();
+        this.costError = applicationProperties.getTripCostError();
+        this.docsError = applicationProperties.getTripDocsError();
+        this.contactsError = applicationProperties.getTripContractsError();
     }
 
     @Override
@@ -69,10 +71,9 @@ public class MainTripService implements TripService {
     public List<Trip> getAutoAdvanceTrips() {
         Double minCost = getTripMinCost();
         Double maxCost = getTripMaxCost();
-        Long tripInterval = applicationProperties.getNewTripsInterval();
-        OffsetDateTime minDate = OffsetDateTime.now().minusMinutes(tripInterval);
+        OffsetDateTime minDate = OffsetDateTime.now().minusMinutes(interval);
         log.info("--- Get auto-advance trips for minCost = {}; maxCost = {}; minDate = {}.",
-            format(minCost), format(maxCost), minDate);
+            formatCost(minCost), formatCost(maxCost), minDate);
         return tripRepository.getTripsForAutoAdvance(minCost, maxCost, minDate);
     }
 
@@ -106,41 +107,42 @@ public class MainTripService implements TripService {
         return costService.calculateWithNdsForTrip(trip);
     }
 
-    public IsTripAdvanced checkTripAdvanceState(Trip trip) {
-        IsTripAdvanced isTripAdvanced = new IsTripAdvanced();
-        if (checkTripCosts(trip, isTripAdvanced)) {
-            String message = "";
+    public TripAdvanceState checkTripAdvanceState(Trip trip) {
+        String message = "";
+        TripAdvanceState tripAdvanceState = new TripAdvanceState();
+        if (checkTripCosts(trip, tripAdvanceState)) {
             if (contactService.notExistsByContractor(trip.getContractorId())) {
-                message = contactsTitle;
-            } else if (!documentsService.isAllTripDocumentsLoaded(trip.getId(), false)) {
-                message = docsTitle;
+                message = contactsError;
+            } else if (!documentsService.isAllTripDocumentsLoaded(trip.getId())) {
+                message = docsError;
             }
-            isTripAdvanced.setTooltip(message);
         }
-        return isTripAdvanced;
+        log.info("Trip-advance tooltip is: {}", message);
+        tripAdvanceState.setTooltip(message);
+        return tripAdvanceState;
     }
 
-    private Boolean checkTripCosts(Trip trip, IsTripAdvanced request) {
+    private Boolean checkTripCosts(Trip trip, TripAdvanceState request) {
         Double minCost = getTripMinCost();
         Double maxCost = getTripMaxCost();
         try {
             Double ndsCost = calculateTripCost(trip);
             if (ndsCost < minCost || ndsCost > maxCost) {
                 request.setTooltip(
-                    (ndsCost < minCost) ? String.format(costTitle, gt, format(minCost)) :
-                        ((ndsCost > maxCost) ? String.format(costTitle, lt, format(maxCost)) : null)
+                    (ndsCost < minCost) ? String.format(costError, gt, formatCost(minCost)) :
+                        ((ndsCost > maxCost) ? String.format(costError, lt, formatCost(maxCost)) : null)
                 );
                 return false;
             } else {
                 return true;
             }
         } catch (BusinessLogicException e) {
-            request.setTooltip(tripCostError);
+            request.setTooltip(tripNullCostError);
             return false;
         }
     }
 
-    private String format(Double d) {
+    private String formatCost(Double d) {
         return StringUtils.formatNum(d);
     }
 

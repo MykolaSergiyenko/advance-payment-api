@@ -60,10 +60,12 @@ dependencyManagement {
     imports {
         mavenBom "org.springframework.cloud:spring-cloud-dependencies:${spring_cloud_version}"
         mavenBom "org.springframework.boot:spring-boot-dependencies:${spring_boot_version}"
+        mavenBom "org.springframework.statemachine:spring-statemachine-bom:${spring_sm_version}"
     }
 }
 
 dependencies {
+    compile('org.springframework.statemachine:spring-statemachine-starter')
     compile "org.springframework.cloud:spring-cloud-starter-stream-rabbit"
     compile "org.springframework.boot:spring-boot-starter-mail"
     compile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310"

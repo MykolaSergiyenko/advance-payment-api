@@ -3,11 +3,10 @@ package online.oboz.trip.trip_carrier_advance_payment_api.service.messages.sms;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.notificatoins.SendSmsRequest;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.messages.common.format.MessagingException;
 
-import online.oboz.trip.trip_carrier_advance_payment_api.config.ApplicationProperties;
 import online.oboz.trip.trip_carrier_advance_payment_api.util.ErrorUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -28,28 +27,24 @@ import java.net.URL;
 @Service
 public class SmsSenderService implements SmsSender {
     Logger log = LoggerFactory.getLogger(SmsSenderService.class);
-    //private final RestService restService;
 
     private RestTemplate restTemplate = new RestTemplate();
-    private final ApplicationProperties applicationProperties;
+    private final URL smsSender;
 
-    @Autowired
-    public SmsSenderService(ApplicationProperties applicationProperties) {
-        this.applicationProperties = applicationProperties;
+
+    public SmsSenderService(@Value("${services.notifications.sms.sender-url}") URL url) {
+        this.smsSender = url;
     }
-
 
     public void sendSms(SendSmsRequest sms) throws MessagingException {
         try {
-            URL smsSenderUrl = applicationProperties.getSmsSenderUrl();
+            URL smsSenderUrl = smsSender;
             if (null == smsSenderUrl) throw getSmsSendingException("SMS-sender-url is empty for:", sms);
             //ResponseEntity<String> response = restService.postForEntity(smsSenderUrl, sms);
             ResponseEntity<String> response = restTemplate.postForEntity(smsSenderUrl.toString(),
                 sms, String.class);
             if (response.getStatusCode() != HttpStatus.OK) {
                 getSmsSendingException("Bad SMS-response. " + response.getBody(), sms);
-            } else {
-                // TODO: set advance is sms-sent
             }
             log.info("Success send notification sms to " + sms.getPhone());
         } catch (HttpServerErrorException e) {

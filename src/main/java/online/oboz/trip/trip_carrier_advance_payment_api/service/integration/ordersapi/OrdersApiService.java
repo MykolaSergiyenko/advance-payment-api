@@ -9,7 +9,6 @@ import online.oboz.trip.trip_carrier_advance_payment_api.domain.response.dto.Tri
 import online.oboz.trip.trip_carrier_advance_payment_api.util.ErrorUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +19,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+@Deprecated
 @Service
 public class OrdersApiService implements OrdersFilesService {
 
@@ -31,7 +31,7 @@ public class OrdersApiService implements OrdersFilesService {
     private URL ordersApiUrl;
     private String saveAssignmentBody;
 
-    @Autowired
+    @Deprecated
     public OrdersApiService(
         ApplicationProperties applicationProperties,
         RestService restService,
@@ -52,18 +52,21 @@ public class OrdersApiService implements OrdersFilesService {
     }
 
 
+    @Deprecated
     @Override
     public Map<String, String> findAdvanceRequestDocs(Advance advance) {
         TripDocuments docs = findAllDocuments(advance);
         return docs.findAdvanceRequestDocsFileMap();
     }
 
+    @Deprecated
     @Override
     public Map<String, String> findTripRequestDocs(Advance advance) {
         TripDocuments docs = findAllDocuments(advance);
         return docs.findTripRequestDocsFileMap();
     }
 
+    @Deprecated
     @Override
     public TripDocuments findAllDocuments(Advance advance) {
         TripDocuments tripDocuments = null;
@@ -76,7 +79,7 @@ public class OrdersApiService implements OrdersFilesService {
         return tripDocuments;
     }
 
-
+    @Deprecated
     @Override
     public Boolean saveTripDocuments(Long orderId, Long tripId, UUID fileUuid) {
         if (fileUuid != null && orderId != null && tripId != null) {
@@ -100,7 +103,7 @@ public class OrdersApiService implements OrdersFilesService {
         return false;
     }
 
-
+    @Deprecated
     public Boolean isDownloadAllDocuments(Advance advance) {
         //использовать только в confirm
         Map<String, String> fileRequestUuidMap = findTripRequestDocs(advance);
@@ -115,6 +118,7 @@ public class OrdersApiService implements OrdersFilesService {
         return isAllDocsUpload;
     }
 
+    @Deprecated
     private String getDocumentWithUuidFiles(Long orderId, Long tripId) {
         String formattedUrl = String.format(ordersApiUrl.toString(), orderId, tripId);
         try {
@@ -131,6 +135,7 @@ public class OrdersApiService implements OrdersFilesService {
         }
     }
 
+    @Deprecated
     private BusinessLogicException ordersApiError(String message) {
         return ErrorUtils.getInternalError(message);
     }

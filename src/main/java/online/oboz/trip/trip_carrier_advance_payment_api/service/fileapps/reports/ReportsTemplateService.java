@@ -14,6 +14,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.net.URL;
+
 import static org.springframework.http.HttpStatus.OK;
 
 @Service
@@ -22,7 +24,13 @@ public class ReportsTemplateService implements ReportService {
     private static final Logger log = LoggerFactory.getLogger(ReportsTemplateService.class);
 
     private final RestService restService;
-    private final ApplicationProperties applicationProperties;
+
+    private final URL reportsUrl;
+    private final String typeKey;
+    private final String apiKey;
+    private final String user;
+    private final String format;
+    private final String reportParams;
 
     @Autowired
     public ReportsTemplateService(
@@ -30,10 +38,15 @@ public class ReportsTemplateService implements ReportService {
         ApplicationProperties applicationProperties
     ) {
         this.restService = restService;
-        this.applicationProperties = applicationProperties;
+        this.reportsUrl = applicationProperties.getReportsUrl();
+        this.typeKey = applicationProperties.getReportsTypeKey();
+        this.apiKey = applicationProperties.getReportsApiKey();
+        this.user = applicationProperties.getReportsUser();
+        this.format = applicationProperties.getReportsFormat();
+        this.reportParams = applicationProperties.getReportsParams();
     }
 
-
+    // TODO: catch time_out
     public ResponseEntity<Resource> downloadAdvanceTemplate(Advance advance) {
         if (advance == null) {
             throw getReportsError("Reports-service template's advance is null.");
@@ -53,14 +66,11 @@ public class ReportsTemplateService implements ReportService {
 
     private String getUrlForReportService(Advance advance) {
         String params = formatParams(advance);
-        return String.join("",
-            applicationProperties.getReportsUrl().toString(),
-            applicationProperties.getReportsTypeKey(), applicationProperties.getReportsUser(),
-            applicationProperties.getReportsApiKey(), params, applicationProperties.getReportsFormat());
+        return String.join("", reportsUrl.toString(), typeKey, user, apiKey, params, format);
     }
 
     private String formatParams(Advance advance) {
-        return String.format(applicationProperties.getReportsParams(),
+        return String.format(reportParams,
             advance.getAdvanceTripFields().getNum(),
             advance.getTripAdvanceInfo().getAdvancePaymentSum(),
             advance.getTripAdvanceInfo().getRegistrationFee());

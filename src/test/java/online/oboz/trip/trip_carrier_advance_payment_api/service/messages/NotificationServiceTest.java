@@ -10,7 +10,7 @@ import online.oboz.trip.trip_carrier_advance_payment_api.repository.AdvanceRepos
 
 import online.oboz.trip.trip_carrier_advance_payment_api.repository.TripRepository;
 import online.oboz.trip.trip_carrier_advance_payment_api.repository.PersonRepository;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.advance.AdvanceService;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.AdvanceService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.contacts.ContactService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.persons.BasePersonService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.rest.RestService;
@@ -75,11 +75,11 @@ public class NotificationServiceTest {
         } catch (Exception e){
             System.out.println("LK-link: "+props.getLkUrl());
         }
-        UrlShortenerService cutter = new UrlShortenerService( props);
+        UrlShortenerService cutter = new UrlShortenerService(props);
         messageTextService = new MessageCreateService(props, contactService, cutter);
         mailSender = mock(JavaMailSender.class);
         emailSender = new EmailSenderService(mailSender);
-        smsSender = new SmsSenderService(props);
+        smsSender = new SmsSenderService(props.getSmsSenderUrl());
         notificator = new NotificationService(
             props,
             messageTextService,
@@ -109,9 +109,10 @@ public class NotificationServiceTest {
 
         Person user = users.getOne(55l);
         Trip randomTrip = trips.getOne(666l); //
+        AdvanceContactsBook contact = contacts.getOne(666l); //
         System.out.println("--- randomTrip contractor id: " + randomTrip.getContractorId());
 
-        Advance x2 = new Advance(user);
+        Advance x2 = new Advance(user, randomTrip, contact);
         //TripAdvance x2 = new TripAdvance();
         //x2.setAdvanceFromTrip(randomTrip, user);
         advances.save(x2);

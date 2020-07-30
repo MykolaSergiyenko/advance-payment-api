@@ -2,7 +2,7 @@ package online.oboz.trip.trip_carrier_advance_payment_api.service.fileapps.attac
 
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.Advance;
 import online.oboz.trip.trip_carrier_advance_payment_api.error.BusinessLogicException;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.advance.AdvanceService;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.AdvanceService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.fileapps.reports.ReportService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.fileapps.reports.ReportsTemplateService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.integration.bstore.StoreService;
@@ -10,7 +10,6 @@ import online.oboz.trip.trip_carrier_advance_payment_api.service.integration.tri
 import online.oboz.trip.trip_carrier_advance_payment_api.util.ErrorUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -29,7 +28,6 @@ public class FileAttachmentsService implements AttachmentService {
     private final ReportService reportsService;
     private final AdvanceService advanceService;
 
-    @Autowired
     public FileAttachmentsService(
         TripDocumentsService tripAttachmentService,
         StoreService bStoreService,
@@ -43,10 +41,9 @@ public class FileAttachmentsService implements AttachmentService {
     }
 
 
-    private Advance findAdvanceByNum(String tripNum) {
-        return advanceService.findByTripNum(tripNum);
+    private Advance findAdvance(Long id) {
+        return advanceService.findById(id);
     }
-
 
 
     @Override
@@ -60,56 +57,46 @@ public class FileAttachmentsService implements AttachmentService {
     }
 
     @Override
-    public ResponseEntity<Resource> downloadAdvanceRequestTemplate(Advance advance) {
+    public ResponseEntity<Resource> downloadAdvanceTemplate(Advance advance) {
         return reportsService.downloadAdvanceTemplate(advance);
     }
 
 
     @Override
-    public ResponseEntity downloadAvanceRequestTemplate(String tripNum) {
-        log.info("Got downloadAvanceRequestTemplate request tripNum - " + tripNum);
-        Advance advance = findAdvanceByNum(tripNum);
-        return downloadAdvanceRequestTemplate(advance);
+    public ResponseEntity downloadAdvanceTemplate(Long id) {
+        log.info("Attachments: download 'Advance-template-request' for advance: {}.", id);
+        Advance advance = findAdvance(id);
+        return downloadAdvanceTemplate(advance);
     }
 
     @Override
-    public ResponseEntity<Resource> downloadAdvanceRequest(String tripNum) {
-        log.info("Got downloadAvanseRequest request tripNum - " + tripNum);
-        Advance advance = findAdvanceByNum(tripNum);
+    public ResponseEntity<Resource> downloadAdvanceRequest(Long id) {
+        log.info("Attachments: download 'Advance-Request' request for advance: {}.", id);
+        Advance advance = findAdvance(id);
         return downloadAdvanceRequestFromBstore(advance);
     }
 
     @Override
-    public ResponseEntity<Resource> downloadRequest(String tripNum) {
-        log.info("Got downloadRequest request tripNum - " + tripNum);
-        Advance advance = findAdvanceByNum(tripNum);
+    public ResponseEntity<Resource> downloadRequest(Long id) {
+        log.info("Attachments: download 'Request' for advance: {}.", id);
+        Advance advance = findAdvance(id);
         return downloadRequestFromBstore(advance);
     }
 
-    @Override
-    public ResponseEntity<Void> uploadRequestAvanceForCarrier(MultipartFile file, String tripNum) {
-        log.info("Got uploadRequestAvanceForCarrier request tripNum - " + tripNum);
-        return uploadRequestAdvance(file, tripNum);
-    }
-
-
 
     @Override
-    public ResponseEntity<Void> uploadRequestAdvance(MultipartFile file, String tripNum) {
-        log.info("Got uploadRequestAdvance request tripNum - " + tripNum);
-        Advance advance = findAdvanceByNum(tripNum);
+    public ResponseEntity<Void> uploadAssignment(MultipartFile file, Long advanceId) {
+        log.info("Attachments: upload 'Request' for adavance: {}.", advanceId);
+        Advance advance = findAdvance(advanceId);
         uploadRequestAdvance(advance, file);
         return new ResponseEntity<>(OK);
     }
-
-
-    //TODO :  catch   big size file and response
 
     private ResponseEntity<Void> uploadRequestAdvance(Advance advance, MultipartFile file) {
         try {
             UUID fileUuid = saveToBStore(file);
             saveFromBStore(advance, fileUuid);
-            log.info("File was saved from BStore. Uuid = {}. Filename = {}. Advance = {}.", fileUuid, file, advance);
+            log.info("Attachments: File saved from BStore. Uuid = {}. Filename = {}. Advance = {}.", fileUuid, file, advance);
         } catch (BusinessLogicException e) {
             log.error("Upload 'advance-request' file error:" + e.getErrors());
         }
@@ -132,6 +119,7 @@ public class FileAttachmentsService implements AttachmentService {
     private UUID saveToBStore(MultipartFile file) {
         log.info("Try to save file to BStore: {}", file.getName());
         return bStoreService.saveFile(file);
+
     }
 
     private void saveFromBStore(Advance advance, UUID fileUuid) {

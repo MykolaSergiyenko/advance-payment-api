@@ -71,6 +71,26 @@ public class ApplicationProperties {
     private String password;
 
 
+    //Trip-advance-service
+    @Value("${services.trip-advance-service.trip-null-cost-error}")
+    private String nullCostError;
+
+    @Value("${services.trip-advance-service.trip-cost-error}")
+    private String tripCostError;
+
+    @Value("${services.trip-advance-service.trip-cost-gt}")
+    private String tripCostGt;
+
+    @Value("${services.trip-advance-service.trip-cost-lt}")
+    private String tripCostLt;
+
+    @Value("${services.trip-advance-service.trip-contracts-error}")
+    private String tripContractsError;
+
+    @Value("${services.trip-advance-service.trip-docs-error}")
+    private String tripDocsError;
+
+
     //Auto-advance
 
 
@@ -651,6 +671,54 @@ public class ApplicationProperties {
 
     public void setAutoAuthor(Long autoAuthor) {
         this.autoAuthor = autoAuthor;
+    }
+
+    public String getNullCostError() {
+        return nullCostError;
+    }
+
+    public void setNullCostError(String nullCostError) {
+        this.nullCostError = nullCostError;
+    }
+
+    public String getTripCostError() {
+        return tripCostError;
+    }
+
+    public void setTripCostError(String tripCostError) {
+        this.tripCostError = tripCostError;
+    }
+
+    public String getTripCostGt() {
+        return tripCostGt;
+    }
+
+    public void setTripCostGt(String tripCostGt) {
+        this.tripCostGt = tripCostGt;
+    }
+
+    public String getTripCostLt() {
+        return tripCostLt;
+    }
+
+    public void setTripCostLt(String tripCostLt) {
+        this.tripCostLt = tripCostLt;
+    }
+
+    public String getTripContractsError() {
+        return tripContractsError;
+    }
+
+    public void setTripContractsError(String tripContractsError) {
+        this.tripContractsError = tripContractsError;
+    }
+
+    public String getTripDocsError() {
+        return tripDocsError;
+    }
+
+    public void setTripDocsError(String tripDocsError) {
+        this.tripDocsError = tripDocsError;
     }
 
 }

@@ -13,6 +13,7 @@ public interface TripDocumentsService {
 
     /**
      * Получить все документы трипа
+     *
      * @param tripId
      * @return List<TripAttachment> - список вложений
      */
@@ -20,13 +21,15 @@ public interface TripDocumentsService {
 
     /**
      * Получить UUID "Заявки" или "Договора-заявки" из списка документов
-     * @param attachments  - список вложений
+     *
+     * @param attachments - список вложений
      * @return UUID - "Заявки" или "Договора-заявки"
      */
     UUID getRequestUuidOrTripRequestUuid(List<TripAttachment> attachments);
 
     /**
-     *  Получить UUID "Заявки" из списка документов
+     * Получить UUID "Заявки" из списка документов
+     *
      * @param attachments - список вложений
      * @return UUID - "Заявки"
      */
@@ -34,6 +37,7 @@ public interface TripDocumentsService {
 
     /**
      * Получить UUID "Договора-заявки" из списка документов
+     *
      * @param attachments - список вложений
      * @return UUID - "Договора-заявки"
      */
@@ -41,6 +45,7 @@ public interface TripDocumentsService {
 
     /**
      * Получить UUID подписанного вложения "Заявка на авансирование" из списка документов
+     *
      * @param attachments - список вложений
      * @return UUID - подписанного вложения "Заявка на авансирование"
      */
@@ -49,7 +54,8 @@ public interface TripDocumentsService {
     /**
      * Сохранить (создать запись) в "Документах" по трипу
      * с подписанным вложением типа "Заявка на авансирование"
-     * @param tripId - трип
+     *
+     * @param tripId   - трип
      * @param fileUuid - uuid вложения из bstore
      * @return
      */
@@ -57,6 +63,7 @@ public interface TripDocumentsService {
 
     /**
      * Загружены ли все документы по авансу - в трип?
+     *
      * @param advance - аванс
      * @return true\false
      */
@@ -64,8 +71,9 @@ public interface TripDocumentsService {
 
     /**
      * Загружены ли все документы в Трип
+     *
      * @param tripId - трип
      * @return true\false
      */
-    Boolean isAllTripDocumentsLoaded(Long tripId , Boolean checkAssignment);
+    Boolean isAllTripDocumentsLoaded(Long tripId);
 }

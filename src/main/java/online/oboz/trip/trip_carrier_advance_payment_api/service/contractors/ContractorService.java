@@ -24,7 +24,7 @@ public interface ContractorService {
     ResponseEntity<List<AdvanceContractor>> updateAutoAdvanceForContractors();
 
     /**
-     * Является ли контрагент плательщиком налогов
+     * Является ли контрагент плательщиком nologov
      * @param contractorId - контрагент
      * @return true\false
      */

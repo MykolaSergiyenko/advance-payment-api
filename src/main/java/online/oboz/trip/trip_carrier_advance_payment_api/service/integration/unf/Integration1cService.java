@@ -4,7 +4,6 @@ import online.oboz.trip.trip_carrier_advance_payment_api.rabbit.Message;
 import online.oboz.trip.trip_carrier_advance_payment_api.rabbit.RabbitMessageProducer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -13,7 +12,6 @@ public class Integration1cService implements UnfService {
 
     private final RabbitMessageProducer rabbitMessageProducer;
 
-    @Autowired
     public Integration1cService(RabbitMessageProducer rabbitMessageProducer) {
         this.rabbitMessageProducer = rabbitMessageProducer;
     }

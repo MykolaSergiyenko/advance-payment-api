@@ -5,7 +5,6 @@ import online.oboz.trip.trip_carrier_advance_payment_api.service.messages.common
 import online.oboz.trip.trip_carrier_advance_payment_api.util.ErrorUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
@@ -26,7 +25,7 @@ public class EmailSenderService implements EmailSender {
     //from springframework.mail
     JavaMailSender emailSender;
 
-    @Autowired
+
     public EmailSenderService(JavaMailSender emailSender) {
         this.emailSender = emailSender;
     }

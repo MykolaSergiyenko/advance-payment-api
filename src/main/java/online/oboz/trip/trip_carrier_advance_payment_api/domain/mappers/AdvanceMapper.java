@@ -4,7 +4,6 @@ package online.oboz.trip.trip_carrier_advance_payment_api.domain.mappers;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.Advance;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.Trip;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.info.TripInfo;
-import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.AdvanceCommentDTO;
 import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.AdvanceDTO;
 import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.CarrierPage;
 import org.mapstruct.IterableMapping;
@@ -33,10 +32,6 @@ public interface AdvanceMapper {
     // don't use. or toAdvance(Trip trip, Person author...) too.
 
 
-    @Mapping(source = "id", target = "id")
-    @Mapping(source = "advanceComment", target = "comment")
-    Advance setComment(AdvanceCommentDTO comment);
-
 
     @Mapping(source = "id", target = "id")
     @Mapping(source = "advanceTripFields.num", target = "tripNum")
@@ -50,10 +45,10 @@ public interface AdvanceMapper {
     @Mapping(source = "tripAdvanceInfo.advancePaymentSum", target = "advancePaymentSum")
     @Mapping(source = "tripAdvanceInfo.registrationFee", target = "registrationFee")
     @Mapping(source = "loadingComplete", target = "loadingComplete")
-    @Mapping(target = "isContractApplicationLoaded",
-        expression = "java(!(null == advance.getUuidContractApplicationFile()))")
-    @Mapping(target = "isAdvanceApplicationLoaded",
-        expression = "java(!(null == advance.getUuidAdvanceApplicationFile()))")
+    @Mapping(source = "uuidContractApplicationFile",
+        target = "contractAttachUuid")
+    @Mapping(source = "uuidAdvanceApplicationFile",
+        target = "advanceAttachUuid")
     @Mapping(target = "is1CSendAllowed",
         expression = "java(advance.is1CSendAllowed())")
     @Mapping(target = "isPaid", expression = "java(advance.isPaid())")

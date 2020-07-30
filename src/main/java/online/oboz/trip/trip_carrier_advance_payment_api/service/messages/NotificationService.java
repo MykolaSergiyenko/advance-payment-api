@@ -32,10 +32,15 @@ import java.time.OffsetDateTime;
 public class NotificationService implements Notificator {
     private static final Logger log = LoggerFactory.getLogger(NotificationService.class);
 
-    private final ApplicationProperties applicationProperties;
     private final TextService messageTextService;
     private final EmailSender emailSender;
     private final SmsSender smsSender;
+
+    private final Boolean emailEnabled;
+    private final Boolean smsEnabled;
+
+    private final Boolean emailScheduleEnabled;
+    private final Boolean smsScheduleEnabled;
 
 
     public NotificationService(
@@ -44,11 +49,14 @@ public class NotificationService implements Notificator {
         EmailSender emailSender,
         SmsSender smsSender
     ) {
-        this.applicationProperties = applicationProperties;
         this.messageTextService = messageTextService;
         this.emailSender = emailSender;
         this.smsSender = smsSender;
+        this.emailEnabled = applicationProperties.isEmailEnabled();
+        this.smsEnabled = applicationProperties.isSmsEnabled();
 
+        this.emailScheduleEnabled = applicationProperties.isEmailScheduleEnabled();
+        this.smsScheduleEnabled = applicationProperties.isSmsScheduleEnabled();
     }
 
     /**
@@ -58,9 +66,7 @@ public class NotificationService implements Notificator {
      */
     @Override
     public Advance notify(Advance advance) {
-        advance = notificate(advance,
-            applicationProperties.isEmailEnabled(),
-            applicationProperties.isSmsEnabled());
+        advance = notificate(advance, emailEnabled, smsEnabled);
         return advance;
     }
 
@@ -72,9 +78,7 @@ public class NotificationService implements Notificator {
      */
     @Override
     public Advance scheduledNotify(Advance advance) {
-        notificate(advance,
-            applicationProperties.isEmailScheduleEnabled(),
-            applicationProperties.isSmsScheduleEnabled());
+        notificate(advance, emailScheduleEnabled, smsScheduleEnabled);
         return advance;
     }
 

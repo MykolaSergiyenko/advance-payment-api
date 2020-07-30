@@ -3,7 +3,7 @@ package online.oboz.trip.trip_carrier_advance_payment_api.service.trip;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.Advance;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.dicts.costdicts.AdvanceCostDict;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.Trip;
-import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.IsTripAdvanced;
+import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.TripAdvanceState;
 
 import java.util.List;
 
@@ -77,5 +77,5 @@ public interface TripService {
      * @param trip - поездка
      * @return tooltip - подсказка
      */
-    IsTripAdvanced checkTripAdvanceState(Trip trip);
+    TripAdvanceState checkTripAdvanceState(Trip trip);
 }

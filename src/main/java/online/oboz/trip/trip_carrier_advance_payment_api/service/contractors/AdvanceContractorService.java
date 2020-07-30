@@ -1,12 +1,13 @@
 package online.oboz.trip.trip_carrier_advance_payment_api.service.contractors;
 
-import online.oboz.trip.trip_carrier_advance_payment_api.config.ApplicationProperties;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.contractor.AdvanceContractor;
 import online.oboz.trip.trip_carrier_advance_payment_api.error.BusinessLogicException;
 import online.oboz.trip.trip_carrier_advance_payment_api.repository.ContractorRepository;
 import online.oboz.trip.trip_carrier_advance_payment_api.util.ErrorUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -18,14 +19,15 @@ public class AdvanceContractorService implements ContractorService {
 
     private static final Logger log = LoggerFactory.getLogger(AdvanceContractorService.class);
 
-    private final ApplicationProperties applicationProperties;
     private final ContractorRepository contractorRepository;
+    private final Long minPaidAdvancesCount;
 
+    @Autowired
     public AdvanceContractorService(
-        ApplicationProperties applicationProperties,
+        @Value("${services.auto-advance-service.min-paid-advance-count}") Long minAdvanceCount,
         ContractorRepository contractorRepository
     ) {
-        this.applicationProperties = applicationProperties;
+        this.minPaidAdvancesCount = minAdvanceCount;
         this.contractorRepository = contractorRepository;
     }
 
@@ -52,8 +54,7 @@ public class AdvanceContractorService implements ContractorService {
     private List<AdvanceContractor> getAutoContractors() {
         List<AdvanceContractor> contractors = null;
         try {
-            Long x = applicationProperties.getMinAdvanceCount();
-            contractors = contractorRepository.findByMinCountAdvancesPaid(x);
+            contractors = contractorRepository.findByMinCountAdvancesPaid(minPaidAdvancesCount);
         } catch (Exception e) {
             log.error("Error while getAutoContractors. " + e.getMessage());
         }

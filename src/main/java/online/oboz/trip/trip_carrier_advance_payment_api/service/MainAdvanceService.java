@@ -1,12 +1,12 @@
-package online.oboz.trip.trip_carrier_advance_payment_api.service.advance;
+package online.oboz.trip.trip_carrier_advance_payment_api.service;
 
-import online.oboz.trip.trip_carrier_advance_payment_api.config.ApplicationProperties;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.Advance;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.attachments.TripAttachment;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.dicts.contacts.AdvanceContactsBook;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.Trip;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.Person;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.contacts.DetailedPersonInfo;
+import online.oboz.trip.trip_carrier_advance_payment_api.domain.mappers.AdvanceMapper;
 import online.oboz.trip.trip_carrier_advance_payment_api.error.BusinessLogicException;
 import online.oboz.trip.trip_carrier_advance_payment_api.repository.AdvanceRepository;
 
@@ -22,14 +22,19 @@ import online.oboz.trip.trip_carrier_advance_payment_api.util.StringUtils;
 import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+//import org.springframework.statemachine.StateMachine;
 import org.springframework.stereotype.Service;
 
 import java.time.OffsetDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Locale;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -38,6 +43,8 @@ import java.util.stream.Collectors;
 public class MainAdvanceService implements AdvanceService {
     private static final Logger log = LoggerFactory.getLogger(MainAdvanceService.class);
 
+//    @Autowired
+//    private StateMachine<CurrentAdvanceState, AdvanceEvent> stateMachine;
 
     private final String advanceTitle = "Аванс выдан: ";
     private final String autoTitle = " (в автоматическом режиме).";
@@ -45,6 +52,7 @@ public class MainAdvanceService implements AdvanceService {
 
     private final String AUTO_COMMENT;
     private final Person autoUser;
+    private final Long interval;
 
     private final TripService tripService;
     private final BasePersonService personService;
@@ -54,9 +62,11 @@ public class MainAdvanceService implements AdvanceService {
     private final TripDocumentsService documentsService;
     private final UnfService integration1cService;
 
-    private final ApplicationProperties applicationProperties;
     private final AdvanceRepository advanceRepository;
 
+    private final AdvanceMapper mapper = AdvanceMapper.advanceMapper;
+
+    @Autowired
     public MainAdvanceService(
         TripService tripService,
         BasePersonService personService,
@@ -64,8 +74,9 @@ public class MainAdvanceService implements AdvanceService {
         TripDocumentsService documentsService,
         Notificator notificationService,
         UnfService integration1cService,
-        ApplicationProperties applicationProperties,
-        AdvanceRepository advanceRepository
+        AdvanceRepository advanceRepository,
+        @Value("${services.auto-advance-service.comment}") String autoComment,
+        @Value("${services.auto-advance-service.newadvance-inteval}") Long advanceInterval
     ) {
         this.tripService = tripService;
         this.personService = personService;
@@ -74,10 +85,11 @@ public class MainAdvanceService implements AdvanceService {
         this.notificationService = notificationService;
         this.integration1cService = integration1cService;
         this.advanceRepository = advanceRepository;
-        this.applicationProperties = applicationProperties;
 
-        AUTO_COMMENT = applicationProperties.getAutoCreatedComment();
+        AUTO_COMMENT = autoComment;
+        interval = advanceInterval;
         log.info("Auto-created-advance comment is: " + AUTO_COMMENT);
+        log.info("Auto-advance interval: " + interval);
         autoUser = personService.getAdvanceSystemUser();
         log.info("Auto-advance system-user is: {}", autoUser.getInfo());
     }
@@ -135,6 +147,60 @@ public class MainAdvanceService implements AdvanceService {
     }
 
     @Override
+    public AdvanceDesktopDTO getAdvances(String tab, Filter filter) {
+        return getAdvances(tab, filter.getPage(), filter.getPer(), filter.getSort().get(0));
+    }
+
+
+    private AdvanceDesktopDTO getAdvances(String tab, Integer pageNo, Integer pageSize, SortBy sortBy) {
+        log.info("Get advances: tab = {}, page = {}, pageSize = {}, sortBy = {},{}.",
+            tab, pageNo, pageSize, sortBy.getKey(), sortBy.getDir());
+        return mapAdvancesToDesktop(
+            getPage(tab, pageNo, pageSize, sortBy));
+    }
+
+    private Page<Advance> getPage(String tab, Integer pageNo, Integer pageSize, SortBy sortBy) {
+        Pageable pageable = PageRequest.of(pageNo - 1, pageSize,
+            Sort.Direction.fromString(sortBy.getDir().toString()), sortBy.getKey().toString());
+        log.info("--- Load tab: {}. Pageble: {}. ", tab, pageable);
+
+        switch (tab) {
+            case ("in_work"):
+                return advanceRepository.findInWorkAdvances(pageable, AUTO_COMMENT);
+
+            case ("problem"):
+                return advanceRepository.findProblemAdvances(pageable, AUTO_COMMENT);
+
+            case ("paid"):
+                return advanceRepository.findPaidAdvances(pageable);
+
+            case ("not_paid"):
+                return advanceRepository.findNotPaidAdvances(pageable);
+
+            case ("cancelled"):
+                return advanceRepository.findCancelledAdvances(pageable);
+
+            case ("all"):
+            case ("none"):
+                return advanceRepository.findAll(pageable);
+            default:
+                return null;
+        }
+    }
+
+    private AdvanceDesktopDTO mapAdvancesToDesktop(Page<Advance> page) {
+        AdvanceDesktopDTO desktop = new AdvanceDesktopDTO();
+        List<AdvanceDTO> list = mapper.toAdvancesDTO(page == null ? null : page.stream().collect(Collectors.toList()));
+        desktop.setAdvances(list);
+        desktop.setPaginator(new Paginator().page(page.getPageable().getPageNumber()).
+            per(page.getPageable().getPageSize()).total(page.getTotalElements()));
+        log.info("--- Advances count: {}. Total elements page: {}.",
+            (list == null ? '-' : list.size()), page.getTotalElements());
+        return desktop;
+    }
+
+
+    @Override
     public Advance findById(Long id) {
         return advanceRepository.findById(id).
             orElseThrow(() ->
@@ -148,23 +214,18 @@ public class MainAdvanceService implements AdvanceService {
                 getAdvanceError("Advance not found by uuid: " + uuid));
     }
 
-    @Override
-    public Advance findByTripNum(String tripNum) {
-        return advanceRepository.findByTripNum(tripNum).
-            orElseThrow(() ->
-                getAdvanceError("Advance not found by tripNum: " + tripNum));
-    }
+//    @Override
+//    public Advance findByTripNum(String tripNum) {
+//        return advanceRepository.findByTripNum(tripNum).
+//            orElseThrow(() ->
+//                getAdvanceError("Advance not found by tripNum: " + tripNum));
+//    }
 
     @Override
     public Advance findByTripId(Long tripId) {
         return advanceRepository.findByTripId(tripId).
             orElseThrow(() ->
                 getAdvanceError("Advance not found by tripId: " + tripId));
-    }
-
-    @Override
-    public List<Advance> findAdvancesWithoutFiles() {
-        return advanceRepository.findRequestsWithoutFiles();
     }
 
 
@@ -255,6 +316,7 @@ public class MainAdvanceService implements AdvanceService {
             setAdvanceApplicationFile(advance, uuid);
             log.info("Update advance-application-file in {}. Set uuid = {} ", advance.getId(),
                 advance.getUuidAdvanceApplicationFile());
+            //stateMachine.sendEvent(AdvanceEvent.LOAD_DOCS);
         } else {
             throw getAdvanceError("Advance-application-file uuid can't be null.");
         }
@@ -263,9 +325,8 @@ public class MainAdvanceService implements AdvanceService {
 
 
     @Override
-    public ResponseEntity<Void> confirmAdvance(Long advanceId) {
+    public ResponseEntity<Void> sendToUnfAdvance(Long advanceId) {
         Advance advance = findById(advanceId);
-
         if (!documentsService.isAllDocumentsLoaded(advance)) {
             throw getAdvanceError("Not all documents are loaded for advance: " + advanceId);
         } else if (advance.isCancelled()) {
@@ -275,31 +336,40 @@ public class MainAdvanceService implements AdvanceService {
         } else {
             integration1cService.send1cNotification(advanceId);
             saveAdvance(advance);
-            log.info("Advance is confirmed {}.", advance.getId());
+            log.info("Advance: {} - is confirmed.", advance.getId());
             return new ResponseEntity<>(HttpStatus.OK);
         }
     }
 
     @Override
-    public ResponseEntity<Void> cancelAdvancePayment(Long tripId, String withComment) {
+    public ResponseEntity<Void> cancelAdvance(Long advanceId, String withComment) {
         try {
-            Advance advance = findByTripId(tripId);
-            setCancelled(advance, withComment);
-            log.info("Set cancelled with comment '{}' for advance {}.", withComment, advance.getId());
+            Advance advance = findById(advanceId);
+            if (!advance.isCancelled()) {
+                advance.setCancelledComment(withComment);
+                advance.setCancelled(true);
+                saveAdvance(advance);
+                //stateMachine.sendEvent(AdvanceEvent.CANCEL);
+                log.info("Advance: {} - was cancelled - with comment: '{}'.", advance.getId(), withComment);
+            } else {
+                log.info("Advance: {} - is cancelled already.", advance.getId());
+            }
         } catch (BusinessLogicException ex) {
-            log.error("Advance cancel is failed for tripId: " + tripId + ". Errors:" + ex.getErrors());
+            log.error("Advance cancellation is failed for id: " + advanceId + ". Errors:" + ex.getErrors());
         }
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @Override
-    public ResponseEntity<Void> changeAdvanceComment(AdvanceCommentDTO commentDTO) {
+    public ResponseEntity<Void> changeComment(Long advanceId, String comment) {
         try {
-            setComment(commentDTO);
-            log.info("Set comment for advance = {}.", commentDTO.toString());
+            Advance advance = findById(advanceId);
+            advance.setComment(comment);
+            saveAdvance(advance);
+            //stateMachine.sendEvent(AdvanceEvent.SET_COMMENT);
+            log.info("Advance: {} - set comment - '{}'.", advanceId, comment);
         } catch (BusinessLogicException ex) {
-            log.error("Advance comment changing is failed for advance id: " + commentDTO.getId() +
-                ". Errors:" + ex.getErrors());
+            log.error("Advance: {} - comment changing failed: {} . Errors: {}", advanceId, comment, ex.getErrors());
         }
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -308,10 +378,12 @@ public class MainAdvanceService implements AdvanceService {
     public ResponseEntity<Void> setLoadingComplete(Long advanceId, Boolean loadingComplete) {
         try {
             Advance advance = findById(advanceId);
-            setCompleteLoading(advance, loadingComplete);
-            log.info("Loading-completed= {} set for advance {}.", loadingComplete, advance.getId());
+            advance.setLoadingComplete(loadingComplete);
+            saveAdvance(advance);
+            //if (loadingComplete) stateMachine.sendEvent(AdvanceEvent.COMPLETE_LOADING);
+            log.info("Advance: {} - set loading-complete: '{}'", advance.getId(), loadingComplete);
         } catch (BusinessLogicException e) {
-            log.error("Advance 'loading-comlete' setting is failed for advance: " + advanceId + " Errors:" + e.getErrors());
+            log.error("Advance: {} 'loading-comlete'-setting failed failed. Errors: {}", advanceId, e.getErrors());
         }
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -329,22 +401,24 @@ public class MainAdvanceService implements AdvanceService {
                 Advance autoAdvance = createAutoAdvanceForTrip(trip, autoUser);
 
                 if (null != autoAdvance) {
-                    log.info("Auto-advance {} was created for trip {}.",
+                    log.info("Auto-advance: {} was created for trip: {}.",
                         autoAdvance.getId(), autoAdvance.getAdvanceTripFields().getTripId());
                 }
             } catch (Exception e) {
-                log.info("Auto-advance error for trip: " + trip.getId() + ". Error:" + e.getMessage());
+                log.info("Auto-advance error for trip: {}. Errors: ", trip.getId(), e.getMessage());
             }
         });
     }
 
-    public IsTripAdvanced checkAdvanceState(Advance advance) {
-        IsTripAdvanced isTripAdvanced = new IsTripAdvanced();
-        isTripAdvanced.setTooltip( advanceTitle + formatDateFront(advance.getCreatedAt()) +
+
+    public TripAdvanceState checkAdvanceState(Advance advance) {
+        TripAdvanceState advanceState = new TripAdvanceState();
+        advanceState.setTooltip(advanceTitle + formatDateFront(advance.getCreatedAt()) +
             (advance.isAuto() ? autoTitle :
                 (authorTitle + personService.getAuthorFullName(advance.getAuthorId())))
         );
-        return isTripAdvanced;
+        log.info("Advance-state info: {}", advanceState);
+        return advanceState;
     }
 
 
@@ -379,7 +453,7 @@ public class MainAdvanceService implements AdvanceService {
                 //setAssignmentRequestUuid(advance, attachments);
             }
         } catch (BusinessLogicException e) {
-            log.error("Trip-documents not found for tripId = {}", tripId);
+            log.error("Trip-documents not found for tripId: {}. ", tripId);
         }
         return advance;
     }
@@ -390,25 +464,16 @@ public class MainAdvanceService implements AdvanceService {
         return advance;
     }
 
-    private Advance setAssignmentRequestUuid(Advance advance, List<TripAttachment> attachments) {
-        UUID uuid = documentsService.getAssignmentRequestUuid(attachments);
-        setAdvanceApplication(advance, uuid);
-        return advance;
-    }
+//    private Advance setAssignmentRequestUuid(Advance advance, List<TripAttachment> attachments) {
+//        UUID uuid = documentsService.getAssignmentRequestUuid(attachments);
+//        setAdvanceApplication(advance, uuid);
+//        return advance;
+//    }
 
 
     private Advance setAdvanceApplicationFile(Advance advance, UUID uuid) {
         advance.setUuidAdvanceApplicationFile(uuid);
         saveAdvance(advance);
-        return advance;
-    }
-
-    private Advance setAllowedToSent(Advance advance) {
-        if (advance.is1CSendAllowed()) {
-            //advance.setIs1CSendAllowed(true);
-            saveAdvance(advance);
-            log.info("Set 's1CSendAllowed' for advance {}", advance.getId());
-        }
         return advance;
     }
 
@@ -418,29 +483,6 @@ public class MainAdvanceService implements AdvanceService {
             advance.setPushButtonAt(OffsetDateTime.now());
             saveAdvance(advance);
         }
-    }
-
-
-    private Advance setComment(AdvanceCommentDTO commentDTO) {
-        Advance advance = findById(commentDTO.getId());
-        advance.setComment(commentDTO.getAdvanceComment());
-        return saveAdvance(advance);
-    }
-
-    private Advance setCompleteLoading(Advance advance, Boolean loadingComplete) {
-        advance.setLoadingComplete(loadingComplete);
-        return saveAdvance(advance);
-    }
-
-    private Advance setCancelled(Advance advance, String comment) {
-        if (!advance.isCancelled()) {
-            advance.setCancelledComment(comment);
-            advance.setCancelled(true);
-            advance = saveAdvance(advance);
-            log.info(" Advance for tripId {} was cancelled with comment: {}",
-                advance.getAdvanceTripFields().getTripId(), comment);
-        }
-        return advance;
     }
 
 
@@ -465,7 +507,7 @@ public class MainAdvanceService implements AdvanceService {
 
 
     private List<Advance> findUnreadAdvances() {
-        return advanceRepository.findUnreadAdvances(applicationProperties.getNewTripsInterval());
+        return advanceRepository.findUnreadAdvances(interval);
     }
 
     private String formatDateFront(OffsetDateTime date) {

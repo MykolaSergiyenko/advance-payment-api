@@ -4,7 +4,7 @@ package online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.ad
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import online.oboz.trip.trip_carrier_advance_payment_api.error.BusinessLogicException;
-import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.Error;
+import online.oboz.trip.trip_carrier_advance_payment_api.util.ErrorUtils;
 import org.springframework.http.HttpStatus;
 
 import java.io.Serializable;
@@ -12,27 +12,14 @@ import java.io.Serializable;
 
 public enum CurrentAdvanceState implements Serializable {
 
-    NEW(1, "new", "Свежий аванс"), //New created --> to Active
-    AUTO_NEW(2, "auto", "Свежий авто-аванс"),  //New auto-created
-    DOCS_LOADED(3, "docs_loaded", "Документы загружены."),
-    LOADING_COMPLETE(3, "truck_loaded", "Загрузка машины завершена"), //
-    ACTIVE(4, "active", "Активный аванс (активна кнопка 'Отправить в УНф')"),  //Active button "send to unf"
-
-    APPROVED(5, "approved", "Аванс утвержден"),  //Succefully_approved --> download documents
-
-    // --> not Problem + loading_complete + docs_loaded
-    PROBLEM_ADVANCE(5, "inactivated", "Дизактированный аванс (потому что содержит не такой комментарий)"),
-    // -->
-    CANCELLED(6, "cancelled", "Аванс отменен"), //Succefully_cancel
-    //TRY_SEND_UNF(7, "try_unf_send", "Отправляли в УНФ (нажимали кнопку?)"), // try sent to unf (button pushed. but disActive?)
-
-    PAID(8, "is_paid", "Аванс выплачен в УНФ"), //Succefully_PAID - end
-
-    //COMPLETE(9, "complete", "Завершен"), //Succefully_PAID - end
-    NOTIFIED(10, "notified", "Было уведомление"), //New created --> to Active
-    AUTO_NOTIFIED(11, "delay_notified", "Было отложенное уведомление"), //New created --> to Active
-    SMS_SENT(12, "sent_sms", "Было отложенное уведомление"), //New created --> to Active
-    EMAIL_SENT(13, "sent_email", "Было отложенное уведомление"); //New created --> to Active
+    NEW(10, "new", "Свежий аванс"),
+    TRUCK_LOADED(20, "loading_complete", "Водитель загрузился"),
+    DOCS_LOADED(30, "loading_complete", "Документы загружены"),
+    ACTIVE(40, "active", "Активный аванс (активна кнопка 'Отправить в УНф')"),
+    SENT(50, "unf_sent", "Аванс утвержден (отправлен в УНФ, кнопка неактивна)"),
+    PAID(60, "is_paid", "Аванс выплачен в УНФ"),
+    PROBLEM(70, "inactivated", "Дизактированный аванс (потому что содержит не такой комментарий)"),
+    CANCELLED(80, "cancelled", "Аванс отменен");
 
 
     private long advanceStateId;
@@ -45,26 +32,26 @@ public enum CurrentAdvanceState implements Serializable {
         this.advanceStateDesc = advanceStateDesc;
     }
 
-    public CurrentAdvanceState makeOfString(String advanceStateName) {
-        CurrentAdvanceState result = null;
-        if (advanceStateName == null) throw new BusinessLogicException(HttpStatus.CONFLICT, new Error());
-        else {
-            for (CurrentAdvanceState current : this.values()) {
-                if (!advanceStateNameEquals(current.advanceStateName)) {
-                    result.setAdvanceStateId(current.advanceStateId);
-                    result = current;
-                }
-            }
-        }
-        if (result == null)
-            throw new BusinessLogicException(HttpStatus.CONFLICT, new Error());
-        return result;
+//    public CurrentAdvanceState makeOfString(String advanceStateName) {
+//        CurrentAdvanceState result = null;
+//        if (advanceStateName == null) throw getStateError("Unknown advance-state.");
+//        else {
+//            for (CurrentAdvanceState current : this.values()) {
+//                if (!advanceStateNameEquals(current.advanceStateName)) {
+//                    result.setAdvanceStateId(current.advanceStateId);
+//                    result = current;
+//                }
+//            }
+//        }
+//        if (result == null)
+//            throw getStateError("Unknown advance-state.");
+//        return result;
+//
+//    }
 
-    }
-
-    private boolean advanceStateNameEquals(String setName) {
-        return this.getAdvanceStateName().equals(setName);
-    }
+//    private boolean advanceStateNameEquals(String setName) {
+//        return this.getAdvanceStateName().equals(setName);
+//    }
 
 
     @Override
@@ -80,7 +67,7 @@ public enum CurrentAdvanceState implements Serializable {
                 return b;
             }
         }
-        throw new IllegalArgumentException("Unexpected value '" + text + "'");
+        throw getStateError("Unknown advance-state.");
     }
 
     private void setAdvanceStateId(long advanceStateId) {
@@ -105,6 +92,10 @@ public enum CurrentAdvanceState implements Serializable {
 
     private String getAdvanceStateDesc() {
         return advanceStateDesc;
+    }
+
+    private static BusinessLogicException getStateError(String message) {
+        return ErrorUtils.getInternalError("Advance-state internal error: " + message);
     }
 
 

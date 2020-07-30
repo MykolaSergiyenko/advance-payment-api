@@ -1,6 +1,8 @@
 package online.oboz.trip.trip_carrier_advance_payment_api.repository;
 
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.Advance;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -12,6 +14,8 @@ import java.util.UUID;
 
 @Repository
 public interface AdvanceRepository extends JpaRepository<Advance, Long> {
+
+    Page<Advance> findAll(Pageable pageable);
 
     @Query("select pc from Advance pc where pc.advanceTripFields.tripId = :trip_id")
     Optional<Advance> findByTripId(@Param("trip_id") Long tripId);
@@ -27,6 +31,24 @@ public interface AdvanceRepository extends JpaRepository<Advance, Long> {
     Optional<Advance> findByTripNum(@Param("trip_num") String tripNum);
 
 
+    @Query("select adv from Advance adv where (adv.comment is null or adv.comment = '' or " +
+        "adv.comment = :autoComment) and (adv.paidAt is null) and (adv.cancelledAt is null)")
+    Page<Advance> findInWorkAdvances(Pageable pageable, @Param("autoComment")String autoComment);
+
+    @Query("select adv from Advance adv where (adv.comment is not null and adv.comment <> '' " +
+        "and adv.comment <> :autoComment)")
+    Page<Advance> findProblemAdvances(Pageable pageable, @Param("autoComment")String autoComment);
+
+    @Query("select adv from Advance adv where (adv.paidAt is not null)")
+    Page<Advance> findPaidAdvances(Pageable pageable);
+
+    @Query("select adv from Advance adv where (adv.paidAt is null)")
+    Page<Advance> findNotPaidAdvances(Pageable pageable);
+
+    @Query("select adv from Advance adv where (adv.cancelledAt is not null)")
+    Page<Advance> findCancelledAdvances(Pageable pageable);
+
+
     @Query(nativeQuery = true,
         value = "select * from orders.trip_request_advance_payment a inner join orders.trips t on " +
             "(t.id = a.trip_id and t.order_id = a.order_id and " +
@@ -35,6 +57,7 @@ public interface AdvanceRepository extends JpaRepository<Advance, Long> {
             "a.read_at is null and a.sms_sent_at is null and a.email_sent_at is not null and " +
             "a.email_sent_at < (now() - (:minutes || ' minutes ') \\:\\:interval )")
     List<Advance> findUnreadAdvances(@Param("minutes") long minutes);
+
 
 
     @Query(nativeQuery = true, value = "select (case when count(pc)> 0 then true else false end) " +

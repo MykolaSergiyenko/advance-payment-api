@@ -17,6 +17,7 @@ import org.springframework.data.annotation.PersistenceConstructor;
 
 import javax.persistence.*;
 import java.time.OffsetDateTime;
+import java.util.Arrays;
 import java.util.UUID;
 
 
@@ -63,9 +64,11 @@ public class Advance extends ContactableAdvance {
     private OffsetDateTime pushButtonAt;
 
     public Boolean is1CSendAllowed() {
-        return null != getUnfSentAt() ? false :
-            (getLoadingComplete() && !StringUtils.isEmptyStrings(getUuidAdvanceApplicationFile().toString(),
-                getUuidContractApplicationFile().toString()));
+        return (null != getUnfSentAt()) ? false :
+            (getLoadingComplete() &&
+                !StringUtils.isEmptyUuids(Arrays.asList(
+                    getUuidAdvanceApplicationFile(),
+                    getUuidContractApplicationFile())));
     }
 
     public Boolean isPaid() {

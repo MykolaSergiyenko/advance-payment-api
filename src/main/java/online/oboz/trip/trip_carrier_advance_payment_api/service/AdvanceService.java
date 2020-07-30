@@ -1,9 +1,10 @@
-package online.oboz.trip.trip_carrier_advance_payment_api.service.advance;
+package online.oboz.trip.trip_carrier_advance_payment_api.service;
 
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.Advance;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.Trip;
-import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.AdvanceCommentDTO;
-import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.IsTripAdvanced;
+import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.AdvanceDesktopDTO;
+import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.TripAdvanceState;
+import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.Filter;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
@@ -51,6 +52,15 @@ public interface AdvanceService {
      */
     List<Advance> getAllAdvances();
 
+
+    /**
+     * Получить полный список авансов для вкладки и фильтра
+     *
+     * @return List<Advance> - список авансов
+     */
+    AdvanceDesktopDTO getAdvances(String tab, Filter filter);
+
+
     /**
      * Получить аванс по id
      *
@@ -67,13 +77,13 @@ public interface AdvanceService {
      */
     Advance findByUuid(UUID uuid);
 
-    /**
-     * Получить аванс по номеру поездки
-     *
-     * @param tripNum - номер поездки
-     * @return Advance - аванс
-     */
-    Advance findByTripNum(String tripNum);
+//    /**
+//     * Получить аванс по номеру поездки
+//     *
+//     * @param tripNum - номер поездки
+//     * @return Advance - аванс
+//     */
+//    Advance findByTripNum(String tripNum);
 
     /**
      * Получить аванс по id поездки
@@ -84,34 +94,27 @@ public interface AdvanceService {
     Advance findByTripId(Long tripId);
 
     /**
-     * Найти авансы без uuid вложений
-     *
-     * @return List<Advance> - список авансов
-     */
-    List<Advance> findAdvancesWithoutFiles();
-
-    /**
      * Утвердить аванс (отправить в УНФ)
      *
      * @param advanceId - аванс
      */
-    ResponseEntity<Void> confirmAdvance(Long advanceId);
+    ResponseEntity<Void> sendToUnfAdvance(Long advanceId);
 
     /**
-     * Отменить аванс по Трипу
+     * Отменить аванс
      *
-     * @param tripId      - трип
+     * @param advanceId   - аванс
      * @param withComment - комментарий
      */
-    ResponseEntity<Void> cancelAdvancePayment(Long tripId, String withComment);
+    ResponseEntity<Void> cancelAdvance(Long advanceId, String withComment);
 
     /**
-     * /**
      * Изменить комментарий в авансе
      *
-     * @param commentDTO - структура данных комментария
+     * @param advanceId - аванс
+     * @param comment   - комментарий
      */
-    ResponseEntity<Void> changeAdvanceComment(AdvanceCommentDTO commentDTO);
+    ResponseEntity<Void> changeComment(Long advanceId, String comment);
 
     /**
      * Обновить факт загрузки водителя
@@ -197,6 +200,6 @@ public interface AdvanceService {
      * @param advance
      * @return tooltip - подсказка
      */
-    IsTripAdvanced checkAdvanceState(Advance advance);
+    TripAdvanceState checkAdvanceState(Advance advance);
 
 }

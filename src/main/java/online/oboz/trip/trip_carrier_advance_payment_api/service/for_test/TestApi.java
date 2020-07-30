@@ -1,13 +1,11 @@
-package online.oboz.trip.trip_carrier_advance_payment_api.service;
+package online.oboz.trip.trip_carrier_advance_payment_api.service.for_test;
 
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.Advance;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.advance.AdvanceService;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.messages.Notificator;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.AdvanceService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.urleditor.UrlService;
-import online.oboz.trip.trip_carrier_advance_payment_api.web.api.controller.AdvancePaymentTestApiDelegate;
+import online.oboz.trip.trip_carrier_advance_payment_api.web.api.controller.AdvanceTestApiDelegate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -16,14 +14,13 @@ import org.springframework.stereotype.Service;
  * Песочница для тестирования сервисов "Авансирования"
  */
 @Service
-public class AdvancePaymentTestDelegateImpl implements AdvancePaymentTestApiDelegate {
-    private static final Logger log = LoggerFactory.getLogger(AdvancePaymentDelegateImpl.class);
+public class TestApi implements AdvanceTestApiDelegate {
+    private static final Logger log = LoggerFactory.getLogger(TestApi.class);
 
     private final UrlService shortenerService;
     private final AdvanceService service;
 
-    @Autowired
-    public AdvancePaymentTestDelegateImpl(
+    public TestApi(
         UrlService shortenerService,
         AdvanceService service
     ) {
