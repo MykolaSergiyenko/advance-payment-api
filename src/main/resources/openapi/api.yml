@@ -830,7 +830,7 @@ components:
                 - created_at
                 - order_id
                 - trip_id
-                - advanceTripFields.num
+                - trip_num
                 - contractor_id
                 - driver_id
                 - is_automation_request

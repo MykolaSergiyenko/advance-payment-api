@@ -31,21 +31,26 @@ public interface AdvanceRepository extends JpaRepository<Advance, Long> {
 //    Optional<Advance> findByTripNum(@Param("trip_num") String tripNum);
 
 
-    @Query("select adv from Advance adv where (adv.comment is null or adv.comment = '' or " +
-        "adv.comment = :auto_comment) and (adv.paidAt is null) and (adv.cancelledAt is null)")
+    @Query(nativeQuery = true,
+        value = "select * from orders.trip_request_advance_payment a where (a.comment is null or a.comment = '' or " +
+            "a.comment = :auto_comment) and (a.paid_at is null) and (adv.cancelled_at is null)")
     Page<Advance> findInWorkAdvances(Pageable pageable, @Param("auto_comment") String autoComment);
 
-    @Query("select adv from Advance adv where(adv.comment is not null and adv.comment <> '' and " +
-        " adv.comment <> :auto_comment)")
+    @Query(nativeQuery = true,
+        value = "select * from orders.trip_request_advance_payment a where (a.comment is not null and a.comment <> '' and " +
+            " a.comment <> :auto_comment)")
     Page<Advance> findProblemAdvances(Pageable pageable, @Param("auto_comment") String autoComment);
 
-    @Query("select adv from Advance adv where (adv.paidAt is not null)")
+    @Query(nativeQuery = true,
+        value = "select * from orders.trip_request_advance_payment a where (a.paid_at is not null)")
     Page<Advance> findPaidAdvances(Pageable pageable);
 
-    @Query("select adv from Advance adv where (adv.paidAt is null)")
+    @Query(nativeQuery = true,
+        value = "select * from orders.trip_request_advance_payment a where (a.paid_at is null)")
     Page<Advance> findNotPaidAdvances(Pageable pageable);
 
-    @Query("select adv from Advance adv where (adv.cancelledAt is not null)")
+    @Query(nativeQuery = true,
+        value = "select * from orders.trip_request_advance_payment a where (a.cancelled_at is not null)")
     Page<Advance> findCancelledAdvances(Pageable pageable);
 
 
@@ -57,7 +62,6 @@ public interface AdvanceRepository extends JpaRepository<Advance, Long> {
             "a.read_at is null and a.sms_sent_at is null and a.email_sent_at is not null and " +
             "a.email_sent_at < (now() - (:minutes || ' minutes ') \\:\\:interval )")
     List<Advance> findUnreadAdvances(@Param("minutes") long minutes);
-
 
 
     @Query(nativeQuery = true, value = "select (case when count(pc)> 0 then true else false end) " +
