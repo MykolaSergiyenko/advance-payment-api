@@ -125,6 +125,7 @@ public class MainTripService implements TripService {
     private Boolean checkTripCosts(Trip trip, TripAdvanceState request) {
         Double minCost = getTripMinCost();
         Double maxCost = getTripMaxCost();
+        log.info("--- Advance-state Trip-cost: {}", trip.getTripCostInfo().getCost());
         if (null != trip.getTripCostInfo().getCost() && trip.getTripCostInfo().getCost() > 0.0) {
             try {
                 Double ndsCost = calculateTripCost(trip);
