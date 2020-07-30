@@ -215,7 +215,7 @@ public class MainAdvanceService implements AdvanceService {
 
     @Override
     public Advance findByUuid(UUID uuid) {
-        return advanceRepository.findByUuid(uuid).
+        return advanceRepository.findByUuid(uuid.toString()).
             orElseThrow(() ->
                 getAdvanceError("Advance not found by uuid: " + uuid));
     }
