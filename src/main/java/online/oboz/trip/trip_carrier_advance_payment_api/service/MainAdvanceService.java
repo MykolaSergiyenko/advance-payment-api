@@ -151,10 +151,10 @@ public class MainAdvanceService implements AdvanceService {
         try {
             int page = (filter.getPage() == null || filter.getPage() == 0) ? 1 : filter.getPage();
             int size = (filter.getPer() == null || filter.getPer() == 0) ? 1 : filter.getPer();
-            SortBy sort = (filter.getSort() == null || filter.getSort().size() == 0) ?  null : filter.getSort().get(0);
+            SortBy sort = (filter.getSort() == null || filter.getSort().size() == 0) ? null : filter.getSort().get(0);
             log.info("Get advances: tab = {}, page = {}, pageSize = {}. Filter by: {}.", tab, page, size, sort);
             return mapAdvancesToDesktop(getPage(tab, page, size, sort));
-        } catch (Exception e){
+        } catch (Exception e) {
             log.error("Error while grid-building - Filter: {}, tab: {}. Errors: {}.", filter, tab, e.getMessage());
             return null;
         }
@@ -162,9 +162,9 @@ public class MainAdvanceService implements AdvanceService {
 
 
     private Page<Advance> getPage(String tab, Integer pageNo, Integer pageSize, SortBy sortBy) {
+
         Sort.Direction dir = (sortBy == null || sortBy.getDir() == null) ?
             Sort.Direction.ASC : Sort.Direction.fromString(sortBy.getDir().toString());
-
         SortByField sort = (sortBy == null || sortBy.getKey() == null) ? SortByField.ID : sortBy.getKey();
 
         Pageable pageable = PageRequest.of(pageNo - 1, pageSize, dir, sort.toString());
