@@ -148,7 +148,10 @@ public class MainAdvanceService implements AdvanceService {
 
     @Override
     public AdvanceDesktopDTO getAdvances(String tab, Filter filter) {
-        return getAdvances(tab, filter.getPage(), filter.getPer(), filter.getSort().get(0));
+        int page = (filter.getPage() == null || filter.getPage() == 0) ? 1 : filter.getPage();
+        int size = (filter.getPer() == null || filter.getPer() == 0) ? 1 : filter.getPer();
+        SortBy sort = (filter.getSort() == null || filter.getSort().get(0) == null) ? new SortBy() : filter.getSort().get(0);
+        return getAdvances(tab, page, size, sort);
     }
 
 
@@ -160,8 +163,6 @@ public class MainAdvanceService implements AdvanceService {
     }
 
     private Page<Advance> getPage(String tab, Integer pageNo, Integer pageSize, SortBy sortBy) {
-        if (pageNo == 0) pageNo = 1;
-
         Sort.Direction dir = sortBy.getDir() == null ?
             Sort.Direction.ASC : Sort.Direction.fromString(sortBy.getDir().toString());
 
