@@ -267,7 +267,7 @@ paths:
                                 $ref: "#/components/schemas/Error"
 
 
-    /advances/download_file:
+    /advances/download_file/{uuid}:
         get:
             tags:
                 - "Рабочий стол авансирования"
@@ -275,7 +275,7 @@ paths:
             operationId: downloadFile
             parameters:
                 -   name: uuid
-                    in: query
+                    in: path
                     schema:
                         type: string
                         format: uuid
