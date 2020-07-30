@@ -828,18 +828,16 @@ components:
                 - id
                 - uuid
                 - created_at
-                - trip_id
-                - trip_num
                 - order_id
+                - trip_id
+                - advanceTripFields.num
                 - contractor_id
                 - driver_id
-                - push_button_at
                 - is_automation_request
                 - loading_complete
                 - contractor_name
                 - is_cancelled
                 - is_cancelled_at
-                - is_notified
 
         SortByDirection:
             type: string
