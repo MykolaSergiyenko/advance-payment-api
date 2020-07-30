@@ -156,8 +156,8 @@ public class MainAdvanceService implements AdvanceService {
                 tab, page, size, sort.getKey(), sort.getDir());
             return mapAdvancesToDesktop(getPage(tab, page, size, sort));
         } catch (Exception e){
-            log.error("Error while grid-building - Filter: {}, tab: {}. Errors: {}.", filter, tab, e.getMessage());
-            log.error("Trace: {}.",  e.getStackTrace());
+            log.error("Error while grid-building - Filter: {}, tab: {}. Errors: {} {}.", filter, tab, e.getMessage(), e.getCause());
+            log.error("Trace: {}.",  e.getStackTrace().toString());
             return null;
         }
     }
