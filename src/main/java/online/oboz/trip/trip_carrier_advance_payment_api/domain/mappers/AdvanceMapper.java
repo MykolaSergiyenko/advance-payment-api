@@ -55,7 +55,7 @@ public interface AdvanceMapper {
     @Mapping(source = "paidAt", target = "paidAt")
     @Mapping(target = "isUnfSend", expression = "java(advance.getUnfSentAt() != null)")
     @Mapping(source = "comment", target = "comment")
-    @Mapping(source = "cancelled", target = "java(advance.getCancelledAt() != null)")
+    @Mapping(target = "isCancelled", expression = "java(advance.getCancelledAt() != null)")
     @Mapping(source = "cancelledComment", target = "cancelledComment")
     @Mapping(source = "contractor.contractorContacts.fullName", target = "contractorName")
     @Mapping(source = "paymentContractor.contractor.contractorContacts.fullName", target = "paymentContractor")
