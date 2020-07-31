@@ -110,9 +110,8 @@ public class NotificationService implements Notificator {
 
     private void sentEmail(Advance advance) throws MessagingException {
         log.info("Email-messages enable. Try to send message for advance - " + advance.getId());
-        String to = contactService.findByContractor(advance.getContractorId()).
-            getInfo().getEmail();
-        EmailContainer email = messagesService.createEmail(advance, to);
+        EmailContainer email = messagesService.createEmail(advance,
+            contactService.getEmail(advance.getContractorId()));
         log.info("Create e-mail-message: " + email.getMessage().toString());
         emailSender.sendEmail(email);
         log.info("E-mail is sent for advance - " + advance.getId());
@@ -135,9 +134,8 @@ public class NotificationService implements Notificator {
 
     private void sentSms(Advance advance) throws MessagingException {
         log.info("SMS-messages enable. Try to send message for advance - " + advance.getId());
-        String to = contactService.findByContractor(advance.getContractorId()).
-            getInfo().getPhone();
-        SendSmsRequest container = messagesService.createSms(advance, to);
+        SendSmsRequest container = messagesService.createSms(advance,
+            contactService.getPhone(advance.getContractorId()));
         log.info("Create SMS-message: " + container.toString());
         smsSender.sendSms(container);
         log.info("SMS is sent for advance " + advance.getId());

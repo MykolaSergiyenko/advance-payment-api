@@ -43,4 +43,17 @@ public interface ContactService extends AdvanceContactsApiDelegate {
      * @return true\false
      */
     Boolean notExistsByContractor(Long contractorId);
+
+    /**
+     * Получить имейл контакта
+     * @param contractorId
+     * @return e-mail
+     */
+    String getEmail(Long contractorId);
+
+    /**
+     * @param contractorId
+     * @return phoneNum - 9939924589
+     */
+    String getPhone(Long contractorId);
 }

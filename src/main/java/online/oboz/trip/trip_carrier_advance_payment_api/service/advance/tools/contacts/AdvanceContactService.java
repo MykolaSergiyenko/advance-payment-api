@@ -51,6 +51,17 @@ public class AdvanceContactService implements ContactService {
     }
 
     @Override
+    public String getPhone(Long contractorId) {
+        return findByContractor(contractorId).getInfo().getPhone();
+    }
+
+
+    @Override
+    public String getEmail(Long contractorId) {
+        return findByContractor(contractorId).getInfo().getEmail();
+    }
+
+    @Override
     public Boolean notExistsByContractor(Long contractorId) {
         AdvanceContactsBook contact = contactsBookRepository.findByContractorId(contractorId).orElse(null);
         return (contact == null);
