@@ -66,12 +66,14 @@ public class RestService implements RestTemplateService {
     }
 
     public ResponseEntity<Resource> authGetRequestResource(String url) {
+        log.info("Got resource-request to: '{}'", url);
         HttpHeaders headers = new HttpHeaders();
         headers.add(AUTHORIZATION, "Bearer " + ACCESS_TOKEN);
         return getRequestResource(url, headers);
     }
 
     public ResponseEntity<Resource> getRequestResource(String url, HttpHeaders headers) {
+        log.info("Got resource-request to: '{}'", url);
         try {
             HttpEntity<String> request = new HttpEntity<>(headers);
             ResponseEntity<Resource> response = restTemplate.exchange(url, GET, request, Resource.class);
@@ -79,7 +81,8 @@ public class RestService implements RestTemplateService {
                 return response;
             }
         } catch (Exception e) {
-            log.error("Failed request to " + url, e);
+            log.error("Failed resource-request to url: '{}' . Error: {} .", url, e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return null;
     }
