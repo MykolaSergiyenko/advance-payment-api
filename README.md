@@ -1,4 +1,4 @@
-# trip-carrier-payment-api 
+# trip-carrier-advance-payment-api
 
 Сервис "Аванс"
 
