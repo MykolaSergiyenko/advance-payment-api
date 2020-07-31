@@ -279,7 +279,6 @@ paths:
                     schema:
                         type: string
                         format: uuid
-                    required: true
                     description: "uuid вложения"
             responses:
                 "200":
