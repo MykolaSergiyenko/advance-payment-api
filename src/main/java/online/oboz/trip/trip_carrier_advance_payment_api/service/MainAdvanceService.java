@@ -157,24 +157,30 @@ public class MainAdvanceService implements AdvanceService {
             int size = (filter.getPer() == null || filter.getPer() == 0) ? 1 : filter.getPer();
             SortBy sort = (filter.getSort() == null || filter.getSort().size() == 0) ? null : filter.getSort().get(0);
             AdvanceDesktopDTO desktop = mapAdvancesToDesktop(getPage(tab, page, size, sort));
-            log.info("[Advance-grid]: Tab = {}; page = {}; pageSize = {}. Filter by: {}. Total: {}.",
-                tab, page, size, sort.getKey().toString(), desktop.getPaginator().getTotal());
+            logPaging(tab, page, size, sort, desktop);
             return desktop;
         } catch (Exception e) {
-            log.error("Error while grid-building - Filter: {}, tab: {}. Errors: {}.", filter, tab, e.getMessage());
+            log.error("Error while grid-building - Filter: {}, tab: {}. Errors: {}.", filter, tab, e.getStackTrace());
             return null;
         }
     }
 
+    private void logPaging(String tab, int page, int size, SortBy sort, AdvanceDesktopDTO desktop) {
+        String sorting = (sort == null || sort.getKey() == null || sort.getKey().toString().isEmpty()) ?
+            "-" : sort.getKey().toString();
+        String total = (desktop == null || desktop.getPaginator() == null || desktop.getPaginator().getTotal() == null) ?
+            "Ø" : desktop.getPaginator().getTotal().toString();
+        log.info("[Advance-grid]: Tab: '{}'; Total advances: {}; Page: '{}X{}'; Filter:'{}'.",
+            tab, total, page, size, sorting);
+    }
+
 
     private Page<Advance> getPage(String tab, Integer pageNo, Integer pageSize, SortBy sortBy) {
-
         Sort.Direction dir = (sortBy == null || sortBy.getDir() == null) ?
             Sort.Direction.ASC : Sort.Direction.fromString(sortBy.getDir().toString());
         SortByField sort = (sortBy == null || sortBy.getKey() == null) ? SortByField.ID : sortBy.getKey();
 
         Pageable pageable = PageRequest.of(pageNo - 1, pageSize, dir, sort.toString());
-
         switch (tab) {
             case ("in_work"):
                 return advanceRepository.findInWorkAdvances(pageable, AUTO_COMMENT);
@@ -464,7 +470,9 @@ public class MainAdvanceService implements AdvanceService {
             List<TripAttachment> attachments = documentsService.getTripAttachments(tripId);
             int attachSize = attachments.size();
             log.info("Found {} file-attachments in trip {} for advance {}.", attachSize, tripId, advance.getId());
-            if (attachSize > 0) { setRequestUuid(advance, attachments); }
+            if (attachSize > 0) {
+                setRequestUuid(advance, attachments);
+            }
         } catch (BusinessLogicException e) {
             log.error("Trip-documents not found for tripId: {}. ", tripId);
         }
