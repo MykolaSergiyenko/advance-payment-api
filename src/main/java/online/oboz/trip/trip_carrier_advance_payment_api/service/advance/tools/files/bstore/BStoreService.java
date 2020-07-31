@@ -44,6 +44,7 @@ public class BStoreService implements StoreService {
         String url = bStoreUrl + uuidFile.toString();
         ResponseEntity<Resource> response = restService.authGetRequestResource(url);
         if (response.getStatusCode() == OK) {
+            log.info("--- [Advance]: Loading from B-Store OK for file: {}.", uuidFile);
             return response;
         } else {
             log.error("B-Store-server {} returned bad response: {}.", url, response);

@@ -56,6 +56,7 @@ public class AdvancesPage implements AdvanceDesktop {
     }
 
     public ResponseEntity<Resource> downloadFile(UUID uuid){
+        log.info("[Advance] Download-file request: {}. ", uuid);
         return attachmentService.fromBStore(uuid);
     }
 
