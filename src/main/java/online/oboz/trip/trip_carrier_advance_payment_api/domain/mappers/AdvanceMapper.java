@@ -5,7 +5,7 @@ import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.Advance;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.Trip;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.info.TripInfo;
 import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.AdvanceDTO;
-import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.CarrierPage;
+import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.CarrierPageDTO;
 import org.mapstruct.IterableMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -62,6 +62,7 @@ public interface AdvanceMapper {
     AdvanceDTO toAdvanceDTO(Advance advance);
 
 
+    //use for list DesktopDTO
     @IterableMapping(elementTargetType = AdvanceDTO.class)
     List<AdvanceDTO> toAdvancesDTO(List<Advance> advances);
 
@@ -82,6 +83,6 @@ public interface AdvanceMapper {
     @Mapping(source = "tripInfo.endLocation.address", target = "unloadingAddress")
     @Mapping(source = "tripInfo.startDate", target = "loadingDate")
     @Mapping(source = "tripInfo.endDate", target = "unloadingDate")
-    CarrierPage toCarrierPage(Advance advance, TripInfo tripInfo);
+    CarrierPageDTO toCarrierPage(Advance advance, TripInfo tripInfo);
 
 }

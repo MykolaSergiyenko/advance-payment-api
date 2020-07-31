@@ -1,9 +1,9 @@
 package online.oboz.trip.trip_carrier_advance_payment_api.service.messages.sms;
 
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.notificatoins.SendSmsRequest;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.messages.common.format.MessagingException;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.messages.edit_message.MessagingException;
 
-import online.oboz.trip.trip_carrier_advance_payment_api.util.ErrorUtils;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.util.ErrorUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;

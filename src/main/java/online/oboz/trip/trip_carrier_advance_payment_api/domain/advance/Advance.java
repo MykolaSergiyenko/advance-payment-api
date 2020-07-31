@@ -4,7 +4,7 @@ import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.adv
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.dicts.contacts.AdvanceContactsBook;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.Trip;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.Person;
-import online.oboz.trip.trip_carrier_advance_payment_api.util.StringUtils;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.util.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 

@@ -410,7 +410,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/CarrierPage'
+                                $ref: '#/components/schemas/CarrierPageDTO'
                 default:
                     description: "Some other error"
                     content:
@@ -520,7 +520,7 @@ paths:
                         format: uri
             tags:
                 - Песочница
-                - Messaging
+                - Уведомления об авансе
             responses:
                 200:
                     description: "OK"
@@ -545,7 +545,7 @@ paths:
             operationId: createMessage
             tags:
                 - Песочница
-                - Messaging
+                - Уведомления об авансе
             parameters:
                 -   name: advance_id
                     in: path
@@ -700,7 +700,7 @@ components:
                     description: "Признак отправили в УНФ"
 
 
-        CarrierPage:
+        CarrierPageDTO:
             type: object
             description: "Аванс - Страница перевозчика"
             properties:

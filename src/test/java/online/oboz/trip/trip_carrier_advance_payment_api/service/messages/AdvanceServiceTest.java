@@ -3,10 +3,10 @@ package online.oboz.trip.trip_carrier_advance_payment_api.service.messages;
 import online.oboz.trip.trip_carrier_advance_payment_api.config.ApplicationProperties;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.mappers.AdvanceMapper;
 import online.oboz.trip.trip_carrier_advance_payment_api.repository.AdvanceRepository;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.AdvanceService;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.contacts.ContactService;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.costs.CostService;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.integration.unf.UnfService;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.advance.AdvanceService;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.contacts.ContactService;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.costs.CostService;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.unf.UnfService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.rest.RestService;
 
 import org.junit.runner.RunWith;

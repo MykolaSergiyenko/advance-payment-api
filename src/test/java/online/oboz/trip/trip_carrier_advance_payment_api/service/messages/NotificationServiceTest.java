@@ -10,13 +10,13 @@ import online.oboz.trip.trip_carrier_advance_payment_api.repository.AdvanceRepos
 
 import online.oboz.trip.trip_carrier_advance_payment_api.repository.TripRepository;
 import online.oboz.trip.trip_carrier_advance_payment_api.repository.PersonRepository;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.AdvanceService;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.contacts.ContactService;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.persons.BasePersonService;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.advance.AdvanceService;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.contacts.ContactService;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.persons.BasePersonService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.rest.RestService;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.messages.common.format.MessageCreateService;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.messages.common.format.TextService;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.trip.TripService;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.messages.edit_message.MessageCreateService;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.messages.edit_message.MessagesService;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.trip.TripService;
 
 import online.oboz.trip.trip_carrier_advance_payment_api.service.urleditor.UrlShortenerService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.messages.email.EmailSender;
@@ -29,6 +29,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.client.RestTemplate;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -44,7 +45,7 @@ public class NotificationServiceTest {
     private RestTemplate rest;
     private RestService restService;
     private ApplicationProperties props;
-    private TextService messageTextService;
+    private MessagesService messageTextService;
     private EmailSender emailSender;
     private SmsSender smsSender;
     private Notificator notificator;
@@ -59,7 +60,6 @@ public class NotificationServiceTest {
     private ContactService contactService;
 
 
-
     @BeforeEach
     void initTest() {
         System.out.println("--- init ---");
@@ -72,11 +72,11 @@ public class NotificationServiceTest {
             props.setCutLinkUrl(new URL("https://clck.ru/--?url="));
             props.setSmsCutLinks(true);
             props.setEmailCutLinks(true);
-        } catch (Exception e){
-            System.out.println("LK-link: "+props.getLkUrl());
+        } catch (Exception e) {
+            System.out.println("LK-link: " + props.getLkUrl());
         }
         UrlShortenerService cutter = new UrlShortenerService(props);
-        messageTextService = new MessageCreateService(props, contactService, cutter);
+        messageTextService = new MessageCreateService(props, cutter);
         mailSender = mock(JavaMailSender.class);
         emailSender = new EmailSenderService(mailSender);
         smsSender = new SmsSenderService(props.getSmsSenderUrl());
@@ -84,7 +84,7 @@ public class NotificationServiceTest {
             props,
             messageTextService,
             emailSender,
-            smsSender);
+            smsSender, contactService);
 
         users = mock(PersonRepository.class);
         when(users.getOne(any())).thenReturn(random(Person.class));

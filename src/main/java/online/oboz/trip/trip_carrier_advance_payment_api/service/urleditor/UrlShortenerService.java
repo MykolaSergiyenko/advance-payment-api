@@ -2,7 +2,8 @@ package online.oboz.trip.trip_carrier_advance_payment_api.service.urleditor;
 
 import io.undertow.util.BadRequestException;
 import online.oboz.trip.trip_carrier_advance_payment_api.config.ApplicationProperties;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.for_test.TestApi;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.messages.edit_message.MessageCreateService;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.sandbox.TestApi;
 import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.Error;
 
 import org.slf4j.Logger;
@@ -29,7 +30,7 @@ import static org.springframework.http.HttpStatus.BAD_REQUEST;
  * Использует API сервиса 'Кликер.ру' ( https://clck.ru/ ) через RestService.
  * <p>
  * <p>
- * Используется в {@link online.oboz.trip.trip_carrier_advance_payment_api.service.messages.common.format.MessageCreateService} при формировании текста уведомлений.
+ * Используется в {@link MessageCreateService} при формировании текста уведомлений.
  * <p>
  * Тестовый ендпоинт - {@link TestApi#cutUrl(String)}.
  * <p>

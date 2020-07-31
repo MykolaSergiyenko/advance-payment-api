@@ -4,8 +4,7 @@ package online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.ad
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import online.oboz.trip.trip_carrier_advance_payment_api.error.BusinessLogicException;
-import online.oboz.trip.trip_carrier_advance_payment_api.util.ErrorUtils;
-import org.springframework.http.HttpStatus;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.util.ErrorUtils;
 
 import java.io.Serializable;
 

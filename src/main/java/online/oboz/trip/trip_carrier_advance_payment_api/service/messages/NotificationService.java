@@ -3,8 +3,9 @@ package online.oboz.trip.trip_carrier_advance_payment_api.service.messages;
 
 import online.oboz.trip.trip_carrier_advance_payment_api.config.ApplicationProperties;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.Advance;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.messages.common.format.MessagingException;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.messages.common.format.TextService;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.contacts.ContactService;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.messages.edit_message.MessagingException;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.messages.edit_message.MessagesService;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.notificatoins.EmailContainer;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.messages.email.EmailSender;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.notificatoins.SendSmsRequest;
@@ -24,7 +25,7 @@ import java.time.OffsetDateTime;
  * @author s‡udent
  * @see Notificator
  * @see ApplicationProperties
- * @see TextService
+ * @see MessagesService
  * @see EmailSender
  * @see SmsSender
  */
@@ -32,7 +33,8 @@ import java.time.OffsetDateTime;
 public class NotificationService implements Notificator {
     private static final Logger log = LoggerFactory.getLogger(NotificationService.class);
 
-    private final TextService messageTextService;
+    private final ContactService contactService;
+    private final MessagesService messagesService;
     private final EmailSender emailSender;
     private final SmsSender smsSender;
 
@@ -45,13 +47,16 @@ public class NotificationService implements Notificator {
 
     public NotificationService(
         ApplicationProperties applicationProperties,
-        TextService messageTextService,
+        MessagesService messageService,
         EmailSender emailSender,
-        SmsSender smsSender
+        SmsSender smsSender,
+        ContactService contactService
     ) {
-        this.messageTextService = messageTextService;
+        this.messagesService = messageService;
         this.emailSender = emailSender;
         this.smsSender = smsSender;
+        this.contactService = contactService;
+
         this.emailEnabled = applicationProperties.isEmailEnabled();
         this.smsEnabled = applicationProperties.isSmsEnabled();
 
@@ -105,7 +110,9 @@ public class NotificationService implements Notificator {
 
     private void sentEmail(Advance advance) throws MessagingException {
         log.info("Email-messages enable. Try to send message for advance - " + advance.getId());
-        EmailContainer email = messageTextService.createEmail(advance);
+        String to = contactService.findByContractor(advance.getContractorId()).
+            getInfo().getEmail();
+        EmailContainer email = messagesService.createEmail(advance, to);
         log.info("Create e-mail-message: " + email.getMessage().toString());
         emailSender.sendEmail(email);
         log.info("E-mail is sent for advance - " + advance.getId());
@@ -128,7 +135,9 @@ public class NotificationService implements Notificator {
 
     private void sentSms(Advance advance) throws MessagingException {
         log.info("SMS-messages enable. Try to send message for advance - " + advance.getId());
-        SendSmsRequest container = messageTextService.createSms(advance);
+        String to = contactService.findByContractor(advance.getContractorId()).
+            getInfo().getPhone();
+        SendSmsRequest container = messagesService.createSms(advance, to);
         log.info("Create SMS-message: " + container.toString());
         smsSender.sendSms(container);
         log.info("SMS is sent for advance " + advance.getId());
