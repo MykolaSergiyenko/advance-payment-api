@@ -2,7 +2,9 @@ package online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import online.oboz.trip.trip_carrier_advance_payment_api.config.ApplicationProperties;
+import online.oboz.trip.trip_carrier_advance_payment_api.error.BusinessLogicException;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.rest.RestService;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.util.ErrorUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
@@ -47,8 +49,8 @@ public class BStoreService implements StoreService {
             log.info("--- [Advance]: Loading from B-Store OK for file: {}.", uuidFile);
             return response;
         } else {
-            log.error("B-Store-server {} returned bad response: {}.", url, response);
-            return null;
+            log.error("B-Store-server returned '{}' for URL: {}.", response.getStatusCode().getReasonPhrase(), url);
+            throw bstoreError("B-Store-server returned '" + response.getStatusCode().getReasonPhrase()+"' for URL: "+ url);
         }
     }
 
@@ -73,7 +75,12 @@ public class BStoreService implements StoreService {
             }
         } catch (IOException e) {
             log.error("Failed parse response from bstore. Filename: {}. Response: {}", file, response);
+            throw bstoreError("Failed parse response from bstore. Filename: " +file.getName()+". Response: "+ response.getStatusCode());
         }
         return null;
+    }
+
+    private BusinessLogicException bstoreError(String message) {
+        return ErrorUtils.getInternalError(message);
     }
 }
