@@ -1,14 +1,14 @@
 package online.oboz.trip.trip_carrier_advance_payment_api.service.contacts;
 
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.dicts.contacts.AdvanceContactsBook;
-import online.oboz.trip.trip_carrier_advance_payment_api.web.api.controller.AdvanceContactsApi;
+import online.oboz.trip.trip_carrier_advance_payment_api.web.api.controller.AdvanceContactsApiDelegate;
 import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.CarrierContactDTO;
 import org.springframework.http.ResponseEntity;
 
 /**
  * Сервис для работы с контактами авансирования контрагента
  */
-public interface ContactService extends AdvanceContactsApi {
+public interface ContactService extends AdvanceContactsApiDelegate {
 
     /**
      * Создать контакт авансирования
