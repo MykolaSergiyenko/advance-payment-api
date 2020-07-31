@@ -15,6 +15,11 @@ import org.springframework.stereotype.Service;
 import java.util.Arrays;
 
 
+/**
+ * Сервис для работы с пользователями ОБОЗа
+ *
+ * @author s‡oodent
+ */
 @Service
 public class PersonService implements BasePersonService {
     private static final Logger log = LoggerFactory.getLogger(PersonService.class);

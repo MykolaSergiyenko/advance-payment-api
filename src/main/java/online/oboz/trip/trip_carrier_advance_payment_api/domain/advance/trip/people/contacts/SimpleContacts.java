@@ -12,6 +12,8 @@ import java.io.Serializable;
 
 /**
  * Контакты кого-либо
+ *
+ * @author Ⓐbo3
  */
 @Embeddable
 @MappedSuperclass

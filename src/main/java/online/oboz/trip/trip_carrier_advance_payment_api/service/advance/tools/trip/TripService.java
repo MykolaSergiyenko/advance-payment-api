@@ -9,6 +9,8 @@ import java.util.List;
 
 /**
  * Сервис для работы с "Поездками"
+ *
+ * @author s‡oodent
  */
 public interface TripService {
 

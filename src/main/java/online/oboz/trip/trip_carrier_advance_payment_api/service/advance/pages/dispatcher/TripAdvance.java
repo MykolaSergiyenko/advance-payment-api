@@ -6,6 +6,8 @@ import org.springframework.http.ResponseEntity;
 
 /**
  * Сервис "Авансирование" - карточка Трипа
+ *
+ * @author s‡udent
  */
 public interface TripAdvance extends TripAdvanceApiDelegate {
 

@@ -8,6 +8,8 @@ import java.util.UUID;
 
 /**
  * Сервис для работы с документами-вложениями трипа
+ *
+ * @author s‡oodent
  */
 public interface TripDocumentsService {
 

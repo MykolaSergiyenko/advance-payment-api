@@ -14,6 +14,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 
+/**
+ * Сервис для работы с контактами "аванса"
+ *
+ * @author s‡udent
+ */
 @Service
 public class AdvanceContactService implements ContactService {
     private static final Logger log = LoggerFactory.getLogger(AdvanceContactService.class);

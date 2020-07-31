@@ -22,6 +22,11 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Страница перевозичка - Аванс
+ *
+ * @author s‡udent
+ */
 @Service
 public class CarrierPage implements CarrierScreen {
     private static final Logger log = LoggerFactory.getLogger(CarrierPage.class);

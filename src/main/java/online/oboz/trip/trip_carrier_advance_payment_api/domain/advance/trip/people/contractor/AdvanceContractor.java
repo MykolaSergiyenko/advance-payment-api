@@ -9,6 +9,8 @@ import javax.persistence.*;
 
 /**
  * Контрагенты
+ *
+ * @author Ⓐbo3
  */
 @Entity
 @Table(schema = "common", name = "contractors")

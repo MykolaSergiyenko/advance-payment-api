@@ -13,6 +13,11 @@ import javax.persistence.Column;
 
 import javax.persistence.*;
 
+/**
+ * Контакт авансирвоания
+ *
+ * @author Ⓐbo3
+ */
 @MappedSuperclass
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public abstract class AdvanceContact extends HasContractor {

@@ -6,6 +6,11 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 
 import javax.validation.constraints.Pattern;
 
+/**
+ * СМС
+ *
+ * @author Ⓐbo3
+ */
 public class SendSmsRequest {
     /**
      * Text of message

@@ -6,6 +6,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+/**
+ * Сервис по отправке "Аванса" в очередь заявок УНФ
+ */
 @Service
 public class Integration1cService implements UnfService {
     private static final Logger log = LoggerFactory.getLogger(Integration1cService.class);

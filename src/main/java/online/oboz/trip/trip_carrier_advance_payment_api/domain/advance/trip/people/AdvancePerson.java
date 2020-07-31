@@ -11,6 +11,8 @@ import javax.persistence.*;
 
 /**
  * Абстрактная сущность для пользователей ОБОЗ
+ *
+ * @author Ⓐbo3
  */
 @MappedSuperclass
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)

@@ -8,6 +8,8 @@ import java.util.UUID;
 
 /**
  * Сервис для работы с хранилищем файлов "B-Store"
+ *
+ * @author s‡oodent
  */
 public interface StoreService {
     /**

@@ -7,6 +7,8 @@ import javax.persistence.Embeddable;
 
 /**
  * Денежные параметры аванса
+ *
+ * @author Ⓐbo3
  */
 @Embeddable
 public class AdvanceInfo {

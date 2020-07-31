@@ -4,6 +4,8 @@ import java.util.List;
 
 /**
  * Сервис для работы со справочником НДС
+ *
+ * @author s‡oodent
  */
 public interface VatService {
 

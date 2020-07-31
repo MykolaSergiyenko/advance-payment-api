@@ -11,6 +11,11 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+/**
+ * Справочник НДС
+ *
+ * @author Ⓐbo3
+ */
 @Entity
 @Table(name = "vats", schema = "dictionary")
 public class VatCostDict {

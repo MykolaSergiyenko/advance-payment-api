@@ -12,6 +12,8 @@ import java.util.UUID;
 
 /**
  * Сервис для управления "Авансами"
+ *
+ * @author s‡udent
  */
 public interface AdvanceDesktop extends AdvancesApiDelegate {
     Logger log = LoggerFactory.getLogger(AdvanceDesktop.class);

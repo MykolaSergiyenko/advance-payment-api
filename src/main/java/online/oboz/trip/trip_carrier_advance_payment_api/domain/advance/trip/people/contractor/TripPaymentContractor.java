@@ -7,6 +7,11 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 
 import javax.persistence.*;
 
+/**
+ * Платежный контрагент
+ *
+ * @author Ⓐbo3
+ */
 @Entity
 @Table(schema = "common", name = "payment_contractors")
 public class TripPaymentContractor extends BaseUpdateEntity {

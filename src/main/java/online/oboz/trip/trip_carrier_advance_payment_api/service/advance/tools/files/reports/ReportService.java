@@ -6,6 +6,8 @@ import org.springframework.http.ResponseEntity;
 
 /**
  * Сервис для работы с шаблонами\отчетами
+ *
+ * @author s‡oodent
  */
 public interface ReportService {
 

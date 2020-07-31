@@ -18,6 +18,11 @@ import java.net.URL;
 
 import static org.springframework.http.HttpStatus.OK;
 
+/**
+ * Сервис для получения шаблона аванса из внешнего reportService
+ *
+ * @author s‡oodent
+ */
 @Service
 public class ReportsTemplateService implements ReportService {
 

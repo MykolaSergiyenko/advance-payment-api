@@ -24,6 +24,11 @@ import org.springframework.stereotype.Service;
 import java.time.OffsetDateTime;
 import java.util.List;
 
+/**
+ * Сервис для работы с заказом поставщика-поездкой
+ *
+ * @author s‡oodent
+ */
 @Service
 public class MainTripService implements TripService {
     private static final Logger log = LoggerFactory.getLogger(MainTripService.class);

@@ -7,6 +7,8 @@ import org.springframework.http.ResponseEntity;
 
 /**
  * Сервис для работы с контактами авансирования контрагента
+ *
+ * @author s‡udent
  */
 public interface ContactService extends AdvanceContactsApiDelegate {
 

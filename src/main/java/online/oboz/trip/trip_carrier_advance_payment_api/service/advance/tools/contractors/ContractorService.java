@@ -7,6 +7,8 @@ import java.util.List;
 
 /**
  * Сервис для работы с контрагентами
+ *
+ * @author s‡udent
  */
 public interface ContractorService {
 

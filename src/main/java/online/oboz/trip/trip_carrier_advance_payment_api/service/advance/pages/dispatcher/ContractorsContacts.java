@@ -6,6 +6,8 @@ import org.springframework.http.ResponseEntity;
 
 /**
  * Сервис "Авансирование" - карточка контрагента для редактирования контактов
+ *
+ * @author s‡udent
  */
 public interface ContractorsContacts extends AdvanceContactsApiDelegate {
 

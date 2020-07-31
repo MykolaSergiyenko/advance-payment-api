@@ -13,6 +13,8 @@ import java.io.Serializable;
 
 /**
  * Базовая сущность
+ *
+ * @author Ⓐboz
  */
 @MappedSuperclass
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)

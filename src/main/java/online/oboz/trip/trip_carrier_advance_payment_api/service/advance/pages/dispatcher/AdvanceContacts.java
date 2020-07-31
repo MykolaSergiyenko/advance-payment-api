@@ -7,6 +7,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
+/**
+ * Контакты авансирования
+ *
+ * @author s‡udent
+ */
 public class AdvanceContacts implements ContractorsContacts {
     private static final Logger log = LoggerFactory.getLogger(AdvanceContacts.class);
 

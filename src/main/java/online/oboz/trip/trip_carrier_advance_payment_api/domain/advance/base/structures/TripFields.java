@@ -12,6 +12,11 @@ import javax.persistence.*;
 import java.io.Serializable;
 
 
+/**
+ * Общие поля трипа и аванса, поэтому вынесены в структуру
+ *
+ * @author Ⓐbo3
+ */
 @Embeddable
 public class TripFields implements Serializable {
     final static Logger log = LoggerFactory.getLogger(TripFields.class);

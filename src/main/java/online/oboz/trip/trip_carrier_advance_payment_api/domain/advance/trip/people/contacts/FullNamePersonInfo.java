@@ -11,6 +11,8 @@ import javax.validation.constraints.Max;
 
 /**
  * Контактаная информация пользователя - содержит полное имя целиком
+ *
+ * @author Ⓐbo3
  */
 @Embeddable
 public class FullNamePersonInfo extends SimpleContacts {

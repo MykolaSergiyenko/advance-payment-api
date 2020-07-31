@@ -10,6 +10,8 @@ import javax.persistence.*;
 
 /**
  * Заказ-ордер - в общем случае может иметь несколько Трипов
+ *
+ * @author Ⓐbo3
  */
 @Entity
 @Table(schema = "orders", name = "orders")

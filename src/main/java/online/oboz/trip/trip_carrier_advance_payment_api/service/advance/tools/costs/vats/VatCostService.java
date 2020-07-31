@@ -9,6 +9,11 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+/**
+ * Сервис для работы со справочником НДС
+ *
+ * @author s‡oodent
+ */
 @Service
 public class VatCostService implements VatService {
 

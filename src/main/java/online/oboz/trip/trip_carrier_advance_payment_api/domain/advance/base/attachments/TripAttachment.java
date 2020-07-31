@@ -10,6 +10,8 @@ import java.util.UUID;
 
 /**
  * Вложения, загружаемые в Трип
+ *
+ * @author Ⓐбо3
  */
 @Entity
 @Table(name = "trip_documents", schema = "orders")

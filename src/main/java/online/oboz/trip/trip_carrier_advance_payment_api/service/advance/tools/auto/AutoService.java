@@ -3,6 +3,8 @@ package online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.
 
 /**
  * Под-сервис "Авто-авансирование"
+ *
+ * @author s‡udent
  */
 public interface AutoService {
 

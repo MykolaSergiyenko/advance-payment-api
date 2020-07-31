@@ -39,9 +39,12 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 
+/**
+ * Сервис "Авансирование"
+ */
 @Service
-public class MainAdvanceService implements AdvanceService {
-    private static final Logger log = LoggerFactory.getLogger(MainAdvanceService.class);
+public class BaseAdvanceService implements AdvanceService {
+    private static final Logger log = LoggerFactory.getLogger(BaseAdvanceService.class);
 
 //    @Autowired
 //    private StateMachine<CurrentAdvanceState, AdvanceEvent> stateMachine;
@@ -67,7 +70,7 @@ public class MainAdvanceService implements AdvanceService {
     private final AdvanceMapper mapper = AdvanceMapper.advanceMapper;
 
     @Autowired
-    public MainAdvanceService(
+    public BaseAdvanceService(
         TripService tripService,
         BasePersonService personService,
         ContactService contactService,

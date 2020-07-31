@@ -11,6 +11,8 @@ import javax.persistence.*;
 
 /**
  * Базовая сущность Поездки
+ *
+ * @author Ⓐbo3
  */
 @MappedSuperclass
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)

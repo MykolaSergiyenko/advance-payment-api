@@ -12,6 +12,8 @@ import java.time.OffsetDateTime;
 
 /**
  * Информация по поездке - содержит конечные точки и даты
+ *
+ * @author Ⓐbo3
  */
 @Entity
 @Table(schema = "orders", name = "trip_infos")

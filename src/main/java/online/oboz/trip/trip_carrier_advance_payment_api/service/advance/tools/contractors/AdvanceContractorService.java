@@ -14,6 +14,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+/**
+ * Сервис для работы с контрагентами
+ */
 @Service
 public class AdvanceContractorService implements ContractorService {
 

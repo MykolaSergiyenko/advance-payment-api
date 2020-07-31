@@ -12,6 +12,11 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 
+/**
+ * Сервис "Авто-авансирование" - выполняет операции "аванса" по расписаниям
+ *
+ * @author s‡udent
+ */
 @Service
 @EnableScheduling
 public class AutoAdvanceService implements AutoService {

@@ -6,6 +6,8 @@ import org.springframework.stereotype.Service;
 /**
  * Сервис по расчету стоимости Поездки с НДС
  * и установке ценовых характеристик аванса
+ *
+ * @author s‡oodent
  */
 @Service
 public interface CostService {

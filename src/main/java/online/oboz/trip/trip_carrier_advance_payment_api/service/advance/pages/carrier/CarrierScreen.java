@@ -10,6 +10,8 @@ import java.util.UUID;
 
 /**
  * Сервис "Авансирование" - страница перевозчика
+ *
+ * @author s‡udent
  */
 public interface CarrierScreen extends AdvanceCarrierApiDelegate {
 

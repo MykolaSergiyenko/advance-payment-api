@@ -12,6 +12,8 @@ import javax.persistence.*;
 
 /**
  * Поездки
+ *
+ * @author Ⓐbo3
  */
 @Entity
 @Table(schema = "orders", name = "trips")

@@ -9,6 +9,8 @@ import java.time.OffsetDateTime;
 
 /**
  * Базовая обновляемая сущность
+ *
+ * @author Ⓐboz
  */
 @MappedSuperclass
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)

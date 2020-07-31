@@ -9,6 +9,8 @@ import java.io.Serializable;
 
 /**
  * Цены в трипе
+ *
+ * @author Ⓐbo3
  */
 @Embeddable
 public class TripCostInfo implements Serializable {

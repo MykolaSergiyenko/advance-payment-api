@@ -25,6 +25,8 @@ import java.util.UUID;
  * <p>
  * Основная сущность сервиса "Авансирование"
  * <p>
+ *
+ * @author Ⓐbo3
  **/
 @Entity
 @Table(name = "trip_request_advance_payment", schema = "orders")

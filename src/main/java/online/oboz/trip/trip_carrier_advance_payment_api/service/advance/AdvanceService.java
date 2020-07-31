@@ -12,6 +12,8 @@ import java.util.UUID;
 
 /**
  * Основной сервис "Авансирования"
+ *
+ * @author s‡oodent
  */
 public interface AdvanceService {
 

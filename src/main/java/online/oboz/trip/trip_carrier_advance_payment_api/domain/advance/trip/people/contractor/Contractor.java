@@ -10,6 +10,11 @@ import org.slf4j.LoggerFactory;
 
 import javax.persistence.*;
 
+/**
+ * Контрагент
+ *
+ * @author Ⓐbo3
+ */
 @MappedSuperclass
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public abstract class Contractor extends BaseUuidEntity {

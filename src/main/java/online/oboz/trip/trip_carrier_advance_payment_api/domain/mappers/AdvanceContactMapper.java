@@ -10,6 +10,11 @@ import org.mapstruct.factory.Mappers;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
+/**
+ * Маппер аванса - маппим только "страницы"
+ *
+ * @author
+ */
 @Mapper(componentModel = "spring", imports = {UUID.class, OffsetDateTime.class})
 public interface AdvanceContactMapper {
 

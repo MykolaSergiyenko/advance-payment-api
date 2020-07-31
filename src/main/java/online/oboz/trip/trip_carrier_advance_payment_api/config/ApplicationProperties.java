@@ -6,6 +6,9 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import java.net.URL;
 import java.util.List;
 
+/**
+ * @author all stⒶrs
+ */
 @ConfigurationProperties(prefix = "application", ignoreInvalidFields = false)
 public class ApplicationProperties {
     /**

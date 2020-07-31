@@ -4,6 +4,8 @@ import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.dicts.co
 
 /**
  * Сервис для работы со "Справочником «Сумм аванса с НДС» и «Сборов за оформление документов»
+ *
+ * @author s‡oodent
  */
 public interface CostDictService {
 

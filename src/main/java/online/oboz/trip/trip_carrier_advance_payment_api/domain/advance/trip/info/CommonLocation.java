@@ -11,6 +11,8 @@ import javax.validation.constraints.NotNull;
 
 /**
  * Точка маршрута
+ *
+ * @author Ⓐbo3
  */
 @Entity
 @Table(schema = "common", name = "locations")

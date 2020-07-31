@@ -13,6 +13,8 @@ import java.util.UUID;
 
 /**
  * Базовая сущность с UUID
+ *
+ * @author Ⓐboz
  */
 @MappedSuperclass
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)

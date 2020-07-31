@@ -9,6 +9,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 
+/**
+ * Сервис для работы со справочником авансирования
+ *
+ * @author s‡udent
+ */
 @Service
 public class AdvanceCostDictService implements CostDictService {
     private static final Logger log = LoggerFactory.getLogger(AdvanceCostDictService.class);

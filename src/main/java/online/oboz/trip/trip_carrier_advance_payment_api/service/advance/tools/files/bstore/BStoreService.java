@@ -22,6 +22,11 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.UUID;
 
+/**
+ * Сервис для работы с файловым хранилищем
+ *
+ * @author s‡oodent
+ */
 @Service
 public class BStoreService implements StoreService {
     private static final Logger log = LoggerFactory.getLogger(BStoreService.class);

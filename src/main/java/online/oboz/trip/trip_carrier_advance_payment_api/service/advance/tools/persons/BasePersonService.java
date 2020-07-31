@@ -4,6 +4,8 @@ import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.peo
 
 /**
  * Сервис для работы с пользователями в сервисе "Авансирование"
+ *
+ * @author s‡oodent
  */
 public interface BasePersonService {
     /**

@@ -10,6 +10,8 @@ import java.util.UUID;
 
 /**
  * Сервис для работы с файлами-вложениями
+ *
+ * @author s‡oodent
  */
 public interface AttachmentService {
 

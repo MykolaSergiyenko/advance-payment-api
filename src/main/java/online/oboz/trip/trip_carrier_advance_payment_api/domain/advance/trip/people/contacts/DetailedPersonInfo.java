@@ -10,6 +10,8 @@ import java.io.Serializable;
 
 /**
  * Детальная контактная информация - содержит фамилию, имя, отчество лица
+ *
+ * @author Ⓐbo3
  */
 @Embeddable
 @AttributeOverride(name = "phone", column = @Column(name = "phone"))

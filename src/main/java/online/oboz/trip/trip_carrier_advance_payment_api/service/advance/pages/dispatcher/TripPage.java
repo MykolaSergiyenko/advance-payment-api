@@ -14,6 +14,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 
+/**
+ * Страница Трипа - Аванс
+ *
+ * @author s‡udent
+ */
 @Service
 public class TripPage implements TripAdvance {
     private static final Logger log = LoggerFactory.getLogger(TripPage.class);

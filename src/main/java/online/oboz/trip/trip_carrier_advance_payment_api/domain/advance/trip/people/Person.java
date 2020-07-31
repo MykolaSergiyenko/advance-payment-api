@@ -11,6 +11,8 @@ import java.io.Serializable;
 
 /**
  * Пользователи
+ *
+ * @author Ⓐbo3
  */
 @Entity
 @Table(schema = "common", name = "persons")

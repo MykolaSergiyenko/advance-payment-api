@@ -12,6 +12,8 @@ import javax.persistence.Table;
 
 /**
  * История смены статусов трипов
+ *
+ * @author Ⓐbo3
  */
 @Entity
 @Table(schema = "orders", name = "trip_transition_histories")

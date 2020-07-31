@@ -13,6 +13,11 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Сервис для работы с вложениями трипа
+ *
+ * @author s‡oodent
+ */
 @Service
 public class AdvanceTripDocumentService implements TripDocumentsService {
     private static final Logger log = LoggerFactory.getLogger(AdvanceTripDocumentService.class);

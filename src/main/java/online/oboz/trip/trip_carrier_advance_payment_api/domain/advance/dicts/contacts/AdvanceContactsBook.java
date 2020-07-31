@@ -8,6 +8,11 @@ import org.slf4j.LoggerFactory;
 import javax.persistence.*;
 
 
+/**
+ * Контакты авансирования - вкладка в карточке "Контрагента"
+ *
+ * @author Ⓐbo3
+ */
 @Entity
 @Table(name = "contractor_advance_payment_contact", schema = "common")
 public class AdvanceContactsBook extends AdvanceContact {

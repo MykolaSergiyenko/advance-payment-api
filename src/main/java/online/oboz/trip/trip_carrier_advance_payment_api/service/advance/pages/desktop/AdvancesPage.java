@@ -18,6 +18,11 @@ import javax.transaction.Transactional;
 import java.util.UUID;
 
 
+/**
+ * Рабочий стол авансирования
+ *
+ * @author s‡udent
+ */
 @Service
 public class AdvancesPage implements AdvanceDesktop {
     private static final Logger log = LoggerFactory.getLogger(AdvancesPage.class);

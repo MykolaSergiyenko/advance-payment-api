@@ -19,6 +19,11 @@ import java.util.UUID;
 
 import static org.springframework.http.HttpStatus.*;
 
+/**
+ * Сервис для работы с вложениями аванса
+ *
+ * @author s‡oodent
+ */
 @Service
 public class AdvanceAttachmentsService implements AttachmentService {
     private static final Logger log = LoggerFactory.getLogger(AdvanceAttachmentsService.class);

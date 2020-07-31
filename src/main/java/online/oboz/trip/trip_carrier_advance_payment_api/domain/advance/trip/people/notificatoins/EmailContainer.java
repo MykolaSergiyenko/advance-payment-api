@@ -4,6 +4,11 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.springframework.mail.SimpleMailMessage;
 
+/**
+ * Емейл
+ *
+ * @author Ⓐbo3
+ */
 public class EmailContainer {
 
     public SimpleMailMessage getMessage() {
