@@ -92,9 +92,9 @@ public class BaseAdvanceService implements AdvanceService {
         interval = properties.getNewTripsInterval();
         autoUser = personService.getAdvanceSystemUser();
 
-        log.info("Init Auto-advance system-user: {}.", autoUser.getInfo());
-        log.info("Init Auto-created-advance comment: '{}'.", AUTO_COMMENT);
-        log.info("Init Auto-advance interval: {} minutes.", interval);
+        log.info("Init [Auto-advance] system-user: {}.", autoUser.getInfo());
+        log.info("Init [Auto-advance] comment: '{}'.", AUTO_COMMENT);
+        log.info("Init [Auto-advance] interval: {} minutes.", interval);
 
         advanceTitle = properties.getAdvanceTitle();
         autoTitle = properties.getAutoTitle();
@@ -109,18 +109,18 @@ public class BaseAdvanceService implements AdvanceService {
 
     @Override
     public Advance createAdvanceForTripAndAuthorId(Long tripId, Long authorId) {
-        log.info("Request for Advance-creation from {} for Trip {}.", authorId, tripId);
+        log.info("[Advance]: request for Advance-creation from {} for Trip {}.", authorId, tripId);
         Trip trip = findTrip(tripId);
         if (advancesNotExistsForTrip(trip)) {
             Person author = personService.getPerson(authorId);
             DetailedPersonInfo info = author.getInfo();
-            log.info("Found advance Author-person: {}.", String.join(" ",
+            log.info("[Advance]: found Author-person: {}.", String.join(" ",
                 info.getFirstName(), info.getMiddleName(), info.getLastName()));
             Advance advance = newAdvanceForTripAndAuthor(trip, author);
             saveAdvance(advance);
             notifyAboutAdvance(advance);
-            log.info("Advance (uuid = {}) was created for author {}.",
-                advance.getUuid(), advance.getAuthorId());
+            log.info("[Advance]: uuid = '{}' was created for author '{}'.",
+                advance.getUuid(), advance.getAuthor().getInfo().getEmail());
             return advance;
         } else {
             throw getAdvanceError("Advance for trip id " + tripId + " already exists.");
@@ -228,14 +228,14 @@ public class BaseAdvanceService implements AdvanceService {
     public Advance findById(Long id) {
         return advanceRepository.findById(id).
             orElseThrow(() ->
-                getAdvanceError("Advance not found by id: " + id));
+                getAdvanceError("[Advance]: not found by id: " + id));
     }
 
     @Override
     public Advance findByUuid(UUID uuid) {
         return advanceRepository.findByUuid(uuid).
             orElseThrow(() ->
-                getAdvanceError("Advance not found by uuid: " + uuid));
+                getAdvanceError("[Advance]: not found by uuid: " + uuid));
     }
 
 
@@ -250,7 +250,7 @@ public class BaseAdvanceService implements AdvanceService {
     public Advance findByTripId(Long tripId) {
         return advanceRepository.findByTripId(tripId).
             orElseThrow(() ->
-                getAdvanceError("Advance not found by tripId: " + tripId));
+                getAdvanceError("[Advance]: not found by tripId: " + tripId));
     }
 
 
@@ -291,7 +291,7 @@ public class BaseAdvanceService implements AdvanceService {
     @Override
     public void notifyUnread() {
         List<Advance> advances = findUnreadAdvances();
-        log.info("Found 'unread' advances {}.", advances.size());
+        log.info("[Advance]: Found {} 'unread' advances.", advances.size());
         advances.forEach(advance -> {
             notifyAboutAdvanceScheduled(advance);
         });
@@ -304,12 +304,12 @@ public class BaseAdvanceService implements AdvanceService {
             if (advance.getReadAt() == null) {
                 advance.setReadAt(OffsetDateTime.now());
                 saveAdvance(advance);
-                log.info("Set 'read-at' for advance: {}.", advance.getId());
+                log.info("[Advance]: Set 'read-at' for advance: {}.", advance.getId());
             } else {
-                log.info("Message is already 'read' for advance: {}.", advance.getId());
+                log.info("[Advance]: Message is already 'read' for advance: {}.", advance.getId());
             }
         } else {
-            log.info("Messages weren't been sent yet for advance: {}.", advance.getId());
+            log.info("[Advance]: Messages weren't been sent yet for advance: {}.", advance.getId());
         }
     }
 
@@ -317,7 +317,7 @@ public class BaseAdvanceService implements AdvanceService {
     public ResponseEntity<Void> setWantsAdvance(UUID advanceUuid) {
         Advance advance = findByUuid(advanceUuid);
         setWantsAdvance(advance);
-        log.info("Update 'wants-advance' in {}.", advance.getId());
+        log.info("[Advance]: Update 'wants-advance' in {}.", advance.getId());
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -327,10 +327,10 @@ public class BaseAdvanceService implements AdvanceService {
         if (uuid != null) {
             advance.setUuidContractApplicationFile(uuid);
             saveAdvance(advance);
-            log.info("Update contract-application-file in {}. Set uuid = {} ", advance.getId(),
+            log.info("[Advance]: Update contract-application-file in {}. Set uuid = {} ", advance.getId(),
                 advance.getUuidContractApplicationFile());
         } else {
-            throw getAdvanceError("Advance-contract-file uuid can't be null.");
+            throw getAdvanceError("[Advance]: Contract-file uuid can't be null.");
         }
         return advance;
     }
@@ -339,11 +339,11 @@ public class BaseAdvanceService implements AdvanceService {
     public Advance setAdvanceApplication(Advance advance, UUID uuid) {
         if (uuid != null) {
             setAdvanceApplicationFile(advance, uuid);
-            log.info("Update advance-application-file in {}. Set uuid = {} ", advance.getId(),
+            log.info("[Advance]: update advance-application-file in {}. Set uuid = {} ", advance.getId(),
                 advance.getUuidAdvanceApplicationFile());
             //stateMachine.sendEvent(AdvanceEvent.LOAD_DOCS);
         } else {
-            throw getAdvanceError("Advance-application-file uuid can't be null.");
+            throw getAdvanceError("[Advance]: Advance-application-file uuid can't be null.");
         }
         return advance;
     }
@@ -353,15 +353,15 @@ public class BaseAdvanceService implements AdvanceService {
     public ResponseEntity<Void> sendToUnfAdvance(Long advanceId) {
         Advance advance = findById(advanceId);
         if (!documentsService.isAllDocumentsLoaded(advance)) {
-            throw getAdvanceError("Not all documents are loaded for advance: " + advanceId);
+            throw getAdvanceError("[Advance]: Not all documents are loaded for: " + advanceId);
         } else if (advance.isCancelled()) {
-            throw getAdvanceError("Advance was cancelled: " + advanceId);
+            throw getAdvanceError("[Advance]:" + advanceId + " was cancelled.");
         } else if (advance.getUnfSentAt() != null) {
-            throw getAdvanceError("Advance was already sent to UNF.");
+            throw getAdvanceError("[Advance]:" + advanceId + " was already sent to UNF.");
         } else {
             integration1cService.send1cNotification(advanceId);
             saveAdvance(advance);
-            log.info("Advance: {} - is confirmed.", advance.getId());
+            log.info("[Advance]: {} - is confirmed.", advance.getId());
             return new ResponseEntity<>(HttpStatus.OK);
         }
     }
@@ -375,9 +375,9 @@ public class BaseAdvanceService implements AdvanceService {
                 advance.setCancelled(true);
                 saveAdvance(advance);
                 //stateMachine.sendEvent(AdvanceEvent.CANCEL);
-                log.info("Advance: {} - was cancelled - with comment: '{}'.", advance.getId(), withComment);
+                log.info("[Advance]: {} - was cancelled - with comment: '{}'.", advance.getId(), withComment);
             } else {
-                log.info("Advance: {} - is cancelled already.", advance.getId());
+                log.info("[Advance]: {} - is cancelled already.", advance.getId());
             }
         } catch (BusinessLogicException ex) {
             log.error("Advance cancellation is failed for id: " + advanceId + ". Errors:" + ex.getErrors());
@@ -392,9 +392,9 @@ public class BaseAdvanceService implements AdvanceService {
             advance.setComment(comment);
             saveAdvance(advance);
             //stateMachine.sendEvent(AdvanceEvent.SET_COMMENT);
-            log.info("Advance: {} - set comment - '{}'.", advanceId, comment);
+            log.info("[Advance]: {} - set comment - '{}'.", advanceId, comment);
         } catch (BusinessLogicException ex) {
-            log.error("Advance: {} - comment changing failed: {} . Errors: {}", advanceId, comment, ex.getErrors());
+            log.error("[Advance]: {} - comment changing failed: {} . Errors: {}", advanceId, comment, ex.getErrors());
         }
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -406,9 +406,9 @@ public class BaseAdvanceService implements AdvanceService {
             advance.setLoadingComplete(loadingComplete);
             saveAdvance(advance);
             //if (loadingComplete) stateMachine.sendEvent(AdvanceEvent.COMPLETE_LOADING);
-            log.info("Advance: {} - set loading-complete: '{}'", advance.getId(), loadingComplete);
+            log.info("[Advance]: {} - set loading-complete: '{}'", advance.getId(), loadingComplete);
         } catch (BusinessLogicException e) {
-            log.error("Advance: {} 'loading-comlete'-setting failed failed. Errors: {}", advanceId, e.getErrors());
+            log.error("[Advance]: {} 'loading-comlete'-setting failed failed. Errors: {}", advanceId, e.getErrors());
         }
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -417,7 +417,7 @@ public class BaseAdvanceService implements AdvanceService {
     public void giveAutoAdvances() {
         List<Trip> autoTrips = tripService.getAutoAdvanceTrips();
         long size = autoTrips.size();
-        log.info("Found {} trips for auto-contractors.", size);
+        log.info("[Auto-advance]: Found {} trips for auto-contractors.", size);
         if (size > 0) log.info("Auto-advance technical account: {}.", autoUser);
         autoTrips.forEach(trip -> {
             try {
@@ -430,7 +430,7 @@ public class BaseAdvanceService implements AdvanceService {
                         autoAdvance.getId(), autoAdvance.getAdvanceTripFields().getTripId());
                 }
             } catch (Exception e) {
-                log.info("Auto-advance error for trip: {}. Errors: ", trip.getId(), e.getMessage());
+                log.info("[Auto-advance]: Error for trip: {}. Errors: ", trip.getId(), e.getMessage());
             }
         });
     }
@@ -442,7 +442,7 @@ public class BaseAdvanceService implements AdvanceService {
             (advance.isAuto() ? autoTitle :
                 (authorTitle + personService.getAuthorFullName(advance.getAuthorId())))
         );
-        log.info("Advance-state info: {}", advanceState);
+        log.info("[Advance-state] info: {}", advanceState);
         return advanceState;
     }
 
@@ -456,7 +456,7 @@ public class BaseAdvanceService implements AdvanceService {
             notifyAboutAdvance(autoAdvance);
             return autoAdvance;
         } else {
-            throw getAdvanceError("Advance for trip id " + trip.getId() + " already exists.");
+            throw getAdvanceError("[Advance] for trip id " + trip.getId() + " already exists.");
         }
     }
 
@@ -472,12 +472,12 @@ public class BaseAdvanceService implements AdvanceService {
         try {
             List<TripAttachment> attachments = documentsService.getTripAttachments(tripId);
             int attachSize = attachments.size();
-            log.info("Found {} file-attachments in trip {} for advance {}.", attachSize, tripId, advance.getId());
+            log.info("[Advance]: {} - Found {} file-attachments in trip {} for advance.", advance.getId(),  attachSize, tripId);
             if (attachSize > 0) {
                 setRequestUuid(advance, attachments);
             }
         } catch (BusinessLogicException e) {
-            log.error("Trip-documents not found for tripId: {}. ", tripId);
+            log.error("[Advance]: Trip-documents not found for tripId: {}. ", tripId);
         }
         return advance;
     }

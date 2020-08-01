@@ -62,19 +62,19 @@ public class CarrierPage implements CarrierScreen {
 
     @Override
     public ResponseEntity<Void> carrierWantsAdvance(UUID uuid) {
-        log.info("Got carrier 'I want yr Advance' request for uuid - {} ", uuid);
+        log.info("Got carrier 'I want yr Advance' request for advance: {}.", uuid);
         return advanceService.setWantsAdvance(uuid);
     }
 
     @Override
     public ResponseEntity<Resource> downloadTemplate(Long id) {
-        log.info("Got download 'Advance-request'-template for carrier for advance:", id);
+        log.info("Got download 'Advance-request'-template for carrier for advance: {}.", id);
         return attachmentService.downloadTemplate(id);
     }
 
     @Override
     public ResponseEntity<Void> uploadAssignment(MultipartFile filename, Long id) {
-        log.info("Got upload assignment from carrier request for adavnce: {} ", id);
+        log.info("Got upload assignment from carrier request for advance: {}.", id);
         return attachmentService.uploadAssignment(filename, id);
     }
 
