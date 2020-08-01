@@ -353,7 +353,7 @@ public class BaseAdvanceService implements AdvanceService {
     public ResponseEntity<Void> sendToUnfAdvance(Long advanceId) {
         Advance advance = findById(advanceId);
         if (!documentsService.isAllDocumentsLoaded(advance)) {
-            throw getAdvanceError("[Advance]: Not all documents are loaded for: " + advanceId);
+            throw getAdvanceError("[Advance]:" + advanceId +"- not all documents are loaded.");
         } else if (advance.isCancelled()) {
             throw getAdvanceError("[Advance]:" + advanceId + " was cancelled.");
         } else if (advance.getUnfSentAt() != null) {
@@ -380,7 +380,7 @@ public class BaseAdvanceService implements AdvanceService {
                 log.info("[Advance]: {} - is cancelled already.", advance.getId());
             }
         } catch (BusinessLogicException ex) {
-            log.error("Advance cancellation is failed for id: " + advanceId + ". Errors:" + ex.getErrors());
+            log.error("[Advance]: cancellation is failed for id: {}. Errors: {}.",advanceId, ex.getErrors());
         }
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -418,15 +418,15 @@ public class BaseAdvanceService implements AdvanceService {
         List<Trip> autoTrips = tripService.getAutoAdvanceTrips();
         long size = autoTrips.size();
         log.info("[Auto-advance]: Found {} trips for auto-contractors.", size);
-        if (size > 0) log.info("Auto-advance technical account: {}.", autoUser);
+        //if (size > 0) log.info("[Auto-advance] technical account: {}.", autoUser);
         autoTrips.forEach(trip -> {
             try {
-                log.info("Try create auto-advance for trip {}.", trip.getId());
+                log.info("[Auto-advance]: try create for trip {}.", trip.getId());
 
                 Advance autoAdvance = createAutoAdvanceForTrip(trip, autoUser);
 
                 if (null != autoAdvance) {
-                    log.info("Auto-advance: {} was created for trip: {}.",
+                    log.info("[Auto-advance]: {} was created for trip: {}.",
                         autoAdvance.getId(), autoAdvance.getAdvanceTripFields().getTripId());
                 }
             } catch (Exception e) {
