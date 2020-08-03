@@ -92,9 +92,9 @@ public class BaseAdvanceService implements AdvanceService {
         interval = properties.getNewTripsInterval();
         autoUser = personService.getAdvanceSystemUser();
 
-        log.info("Init [Auto-advance] system-user: {}.", autoUser.getInfo());
-        log.info("Init [Auto-advance] comment: '{}'.", AUTO_COMMENT);
-        log.info("Init [Auto-advance] interval: {} minutes.", interval);
+        log.info("Init... [Auto-advance]: system-user: {}.", autoUser.getInfo());
+        log.info("Init... [Auto-advance]: comment: '{}'.", AUTO_COMMENT);
+        log.info("Init... [Auto-advance]: interval: {} minutes.", interval);
 
         advanceTitle = properties.getAdvanceTitle();
         autoTitle = properties.getAutoTitle();
@@ -163,7 +163,7 @@ public class BaseAdvanceService implements AdvanceService {
             logPaging(tab, page, size, sort, desktop);
             return desktop;
         } catch (Exception e) {
-            log.error("Error while grid-building - Filter: {}, tab: {}. Errors: {}.", filter, tab, e.getStackTrace());
+            log.error("[Advance-grid]: Error while grid-building - Filter: {}, tab: {}. Errors: {}.", filter, tab, e.getStackTrace());
             return null;
         }
     }
