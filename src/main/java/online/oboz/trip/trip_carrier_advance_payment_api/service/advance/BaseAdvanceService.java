@@ -373,6 +373,7 @@ public class BaseAdvanceService implements AdvanceService {
             if (!advance.isCancelled()) {
                 advance.setCancelledComment(withComment);
                 advance.setCancelled(true);
+                advance.setCancelledAt(OffsetDateTime.now());
                 saveAdvance(advance);
                 //stateMachine.sendEvent(AdvanceEvent.CANCEL);
                 log.info("[Advance]: {} - was cancelled - with comment: '{}'.", advance.getId(), withComment);
