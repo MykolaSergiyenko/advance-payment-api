@@ -20,7 +20,6 @@ import java.time.OffsetDateTime;
 @AttributeOverride(name = "contractorId",
     column = @Column(name = "contractor_id", insertable = false, updatable = false))
 public abstract class CancelableAdvance extends HasContractor {
-    final static Logger log = LoggerFactory.getLogger(CancelableAdvance.class);
 
 
     /**

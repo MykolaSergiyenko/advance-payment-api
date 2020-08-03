@@ -19,7 +19,6 @@ import java.util.UUID;
 @MappedSuperclass
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public abstract class BaseUuidEntity extends BaseUpdateEntity {
-    final static Logger log = LoggerFactory.getLogger(BaseUuidEntity.class);
 
     /**
      * UUID сущностей

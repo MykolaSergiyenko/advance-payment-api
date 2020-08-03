@@ -18,7 +18,6 @@ import java.time.OffsetDateTime;
 @Entity
 @Table(schema = "orders", name = "trip_infos")
 public class TripInfo extends BaseEntity {
-    final static Logger log = LoggerFactory.getLogger(TripInfo.class);
 
 
     /**

@@ -18,7 +18,6 @@ import java.io.Serializable;
 @Table(schema = "common", name = "persons")
 public class Person extends AdvancePerson implements Serializable {
 
-    final static Logger log = LoggerFactory.getLogger(Person.class);
 
 
     @Override

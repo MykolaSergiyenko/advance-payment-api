@@ -17,7 +17,6 @@ import java.time.OffsetDateTime;
 @MappedSuperclass
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public abstract class UnfAdvanceFields extends CancelableAdvance {
-    final static Logger log = LoggerFactory.getLogger(UnfAdvanceFields.class);
 
     /**
      * Advance was cancelled at

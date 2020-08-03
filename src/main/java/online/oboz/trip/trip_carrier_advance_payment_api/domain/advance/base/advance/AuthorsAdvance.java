@@ -17,7 +17,6 @@ import javax.persistence.*;
 @MappedSuperclass
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public abstract class AuthorsAdvance extends UnfAdvanceFields {
-    private static final Logger log = LoggerFactory.getLogger(AuthorsAdvance.class);
 
     /**
      * Advance author id
@@ -50,15 +49,6 @@ public abstract class AuthorsAdvance extends UnfAdvanceFields {
 
     public void setAuthor(Person author) {
         this.author = author;
-    }
-
-    public void setAdvanceAuthor(Person author) {
-        if (author != null) {
-            setAuthorId(author.getId());
-            setAuthor(author);
-        } else {
-            log.error("Advance AUTHOR is null.");
-        }
     }
 
 

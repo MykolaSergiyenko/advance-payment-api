@@ -17,7 +17,6 @@ import java.io.Serializable;
 @AttributeOverride(name = "phone", column = @Column(name = "phone"))
 @AttributeOverride(name = "email", column = @Column(name = "email"))
 public class DetailedPersonInfo extends SimpleContacts implements Serializable {
-    final static Logger log = LoggerFactory.getLogger(DetailedPersonInfo.class);
 
 
     @Column(name = "first_name")

@@ -18,7 +18,6 @@ import javax.persistence.*;
 @Entity
 @Table(schema = "orders", name = "trips")
 public class Trip extends BaseTrip {
-    final static Logger log = LoggerFactory.getLogger(Trip.class);
 
 
     /**

@@ -16,7 +16,6 @@ import javax.persistence.*;
 @Entity
 @Table(schema = "orders", name = "orders")
 public class Order extends BaseUuidEntity {
-    final static Logger log = LoggerFactory.getLogger(Order.class);
 
 
     // only .MOTOR orders

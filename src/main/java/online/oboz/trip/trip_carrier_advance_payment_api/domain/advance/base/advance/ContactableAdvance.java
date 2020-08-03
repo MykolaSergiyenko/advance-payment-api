@@ -20,7 +20,6 @@ import java.time.OffsetDateTime;
 @MappedSuperclass
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public abstract class ContactableAdvance extends TripsAdvance {
-    private static final Logger log = LoggerFactory.getLogger(ContactableAdvance.class);
 
     /**
      * isNotifiableAdvance - признак того, что можем отправить "уведомления" по авансу,

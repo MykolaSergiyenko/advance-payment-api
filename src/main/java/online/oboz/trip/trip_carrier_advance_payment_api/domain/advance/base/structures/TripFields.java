@@ -19,7 +19,6 @@ import java.io.Serializable;
  */
 @Embeddable
 public class TripFields implements Serializable {
-    final static Logger log = LoggerFactory.getLogger(TripFields.class);
 
 
     /**

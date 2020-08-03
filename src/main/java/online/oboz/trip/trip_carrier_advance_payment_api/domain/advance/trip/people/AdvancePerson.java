@@ -17,7 +17,6 @@ import javax.persistence.*;
 @MappedSuperclass
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 public abstract class AdvancePerson extends HasContractor {
-    final static Logger log = LoggerFactory.getLogger(AdvancePerson.class);
 
     /**
      * Personal info for OBOZ-users

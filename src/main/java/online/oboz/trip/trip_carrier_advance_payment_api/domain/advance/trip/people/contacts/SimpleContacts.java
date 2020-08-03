@@ -18,7 +18,6 @@ import java.io.Serializable;
 @Embeddable
 @MappedSuperclass
 public class SimpleContacts implements Serializable {
-    final static Logger log = LoggerFactory.getLogger(SimpleContacts.class);
 
     @Column(name = "email")
     private String email;

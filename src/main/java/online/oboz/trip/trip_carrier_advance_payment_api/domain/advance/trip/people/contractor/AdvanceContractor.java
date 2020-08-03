@@ -15,7 +15,6 @@ import javax.persistence.*;
 @Entity
 @Table(schema = "common", name = "contractors")
 public class AdvanceContractor extends Contractor {
-    final static Logger log = LoggerFactory.getLogger(AdvanceContractor.class);
 
 
     public AdvanceContractor() {

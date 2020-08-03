@@ -18,7 +18,6 @@ import javax.persistence.Table;
 @Entity
 @Table(schema = "orders", name = "trip_transition_histories")
 public class TripStateHistory extends BaseUpdateEntity {
-    final static Logger log = LoggerFactory.getLogger(TripInfo.class);
 
     /**
      * Trip's id

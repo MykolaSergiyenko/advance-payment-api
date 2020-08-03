@@ -19,7 +19,6 @@ import javax.persistence.*;
 @Entity
 @Table(name = "advance_payment_cost", schema = "dictionary")
 public class AdvanceCostDict extends BaseEntity {
-    final static Logger log = LoggerFactory.getLogger(AdvanceCostDict.class);
 
     @Column(name = "min_value")
     private Double minValue;

@@ -18,7 +18,6 @@ import javax.persistence.*;
 @MappedSuperclass
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public abstract class Contractor extends BaseUuidEntity {
-    final static Logger log = LoggerFactory.getLogger(Contractor.class);
 
 
     /**

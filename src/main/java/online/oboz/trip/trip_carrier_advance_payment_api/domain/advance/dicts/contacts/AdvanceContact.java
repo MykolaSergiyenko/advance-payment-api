@@ -21,7 +21,6 @@ import javax.persistence.*;
 @MappedSuperclass
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public abstract class AdvanceContact extends HasContractor {
-    final static Logger log = LoggerFactory.getLogger(AdvanceContact.class);
 
     @AttributeOverrides({
         @AttributeOverride(name = "fullName", column = @Column(name = "full_name"))

@@ -17,7 +17,6 @@ import javax.validation.constraints.NotNull;
 @Entity
 @Table(schema = "common", name = "locations")
 public class CommonLocation extends BaseUpdateEntity {
-    final static Logger log = LoggerFactory.getLogger(CommonLocation.class);
 
 
     /**
