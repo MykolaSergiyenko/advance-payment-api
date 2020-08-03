@@ -439,11 +439,9 @@ public class BaseAdvanceService implements AdvanceService {
     public TripAdvanceState checkAdvanceState(Advance advance) {
         TripAdvanceState advanceState = new TripAdvanceState();
         advanceState.setTooltip(advanceTitle + formatDateFront(advance.getCreatedAt()) +
-            (advance.isAuto() ? autoTitle :
-                (authorTitle + personService.getAuthorFullName(advance.getAuthorId())))
-        );
+            (advance.isAuto() ? autoTitle : (authorTitle + personService.getAuthorFullName(advance.getAuthorId()))));
         advanceState.setState(advance.getAdvanceState());
-        log.info("[Advance-state] info: {}", advanceState);
+        log.info("[Advance-state]: state = '{}', tooltip = '{}'.", advanceState.getState(), advanceState.getTooltip());
         return advanceState;
     }
 
