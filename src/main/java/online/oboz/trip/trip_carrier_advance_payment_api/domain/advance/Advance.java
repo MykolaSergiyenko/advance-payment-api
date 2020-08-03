@@ -85,6 +85,10 @@ public class Advance extends ContactableAdvance {
 
     }
 
+    public String getAdvanceState(){
+        return this.getPaidAt() != null ? "Оплачен" : "Ожидает оплаты";
+    }
+
 
     @PersistenceConstructor
     public Advance(Person author, Trip trip, AdvanceContactsBook contact) {

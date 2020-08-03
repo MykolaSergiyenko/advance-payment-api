@@ -442,6 +442,7 @@ public class BaseAdvanceService implements AdvanceService {
             (advance.isAuto() ? autoTitle :
                 (authorTitle + personService.getAuthorFullName(advance.getAuthorId())))
         );
+        advanceState.setState(advance.getAdvanceState());
         log.info("[Advance-state] info: {}", advanceState);
         return advanceState;
     }
