@@ -54,6 +54,7 @@ public class BaseAdvanceService implements AdvanceService {
     private final String authorTitle;
 
     private final String AUTO_COMMENT;
+    private final String datePattern;
     private final Person autoUser;
     private final Long interval;
 
@@ -99,6 +100,7 @@ public class BaseAdvanceService implements AdvanceService {
         advanceTitle = properties.getAdvanceTitle();
         autoTitle = properties.getAutoTitle();
         authorTitle = properties.getAuthorTitle();
+        datePattern = properties.getDatePattern();
     }
 
     @Override
@@ -529,7 +531,7 @@ public class BaseAdvanceService implements AdvanceService {
     }
 
     private String formatDateFront(OffsetDateTime date) {
-        return DateUtils.format(date);
+        return DateUtils.format(date, datePattern);
     }
 
     private BusinessLogicException getAdvanceError(String message) {

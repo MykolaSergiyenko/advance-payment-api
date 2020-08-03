@@ -75,6 +75,9 @@ public class ApplicationProperties {
 
 
     //Trip-advance-service
+    @Value("${services.trip-advance-service.date-pattern}")
+    private String datePattern;
+
     @Value("${services.trip-advance-service.trip-null-cost-error}")
     private String nullCostError;
 
@@ -757,4 +760,11 @@ public class ApplicationProperties {
         this.authorTitle = authorTitle;
     }
 
+    public String getDatePattern() {
+        return datePattern;
+    }
+
+    public void setDatePattern(String datePattern) {
+        this.datePattern = datePattern;
+    }
 }

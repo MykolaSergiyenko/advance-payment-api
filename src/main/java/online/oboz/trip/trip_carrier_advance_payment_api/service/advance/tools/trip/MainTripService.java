@@ -33,7 +33,7 @@ import java.util.List;
 public class MainTripService implements TripService {
     private static final Logger log = LoggerFactory.getLogger(MainTripService.class);
 
-    private final String tripNullCostError, costError, contactsError, docsError, gt, lt;
+    private final String tripNullCostError, costError, contactsError, docsError, gt, lt, datePattern;;
 
     private final TripRepository tripRepository;
     private final CostDictService costDictService;
@@ -63,6 +63,7 @@ public class MainTripService implements TripService {
         this.costError = applicationProperties.getTripCostError();
         this.docsError = applicationProperties.getTripDocsError();
         this.contactsError = applicationProperties.getTripContractsError();
+        this.datePattern = applicationProperties.getDatePattern();
     }
 
     @Override
@@ -79,7 +80,7 @@ public class MainTripService implements TripService {
         Double maxCost = getTripMaxCost();
         OffsetDateTime minDate = OffsetDateTime.now().minusMinutes(interval);
         log.info("[Auto-advance]: Get auto-advance trips by minDate: '{}'; cost-interval: {} - {}.",
-            DateUtils.format(minDate).trim(), formatCost(minCost), formatCost(maxCost));
+            DateUtils.format(minDate, datePattern).trim(), formatCost(minCost), formatCost(maxCost));
         return tripRepository.getTripsForAutoAdvance(minCost, maxCost, minDate);
     }
 
