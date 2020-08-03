@@ -46,7 +46,7 @@ public class TripPage implements TripAdvance {
 
     @Override
     public ResponseEntity<TripAdvanceState> getAdvanceState(Long tripId) {
-        log.info("Advance-state request for Trip: {}", tripId);
+        log.info("[Advance-state]: requests for Trip: {}", tripId);
         Trip trip = advanceService.findTrip(tripId);
         Boolean advanceNotExists = advanceService.advancesNotExistsForTrip(trip);
         return new ResponseEntity<>(advanceNotExists ?
