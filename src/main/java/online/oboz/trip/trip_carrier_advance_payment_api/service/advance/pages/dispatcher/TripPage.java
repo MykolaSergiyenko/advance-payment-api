@@ -38,9 +38,9 @@ public class TripPage implements TripAdvance {
     @Override
     public ResponseEntity<Void> giveAdvanceForTrip(Long tripId) {
         Long authorId = SecurityUtils.getAuthPersonId();
-        log.info("Give advance request for Trip: {} and Author: {} ", tripId, authorId);
+        log.info("[Advance]: give advance request for trip '{}' and author '{}'.", tripId, authorId);
         Advance advance = advanceService.createAdvanceForTripAndAuthorId(tripId, authorId);
-        log.info("Advance for Trip: {} was created: {}", tripId, advance.getUuid());
+        log.info("[Advance]: for trip '{}' was created: {}", tripId, advance.getUuid());
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
