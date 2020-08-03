@@ -173,7 +173,7 @@ public class BaseAdvanceService implements AdvanceService {
             "-" : sort.getKey().toString();
         String total = (desktop == null || desktop.getPaginator() == null || desktop.getPaginator().getTotal() == null) ?
             "Ø" : desktop.getPaginator().getTotal().toString();
-        log.info("[Advance-grid]: Tab: '{}'; Total advances: {}; Page: '{}X{}'; Filter:'{}'.",
+        log.info("[Advance-grid]: Tab: '{}'; Total advances: {}; Page: '{} x {}'; Filter:'{}'.",
             tab, total, page, size, sorting);
     }
 
