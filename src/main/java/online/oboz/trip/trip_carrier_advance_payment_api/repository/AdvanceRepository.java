@@ -32,21 +32,24 @@ public interface AdvanceRepository extends JpaRepository<Advance, Long> {
 
 
     @Query(nativeQuery = true,
-        value = "select * from orders.trip_request_advance_payment a where (a.comment is null or a.comment = '' or " +
-            "a.comment = :auto_comment) and (a.paid_at is null) and (a.cancelled_at is null)")
+        value = "select * from orders.trip_request_advance_payment a " +
+            "where (a.comment is null or a.comment = '' or a.comment = :auto_comment) and " +
+            "(a.paid_at is null) and (a.cancelled_at is null) and (a.unf_sent_at is null)")
     Page<Advance> findInWorkAdvances(Pageable pageable, @Param("auto_comment") String autoComment);
 
     @Query(nativeQuery = true,
-        value = "select * from orders.trip_request_advance_payment a where (a.comment is not null and a.comment <> '' and " +
-            " a.comment <> :auto_comment)")
+        value = "select * from orders.trip_request_advance_payment a " +
+            "where (a.comment is not null and a.comment <> '' and a.comment <> :auto_comment)")
     Page<Advance> findProblemAdvances(Pageable pageable, @Param("auto_comment") String autoComment);
 
     @Query(nativeQuery = true,
-        value = "select * from orders.trip_request_advance_payment a where (a.paid_at is not null)")
+        value = "select * from orders.trip_request_advance_payment a " +
+            "where (a.paid_at is not null)")
     Page<Advance> findPaidAdvances(Pageable pageable);
 
     @Query(nativeQuery = true,
-        value = "select * from orders.trip_request_advance_payment a where (a.paid_at is null)")
+        value = "select * from orders.trip_request_advance_payment a " +
+            "where (a.paid_at is null) and (a.unf_sent_at is not null)")
     Page<Advance> findNotPaidAdvances(Pageable pageable);
 
     @Query(nativeQuery = true,
