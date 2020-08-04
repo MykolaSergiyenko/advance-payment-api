@@ -6,6 +6,7 @@ import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.Advance;
 import online.oboz.trip.trip_carrier_advance_payment_api.error.BusinessLogicException;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.rest.RestService;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.response.dto.TripDocuments;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.rest.RestTemplateService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.util.ErrorUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +27,7 @@ public class OrdersApiService implements OrdersFilesService {
     private static final Logger log = LoggerFactory.getLogger(OrdersApiService.class);
 
     private final ApplicationProperties applicationProperties;
-    private final RestService restService;
+    private final RestTemplateService restService;
     private final ObjectMapper objectMapper;
     private URL ordersApiUrl;
     private String saveAssignmentBody;
@@ -34,7 +35,7 @@ public class OrdersApiService implements OrdersFilesService {
     @Deprecated
     public OrdersApiService(
         ApplicationProperties applicationProperties,
-        RestService restService,
+        RestTemplateService restService,
         ObjectMapper objectMapper
     ) {
         this.applicationProperties = applicationProperties;

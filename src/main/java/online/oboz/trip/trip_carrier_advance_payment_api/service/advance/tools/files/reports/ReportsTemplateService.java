@@ -5,6 +5,7 @@ import online.oboz.trip.trip_carrier_advance_payment_api.config.ApplicationPrope
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.Advance;
 import online.oboz.trip.trip_carrier_advance_payment_api.error.BusinessLogicException;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.rest.RestService;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.rest.RestTemplateService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.util.ErrorUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +29,7 @@ public class ReportsTemplateService implements ReportService {
 
     private static final Logger log = LoggerFactory.getLogger(ReportsTemplateService.class);
 
-    private final RestService restService;
+    private final RestTemplateService restService;
 
     private final URL reportsUrl;
     private final String typeKey;
@@ -39,7 +40,7 @@ public class ReportsTemplateService implements ReportService {
 
     @Autowired
     public ReportsTemplateService(
-        RestService restService,
+        RestTemplateService restService,
         ApplicationProperties applicationProperties
     ) {
         this.restService = restService;

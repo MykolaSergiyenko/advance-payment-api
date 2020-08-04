@@ -18,6 +18,8 @@ import online.oboz.trip.trip_carrier_advance_payment_api.service.messages.edit_m
 import online.oboz.trip.trip_carrier_advance_payment_api.service.messages.edit_message.MessagesService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.trip.TripService;
 
+import online.oboz.trip.trip_carrier_advance_payment_api.service.rest.RestTemplateService;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.urleditor.UrlService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.urleditor.UrlShortenerService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.messages.email.EmailSender;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.messages.email.EmailSenderService;
@@ -43,7 +45,7 @@ import static io.github.benas.randombeans.api.EnhancedRandom.random;
 public class NotificationServiceTest {
     private JavaMailSender mailSender;
     private RestTemplate rest;
-    private RestService restService;
+    private RestTemplateService restService;
     private ApplicationProperties props;
     private MessagesService messageTextService;
     private EmailSender emailSender;
@@ -75,7 +77,7 @@ public class NotificationServiceTest {
         } catch (Exception e) {
             System.out.println("LK-link: " + props.getLkUrl());
         }
-        UrlShortenerService cutter = new UrlShortenerService(props);
+        UrlService cutter = new UrlShortenerService(props);
         messageTextService = new MessageCreateService(props, cutter);
         mailSender = mock(JavaMailSender.class);
         emailSender = new EmailSenderService(mailSender);

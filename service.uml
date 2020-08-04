@@ -1,0 +1,311 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>JAVA</ID>
+  <OriginalElement>online.oboz.trip.trip_carrier_advance_payment_api.service</OriginalElement>
+  <nodes>
+    <node x="1928.2314362687325" y="1263.8527529887185">online.oboz.trip.trip_carrier_advance_payment_api.service.messages.sms.SmsSender</node>
+    <node x="-156.5" y="232.5">online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.costs.CostService</node>
+    <node x="498.0" y="1632.5">online.oboz.trip.trip_carrier_advance_payment_api.service.advance.pages.dispatcher.TripPage</node>
+    <node x="3289.5" y="351.5">online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.persons.PersonService</node>
+    <node x="2881.0" y="2791.5">online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.contractors.ContractorService</node>
+    <node x="2937.0" y="531.5">online.oboz.trip.trip_carrier_advance_payment_api.service.advance.BaseAdvanceService</node>
+    <node x="3856.0" y="373.5">online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.unf.Integration1cService</node>
+    <node x="5369.0" y="2602.5">online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.files.bstore.BStoreService</node>
+    <node x="1221.0" y="501.5">online.oboz.trip.trip_carrier_advance_payment_api.service.advance.pages.dispatcher.ContractorsContacts</node>
+    <node x="2304.1948420048275" y="1261.3527529887187">online.oboz.trip.trip_carrier_advance_payment_api.service.messages.sms.SmsSenderService</node>
+    <node x="1538.8495537969354" y="1261.1763764943594">online.oboz.trip.trip_carrier_advance_payment_api.service.messages.email.EmailSender</node>
+    <node x="1661.0" y="697.5">online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.contacts.ContactService</node>
+    <node x="261.13871583319315" y="2631.296093618454">online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.costs.vats.VatService</node>
+    <node x="4894.0" y="2325.5">online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.files.AdvanceAttachmentsService</node>
+    <node x="523.0" y="-18.5">online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.costs.advancedict.CostDictService</node>
+    <node x="1312.6666666666665" y="1112.5">online.oboz.trip.trip_carrier_advance_payment_api.service.messages.edit_message.MessagesService</node>
+    <node x="518.5825896615592" y="1839.7621653477017">online.oboz.trip.trip_carrier_advance_payment_api.service.advance.pages.dispatcher.TripAdvance</node>
+    <node x="839.1666666666669" y="912.5">online.oboz.trip.trip_carrier_advance_payment_api.service.urleditor.UrlShortenerService</node>
+    <node x="261.13871583319315" y="2511.296093618454">online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.costs.vats.VatCostService</node>
+    <node x="1661.0" y="501.5">online.oboz.trip.trip_carrier_advance_payment_api.service.advance.pages.dispatcher.AdvanceContacts</node>
+    <node x="6321.5" y="2413.5">online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.files.reports.ReportService</node>
+    <node x="3401.0" y="2791.5">online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.contractors.AdvanceContractorService</node>
+    <node x="1312.6666666666665" y="915.8333333333333">online.oboz.trip.trip_carrier_advance_payment_api.service.messages.edit_message.MessageCreateService</node>
+    <node x="5831.5" y="2536.5">online.oboz.trip.trip_carrier_advance_payment_api.service.rest.RestTemplateService</node>
+    <node x="5628.656842721998" y="1767.6169427175537">online.oboz.trip.trip_carrier_advance_payment_api.service.util.ErrorUtils</node>
+    <node x="5862.484688801028" y="1477.0178437481054">online.oboz.trip.trip_carrier_advance_payment_api.service.util.StringUtils</node>
+    <node x="4417.0" y="2067.5">online.oboz.trip.trip_carrier_advance_payment_api.service.advance.pages.desktop.AdvancesPage</node>
+    <node x="5558.183607560239" y="1429.8155601284495">online.oboz.trip.trip_carrier_advance_payment_api.service.util.SecurityUtils</node>
+    <node x="3576.0" y="373.5">online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.unf.UnfService</node>
+    <node x="5863.042247093321" y="1308.4263912743365">online.oboz.trip.trip_carrier_advance_payment_api.service.util.DateUtils</node>
+    <node x="4374.0" y="2325.5">online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.files.AttachmentService</node>
+    <node x="526.0" y="166.5">online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.trip.MainTripService</node>
+    <node x="1722.0" y="1112.5">online.oboz.trip.trip_carrier_advance_payment_api.service.messages.NotificationService</node>
+    <node x="3227.1666666666665" y="2380.5">online.oboz.trip.trip_carrier_advance_payment_api.service.advance.pages.carrier.CarrierScreen</node>
+    <node x="1163.202839984285" y="1261.117584329573">online.oboz.trip.trip_carrier_advance_payment_api.service.messages.email.EmailSenderService</node>
+    <node x="2606.703373182915" y="1122.5000000000002">online.oboz.trip.trip_carrier_advance_payment_api.service.messages.Notificator</node>
+    <node x="5831.5" y="2816.5">online.oboz.trip.trip_carrier_advance_payment_api.service.rest.RestService</node>
+    <node x="3730.5" y="2380.5">online.oboz.trip.trip_carrier_advance_payment_api.service.advance.pages.carrier.CarrierPage</node>
+    <node x="4929.0" y="2602.5">online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.files.bstore.StoreService</node>
+    <node x="2626.803025200651" y="2590.505231809015">online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.auto.AutoService</node>
+    <node x="3009.5" y="351.5">online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.persons.BasePersonService</node>
+    <node x="2937.0" y="1411.5">online.oboz.trip.trip_carrier_advance_payment_api.service.advance.AdvanceService</node>
+    <node x="526.0" y="1246.5">online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.trip.TripService</node>
+    <node x="6321.5" y="2613.5">online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.files.reports.ReportsTemplateService</node>
+    <node x="3977.0" y="2056.0">online.oboz.trip.trip_carrier_advance_payment_api.service.advance.pages.desktop.AdvanceDesktop</node>
+    <node x="-159.05879216478638" y="2789.9412078352134">online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.costs.AdvanceCostService</node>
+    <node x="5433.028596284447" y="696.5">online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.files.tripdocs.AdvanceTripDocumentService</node>
+    <node x="4926.5" y="696.5">online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.files.tripdocs.TripDocumentsService</node>
+    <node x="2501.0" y="427.5">online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.contacts.AdvanceContactService</node>
+    <node x="2993.5" y="2591.5">online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.auto.AutoAdvanceService</node>
+    <node x="926.4994668013694" y="-18.5">online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.costs.advancedict.AdvanceCostDictService</node>
+    <node x="1104.8333333333333" y="905.8333333333333">online.oboz.trip.trip_carrier_advance_payment_api.service.urleditor.UrlService</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.trip.MainTripService" target="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.costs.CostService">
+      <point x="-154.0" y="0.0" />
+      <point x="156.5" y="0.0" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.service.messages.edit_message.MessageCreateService" target="online.oboz.trip.trip_carrier_advance_payment_api.service.urleditor.UrlService">
+      <point x="144.0" y="0.0" />
+      <point x="-78.5" y="0.0" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.BaseAdvanceService" target="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.AdvanceService">
+      <point x="0.0" y="268.5" />
+      <point x="0.0" y="-268.5" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.persons.PersonService" target="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.persons.BasePersonService">
+      <point x="-110.5" y="0.0" />
+      <point x="110.5" y="0.0" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.costs.AdvanceCostService" target="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.costs.vats.VatService">
+      <point x="-156.5" y="0.0" />
+      <point x="99.5" y="0.0" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.pages.desktop.AdvancesPage" target="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.pages.desktop.AdvanceDesktop">
+      <point x="-183.0" y="0.0" />
+      <point x="183.0" y="0.0" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.pages.dispatcher.TripPage" target="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.AdvanceService">
+      <point x="182.0" y="0.0" />
+      <point x="-183.0" y="0.0" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.BaseAdvanceService" target="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.persons.BasePersonService">
+      <point x="0.0" y="-268.5" />
+      <point x="0.0" y="48.5" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.files.AdvanceAttachmentsService" target="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.files.bstore.StoreService">
+      <point x="0.0" y="114.5" />
+      <point x="0.0" y="-37.5" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.auto.AutoAdvanceService" target="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.contractors.ContractorService">
+      <point x="0.0" y="48.5" />
+      <point x="0.0" y="-48.5" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.files.tripdocs.AdvanceTripDocumentService" target="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.files.tripdocs.TripDocumentsService">
+      <point x="-193.5" y="0.0" />
+      <point x="193.5" y="0.0" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.trip.MainTripService" target="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.contacts.ContactService">
+      <point x="40.0" y="103.5" />
+      <point x="720.0" y="790.0" />
+      <point x="-179.0" y="0.0" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.unf.Integration1cService" target="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.unf.UnfService">
+      <point x="-104.0" y="0.0" />
+      <point x="104.0" y="0.0" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.auto.AutoAdvanceService" target="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.auto.AutoService">
+      <point x="126.5" y="0.0" />
+      <point x="-126.5" y="0.0" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.costs.advancedict.AdvanceCostDictService" target="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.costs.advancedict.CostDictService">
+      <point x="-157.0" y="0.0" />
+      <point x="157.0" y="0.0" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.trip.MainTripService" target="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.trip.TripService">
+      <point x="0.0" y="103.5" />
+      <point x="0.0" y="-103.5" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.pages.carrier.CarrierPage" target="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.AdvanceService">
+      <point x="0.0" y="-59.5" />
+      <point x="3920.0" y="1760.0" />
+      <point x="183.0" y="80.0" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.service.messages.NotificationService" target="online.oboz.trip.trip_carrier_advance_payment_api.service.messages.sms.SmsSender">
+      <point x="0.0" y="37.5" />
+      <point x="0.0" y="-26.5" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.pages.carrier.CarrierPage" target="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.pages.carrier.CarrierScreen">
+      <point x="-189.5" y="0.0" />
+      <point x="189.5" y="0.0" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.service.messages.sms.SmsSenderService" target="online.oboz.trip.trip_carrier_advance_payment_api.service.messages.sms.SmsSender">
+      <point x="111.5" y="0.0" />
+      <point x="-111.5" y="0.0" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.files.reports.ReportsTemplateService" target="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.files.reports.ReportService">
+      <point x="0.0" y="-26.5" />
+      <point x="0.0" y="26.5" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.service.messages.email.EmailSenderService" target="online.oboz.trip.trip_carrier_advance_payment_api.service.messages.email.EmailSender">
+      <point x="107.5" y="0.0" />
+      <point x="-107.5" y="0.0" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.service.messages.NotificationService" target="online.oboz.trip.trip_carrier_advance_payment_api.service.messages.email.EmailSender">
+      <point x="-118.0" y="20.0" />
+      <point x="1850.4623393388338" y="1189.8824156704272" />
+      <point x="0.0" y="-26.5" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.contractors.AdvanceContractorService" target="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.contractors.ContractorService">
+      <point x="-239.0" y="0.0" />
+      <point x="239.0" y="0.0" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.service.urleditor.UrlShortenerService" target="online.oboz.trip.trip_carrier_advance_payment_api.service.urleditor.UrlService">
+      <point x="0.0" y="-37.5" />
+      <point x="0.0" y="37.5" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.contacts.AdvanceContactService" target="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.contacts.ContactService">
+      <point x="0.0" y="92.5" />
+      <point x="2680.0" y="760.0" />
+      <point x="179.0" y="-40.0" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.trip.MainTripService" target="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.files.tripdocs.TripDocumentsService">
+      <point x="154.0" y="0.0" />
+      <point x="5120.0" y="280.0" />
+      <point x="0.0" y="-103.5" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.files.AdvanceAttachmentsService" target="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.AdvanceService">
+      <point x="-40.0" y="-114.5" />
+      <point x="5080.0" y="1680.0" />
+      <point x="183.0" y="0.0" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.pages.dispatcher.TripPage" target="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.trip.TripService">
+      <point x="0.0" y="-37.5" />
+      <point x="0.0" y="103.5" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.files.AdvanceAttachmentsService" target="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.files.tripdocs.TripDocumentsService">
+      <point x="0.0" y="-114.5" />
+      <point x="0.0" y="103.5" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.pages.carrier.CarrierPage" target="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.files.AttachmentService">
+      <point x="189.5" y="0.0" />
+      <point x="-226.0" y="0.0" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.BaseAdvanceService" target="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.trip.TripService">
+      <point x="-40.0" y="268.5" />
+      <point x="3080.0" y="1360.0" />
+      <point x="154.0" y="0.0" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.service.messages.NotificationService" target="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.contacts.ContactService">
+      <point x="0.0" y="-37.5" />
+      <point x="0.0" y="92.5" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.costs.vats.VatCostService" target="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.costs.vats.VatService">
+      <point x="0.0" y="37.5" />
+      <point x="0.0" y="-37.5" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.pages.desktop.AdvancesPage" target="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.AdvanceService">
+      <point x="0.0" y="-92.5" />
+      <point x="4600.0" y="1720.0" />
+      <point x="183.0" y="40.0" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.files.reports.ReportsTemplateService" target="online.oboz.trip.trip_carrier_advance_payment_api.service.rest.RestTemplateService">
+      <point x="-198.5" y="0.0" />
+      <point x="208.5" y="0.0" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.pages.dispatcher.AdvanceContacts" target="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.contacts.ContactService">
+      <point x="0.0" y="48.5" />
+      <point x="0.0" y="-92.5" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.BaseAdvanceService" target="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.files.tripdocs.TripDocumentsService">
+      <point x="183.0" y="0.0" />
+      <point x="-193.5" y="0.0" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.pages.dispatcher.AdvanceContacts" target="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.pages.dispatcher.ContractorsContacts">
+      <point x="-179.0" y="0.0" />
+      <point x="179.0" y="0.0" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.files.AdvanceAttachmentsService" target="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.files.AttachmentService">
+      <point x="-226.0" y="0.0" />
+      <point x="226.0" y="0.0" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.files.bstore.BStoreService" target="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.files.bstore.StoreService">
+      <point x="-191.0" y="0.0" />
+      <point x="191.0" y="0.0" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.files.bstore.BStoreService" target="online.oboz.trip.trip_carrier_advance_payment_api.service.rest.RestTemplateService">
+      <point x="191.0" y="0.0" />
+      <point x="-208.5" y="0.0" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.BaseAdvanceService" target="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.unf.UnfService">
+      <point x="183.0" y="-40.0" />
+      <point x="3680.0" y="760.0" />
+      <point x="0.0" y="26.5" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.costs.AdvanceCostService" target="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.contractors.ContractorService">
+      <point x="156.5" y="0.0" />
+      <point x="-239.0" y="0.0" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.service.messages.NotificationService" target="online.oboz.trip.trip_carrier_advance_payment_api.service.messages.Notificator">
+      <point x="118.0" y="0.0" />
+      <point x="-118.0" y="0.0" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.trip.MainTripService" target="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.costs.advancedict.CostDictService">
+      <point x="0.0" y="-103.5" />
+      <point x="0.0" y="48.5" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.service.messages.edit_message.MessageCreateService" target="online.oboz.trip.trip_carrier_advance_payment_api.service.messages.edit_message.MessagesService">
+      <point x="0.0" y="37.5" />
+      <point x="0.0" y="-37.5" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.auto.AutoAdvanceService" target="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.AdvanceService">
+      <point x="0.0" y="-48.5" />
+      <point x="0.0" y="268.5" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.BaseAdvanceService" target="online.oboz.trip.trip_carrier_advance_payment_api.service.messages.Notificator">
+      <point x="-80.0" y="268.5" />
+      <point x="3040.0" y="1160.0" />
+      <point x="118.0" y="0.0" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.service.rest.RestService" target="online.oboz.trip.trip_carrier_advance_payment_api.service.rest.RestTemplateService">
+      <point x="0.0" y="-103.5" />
+      <point x="0.0" y="103.5" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.pages.desktop.AdvancesPage" target="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.files.AttachmentService">
+      <point x="0.0" y="92.5" />
+      <point x="0.0" y="-114.5" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.service.messages.NotificationService" target="online.oboz.trip.trip_carrier_advance_payment_api.service.messages.edit_message.MessagesService">
+      <point x="-118.0" y="0.0" />
+      <point x="144.0" y="0.0" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.pages.dispatcher.TripPage" target="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.pages.dispatcher.TripAdvance">
+      <point x="-182.0" y="0.0" />
+      <point x="182.0" y="0.0" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.files.AdvanceAttachmentsService" target="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.files.reports.ReportService">
+      <point x="226.0" y="0.0" />
+      <point x="-198.5" y="0.0" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.pages.carrier.CarrierPage" target="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.contractors.ContractorService">
+      <point x="0.0" y="59.5" />
+      <point x="3920.0" y="2960.0" />
+      <point x="3120.0" y="2960.0" />
+      <point x="0.0" y="48.5" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.costs.AdvanceCostService" target="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.costs.CostService">
+      <point x="0.0" y="-37.5" />
+      <point x="0.0" y="37.5" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.BaseAdvanceService" target="online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.contacts.ContactService">
+      <point x="-183.0" y="0.0" />
+      <point x="179.0" y="0.0" />
+    </edge>
+  </edges>
+  <settings layout="Orthogonal" zoom="0.30000000000000004" x="6298.666666666666" y="1725.3333333333333" />
+  <SelectedNodes />
+  <Categories>
+    <Category>Fields</Category>
+    <Category>Methods</Category>
+  </Categories>
+  <SCOPE>All</SCOPE>
+  <VISIBILITY>public</VISIBILITY>
+</Diagram>
+

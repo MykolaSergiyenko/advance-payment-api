@@ -1,6 +1,7 @@
 package online.oboz.trip.trip_carrier_advance_payment_api.service.messages;
 
 import online.oboz.trip.trip_carrier_advance_payment_api.config.ApplicationProperties;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.urleditor.UrlService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.urleditor.UrlShortenerService;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -43,7 +44,7 @@ public class UrlShortenerServiceTest {
             System.out.println("Set cutLinkUrl to " + cutLinkUrl);
             ApplicationProperties prop = new ApplicationProperties();
             prop.setCutLinkUrl(cutLinkUrl);
-            UrlShortenerService urlShortenerService = new UrlShortenerService(prop);
+            UrlService urlShortenerService = new UrlShortenerService(prop);
 
 
             // edit url string -> string

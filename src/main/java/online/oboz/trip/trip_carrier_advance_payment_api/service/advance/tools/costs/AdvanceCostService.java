@@ -3,7 +3,7 @@ package online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.Trip;
 import online.oboz.trip.trip_carrier_advance_payment_api.error.BusinessLogicException;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.contractors.ContractorService;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.costs.vats.VatCostService;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.costs.vats.VatService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.util.ErrorUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,13 +22,13 @@ public class AdvanceCostService implements CostService {
 
 
     private final ContractorService contractorService;
-    private final VatCostService vatCostService;
+    private final VatService vatCostService;
 
 
     @Autowired
     public AdvanceCostService(
         ContractorService contractorService,
-        VatCostService vatCostService
+        VatService vatCostService
     ) {
         this.contractorService = contractorService;
         this.vatCostService = vatCostService;

@@ -16,20 +16,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 public class AdvanceServiceTest {
 
-    private RestService tripService;
-    private AdvanceService personService;
-    private ContactService contactService;
-    private CostService costService;
-    private Notificator notificationService;
-    private UnfService integration1cService;
 
-    private ApplicationProperties applicationProperties;
-
-    private AdvanceRepository advanceRepository;
-
-    private AdvanceService advanceService;
-
-    private AdvanceMapper mapper;
 
 
 //
