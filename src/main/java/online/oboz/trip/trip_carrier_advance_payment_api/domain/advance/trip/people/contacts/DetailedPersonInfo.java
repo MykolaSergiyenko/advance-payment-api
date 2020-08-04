@@ -34,6 +34,10 @@ public class DetailedPersonInfo extends SimpleContacts implements Serializable {
     public DetailedPersonInfo() {
     }
 
+    public String getFullName(){
+        return String.join(" ", lastName, firstName, middleName);
+    }
+
 
     @Override
     public String getEmail() {

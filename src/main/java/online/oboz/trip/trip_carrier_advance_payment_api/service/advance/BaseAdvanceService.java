@@ -93,7 +93,7 @@ public class BaseAdvanceService implements AdvanceService {
         interval = properties.getNewTripsInterval();
         autoUser = personService.getAdvanceSystemUser();
 
-        log.info("Init... [Auto-advance]: system-user: {}.", autoUser.getInfo());
+        log.info("Init... [Auto-advance]: system-user: {}.", autoUser.getInfo().getFullName());
         log.info("Init... [Auto-advance]: comment: '{}'.", AUTO_COMMENT);
         log.info("Init... [Auto-advance]: interval: {} minutes.", interval);
 
