@@ -35,6 +35,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -420,8 +421,9 @@ public class BaseAdvanceService implements AdvanceService {
     public void giveAutoAdvances() {
         List<Trip> autoTrips = tripService.getAutoAdvanceTrips();
         long size = autoTrips.size();
-        log.info("[Auto-advance]: Found {} trips for auto-contractors.", size);
-        //if (size > 0) log.info("[Auto-advance] technical account: {}.", autoUser);
+        log.info("[Auto-advance]: Found {} trips for give auto-advance.", size);
+        Set<Long> contractors = autoTrips.stream().map(Trip::getContractorId).collect(Collectors.toSet());
+        log.info("[Auto-advance]: Found {} different auto-contractors for its.", contractors.size());
         autoTrips.forEach(trip -> {
             try {
                 log.info("[Auto-advance]: try create for trip {}.", trip.getId());
