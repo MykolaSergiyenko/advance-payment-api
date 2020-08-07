@@ -21,7 +21,8 @@ public interface TripRepository extends JpaRepository<Trip, Long> {
         "atc.tripId = t.id) and " +
         "not exists (select a from Advance a where t.id = a.advanceTripFields.tripId and " +
         "t.contractorId = a.contractorId and t.tripFields.driverId = a.advanceTripFields.driverId and " +
-        "t.tripFields.orderId = a.advanceTripFields.orderId and t.tripFields.num = a.advanceTripFields.num)")
+        "t.tripFields.orderId = a.advanceTripFields.orderId and t.tripFields.num = a.advanceTripFields.num) " +
+        "group by t.id")
     List<Trip> getTripsForAutoAdvance(@Param("minCost") Double minCost,
                                       @Param("maxCost") Double maxCost,
                                       @Param("minDate") OffsetDateTime minDate);
