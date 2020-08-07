@@ -476,7 +476,7 @@ public class BaseAdvanceService implements AdvanceService {
         try {
             List<TripAttachment> attachments = documentsService.getTripAttachments(tripId);
             int attachSize = attachments.size();
-            log.info("[Advance]: {} - Found {} file-attachments in trip {} for advance.", advance.getId(),  attachSize, tripId);
+            log.info("[Advance]: Found {} file-attachments in trip {} for advance.", advance.getId(),  attachSize, tripId);
             if (attachSize > 0) {
                 setRequestUuid(advance, attachments);
             }
