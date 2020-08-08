@@ -5,8 +5,6 @@ import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.peo
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.contractor.TripPaymentContractor;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.persistence.*;
 import java.time.OffsetDateTime;
@@ -20,14 +18,6 @@ import java.time.OffsetDateTime;
 @MappedSuperclass
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public abstract class ContactableAdvance extends TripsAdvance {
-
-    /**
-     * isNotifiableAdvance - признак того, что можем отправить "уведомления" по авансу,
-     * т.к. контакты в авансе валидны, все данные для уведомления на месте.
-     * По умолчанию - false.
-     */
-    @Column(name = "is_notifiable", columnDefinition = "boolean default false")
-    private Boolean isNotifiableAdvance;
 
 
     /**
@@ -103,11 +93,6 @@ public abstract class ContactableAdvance extends TripsAdvance {
     }
 
 
-    public Boolean isNotifiableAdvance() {
-        return isNotifiableAdvance;
-    }
-
-
     public OffsetDateTime getEmailSentAt() {
         return emailSentAt;
     }
@@ -134,14 +119,6 @@ public abstract class ContactableAdvance extends TripsAdvance {
         return readAt;
     }
 
-
-    public Boolean getNotifiableAdvance() {
-        return isNotifiableAdvance;
-    }
-
-    public void setNotifiableAdvance(Boolean notifiableAdvance) {
-        isNotifiableAdvance = notifiableAdvance;
-    }
 
     public OffsetDateTime getNotifiedAt() {
         return notifiedAt;
@@ -180,7 +157,6 @@ public abstract class ContactableAdvance extends TripsAdvance {
     @Override
     public void onCreate() {
         super.onCreate();
-        setNotifiableAdvance(null);
     }
 
     @Override
@@ -197,7 +173,6 @@ public abstract class ContactableAdvance extends TripsAdvance {
     @Override
     public String toString() {
         return "ContactableAdvance{" +
-            "isNotifiableAdvance=" + isNotifiableAdvance +
             ", notifiedAt=" + notifiedAt +
             ", notifiedDelayedAt=" + notifiedDelayedAt +
             ", emailSentAt=" + emailSentAt +

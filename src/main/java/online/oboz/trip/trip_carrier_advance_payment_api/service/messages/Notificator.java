@@ -3,6 +3,8 @@ package online.oboz.trip.trip_carrier_advance_payment_api.service.messages;
 import online.oboz.trip.trip_carrier_advance_payment_api.config.ApplicationProperties;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.Advance;
 
+import java.util.List;
+
 /**
  * <p>
  * <b>Интерфейс сервиса уведомлений</b>
@@ -12,8 +14,9 @@ import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.Advance;
  * • обычное сообщение {@link Notificator#notify(Advance advance)}
  * - в момент создания "Заявки на аванс";
  * <p>
- * • отложенное сообщение {@link Notificator#scheduledNotify(Advance advance)} (online.oboz.trip.trip_carrier_advance_payment_api.domain.base.TripAdvance)} - вызывается по расписанию для "Заявок на аванс",
- * у которых есть признак непрочитанных уведомлений ("СМС с задержкой").
+ * • отложенное сообщение {@link Notificator#repeatNotify(List<Advance>)}} (online.oboz.trip.trip_carrier_advance_payment_api.domain.base.Advance)} -
+ * вызывается по расписанию для списка "Авансов", у которых есть признак
+ * непрочитанных уведомлений ("СМС с задержкой").
  * <p>
  *
  * <p>
@@ -76,7 +79,7 @@ import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.Advance;
  */
 public interface Notificator {
     /**
-     * @param advance "Request for Advance"
+     * @param advance "Advance"
      *                Notificate contractor for advance by "simple" (at-moment) messages:
      *                by sms and e-mail if both pathes enable in {@link ApplicationProperties}.
      */
@@ -84,10 +87,9 @@ public interface Notificator {
 
 
     /**
-     * @param advance "Request for Advance"
-     *                Notificate contractor for advance by "delayed" (scheduled) messages:
-     *                by sms and e-mail if both pathes enable in {@link ApplicationProperties}.
+     * @param advances "Advances"
+     *                 Notificate contractor for advance by "delayed" (scheduled) messages:
+     *                 by sms and e-mail if both pathes enable in {@link ApplicationProperties}.
      */
-    Advance scheduledNotify(Advance advance);
-
+    List<Advance> repeatNotify(List<Advance> advances);
 }

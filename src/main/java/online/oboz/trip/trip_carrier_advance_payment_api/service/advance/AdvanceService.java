@@ -177,9 +177,9 @@ public interface AdvanceService {
     /**
      * Уведомить о создании аванса по трипу с задержкой
      *
-     * @param advance - аванс
+     * @param advances - авансы
      */
-    void notifyAboutAdvanceScheduled(Advance advance);
+    void notifyAboutAdvancesScheduled(List<Advance> advances);
 
     /**
      * Уведомить о создании аванса тех, кто не прочитал

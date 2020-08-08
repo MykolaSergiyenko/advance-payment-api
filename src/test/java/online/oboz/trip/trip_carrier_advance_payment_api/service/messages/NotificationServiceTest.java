@@ -34,6 +34,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
@@ -123,18 +124,18 @@ public class NotificationServiceTest {
         System.out.println("Create trip-advance of random Trip: " + x2.toString());
         assertNotNull(x);
         assertNotNull(x2);
-        notificator.scheduledNotify(x);
+        notificator.repeatNotify(Arrays.asList(x));
 
         props.setSmsMessageTemplate("Компания ОБОЗ+ предлагает аванс по заказу %s на сумму %.0f руб., для просмотра пройдите по ссылке \n %s");
-        notificator.scheduledNotify(x);
+        notificator.repeatNotify(Arrays.asList(x));
         props.setSmsPhoneTemplate("7%s");
         props.setSmsCutLinks(true);
-        notificator.scheduledNotify(x);
+        notificator.repeatNotify(Arrays.asList(x));
         try {
             props.setCutLinkUrl(new URL("https://clck.ru/--?url="));
             props.setSmsSenderUrl(new URL("http://sms-sender.r14.k.dev.oboz:30080/"));
             props.setLkUrl(new URL("https://oboz.online/carrier-advance/"));
-            notificator.scheduledNotify(x);
+            notificator.repeatNotify(Arrays.asList(x));
         } catch (MalformedURLException e) {
             System.out.println("Error with LK-url: " + e.getMessage());
         }
@@ -148,21 +149,21 @@ public class NotificationServiceTest {
         Advance x = advances.getOne(668l);
         System.out.println("Create random trip-advance: " + x);
         assertNotNull(x);
-        notificator.scheduledNotify(x);
+        notificator.repeatNotify(Arrays.asList(x));
 
         props.setEmailHeaderTemplate("Компания ObOz предлагает аванс по заказу %s");
-        notificator.scheduledNotify(x);
+        notificator.repeatNotify(Arrays.asList(x));
         props.setEmailMessageTemplate("Компания ОБОЗ предлагает аванс\n по заказу %s на сумму %.0f руб., для просмотра пройдите по ссылке \n%s");
-        notificator.scheduledNotify(x);
+        notificator.repeatNotify(Arrays.asList(x));
         try {
             URL lk = new URL("https://oboz.online/carrier-advance/");
             props.setLkUrl(lk);
-            notificator.scheduledNotify(x);
+            notificator.repeatNotify(Arrays.asList(x));
         } catch (MalformedURLException e) {
             System.out.println("Error with LK-url: " + e.getMessage());
         }
         props.setMailUsername("test@test.com");
-        notificator.scheduledNotify(x);
+        notificator.repeatNotify(Arrays.asList(x));
     }
 
     @Test

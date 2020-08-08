@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.time.OffsetDateTime;
+import java.util.List;
 
 
 /**
@@ -71,44 +72,63 @@ public class NotificationService implements Notificator {
      */
     @Override
     public Advance notify(Advance advance) {
-        advance = notificate(advance, emailEnabled, smsEnabled);
+        if (emailEnabled || smsEnabled) advance = notificate(advance, emailEnabled, smsEnabled);
+        else {
+            log.info("[Notifications] - sms and email both unable. Advance: {}.", advance.getId());
+        }
         return advance;
     }
 
 
     /**
-     * @param advance advance Аванс ("Заявка на авансирование")
-     *                Notificate contractor for advance by "simple" (at-moment) messages:
-     *                by sms and e-mail if both enable in application properties.
+     * @param advances Аванс
+     *                 Notificate contractor for advance by "delayed" (scheduled) messages:
+     *                 by sms and e-mail if both enable in application properties.
      */
     @Override
-    public Advance scheduledNotify(Advance advance) {
-        notificate(advance, emailScheduleEnabled, smsScheduleEnabled);
-        return advance;
+    public List<Advance> repeatNotify(List<Advance> advances) {
+        notificate(advances, emailScheduleEnabled, smsScheduleEnabled);
+        return advances;
     }
 
+
+    private void notificate(List<Advance> advances, boolean emailEnable, boolean smsEnable) {
+        if (emailEnable || smsEnable) {
+            advances.forEach(advance -> {
+                notificate(advance, emailEnable, smsEnable);
+                advance.setNotifiedAt(OffsetDateTime.now());
+            });
+        } else {
+            log.info("[Notifications] - scheduled sms and email both off right now. " +
+                "But found {} unread messages about advance-creation.", advances.size());
+        }
+    }
 
     private Advance notificate(Advance advance, boolean emailEnable, boolean smsEnable) {
-        advance = sendEmails(advance, emailEnable);
-        advance = sendSMSes(advance, smsEnable);
-        return advance;
-    }
-
-    private Advance sendEmails(Advance advance, boolean emailEnable) {
         if (emailEnable) {
-            try {
-                sentEmail(advance);
-                advance.setEmailSentAt(OffsetDateTime.now());
-            } catch (MessagingException e) {
-                log.error("MessagingException while email:" + e.getErrors());
-            }
+            advance = sendEmails(advance);
         } else {
-            log.info("Notification by e-mail is unable.");
+            log.info("[Notifications] by e-mail is unable.");
+        }
+        if (smsEnable) {
+            advance = sendSMSes(advance);
+        } else {
+            log.info("[Notifications] by sms is unable.");
         }
         return advance;
     }
 
-    private void sentEmail(Advance advance) throws MessagingException {
+    private Advance sendEmails(Advance advance) {
+        try {
+            sendEmail(advance);
+            advance.setEmailSentAt(OffsetDateTime.now());
+        } catch (MessagingException e) {
+            log.error("MessagingException while email:" + e.getErrors());
+        }
+        return advance;
+    }
+
+    private void sendEmail(Advance advance) throws MessagingException {
         log.info("Email-messages enable. Try to send message for advance - " + advance.getId());
         EmailContainer email = messagesService.createEmail(advance,
             contactService.getEmail(advance.getContractorId()));
@@ -117,22 +137,18 @@ public class NotificationService implements Notificator {
         log.info("E-mail is sent for advance - " + advance.getId());
     }
 
-    private Advance sendSMSes(Advance advance, boolean smsEnable) {
-        if (smsEnable) {
-            try {
-                sentSms(advance);
-                advance.setSmsSentAt(OffsetDateTime.now());
-            } catch (MessagingException e) {
-                log.error("MessagingException while sms:" + e.getErrors());
-            }
-        } else {
-            log.info("Notification by sms is unable.");
+    private Advance sendSMSes(Advance advance) {
+        try {
+            sendSms(advance);
+            advance.setSmsSentAt(OffsetDateTime.now());
+        } catch (MessagingException e) {
+            log.error("MessagingException while sms:" + e.getErrors());
         }
         return advance;
     }
 
 
-    private void sentSms(Advance advance) throws MessagingException {
+    private void sendSms(Advance advance) throws MessagingException {
         log.info("SMS-messages enable. Try to send message for advance - " + advance.getId());
         SendSmsRequest container = messagesService.createSms(advance,
             contactService.getPhone(advance.getContractorId()));
