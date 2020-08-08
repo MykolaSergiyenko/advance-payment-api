@@ -12,4 +12,9 @@ public interface TripDocumentsRepository  extends JpaRepository<TripAttachment, 
 
     @Query("select at from TripAttachment at where at.tripId = :trip_id")
     List<TripAttachment> findByTripId(@Param("trip_id") Long tripId);
+
+    @Query("select at from TripAttachment at " +
+        "inner join Advance ad on at.tripId = ad.advanceTripFields.tripId "+
+        "where ad.id = :advance_id")
+    List<TripAttachment> findByAdvanceId(@Param("advance_id") Long advanceId);
 }
