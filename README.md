@@ -1,5 +1,5 @@
 # trip-carrier-advance-payment-api
-Сервис Аванс
+Сервис «Авансирование»
 
 ![](advance.png)
 ## Зочем
@@ -7,7 +7,8 @@
 
 Создает сущность "Аванс" и работает с ней - elp.orders.trip_request_advance_payment - связана с поездкой, заказом, контрагентом, пользователями, контактами авансирования, справочниками и т.д.
 
-Доступ к эндпоинтам сервиса "Авансирование" прооисходит на фронте:
+Доступ к эндпоинтам сервиса «Авансирование» происходит на фронте:
+
 - на "Рабочем столе авансирования" - грид сущностей типа "аванс" с кнопками и т.д.
 - на странице "Перевозчика" - страница предложения аванса контрагенту.
 - в карточке "Перевозчика" - редактирование "Контактов авансирования"
@@ -22,9 +23,16 @@
 ![](model.jpg)
 
 ## Требования к окружению
-Работает вместе с front, advance-front. 
+Работает вместе с фронтовыми модулями:
+- front 
+- advance-front. 
 
-Эндпоинты разделены по старницам - cм. выше.
+
+Эндпоинты разделены постарнично - cм. выше:
+- TripAdvance extends TripAdvanceApiDelegate - путь  /trip_advance/**;
+- AdvanceDesktop extends AdvancesApiDelegate - путь  /advance_carrier/**; 
+- CarrierScreen extends AdvanceCarrierApiDelegate - путь /advances/**;
+- ContractorsContacts extends AdvanceContactsApiDelegate - путь /advance_contacts/**.
 
 
 ## Запуск
@@ -39,7 +47,5 @@ SpringBoot - MainApplication
 ## Примечания Геннадия
 Пример получения файлов с report server:
 curl -o f.pdf "https://reports.oboz.com/reportserver/reportserver/httpauthexport?key=avance_request&tripAdvancePerson=bertathar&apikey=nzybc16h&p_trip_num=157966-1&p_avance_sum=300&p_avance_comission=150&format=PDF"
-
 curl -o ff.pdf "https://reports.oboz.com/reportserver/reportserver/httpauthexport?key=unified_contract_request&tripAdvancePerson=bertathar&apikey=nzybc16h&p_trip_num=157966-1&format=PDF"
-
 sudo keytool -importcert -keystore /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/security/cacerts -storepass changeit -file /home/gmakarov/Downloads/cert.oboz.crt -alias "oboz.com"
