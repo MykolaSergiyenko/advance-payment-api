@@ -240,9 +240,9 @@ public class BaseAdvanceService implements AdvanceService {
 
     @Override
     public Advance findByTripId(Long tripId) {
-        return advanceRepository.findByTripId(tripId).
+        return advanceRepository.findActiveByTripId(tripId).
             orElseThrow(() ->
-                getAdvanceError("[Advance]: not found by tripId: " + tripId));
+                getAdvanceError("[Advance]: active advances not found by tripId: " + tripId));
     }
 
 

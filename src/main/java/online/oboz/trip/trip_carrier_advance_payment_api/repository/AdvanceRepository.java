@@ -17,8 +17,9 @@ public interface AdvanceRepository extends JpaRepository<Advance, Long> {
 
     Page<Advance> findAll(Pageable pageable);
 
-    @Query("select pc from Advance pc where pc.advanceTripFields.tripId = :trip_id")
-    Optional<Advance> findByTripId(@Param("trip_id") Long tripId);
+    @Query("select pc from Advance pc where pc.advanceTripFields.tripId = :trip_id "+
+    " and pc.cancelledAt is null ")
+    Optional<Advance> findActiveByTripId(@Param("trip_id") Long tripId);
 
     @Query("select pc from Advance pc where pc.uuid = :uuid")
     Optional<Advance> findByUuid(@Param("uuid") UUID uuid);
