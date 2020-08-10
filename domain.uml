@@ -1,0 +1,326 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>JAVA</ID>
+  <OriginalElement>online.oboz.trip.trip_carrier_advance_payment_api.domain</OriginalElement>
+  <nodes>
+    <node x="240.57972222222213" y="529.0">online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.entities.BaseUuidEntity</node>
+    <node x="1289.1501388888896" y="2789.9999999999995">online.oboz.trip.trip_carrier_advance_payment_api.domain.mappers.AdvanceContactMapper</node>
+    <node x="1083.7880555555555" y="1863.5">online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.structures.TripCostInfo</node>
+    <node x="891.7880555555555" y="1863.5">online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.advance.AuthorsAdvance</node>
+    <node x="662.7880555555555" y="1874.5">online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.structures.AdvanceInfo</node>
+    <node x="991.5380555555555" y="1157.0">online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.AdvancePerson</node>
+    <node x="-201.3333333333332" y="1780.666666666667">online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.notificatoins.EmailContainer</node>
+    <node x="720.3168055555557" y="2483.333333333333">online.oboz.trip.trip_carrier_advance_payment_api.domain.mappers.AdvanceMapper</node>
+    <node x="193.0" y="1483.0">online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.contractor.Contractor</node>
+    <node x="365.0" y="2194.0">online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.dicts.costdicts.VatCostDict</node>
+    <node x="930.2013888888893" y="2178.5">online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.advance.TripsAdvance</node>
+    <node x="228.5" y="1886.0">online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.contractor.AdvanceContractor</node>
+    <node x="-190.0165277777769" y="2206.6666666666665">online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.advance.CurrentAdvanceState</node>
+    <node x="1226.6501388888896" y="2959.9999999999995">online.oboz.trip.trip_carrier_advance_payment_api.domain.mappers.AdvanceContactMapperImpl</node>
+    <node x="784.5380555555555" y="1058.0">online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.advance.CancelableAdvance</node>
+    <node x="1616.6501388888892" y="193.0">online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.attachments.TripAttachment</node>
+    <node x="1073.566805555556" y="529.0">online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.contacts.SimpleContacts</node>
+    <node x="301.32638888888926" y="2449.0">online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.advance.ContactableAdvance</node>
+    <node x="1352.2013888888891" y="2223.0">online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.trip.BaseTrip</node>
+    <node x="134.5" y="2200.5">online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.contractor.TripPaymentContractor</node>
+    <node x="895.5668055555559" y="810.0">online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.contracts.HasContractor</node>
+    <node x="1499.0668055555561" y="1775.0">online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.info.TripInfo</node>
+    <node x="351.125" y="1157.0">online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.contacts.FullNamePersonInfo</node>
+    <node x="639.3168055555557" y="2675.333333333333">online.oboz.trip.trip_carrier_advance_payment_api.domain.mappers.AdvanceMapperImpl</node>
+    <node x="991.5380555555555" y="1527.0">online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.Person</node>
+    <node x="1275.7880555555555" y="1819.5">online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.structures.TripFields</node>
+    <node x="453.0" y="1875.0">online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.dicts.contacts.AdvanceContactsBook</node>
+    <node x="1444.9001388888892" y="551.5">online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.info.CommonLocation</node>
+    <node x="250.0" y="821.0">online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.order.Order</node>
+    <node x="456.0" y="1504.5">online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.dicts.contacts.AdvanceContact</node>
+    <node x="0.0" y="496.0">online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.info.TripStateHistory</node>
+    <node x="1016.625" y="0.0">online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.entities.BaseEntity</node>
+    <node x="1616.6501388888892" y="1449.0">online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.Trip</node>
+    <node x="1116.566805555556" y="777.0">online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.contacts.DetailedPersonInfo</node>
+    <node x="-196.66666666666669" y="1520.6666666666663">online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.notificatoins.SendSmsRequest</node>
+    <node x="-181.01652777777736" y="2799.9999999999995">online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.advance.AdvanceEvent</node>
+    <node x="136.03833333333375" y="215.0">online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.entities.BaseUpdateEntity</node>
+    <node x="286.32638888888926" y="2818.0">online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.Advance</node>
+    <node x="792.0380555555555" y="1493.5">online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.advance.UnfAdvanceFields</node>
+    <node x="571.5" y="2167.0">online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.dicts.costdicts.AdvanceCostDict</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.advance.ContactableAdvance" target="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.contractor.AdvanceContractor">
+      <point x="-32.625" y="-159.5" />
+      <point x="399.20138888888926" y="2429.0" />
+      <point x="357.5" y="2429.0" />
+      <point x="43.0" y="60.0" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.order.Order" target="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.entities.BaseUuidEntity">
+      <point x="0.0" y="-71.5" />
+      <point x="336.0" y="757.0" />
+      <point x="326.57972222222213" y="757.0" />
+      <point x="0.0" y="82.5" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.advance.CancelableAdvance" target="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.contracts.HasContractor">
+      <point x="0.0" y="-170.5" />
+      <point x="878.0380555555555" y="1038.0" />
+      <point x="960.0668055555559" y="1038.0" />
+      <point x="-21.5" y="82.5" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.contracts.HasContractor" target="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.entities.BaseUuidEntity">
+      <point x="0.0" y="-82.5" />
+      <point x="981.5668055555559" y="747.0" />
+      <point x="383.9130555555554" y="747.0" />
+      <point x="57.33333333333326" y="82.5" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.entities.BaseUuidEntity" target="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.entities.BaseUpdateEntity">
+      <point x="0.0" y="-82.5" />
+      <point x="326.57972222222213" y="476.0" />
+      <point x="246.03833333333375" y="476.0" />
+      <point x="22.0" y="104.5" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.domain.mappers.AdvanceContactMapperImpl" target="online.oboz.trip.trip_carrier_advance_payment_api.domain.mappers.AdvanceContactMapper">
+      <point x="0.0" y="-92.5" />
+      <point x="0.0" y="60.0" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.advance.UnfAdvanceFields" target="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.advance.CancelableAdvance">
+      <point x="0.0" y="-93.5" />
+      <point x="0.0" y="170.5" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.contacts.DetailedPersonInfo" target="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.contacts.SimpleContacts">
+      <point x="0.0" y="-115.5" />
+      <point x="43.0" y="82.5" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.contractor.Contractor" target="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.entities.BaseUuidEntity">
+      <point x="-60.75" y="-104.0" />
+      <point x="253.75" y="1424.0" />
+      <point x="239.5" y="1424.0" />
+      <point x="239.5" y="757.0" />
+      <point x="269.2463888888889" y="757.0" />
+      <point x="-57.33333333333326" y="82.5" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.domain.mappers.AdvanceMapperImpl" target="online.oboz.trip.trip_carrier_advance_payment_api.domain.mappers.AdvanceMapper">
+      <point x="0.0" y="-235.5" />
+      <point x="0.0" y="71.0" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.info.TripStateHistory" target="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.entities.BaseUpdateEntity">
+      <point x="0.0" y="-115.5" />
+      <point x="86.0" y="476.0" />
+      <point x="158.03833333333375" y="476.0" />
+      <point x="-66.0" y="104.5" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.advance.TripsAdvance" target="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.structures.TripCostInfo">
+      <point x="23.5" y="-104.5" />
+      <point x="1047.7013888888891" y="2137.0" />
+      <point x="1126.7880555555555" y="2137.0" />
+      <point x="-43.0" y="82.5" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.Trip" target="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.trip.BaseTrip">
+      <point x="43.25" y="138.0" />
+      <point x="1746.4001388888892" y="2147.0" />
+      <point x="1501.6013888888892" y="2147.0" />
+      <point x="66.39999999999998" y="-60.0" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.advance.TripsAdvance" target="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.structures.TripFields">
+      <point x="70.5" y="-104.5" />
+      <point x="1094.7013888888891" y="2147.0" />
+      <point x="1320.0380555555555" y="2147.0" />
+      <point x="-44.25" y="126.5" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.trip.BaseTrip" target="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.structures.TripFields">
+      <point x="-33.200000000000045" y="-60.0" />
+      <point x="1402.0013888888893" y="2147.0" />
+      <point x="1408.5380555555555" y="2147.0" />
+      <point x="44.25" y="126.5" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.trip.BaseTrip" target="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.structures.TripCostInfo">
+      <point x="-66.39999999999998" y="-60.0" />
+      <point x="1368.8013888888893" y="2137.0" />
+      <point x="1212.7880555555555" y="2137.0" />
+      <point x="43.0" y="82.5" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.trip.BaseTrip" target="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.contracts.HasContractor">
+      <point x="0.0" y="-60.0" />
+      <point x="1435.2013888888891" y="2147.0" />
+      <point x="1463.2880555555555" y="2147.0" />
+      <point x="1463.2880555555555" y="1028.0" />
+      <point x="1046.066805555556" y="1028.0" />
+      <point x="64.5" y="82.5" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.dicts.costdicts.AdvanceCostDict" target="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.entities.BaseEntity">
+      <point x="-51.0" y="-116.0" />
+      <point x="622.5" y="2147.0" />
+      <point x="642.125" y="2147.0" />
+      <point x="642.125" y="173.0" />
+      <point x="1081.125" y="173.0" />
+      <point x="-21.5" y="71.5" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.contractor.AdvanceContractor" target="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.contractor.Contractor">
+      <point x="0.0" y="-60.0" />
+      <point x="0.0" y="104.0" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.advance.AuthorsAdvance" target="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.advance.UnfAdvanceFields">
+      <point x="-43.0" y="-82.5" />
+      <point x="934.7880555555555" y="1750.0" />
+      <point x="878.0380555555555" y="1750.0" />
+      <point x="0.0" y="93.5" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.info.TripInfo" target="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.Trip">
+      <point x="66.33333333333337" y="-171.0" />
+      <point x="1664.9001388888894" y="1750.0" />
+      <point x="1659.9001388888892" y="1750.0" />
+      <point x="-43.25" y="138.0" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.entities.BaseUpdateEntity" target="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.entities.BaseEntity">
+      <point x="0.0" y="-104.5" />
+      <point x="224.03833333333375" y="163.0" />
+      <point x="1038.125" y="163.0" />
+      <point x="-64.5" y="71.5" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.trip.BaseTrip" target="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.info.TripInfo">
+      <point x="33.200000000000045" y="-60.0" />
+      <point x="1468.4013888888894" y="2137.0" />
+      <point x="1598.5668055555561" y="2137.0" />
+      <point x="0.0" y="171.0" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.info.CommonLocation" target="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.entities.BaseUpdateEntity">
+      <point x="0.0" y="-60.0" />
+      <point x="1515.9001388888892" y="466.0" />
+      <point x="290.03833333333375" y="466.0" />
+      <point x="66.0" y="104.5" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.Person" target="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.AdvancePerson">
+      <point x="0.0" y="-60.0" />
+      <point x="0.0" y="71.5" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.AdvancePerson" target="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.contracts.HasContractor">
+      <point x="-43.0" y="-71.5" />
+      <point x="1034.5380555555555" y="1038.0" />
+      <point x="1003.0668055555559" y="1038.0" />
+      <point x="21.5" y="82.5" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.info.TripInfo" target="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.entities.BaseEntity">
+      <point x="0.0" y="-171.0" />
+      <point x="1598.5668055555561" y="1750.0" />
+      <point x="1606.1501388888892" y="1750.0" />
+      <point x="1606.1501388888892" y="173.0" />
+      <point x="1124.125" y="173.0" />
+      <point x="21.5" y="71.5" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.info.TripInfo" target="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.info.CommonLocation">
+      <point x="-66.33333333333326" y="-171.0" />
+      <point x="1532.2334722222226" y="1750.0" />
+      <point x="1515.9001388888892" y="1750.0" />
+      <point x="0.0" y="60.0" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.contacts.FullNamePersonInfo" target="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.contacts.SimpleContacts">
+      <point x="0.0" y="-71.5" />
+      <point x="437.125" y="757.0" />
+      <point x="1116.566805555556" y="757.0" />
+      <point x="-43.0" y="82.5" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.advance.ContactableAdvance" target="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.contractor.TripPaymentContractor">
+      <point x="-97.875" y="-159.5" />
+      <point x="333.95138888888926" y="2429.0" />
+      <point x="230.5" y="2429.0" />
+      <point x="0.0" y="82.5" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.contractor.TripPaymentContractor" target="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.entities.BaseUpdateEntity">
+      <point x="-48.0" y="-82.5" />
+      <point x="182.5" y="476.0" />
+      <point x="202.03833333333375" y="476.0" />
+      <point x="-22.0" y="104.5" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.AdvancePerson" target="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.contacts.DetailedPersonInfo">
+      <point x="43.0" y="-71.5" />
+      <point x="1120.5380555555555" y="1038.0" />
+      <point x="1202.566805555556" y="1038.0" />
+      <point x="0.0" y="115.5" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.contractor.Contractor" target="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.contacts.FullNamePersonInfo">
+      <point x="60.75" y="-104.0" />
+      <point x="375.25" y="1424.0" />
+      <point x="394.125" y="1424.0" />
+      <point x="-43.0" y="71.5" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.advance.ContactableAdvance" target="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.dicts.contacts.AdvanceContactsBook">
+      <point x="32.625" y="-159.5" />
+      <point x="464.45138888888926" y="2419.0" />
+      <point x="542.0" y="2419.0" />
+      <point x="0.0" y="71.0" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.dicts.contacts.AdvanceContact" target="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.contracts.HasContractor">
+      <point x="43.0" y="-82.5" />
+      <point x="585.0" y="1424.0" />
+      <point x="568.75" y="1424.0" />
+      <point x="568.75" y="1028.0" />
+      <point x="917.0668055555559" y="1028.0" />
+      <point x="-64.5" y="82.5" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.Advance" target="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.advance.ContactableAdvance">
+      <point x="0.0" y="-170.5" />
+      <point x="0.0" y="159.5" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.advance.TripsAdvance" target="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.advance.AuthorsAdvance">
+      <point x="-23.5" y="-104.5" />
+      <point x="1000.7013888888893" y="2147.0" />
+      <point x="977.7880555555555" y="2147.0" />
+      <point x="0.0" y="82.5" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.dicts.contacts.AdvanceContactsBook" target="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.dicts.contacts.AdvanceContact">
+      <point x="0.0" y="-71.0" />
+      <point x="0.0" y="82.5" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.dicts.contacts.AdvanceContact" target="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.contacts.FullNamePersonInfo">
+      <point x="-43.0" y="-82.5" />
+      <point x="499.0" y="1424.0" />
+      <point x="480.125" y="1424.0" />
+      <point x="43.0" y="71.5" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.contractor.TripPaymentContractor" target="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.contractor.AdvanceContractor">
+      <point x="48.0" y="-82.5" />
+      <point x="278.5" y="2147.0" />
+      <point x="271.5" y="2147.0" />
+      <point x="-43.0" y="60.0" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.advance.TripsAdvance" target="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.structures.AdvanceInfo">
+      <point x="-70.5" y="-104.5" />
+      <point x="953.7013888888893" y="2147.0" />
+      <point x="819.5380555555555" y="2147.0" />
+      <point x="52.25" y="71.5" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.advance.ContactableAdvance" target="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.advance.TripsAdvance">
+      <point x="97.875" y="-159.5" />
+      <point x="529.7013888888893" y="2429.0" />
+      <point x="1024.2013888888891" y="2429.0" />
+      <point x="0.0" y="104.5" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.advance.AuthorsAdvance" target="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.Person">
+      <point x="43.0" y="-82.5" />
+      <point x="1020.7880555555555" y="1750.0" />
+      <point x="1077.5380555555555" y="1750.0" />
+      <point x="0.0" y="60.0" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.dicts.costdicts.AdvanceCostDict" target="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.structures.AdvanceInfo">
+      <point x="51.0" y="-116.0" />
+      <point x="724.5" y="2147.0" />
+      <point x="715.0380555555555" y="2147.0" />
+      <point x="-52.25" y="71.5" />
+    </edge>
+    <edge source="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.attachments.TripAttachment" target="online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.entities.BaseEntity">
+      <point x="0.0" y="-126.5" />
+      <point x="1717.1501388888892" y="163.0" />
+      <point x="1167.125" y="163.0" />
+      <point x="64.5" y="71.5" />
+    </edge>
+  </edges>
+  <settings layout="Hierarchic Group" zoom="0.30000000000000004" x="1553.6666666666665" y="2581.0" />
+  <SelectedNodes />
+  <Categories>
+    <Category>Fields</Category>
+    <Category>Methods</Category>
+    <Category>Properties</Category>
+    <Category>Inner Classes</Category>
+    <Category>Constructors</Category>
+  </Categories>
+  <SCOPE>All</SCOPE>
+  <VISIBILITY>private</VISIBILITY>
+</Diagram>
+
