@@ -110,7 +110,7 @@ services:
 
     #Autoadvance-service
     auto-advance-service:
-        min-paid-advance-count: 3
+        min-paid-advance-count: 5
         # TODO: search by e-mail, not id
         # ID of auto-advance-author-person - 'oboztech_payment@oboz.tech'
         auto-author: 62911
