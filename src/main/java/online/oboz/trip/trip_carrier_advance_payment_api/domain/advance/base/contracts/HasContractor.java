@@ -17,7 +17,7 @@ public abstract class HasContractor extends BaseUuidEntity {
     /**
      * Id контрагента
      */
-    @Column(name = "contractor_id", insertable = false, updatable = false)
+    @Column(name = "contractor_id")
     private Long contractorId;
 
 
