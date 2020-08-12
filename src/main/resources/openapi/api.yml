@@ -806,10 +806,6 @@ components:
                     description: "Email-адрес"
                     example: user@example.com
                     format: email
-                is_auto:
-                    type: boolean
-                    description: "Признак автоматической выдачи аванса контрагенту"
-                    example: true
                 uuid:
                     type: string
                     description: "Идентификатор контакта"

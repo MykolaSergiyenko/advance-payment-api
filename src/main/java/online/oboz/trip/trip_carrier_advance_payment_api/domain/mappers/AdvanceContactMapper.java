@@ -28,7 +28,6 @@ public interface AdvanceContactMapper {
     @Mapping(source = "info.phone", target = "phoneNumber")
     @Mapping(source = "info.email", target = "email")
     @Mapping(source = "info.fullName", target = "fullName")
-    @Mapping(source = "contractor.isAutoContractor", target = "isAuto")
     CarrierContactDTO toContactDTO(AdvanceContactsBook contact);
 
     @InheritInverseConfiguration
