@@ -81,7 +81,7 @@ public class RestService implements RestTemplateService {
                 return response;
             }
         } catch (Exception e) {
-            log.error("Failed resource-request to url: '{}' . Error: {} .", url, e);
+            log.error("Failed resource-request to url: '{}' . Error: {} .", url, e.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return null;

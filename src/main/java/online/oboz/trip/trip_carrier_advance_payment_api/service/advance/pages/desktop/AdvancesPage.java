@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.transaction.Transactional;
+import java.awt.image.BufferedImage;
 import java.util.UUID;
 
 
@@ -63,6 +64,11 @@ public class AdvancesPage implements AdvanceDesktop {
     public ResponseEntity<Resource> downloadFile(UUID uuid){
         log.info("[Advance] Download-file request: {}. ", uuid);
         return attachmentService.fromBStore(uuid);
+    }
+
+    public ResponseEntity<BufferedImage> getPdfPreview(UUID uuid, Integer pageNum){
+        log.info("[Advance] Get pdf-file-preview request: {} - p.{}. ", uuid, pageNum);
+        return attachmentService.previewFromBStore(uuid, pageNum);
     }
 
 

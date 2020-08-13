@@ -575,6 +575,43 @@ paths:
                             schema:
                                 $ref: "#/components/schemas/Error"
 
+    /advance_test/get_preview/{uuid}:
+        get:
+            security:
+                -   bearerAuth: []
+            summary: "Выполнить уведомление по авансу (e-mail и смс в общем  случае)"
+            operationId: getFilePreview
+            tags:
+                - Песочница
+                - Превью
+            parameters:
+                -   name: uuid
+                    in: path
+                    description: "uuid"
+                    required: true
+                    schema:
+                        type: string
+                        format: uuid
+            responses:
+                200:
+                    description: "OK"
+                    content:
+                        application/png:
+                            schema:
+                                type: object
+                default:
+                    description: "Some other error"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                422:
+                    description: "Business error"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+
 # Apply the security globally to all operations
 security:
     -   bearerAuth: []

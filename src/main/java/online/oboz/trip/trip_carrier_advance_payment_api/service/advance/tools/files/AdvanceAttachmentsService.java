@@ -8,13 +8,23 @@ import online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.f
 import online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.files.reports.ReportsTemplateService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.files.tripdocs.TripDocumentsService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.util.ErrorUtils;
+import org.springframework.http.HttpStatus;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.rendering.ImageType;
+import org.apache.pdfbox.rendering.PDFRenderer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.UUID;
 
 import static org.springframework.http.HttpStatus.*;
@@ -54,8 +64,58 @@ public class AdvanceAttachmentsService implements AttachmentService {
         return advanceService.findByUuid(uuid);
     }
 
+    @Override
     public ResponseEntity<Resource> fromBStore(UUID uuid) {
         return bStoreService.requestResourceFromBStore(uuid);
+    }
+
+    @Override
+    public ResponseEntity<BufferedImage> previewFromBStore(UUID uuid, Integer pageNum) {
+
+
+        try {
+            File file = bStoreService.requestResourceFromBStore(uuid).getBody().getFile();
+
+            if (file.exists()) {
+                log.info("--- File is: {}", file.getName());
+                PDDocument document = PDDocument.load(file);
+                PDFRenderer pdfRenderer = new PDFRenderer(document);
+                int numberOfPages = document.getNumberOfPages();
+
+                if (pageNum < numberOfPages) throw attachmentsError("Page number for preview must be less than total PDF page number.");
+                else {
+                    PDPage page = document.getPage(pageNum - 1);
+
+
+                    String fileName = file.getName().replace(".pdf", "");
+                    String fileExtension= "png";
+                    /*
+                     * 600 dpi give good image clarity but size of each image is 2x times of 300 dpi.
+                     * Ex:  1. For 300dpi 04-Request-Headers_2.png expected size is 797 KB
+                     *      2. For 600dpi 04-Request-Headers_2.png expected size is 2.42 MB
+                     */
+                    int dpi = 300;// use less dpi for to save more space in harddisk. For professional usage you can use more than 300dpi
+
+
+                    File outPutFile = new File( fileName +"_"+ (pageNum - 1) +"."+ fileExtension);
+                    BufferedImage bImage = pdfRenderer.renderImageWithDPI(pageNum - 1, dpi, ImageType.RGB);
+                    ImageIO.write(bImage, "png", outPutFile);
+
+
+                    document.close();
+                      return ResponseEntity.status(HttpStatus.OK)
+                        .header(HttpHeaders.CONTENT_DISPOSITION, "filename=\"image.png")
+                            .contentType(MediaType.IMAGE_PNG)
+                            .body(bImage);
+                }
+
+            } else {
+                System.err.println(file.getName() +" File not exists");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
 

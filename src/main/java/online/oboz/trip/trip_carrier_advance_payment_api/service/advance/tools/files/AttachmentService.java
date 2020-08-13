@@ -5,6 +5,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.awt.image.BufferedImage;
 import java.util.UUID;
 
 
@@ -104,5 +105,5 @@ public interface AttachmentService {
      */
     ResponseEntity<Resource> fromBStore(UUID uuid);
 
-
+    ResponseEntity<BufferedImage> previewFromBStore(UUID uuid, Integer pageNum);
 }

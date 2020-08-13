@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 
+import java.awt.image.BufferedImage;
 import java.util.UUID;
 
 /**
@@ -70,6 +71,8 @@ public interface AdvanceDesktop extends AdvancesApiDelegate {
      * @return
      */
     ResponseEntity<Resource> downloadFile(UUID uuid);
+
+    ResponseEntity<BufferedImage> getPdfPreview(UUID uuid, Integer pageNum);
 
 
     /**
