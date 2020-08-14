@@ -1,10 +1,13 @@
 package online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.contacts;
 
+import java.util.Optional;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.dicts.contacts.AdvanceContactsBook;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.contacts.FullNamePersonInfo;
+import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.contractor.AdvanceContractor;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.mappers.AdvanceContactMapper;
 import online.oboz.trip.trip_carrier_advance_payment_api.error.BusinessLogicException;
 import online.oboz.trip.trip_carrier_advance_payment_api.repository.AdvanceContactsBookRepository;
+import online.oboz.trip.trip_carrier_advance_payment_api.repository.ContractorRepository;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.util.ErrorUtils;
 import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.CarrierContactDTO;
 import org.slf4j.Logger;
@@ -25,10 +28,14 @@ public class AdvanceContactService implements ContactService {
 
     private final AdvanceContactsBookRepository contactsBookRepository;
     private final AdvanceContactMapper contactMapper = AdvanceContactMapper.contactMapper;
+    private final ContractorRepository contractorRepository;
 
-
-    public AdvanceContactService(AdvanceContactsBookRepository contactsBookRepository) {
+    public AdvanceContactService(
+        AdvanceContactsBookRepository contactsBookRepository,
+        ContractorRepository contractorRepository
+    ) {
         this.contactsBookRepository = contactsBookRepository;
+        this.contractorRepository = contractorRepository;
     }
 
     @Override
@@ -94,6 +101,15 @@ public class AdvanceContactService implements ContactService {
             contact.setInfo(dtoToPersonInfo(contactDTO));
         }
         contactsBookRepository.save(contact);
+        Optional<AdvanceContractor> contractor = contractorRepository.findById(contact.getContractorId());
+        if (contractor.isPresent()) {
+            log.info("Set isAutoAdvance for contractor: " + contractor.get().getId());
+            AdvanceContractor contractorEntity = contractor.get();
+            contractorEntity.setAutoContractor(contactDTO.getIsAuto());
+            contractorRepository.save(contractorEntity);
+        } else {
+            log.warn("Not fount contractor by id: {} for update isAutoAdvance", contact.getContractorId());
+        }
         return contact;
     }
 
@@ -106,7 +122,12 @@ public class AdvanceContactService implements ContactService {
     }
 
     private CarrierContactDTO contactToDto(AdvanceContactsBook contact) {
-        return contactMapper.toContactDTO(contact);
+        boolean isAuto = false;
+        Optional<AdvanceContractor> contractor = contractorRepository.findById(contact.getContractorId());
+        if (contractor.isPresent()) {
+            isAuto = contractor.get().getAutoContractor();
+        }
+        return contactMapper.toContactDTO(contact).isAuto(isAuto);
     }
 
     private BusinessLogicException getContactError(String message) {
