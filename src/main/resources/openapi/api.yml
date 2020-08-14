@@ -504,7 +504,7 @@ paths:
                     description: "Ошибка в процессе скачивания файла"
 
 
-    /advance_test/cutUrl/{stringUrl}:
+    /advance_test/cut_url/{stringUrl}:
         post:
             security:
                 -   bearerAuth: []
@@ -594,11 +594,12 @@ paths:
                         format: uuid
             responses:
                 200:
-                    description: "OK"
+                    description: Preview in PNG
                     content:
-                        application/png:
+                        image/png:
                             schema:
-                                type: object
+                                type: string
+                                format: binary
                 default:
                     description: "Some other error"
                     content:
