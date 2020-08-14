@@ -71,7 +71,7 @@ public class AdvanceAttachmentsService implements AttachmentService {
 
     @Override
     public ResponseEntity<BufferedImage> previewFromBStore(UUID uuid, Integer pageNum) {
-
+        log.info("--- previewFromBStore for: {} - {}.", uuid, pageNum);
 
         try {
             File file = bStoreService.requestResourceFromBStore(uuid).getBody().getFile();
@@ -111,9 +111,11 @@ public class AdvanceAttachmentsService implements AttachmentService {
                 }
 
             } else {
-                System.err.println(file.getName() +" File not exists");
+                log.info("--- File dont exist: {}", uuid);
             }
         } catch (Exception e) {
+            log.error("--- preview error: {}", e.getMessage());
+
             e.printStackTrace();
         }
         return null;
