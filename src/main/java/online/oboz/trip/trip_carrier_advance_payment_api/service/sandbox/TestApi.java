@@ -53,7 +53,7 @@ public class TestApi implements AdvanceTestApiDelegate {
     }
 
     @Override
-    public ResponseEntity<Object> getFilePreview(UUID uuid){
+    public ResponseEntity<Resource> getFilePreview(UUID uuid){
         log.info("--- Get first-page preview for {} pdf.", uuid);
         BufferedImage b =  attachmentService.previewFromBStore(uuid, 1).getBody();
         log.info("--- BufferedImage is {} pdf.", b.getType());
