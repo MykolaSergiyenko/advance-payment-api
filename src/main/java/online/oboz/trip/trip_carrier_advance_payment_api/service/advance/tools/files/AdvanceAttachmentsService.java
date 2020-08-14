@@ -78,10 +78,11 @@ public class AdvanceAttachmentsService implements AttachmentService {
 
             if (file.exists()) {
                 log.info("--- File is: {}", file.getName());
-                PDDocument document = PDDocument.load(file);
+                PDDocument document = PdfHelper.loadPdf(file);
+                log.info("--- PDDocument is: {}", document.getVersion());
                 PDFRenderer pdfRenderer = new PDFRenderer(document);
                 int numberOfPages = document.getNumberOfPages();
-
+                log.info("--- numberOfPages is: {}", numberOfPages);
                 if (pageNum < numberOfPages) throw attachmentsError("Page number for preview must be less than total PDF page number.");
                 else {
                     PDPage page = document.getPage(pageNum - 1);
@@ -102,7 +103,7 @@ public class AdvanceAttachmentsService implements AttachmentService {
                     ImageIO.write(bImage, "png", outPutFile);
 
 
-                    document.close();
+                    PdfHelper.closePdf(document);
                       return ResponseEntity.status(HttpStatus.OK)
                         .header(HttpHeaders.CONTENT_DISPOSITION, "filename=\"image.png")
                             .contentType(MediaType.IMAGE_PNG)
