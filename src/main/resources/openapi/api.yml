@@ -625,7 +625,7 @@ paths:
         get:
             security:
                 -   bearerAuth: []
-            summary: "Выполнить уведомление по авансу (e-mail и смс в общем  случае)"
+            summary: "Получить превью PDF-файла - первая страница"
             operationId: getFilePreview
             tags:
                 - Песочница
