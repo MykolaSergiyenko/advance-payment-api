@@ -1,8 +1,11 @@
 package online.oboz.trip.trip_carrier_advance_payment_api.service.rest;
 
 import online.oboz.trip.trip_carrier_advance_payment_api.config.ApplicationProperties;
+import online.oboz.trip.trip_carrier_advance_payment_api.error.BusinessLogicException;
 import online.oboz.trip.trip_carrier_advance_payment_api.exception.AuthException;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.util.ErrorUtils;
 import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.ResponseToken;
+import org.apache.commons.compress.utils.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,10 +13,24 @@ import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.io.Resource;
 import org.springframework.http.*;
+import org.springframework.http.client.ClientHttpRequest;
+import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StreamUtils;
+import org.springframework.web.client.ResponseExtractor;
 import org.springframework.web.client.RestTemplate;
 
+import javax.imageio.ImageIO;
+import javax.servlet.http.HttpServletResponse;
+import java.awt.*;
+import java.awt.image.RenderedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpMethod.POST;
@@ -73,7 +90,7 @@ public class RestService implements RestTemplateService {
     }
 
     public ResponseEntity<Resource> getRequestResource(String url, HttpHeaders headers) {
-        log.info("Got resource-request to: '{}'", url);
+        //log.info("Got resource-request to: '{}'", url);
         try {
             HttpEntity<String> request = new HttpEntity<>(headers);
             ResponseEntity<Resource> response = restTemplate.exchange(url, GET, request, Resource.class);

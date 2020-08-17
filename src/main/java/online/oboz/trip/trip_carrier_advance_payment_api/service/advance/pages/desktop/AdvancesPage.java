@@ -68,7 +68,7 @@ public class AdvancesPage implements AdvanceDesktop {
 
     public ResponseEntity<BufferedImage> getPdfPreview(UUID uuid, Integer pageNum){
         log.info("[Advance] Get pdf-file-preview request: {} - p.{}. ", uuid, pageNum);
-        return attachmentService.previewFromBStore(uuid, pageNum);
+        return attachmentService.pdfPreviewFromBStore(uuid, pageNum);
     }
 
 

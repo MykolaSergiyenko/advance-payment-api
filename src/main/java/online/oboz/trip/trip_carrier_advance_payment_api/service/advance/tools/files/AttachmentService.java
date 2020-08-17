@@ -105,5 +105,6 @@ public interface AttachmentService {
      */
     ResponseEntity<Resource> fromBStore(UUID uuid);
 
-    ResponseEntity<BufferedImage> previewFromBStore(UUID uuid, Integer pageNum);
+    //ResponseEntity<BufferedImage> pdfPreviewFromBStore(UUID uuid, Integer pageNum);
+    ResponseEntity<BufferedImage> pdfPreviewFromBStore(UUID uuid, Integer pageNum);
 }
