@@ -291,6 +291,52 @@ paths:
                 "422":
                     description: "Ошибка в процессе скачивания файла"
 
+    /advances/download_preview:
+        get:
+            security:
+                -   bearerAuth: []
+            summary: "Получить превью страницы PDF-файла"
+            operationId: getPdfPreview
+            tags:
+                - "Рабочий стол авансирования"
+                - "Превью"
+            parameters:
+                -   name: uuid
+                    in: query
+                    description: "pdf-file uuid"
+                    required: true
+                    schema:
+                        type: string
+                        format: uuid
+                -   name: page
+                    in: query
+                    description: "page num"
+                    required: true
+                    schema:
+                        type: integer
+                        format: int64
+                        minimum: 1
+            responses:
+                200:
+                    description: Preview in PNG
+                    content:
+                        image/png:
+                            schema:
+                                type: string
+                                format: binary
+                default:
+                    description: "Some other error"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                422:
+                    description: "Business error"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+
 
     /advance_contacts/get_contact/{contractor_id}:
         get:
