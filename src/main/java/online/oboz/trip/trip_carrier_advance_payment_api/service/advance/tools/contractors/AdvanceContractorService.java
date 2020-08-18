@@ -80,8 +80,15 @@ public class AdvanceContractorService implements ContractorService {
         return contractors;
     }
 
-    public AdvanceContractor saveContractor(AdvanceContractor contractor){
+    public AdvanceContractor saveContractor(AdvanceContractor contractor) {
         contractorRepository.save(contractor);
+        return contractor;
+    }
+
+    public AdvanceContractor setAutoFlag(AdvanceContractor contractor, Boolean flag) {
+        contractor.setAutoContractor(flag);
+        saveContractor(contractor);
+        log.info("[Advance-contacts]: Set auto-contractor-flag = '{}' for contractor {}.", flag, contractor.getFullName());
         return contractor;
     }
 

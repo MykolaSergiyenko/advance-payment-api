@@ -34,4 +34,6 @@ public interface ContractorService {
     Boolean isVatPayer(Long contractorId);
 
     AdvanceContractor saveContractor(AdvanceContractor advance);
+
+    AdvanceContractor setAutoFlag(AdvanceContractor contractor, Boolean flag);
 }

@@ -102,15 +102,9 @@ public class AdvanceContactService implements ContactService {
 
         }
         contactsBookRepository.save(contact);
-        setAutoFlag(contact.getContractor(), contactDTO.getIsAuto());
-        return contact;
-    }
 
-    private AdvanceContractor setAutoFlag(AdvanceContractor contractor, Boolean flag){
-        contractor.setAutoContractor(flag);
-        contractorService.saveContractor(contractor);
-        log.info("[Advance-contacts]: Set auto-contractor-flag = '{}' for contractor {}.", flag, contractor.getFullName());
-        return contractor;
+        contractorService.setAutoFlag(contact.getContractor(), contactDTO.getIsAuto());
+        return contact;
     }
 
     private AdvanceContactsBook dtoToContact(CarrierContactDTO contactDTO) {
