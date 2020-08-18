@@ -58,6 +58,8 @@ public class AdvanceContractorService implements ContractorService {
         List<AdvanceContractor> contractors = null;
         try {
             contractors = contractorRepository.findByMinCountAdvancesPaid(minPaidAdvancesCount);
+            log.info("[Auto-advance]: Found {} contractors to set 'auto-advance' flag for them.",
+                contractors.size());
         } catch (Exception e) {
             log.error("Error while getAutoContractors. " + e.getMessage());
         }
@@ -70,7 +72,7 @@ public class AdvanceContractorService implements ContractorService {
             contractors.forEach(contractor -> {
                 contractor.setAutoContractor(true);
                 contractorRepository.save(contractor);
-                log.info("Advance Contractor with id: {} set 'auto-advance' contractor.", contractor.getId());
+                log.info("Advance contractor {} set 'auto-advance' flag.", contractor.getId());
             });
         } catch (Exception e) {
             log.error("Error while updating auto-advance-contractors. " + e.getMessage());
