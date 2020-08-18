@@ -33,6 +33,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
             .antMatchers(HttpMethod.POST, "/v1/advance_test/**").permitAll()
             .antMatchers(HttpMethod.PUT, "/v1/advance_test/**").permitAll()
             .antMatchers(HttpMethod.GET, "/v1/advance_test/**").permitAll()
+            .antMatchers(HttpMethod.GET, "/v1/advance_contacts/**").permitAll()
+            .antMatchers(HttpMethod.POST, "/v1/advance_contacts/**").permitAll()
+            .antMatchers(HttpMethod.PUT, "/v1/advance_contacts/**").permitAll()
 
             .anyRequest().authenticated()
             .and().oauth2ResourceServer().jwt();
