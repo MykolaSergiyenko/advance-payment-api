@@ -33,6 +33,7 @@ public class AdvanceContactService implements ContactService {
 
     @Override
     public ResponseEntity<Void> addContact(CarrierContactDTO carrierContactDTO) {
+        log.info("[Advance-contacts]: add contact - {}.", carrierContactDTO);
         createContact(carrierContactDTO);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -40,12 +41,14 @@ public class AdvanceContactService implements ContactService {
 
     @Override
     public ResponseEntity<Void> updateContact(CarrierContactDTO carrierContactDTO) {
+        log.info("[Advance-contacts]: update contact - {}.", carrierContactDTO);
         setContact(carrierContactDTO);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @Override
     public ResponseEntity<CarrierContactDTO> getContact(Long contractorId) {
+        log.info("[Advance-contacts]: get contact - {}.", contractorId);
         return new ResponseEntity<>(contactToDto(findByContractor(contractorId)), HttpStatus.OK);
     }
 
