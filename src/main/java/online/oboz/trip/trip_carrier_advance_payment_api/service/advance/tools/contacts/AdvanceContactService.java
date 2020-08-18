@@ -104,9 +104,6 @@ public class AdvanceContactService implements ContactService {
         Optional<AdvanceContractor> contractor = contractorRepository.findById(contact.getContractorId());
         if (contractor.isPresent()) {
             log.info("Set isAutoAdvance for contractor: " + contractor.get().getId());
-            AdvanceContractor contractorEntity = contractor.get();
-            contractorEntity.setAutoContractor(contactDTO.getIsAuto());
-            contractorRepository.save(contractorEntity);
         } else {
             log.warn("Not fount contractor by id: {} for update isAutoAdvance", contact.getContractorId());
         }
