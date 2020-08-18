@@ -402,23 +402,26 @@ public class BaseAdvanceService implements AdvanceService {
     public void giveAutoAdvances() {
         List<Trip> autoTrips = tripService.getAutoAdvanceTrips();
         long size = autoTrips.size();
-        log.info("[Auto-advance]: Found {} trips for give auto-advance.", size);
-        Set<Long> contractors = autoTrips.stream().map(Trip::getContractorId).collect(Collectors.toSet());
-        log.info("[Auto-advance]: Found {} different auto-contractors for its.", contractors.size());
-        autoTrips.forEach(trip -> {
-            try {
-                log.info("[Auto-advance]: try create for trip {}.", trip.getId());
+        long contractorsSize = autoTrips.stream().map(Trip::getContractorId).collect(Collectors.toSet()).size();
+        if (size > 0) {
+            log.info("[Auto-advance]: Found {} trips for give auto-advance for {} different auto-contractors.",
+                size, contractorsSize);
 
-                Advance autoAdvance = createAutoAdvanceForTrip(trip, autoUser);
+            autoTrips.forEach(trip -> {
+                try {
+                    log.info("[Auto-advance]: try create for trip {}.", trip.getId());
 
-                if (null != autoAdvance) {
-                    log.info("[Auto-advance]: {} was created for trip: {}.",
-                        autoAdvance.getId(), autoAdvance.getAdvanceTripFields().getTripId());
+                    Advance autoAdvance = createAutoAdvanceForTrip(trip, autoUser);
+
+                    if (null != autoAdvance) {
+                        log.info("[Auto-advance]: {} was created for trip: {}.",
+                            autoAdvance.getId(), autoAdvance.getAdvanceTripFields().getTripId());
+                    }
+                } catch (Exception e) {
+                    log.info("[Auto-advance]: Error for trip: {}. Errors: ", trip.getId(), e.getMessage());
                 }
-            } catch (Exception e) {
-                log.info("[Auto-advance]: Error for trip: {}. Errors: ", trip.getId(), e.getMessage());
-            }
-        });
+            });
+        } else log.info("[Auto-advance]: Trips to give auto-advance not found.");
     }
 
 

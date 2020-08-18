@@ -1,9 +1,8 @@
 package online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.dicts.contacts;
 
+import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.contractor.AdvanceContractor;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.persistence.*;
 
@@ -17,9 +16,23 @@ import javax.persistence.*;
 @Table(name = "contractor_advance_payment_contact", schema = "common")
 public class AdvanceContactsBook extends AdvanceContact {
 
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "contractor_id", insertable = false, updatable = false)
+    private AdvanceContractor contractor;
+
     // TODO: add sequence generator?
     //@SequenceGenerator(name = "default_gen", sequenceName = "trip_request_advance_payment_id_seq", allocationSize = 1, schema = "orders")
     public AdvanceContactsBook() {
+    }
+
+
+    public AdvanceContractor getContractor() {
+        return contractor;
+    }
+
+    public void setContractor(AdvanceContractor contractor) {
+        this.contractor = contractor;
     }
 
     @PrePersist
