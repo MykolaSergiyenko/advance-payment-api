@@ -107,7 +107,7 @@ public class AdvanceContactService implements ContactService {
     }
 
     private AdvanceContractor setAutoFlag(AdvanceContractor contractor, Boolean flag){
-        log.info("[Advance-contacts]: Set auto-contractor-flag = {} for contractor {}.", contractor.getFullName());
+        log.info("[Advance-contacts]: Set auto-contractor-flag = '{}' for contractor {}.", flag, contractor.getFullName());
         contractor.setAutoContractor(flag);
         contractorService.saveContractor(contractor);
         return contractor;
