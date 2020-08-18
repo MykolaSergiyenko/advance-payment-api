@@ -2,9 +2,11 @@ package online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.
 
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.dicts.contacts.AdvanceContactsBook;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.contacts.FullNamePersonInfo;
+import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.contractor.AdvanceContractor;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.mappers.AdvanceContactMapper;
 import online.oboz.trip.trip_carrier_advance_payment_api.error.BusinessLogicException;
 import online.oboz.trip.trip_carrier_advance_payment_api.repository.AdvanceContactsBookRepository;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.contractors.ContractorService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.util.ErrorUtils;
 import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.CarrierContactDTO;
 import org.slf4j.Logger;
@@ -24,11 +26,13 @@ public class AdvanceContactService implements ContactService {
     private static final Logger log = LoggerFactory.getLogger(AdvanceContactService.class);
 
     private final AdvanceContactsBookRepository contactsBookRepository;
+    private final ContractorService contractorService;
     private final AdvanceContactMapper contactMapper = AdvanceContactMapper.contactMapper;
 
 
-    public AdvanceContactService(AdvanceContactsBookRepository contactsBookRepository) {
+    public AdvanceContactService(AdvanceContactsBookRepository contactsBookRepository, ContractorService contractorService) {
         this.contactsBookRepository = contactsBookRepository;
+        this.contractorService = contractorService;
     }
 
     @Override
@@ -95,9 +99,17 @@ public class AdvanceContactService implements ContactService {
         } else {
             contact = findByContractor(contactDTO.getContractorId());
             contact.setInfo(dtoToPersonInfo(contactDTO));
+
         }
         contactsBookRepository.save(contact);
+        AdvanceContractor contractor = setAutoFlag(contact.getContractor(), contactDTO.getIsAuto());
         return contact;
+    }
+
+    private AdvanceContractor setAutoFlag(AdvanceContractor contractor, Boolean flag){
+        contractor.setAutoContractor(flag);
+        contractorService.saveContractor(contractor);
+        return contractor;
     }
 
     private AdvanceContactsBook dtoToContact(CarrierContactDTO contactDTO) {

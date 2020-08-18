@@ -80,6 +80,11 @@ public class AdvanceContractorService implements ContractorService {
         return contractors;
     }
 
+    public AdvanceContractor saveContractor(AdvanceContractor contractor){
+        contractorRepository.save(contractor);
+        return contractor;
+    }
+
 
     private BusinessLogicException getContractorError(String message) {
         return ErrorUtils.getInternalError("Contractor-service internal error: " + message);
