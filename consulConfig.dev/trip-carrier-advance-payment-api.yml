@@ -123,7 +123,7 @@ services:
         # Auto-advance checker-crons?
         cron:
             # Create auto-advances for auto-contractors trips
-            create: 0 0/30 * * * *
+            create: 0 0/3 * * * *
             # Update: 1) auto-contractors; 2) file's uuid?
             update: 0 0/30 * * * *
             # Scheduled-notifications (delayed sms)
