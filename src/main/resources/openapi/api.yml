@@ -957,7 +957,6 @@ components:
                 - cancelled_at
                 - unf_sent_at
                 - paid_at
-                - contractor_name
                 - contact_email
 
         SortByDirection:
