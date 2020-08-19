@@ -41,7 +41,6 @@ public class AdvancesPage implements AdvanceDesktop {
     }
 
     public ResponseEntity<AdvanceDesktopDTO> search(String tab, Filter filter) {
-        checkAccess();
         return new ResponseEntity<>(advanceService.getAdvances(tab, filter), HttpStatus.OK);
     }
 
