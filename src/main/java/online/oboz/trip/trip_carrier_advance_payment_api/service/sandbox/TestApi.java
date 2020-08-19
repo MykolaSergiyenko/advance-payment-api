@@ -62,8 +62,8 @@ public class TestApi implements AdvanceTestApiDelegate {
         return new ResponseEntity<>(new ByteArrayResource(b.toString().getBytes()), HttpStatus.OK);
     }
 
-    @Override
-    public ResponseEntity<AdvanceDesktopDTO> search(String tab, Filter filter) {
-        return new ResponseEntity<>(service.getAdvances(tab, filter), HttpStatus.OK);
-    }
+//    @Override
+//    public ResponseEntity<AdvanceDesktopDTO> search(String tab, Filter filter) {
+//        return new ResponseEntity<>(service.getAdvances(tab, filter), HttpStatus.OK);
+//    }
 }

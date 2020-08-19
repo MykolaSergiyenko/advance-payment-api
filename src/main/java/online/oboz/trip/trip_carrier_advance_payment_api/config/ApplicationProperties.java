@@ -1,5 +1,7 @@
 package online.oboz.trip.trip_carrier_advance_payment_api.config;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
@@ -11,6 +13,8 @@ import java.util.List;
  */
 @ConfigurationProperties(prefix = "application", ignoreInvalidFields = false)
 public class ApplicationProperties {
+
+    private static final Logger log = LoggerFactory.getLogger(ApplicationProperties.class);
     /**
      * Spring mail-sender
      */
@@ -306,6 +310,8 @@ public class ApplicationProperties {
      * not give all email's list for SecurityUtils.
      */
     public static boolean hasAccess(String email) {
+        log.info("--- [accessUsersEmails]: "+accessUsersEmails);
+        log.info("--- [accessUsersEmails.contains(email)]: "+accessUsersEmails.contains(email));
         return accessUsersEmails.contains(email);
     }
 
