@@ -715,10 +715,6 @@ components:
                     type: string
                     format: date-time
                     description: "Дата создания заказа поставщика"
-                push_button_at:
-                    type: string
-                    format: date-time
-                    description: "Дата и время нажатия на кнопку"
                 contractor_name:
                     type: string
                     description: "Исполнитель наименование"
@@ -776,12 +772,21 @@ components:
                 is_cancelled:
                     type: boolean
                     description: "Признак аннулирован аванс"
+                cancelled_at:
+                    type: string
+                    format: date-time
+                    description: "Дата отмены"
                 cancelled_comment:
                     type: string
                     description: "Комментарий к аннулированию аванса"
                 is_unf_send:
                     type: boolean
                     description: "Признак отправили в УНФ"
+                unf_sent_at:
+                    type: string
+                    format: date-time
+                    description: "Дата отправки в УНФ"
+
 
 
         CarrierPageDTO:
@@ -949,8 +954,11 @@ components:
                 - is_automation_request
                 - loading_complete
                 - contractor_name
-                - is_cancelled
-                - is_cancelled_at
+                - cancelled_at
+                - unf_sent_at
+                - paid_at
+                - contractor_name
+                - contact_email
 
         SortByDirection:
             type: string
