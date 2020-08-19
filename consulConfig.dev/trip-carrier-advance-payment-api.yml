@@ -124,7 +124,7 @@ services:
         cron:
             # Create auto-advances for auto-contractors trips
             create: 0 0/3 * * * *
-            # Update: 1) auto-contractors; 2) file's uuid?
+            # Update auto-contractors
             update: 0 0/30 * * * *
             # Scheduled-notifications (delayed sms)
             notify: 0 0/30 * * * *
