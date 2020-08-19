@@ -73,12 +73,12 @@ accessed-users:
 services:
     # tokenAuthUrl in RestService?
     keycloak:
-        url: https://preprod.oboz.online/auth/realms/master/protocol/openid-connect
+        url: https://oboz.online/auth/realms/master/protocol/openid-connect
         token-postfix: '/token'
         token-body: 'grant_type=password&client_id=elp&username=%s&password=%s'
         auth:
-            username: oboztech_payment@oboz.tech
-            password: 1870
+            username: ADVANCE_USER
+            password: ADVANCE_PASSWORD
 
     # BStore-URL for BStore-service
     bstore:
@@ -145,7 +145,7 @@ services:
             # Cut LK-links for short-SMS enable
             cut-links: true
             # Sms-sender url
-            sender-url: http://sms-sender.r14.k.preprod.oboz:30080/v1/send-sms
+            sender-url: http://sms-sender:8080/v1/send-sms
             # SMS-templates
             sms-phone-template: 7%s
             sms-message-template:
