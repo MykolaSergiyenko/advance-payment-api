@@ -1,5 +1,6 @@
 package online.oboz.trip.trip_carrier_advance_payment_api.service.advance.pages.desktop;
 
+import online.oboz.trip.trip_carrier_advance_payment_api.config.ApplicationProperties;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.advance.AdvanceService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.files.AttachmentService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.util.SecurityUtils;
@@ -16,6 +17,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import javax.transaction.Transactional;
 import java.awt.image.BufferedImage;
+import java.util.List;
 import java.util.UUID;
 
 
@@ -29,15 +31,17 @@ public class AdvancesPage implements AdvanceDesktop {
     private static final Logger log = LoggerFactory.getLogger(AdvancesPage.class);
     private final AdvanceService advanceService;
     private final AttachmentService attachmentService;
+    private final List<String> accessUsersEmails;
 
 
     @Autowired
     public AdvancesPage(
         AdvanceService advanceService,
-        AttachmentService attachmentService
-    ) {
+        AttachmentService attachmentService,
+        ApplicationProperties properties) {
         this.advanceService = advanceService;
         this.attachmentService = attachmentService;
+        this.accessUsersEmails = properties.getAccessUsersEmails();
     }
 
     public ResponseEntity<AdvanceDesktopDTO> search(String tab, Filter filter) {
@@ -62,19 +66,19 @@ public class AdvancesPage implements AdvanceDesktop {
         return advanceService.changeComment(id, comment);
     }
 
-    public ResponseEntity<Resource> downloadFile(UUID uuid){
+    public ResponseEntity<Resource> downloadFile(UUID uuid) {
         log.info("[Advance] Download-file request: {}. ", uuid);
         return attachmentService.fromBStore(uuid);
     }
 
-    public ResponseEntity<BufferedImage> getPdfPreview(UUID uuid, Integer pageNum){
+    public ResponseEntity<BufferedImage> getPdfPreview(UUID uuid, Integer pageNum) {
         log.info("[Advance] Get pdf-file-preview request: {} - p.{}. ", uuid, pageNum);
         return attachmentService.pdfPreviewFromBStore(uuid, pageNum);
     }
 
 
     public void checkAccess() {
-        if (SecurityUtils.hasNotAccess()) {
+        if (SecurityUtils.hasNotAccess(accessUsersEmails)) {
             log.info("User hasn't access.");
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User permission denied");
         }

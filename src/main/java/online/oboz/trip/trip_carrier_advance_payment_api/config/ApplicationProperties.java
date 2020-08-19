@@ -42,7 +42,7 @@ public class ApplicationProperties {
      * Access-only-emails-list
      */
     @Value("${accessed-users.emails}")
-    private static List<String> accessUsersEmails;
+    private List<String> accessUsersEmails;
 
 
     /**
@@ -297,21 +297,22 @@ public class ApplicationProperties {
     public ApplicationProperties() {
     }
 
-
-    /**
-     * @return Set access-only-emails-list
-     */
-    public void setAccessUsersEmails(List<String> emails) {
-        this.accessUsersEmails = emails;
+    public List<String> getAccessUsersEmails() {
+        return accessUsersEmails;
     }
+
+    public void setAccessUsersEmails(List<String> accessUsersEmails) {
+        this.accessUsersEmails = accessUsersEmails;
+    }
+
 
     /**
      * @return Check hasAccess by only-user's emails here,
      * not give all email's list for SecurityUtils.
      */
-    public static boolean hasAccess(String email) {
-        log.info("--- [accessUsersEmails]: "+accessUsersEmails);
-        log.info("--- [accessUsersEmails.contains(email)]: "+accessUsersEmails.contains(email));
+    public boolean hasAccess(String email) {
+        log.info("--- [accessUsersEmails]: " + accessUsersEmails);
+        log.info("--- [accessUsersEmails.contains(email)]: " + accessUsersEmails.contains(email));
         return accessUsersEmails.contains(email);
     }
 
