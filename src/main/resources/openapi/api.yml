@@ -658,6 +658,43 @@ paths:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/Error"
+    /advance_test/search/{tab}:
+        post:
+            summary: "Список авансов (грид)"
+            operationId: search
+            tags:
+                - "Песочница"
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/Filter'
+            parameters:
+                -   name: tab
+                    in: path
+                    schema:
+                        type: string
+                    required: true
+                    description: "Фильтр (название вкладки раб.стола авансирования)"
+            responses:
+                200:
+                    description: "OK - Грид получен"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AdvanceDesktopDTO'
+                default:
+                    description: "Ошибка - рабочий стол авансирования"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                422:
+                    description: "Ошибка запроса грида авансирования."
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
 
 # Apply the security globally to all operations
 security:
