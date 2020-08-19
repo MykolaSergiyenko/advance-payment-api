@@ -1,7 +1,5 @@
 package online.oboz.trip.trip_carrier_advance_payment_api.service.util;
 
-import online.oboz.trip.trip_carrier_advance_payment_api.config.ApplicationProperties;
-import org.springframework.beans.factory.annotation.Value;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
