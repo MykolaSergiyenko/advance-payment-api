@@ -24,19 +24,16 @@ public class AdvanceContacts implements ContractorsContacts {
 
     @Override
     public ResponseEntity<CarrierContactDTO> getContact(Long contractorId) {
-        log.info("Get advance-contact request for contractor: {} ", contractorId);
         return contactService.getContact(contractorId);
     }
 
     @Override
     public ResponseEntity<Void> addContact(CarrierContactDTO carrierContactDTO) {
-        log.info("Add advance-contact request: {} ", carrierContactDTO);
         return contactService.addContact(carrierContactDTO);
     }
 
     @Override
     public ResponseEntity<Void> updateContact(CarrierContactDTO carrierContactDTO) {
-        log.info("Update advance-contact request: {} ", carrierContactDTO);
         return contactService.updateContact(carrierContactDTO);
     }
 }

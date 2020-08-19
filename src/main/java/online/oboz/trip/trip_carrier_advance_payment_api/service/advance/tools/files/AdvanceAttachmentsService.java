@@ -83,7 +83,7 @@ public class AdvanceAttachmentsService implements AttachmentService {
                          * Ex:  1. For 300dpi 04-Request-Headers_2.png expected size is 797 KB
                          *      2. For 600dpi 04-Request-Headers_2.png expected size is 2.42 MB
                          */
-                        int dpi = 300;// use less dpi for to save more space in harddisk. For professional usage you can use more than 300dpi
+                        int dpi = 72;// use less dpi for to save more space in harddisk. For professional usage you can use more than 300dpi
 
                         String fileName = (resource.getFilename()).replace(".pdf", ("_"+pageNum)+".png");
 

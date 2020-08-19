@@ -62,19 +62,19 @@ public class CarrierPage implements CarrierScreen {
 
     @Override
     public ResponseEntity<Void> carrierWantsAdvance(UUID uuid) {
-        log.info("Got carrier 'I want yr Advance' request for advance: {}.", uuid);
+        log.info("Перевозчик нажал 'Хочу аванс': {}.", uuid);
         return advanceService.setWantsAdvance(uuid);
     }
 
     @Override
     public ResponseEntity<Resource> downloadTemplate(Long id) {
-        log.info("Got download 'Advance-request'-template for carrier for advance: {}.", id);
+        log.info("Скачать шаблонную заявку по авансу: {}.", id);
         return attachmentService.downloadTemplate(id);
     }
 
     @Override
     public ResponseEntity<Void> uploadAssignment(MultipartFile filename, Long id) {
-        log.info("Got upload assignment from carrier request for advance: {}.", id);
+        log.info("Загрузить подписанную заявку по авансу: {}.", id);
         return attachmentService.uploadAssignment(filename, id);
     }
 
@@ -109,6 +109,6 @@ public class CarrierPage implements CarrierScreen {
     }
 
     private BusinessLogicException getCarrierException(String s) {
-        return ErrorUtils.getInternalError("Carrier-page error: " + s);
+        return ErrorUtils.getInternalError("Ошибка на странице перевозчика: " + s);
     }
 }

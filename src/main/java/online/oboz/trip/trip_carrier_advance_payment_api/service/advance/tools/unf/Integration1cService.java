@@ -21,6 +21,6 @@ public class Integration1cService implements UnfService {
 
     public void send1cNotification(Long advanceId) {
         rabbitMessageProducer.sendMessage(new Message(String.valueOf(advanceId)));
-        log.info("[Advance]: success send advance {} to UNF-Rabbit queue.", advanceId);
+        log.info("[Аванс]: {} успешно отправлен в Rabbit-очередь УНФ.", advanceId);
     }
 }

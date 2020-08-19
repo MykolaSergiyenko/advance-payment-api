@@ -84,11 +84,11 @@ public abstract class Contractor extends BaseUuidEntity {
 
     public void setAutoContractor(Boolean autoContractor) {
         if (autoContractor && this.isAutoContractor){
-            log.info("[Contractor]:  [{}] - '{}' - is 'auto-advanced' already.",
+            log.info("[Контрагент]:  [{}] - '{}' - признак 'авто-аванс' уже выставлен.",
                 this.getId(), this.getFullName());
             return;
         } else {
-            log.info("[Contractor]: [{}] - '{}' - set 'auto-advanced' flag to '{}'.",
+            log.info("[Контрагент]: [{}] - '{}' - выставлен признак 'авто-аванс' в значение '{}'.",
                 this.getId(), this.getFullName(), autoContractor);
             isAutoContractor = autoContractor;
         }

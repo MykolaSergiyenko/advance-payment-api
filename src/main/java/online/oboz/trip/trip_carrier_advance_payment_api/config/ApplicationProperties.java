@@ -311,8 +311,6 @@ public class ApplicationProperties {
      * not give all email's list for SecurityUtils.
      */
     public boolean hasAccess(String email) {
-        log.info("--- [accessUsersEmails]: " + accessUsersEmails);
-        log.info("--- [accessUsersEmails.contains(email)]: " + accessUsersEmails.contains(email));
         return accessUsersEmails.contains(email);
     }
 

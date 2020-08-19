@@ -59,7 +59,7 @@ public interface SecurityUtils {
     static boolean hasAccessEmail(List<String> accessUsersEmails) {
         String authPerson = getAuthPersonEmail();
         boolean contains = accessUsersEmails.contains(authPerson);
-        if (!contains) log.info("[ --- Advance-Desktop] User try to get access: {}.", authPerson);
+        if (!contains) log.info("[Рабочий стол авансирования] Пользователь пытается получить доступ: {}.", authPerson);
         return contains;
     }
 

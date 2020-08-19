@@ -38,15 +38,15 @@ public class TripPage implements TripAdvance {
     @Override
     public ResponseEntity<Void> giveAdvanceForTrip(Long tripId) {
         Long authorId = SecurityUtils.getAuthPersonId();
-        log.info("[Advance]: give advance request for trip '{}' and author '{}'.", tripId, authorId);
+        log.info("[Аванс]: запрос на выдачу аванса (ручной) по заказу '{}', автор - '{}'.", tripId, authorId);
         Advance advance = advanceService.createAdvanceForTripAndAuthorId(tripId, authorId);
-        log.info("[Advance]: for trip '{}' was created: {}.", tripId, advance.getUuid());
+        log.info("[Аванс]: по заказу '{}' создан: {}.", tripId, advance.getUuid());
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @Override
     public ResponseEntity<TripAdvanceState> getAdvanceState(Long tripId) {
-        log.info("[Advance-state]: requests for Trip: {}", tripId);
+        log.info("[Состояние аванса]: по заказу: {}", tripId);
         Trip trip = advanceService.findTrip(tripId);
         Boolean advanceNotExists = advanceService.advancesNotExistsForTrip(trip);
         return new ResponseEntity<>(advanceNotExists ?

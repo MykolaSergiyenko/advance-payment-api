@@ -38,7 +38,7 @@ public class AdvanceContactService implements ContactService {
 
     @Override
     public ResponseEntity<Void> addContact(CarrierContactDTO carrierContactDTO) {
-        log.info("[Advance-contacts]: add contact - {}.", contactInline(carrierContactDTO));
+        log.info("[Контакты]: создать контакт авансирования - {}.", contactInline(carrierContactDTO));
         try {
             createContact(carrierContactDTO);
             return new ResponseEntity<>(HttpStatus.OK);
@@ -50,14 +50,14 @@ public class AdvanceContactService implements ContactService {
 
     @Override
     public ResponseEntity<Void> updateContact(CarrierContactDTO carrierContactDTO) {
-        log.info("[Advance-contacts]: update contact - {}.", contactInline(carrierContactDTO));
+        log.info("[Контакты]: обновить контакт авансирования - {}.", contactInline(carrierContactDTO));
         setContact(carrierContactDTO);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @Override
     public ResponseEntity<CarrierContactDTO> getContact(Long contractorId) {
-        log.info("[Advance-contacts]: get contact - {}.", contractorId);
+        log.info("[Контакты]: просмотреть контакт авансирования - {}.", contractorId);
         CarrierContactDTO contactToDto = contactToDto(findByContractor(contractorId));
         log.info(contactInline(contactToDto));
         return new ResponseEntity<>(contactToDto, HttpStatus.OK);

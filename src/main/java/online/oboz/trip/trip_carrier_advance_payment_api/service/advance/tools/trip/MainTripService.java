@@ -71,7 +71,7 @@ public class MainTripService implements TripService {
         //log.info("--- findTripById: " + tripId);
         return tripRepository.findById(tripId).
             orElseThrow(() ->
-                getTripsInternalError("Trip not found by id: " + tripId));
+                getTripsInternalError("Поездка не найдена: " + tripId));
     }
 
     @Override
@@ -79,7 +79,7 @@ public class MainTripService implements TripService {
         Double minCost = getTripMinCost();
         Double maxCost = getTripMaxCost();
         OffsetDateTime minDate = OffsetDateTime.now().minusMinutes(interval);
-        log.info("[Auto-advance]: Get auto-advance trips by minDate: '{}'; cost-interval: {} - {}.",
+        log.info("[Авто-аванс]: Найти поездки для выдачи аванса в автоматическом режиме -  минимальная дата: '{}'; интервал стоимости: '{} - {}'.",
             DateUtils.format(minDate, datePattern).trim(), formatCost(minCost), formatCost(maxCost));
         return tripRepository.getTripsForAutoAdvance(minCost, maxCost, minDate);
     }
@@ -93,7 +93,7 @@ public class MainTripService implements TripService {
             AdvanceInfo info = new AdvanceInfo(dict.getAdvancePaymentSum(), dict.getRegistrationFee());
             advance.setTripAdvanceInfo(info);
         } catch (BusinessLogicException e) {
-            log.error("Error while advance sums and costs calculation: {}.", e.getErrors());
+            log.error("Ошибка при рассчете суммы аванса: {}.", e.getErrors());
         }
         return advance;
     }
@@ -125,7 +125,7 @@ public class MainTripService implements TripService {
             }
             tripAdvanceState.setTooltip(message);
         }
-        log.info("[Trip-advance]: Tooltip is: {}", tripAdvanceState.getTooltip());
+        log.info("[Аванс по поездке]: Текст сообщения: {}", tripAdvanceState.getTooltip());
         return tripAdvanceState;
     }
 

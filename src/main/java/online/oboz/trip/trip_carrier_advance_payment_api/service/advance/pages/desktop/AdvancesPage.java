@@ -67,19 +67,19 @@ public class AdvancesPage implements AdvanceDesktop {
     }
 
     public ResponseEntity<Resource> downloadFile(UUID uuid) {
-        log.info("[Advance] Download-file request: {}. ", uuid);
+        log.info("[Аванс] Запрос на скачивание файла: {}. ", uuid);
         return attachmentService.fromBStore(uuid);
     }
 
     public ResponseEntity<BufferedImage> getPdfPreview(UUID uuid, Integer pageNum) {
-        log.info("[Advance] Get pdf-file-preview request: {} - p.{}. ", uuid, pageNum);
+        log.info("[Аванс] Получить превью pdf-файла: {} - p.{}. ", uuid, pageNum);
         return attachmentService.pdfPreviewFromBStore(uuid, pageNum);
     }
 
 
     public void checkAccess() {
         if (SecurityUtils.hasNotAccess(accessUsersEmails)) {
-            throw ErrorUtils.authError("[Advance]: User permission denied.");
+            throw ErrorUtils.authError("[Аванс]: Нарушение прав доступа к Рабочему столу.");
         }
     }
 

@@ -37,7 +37,7 @@ public class AdvanceContractorService implements ContractorService {
     @Override
     public AdvanceContractor findContractor(Long contractorId) {
         return contractorRepository.findById(contractorId).
-            orElseThrow(() -> getContractorError("Contractor not found."));
+            orElseThrow(() -> getContractorError("Контрагент не найден."));
     }
 
 
@@ -52,10 +52,10 @@ public class AdvanceContractorService implements ContractorService {
         List<AdvanceContractor> contractors = getAutoContractors();
         int count = contractors.size();
         if (count > 0) {
-            log.info("[Auto-advance]: Found {} contractors to set 'auto-advance' flag for them.", count);
+            log.info("[Авто-аванс]: Найдено {} контрагентов для установки им признака 'авто-аванс'.", count);
             contractors = setAutoForContractors(contractors);
         } else {
-            log.info("[Auto-advance]: Contractors to set 'auto-advance' flag for them not found.");
+            log.info("[Авто-аванс]: Контрагентов для установки признака 'авто-аванс' не найдено.");
         }
         return new ResponseEntity<>(contractors, HttpStatus.OK);
     }
@@ -73,7 +73,7 @@ public class AdvanceContractorService implements ContractorService {
         try {
             contractors = contractorRepository.findByMinCountAdvancesPaid(minPaidAdvancesCount);
         } catch (Exception e) {
-            log.error("Error while getAutoContractors. " + e.getMessage());
+            log.error("Error while get auto-contractors. " + e.getMessage());
         }
         return contractors;
     }

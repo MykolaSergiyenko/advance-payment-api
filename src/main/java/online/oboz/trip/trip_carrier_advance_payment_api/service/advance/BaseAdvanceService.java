@@ -94,9 +94,9 @@ public class BaseAdvanceService implements AdvanceService {
         interval = properties.getNewTripsInterval();
         autoUser = personService.getAdvanceSystemUser();
 
-        log.info("Init... [Auto-advance]: system-user: {}.", autoUser.getInfo().getFullName());
-        log.info("Init... [Auto-advance]: comment: '{}'.", AUTO_COMMENT);
-        log.info("Init... [Auto-advance]: interval: {} minutes.", interval);
+        log.info("Init... [Авто-аванс]: технический пользователь: {}.", autoUser.getInfo().getFullName());
+        log.info("Init... [Авто-аванс]: комментарий: '{}'.", AUTO_COMMENT);
+        log.info("Init... [Авто-аванс]: интервал: {} минут.", interval);
 
         advanceTitle = properties.getAdvanceTitle();
         autoTitle = properties.getAutoTitle();
@@ -112,21 +112,21 @@ public class BaseAdvanceService implements AdvanceService {
 
     @Override
     public Advance createAdvanceForTripAndAuthorId(Long tripId, Long authorId) {
-        log.info("[Advance]: request for Advance-creation from {} for Trip {}.", authorId, tripId);
+        log.info("[Аванс]: запрос на создание аванса от пользователя {} для поездки {}.", authorId, tripId);
         Trip trip = findTrip(tripId);
         if (advancesNotExistsForTrip(trip)) {
             Person author = personService.getPerson(authorId);
             DetailedPersonInfo info = author.getInfo();
-            log.info("[Advance]: found Author-person: {}.", String.join(" ",
-                info.getFirstName(), info.getMiddleName(), info.getLastName()));
+//            log.info("[Аванс]: автор аванса: {}.", String.join(" ",
+//                info.getFirstName(), info.getMiddleName(), info.getLastName()));
             Advance advance = newAdvanceForTripAndAuthor(trip, author);
             saveAdvance(advance);
             notifyAboutAdvance(advance);
-            log.info("[Advance]: uuid = '{}' was created for author '{}'.",
+            log.info("[Аванс]: uuid = '{}' создан пользователем '{}'.",
                 advance.getUuid(), advance.getAuthor().getInfo().getEmail());
             return advance;
         } else {
-            throw getAdvanceError("Advance for trip id " + tripId + " already exists.");
+            throw getAdvanceError("Аванс по заказу " + tripId + " уже создан.");
         }
     }
 
@@ -144,9 +144,9 @@ public class BaseAdvanceService implements AdvanceService {
 
     private void logExist(boolean exsts, long tripId) {
         if (exsts) {
-            log.info("[Advance] for Trip '{}' already exists.", tripId);
+            log.info("[Аванс] по заказу '{}' уже создан.", tripId);
         } else {
-            log.info("[Advance] for Trip '{}' not exists yet.", tripId);
+            log.info("[Аванс] по заказу '{}' еще не создан.", tripId);
         }
     }
 
@@ -270,11 +270,11 @@ public class BaseAdvanceService implements AdvanceService {
         int unreadCount = advances.size();
         if (unreadCount > 0) {
             int contractorsSize = advances.stream().map(Advance::getContractorId).collect(Collectors.toSet()).size();
-            log.info("[Auto-advance]: Found {} 'unread' advances for {} different contractors.",
+            log.info("[Авто-аванс]: Найдено {} 'непрочитанных' сообщений о создании аванса для {} разных контрагентов.",
                 unreadCount, contractorsSize);
             notifyAboutAdvancesScheduled(advances);
         } else {
-            log.info("[Auto-advance]: 'Unread' advance-messages not found.");
+            log.info("[Авто-аванс]: 'Непрочитанных' сообщений о создании аванса не найдено.");
         }
     }
 
@@ -291,12 +291,12 @@ public class BaseAdvanceService implements AdvanceService {
             if (advance.getReadAt() == null) {
                 advance.setReadAt(OffsetDateTime.now());
                 saveAdvance(advance);
-                log.info("[Advance]: Set 'read-at' for advance: {}.", advance.getId());
+                log.info("[Аванс]: сообщение об авансе прочитано: {}.", advance.getId());
             } else {
-                log.info("[Advance]: Message is already 'read' for advance: {}.", advance.getId());
+                log.info("[Аванс]: Сообщение уже прочитано по авансу: {}.", advance.getId());
             }
         } else {
-            log.info("[Advance]: Messages weren't been sent yet for advance: {}.", advance.getId());
+            log.info("[Аванс]: Сообщения по авансу еще не отправлялись: {}.", advance.getId());
         }
     }
 
@@ -304,7 +304,7 @@ public class BaseAdvanceService implements AdvanceService {
     public ResponseEntity<Void> setWantsAdvance(UUID advanceUuid) {
         Advance advance = findByUuid(advanceUuid);
         setWantsAdvance(advance);
-        log.info("[Advance]: Update 'wants-advance' in {}.", advance.getId());
+        log.info("[Аванс]: Нажата кнопка 'Хочу аванс' в {}.", advance.getId());
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -314,10 +314,10 @@ public class BaseAdvanceService implements AdvanceService {
         if (uuid != null) {
             advance.setUuidContractApplicationFile(uuid);
             saveAdvance(advance);
-            log.info("[Advance]: Update contract-application-file in {}. Set uuid = {} ", advance.getId(),
+            log.info("[Аванс]: - {} - UUID 'Заявки' или 'Договор-заявки': {}.", advance.getId(),
                 advance.getUuidContractApplicationFile());
         } else {
-            throw getAdvanceError("[Advance]: Contract-file uuid can't be null.");
+            throw getAdvanceError("[Аванс]: UUID 'Заявки' или 'Договор-заявки' не может быть пустым.");
         }
         return advance;
     }
@@ -326,11 +326,11 @@ public class BaseAdvanceService implements AdvanceService {
     public Advance setAdvanceApplication(Advance advance, UUID uuid) {
         if (uuid != null) {
             setAdvanceApplicationFile(advance, uuid);
-            log.info("[Advance]: update advance-application-file in {}. Set uuid = {} ", advance.getId(),
+            log.info("[Аванс]: - {} - UUID подписанной 'Заявки на аванс': {}.", advance.getId(),
                 advance.getUuidAdvanceApplicationFile());
             //stateMachine.sendEvent(AdvanceEvent.LOAD_DOCS);
         } else {
-            throw getAdvanceError("[Advance]: Advance-application-file uuid can't be null.");
+            throw getAdvanceError("[Аванс]: UUID подписанной 'Заявки на аванс' не может быть пустым.");
         }
         return advance;
     }
@@ -340,15 +340,15 @@ public class BaseAdvanceService implements AdvanceService {
     public ResponseEntity<Void> sendToUnfAdvance(Long advanceId) {
         Advance advance = findById(advanceId);
         if (!documentsService.isAllDocumentsLoaded(advance)) {
-            throw getAdvanceError("[Advance]:" + advanceId + "- not all documents are loaded.");
+            throw getAdvanceError("[Аванс]:" + advanceId + "- документы не загружены.");
         } else if (advance.isCancelled()) {
-            throw getAdvanceError("[Advance]:" + advanceId + " was cancelled.");
+            throw getAdvanceError("[Аванс]:" + advanceId + " отменен.");
         } else if (advance.getUnfSentAt() != null) {
-            throw getAdvanceError("[Advance]:" + advanceId + " was already sent to UNF.");
+            throw getAdvanceError("[Аванс]:" + advanceId + " уже отправлен в УНФ.");
         } else {
             integration1cService.send1cNotification(advanceId);
             saveAdvance(advance);
-            log.info("[Advance]: {} - is confirmed.", advance.getId());
+            log.info("[Аванс]: {} - отправлен в УНФ.", advance.getId());
             return new ResponseEntity<>(HttpStatus.OK);
         }
     }
@@ -363,12 +363,12 @@ public class BaseAdvanceService implements AdvanceService {
                 advance.setCancelledAt(OffsetDateTime.now());
                 saveAdvance(advance);
                 //stateMachine.sendEvent(AdvanceEvent.CANCEL);
-                log.info("[Advance]: {} - was cancelled - with comment: '{}'.", advance.getId(), withComment);
+                log.info("[Аванс]: {} - отменен - комментарий: '{}'.", advance.getId(), withComment);
             } else {
-                log.info("[Advance]: {} - is cancelled already.", advance.getId());
+                log.info("[Аванс]: {} - уже отменен.", advance.getId());
             }
         } catch (BusinessLogicException ex) {
-            log.error("[Advance]: cancellation is failed for id: {}. Errors: {}.", advanceId, ex.getErrors());
+            log.error("[Аванс]: ошибка при отмене: {}. Ошибки: {}.", advanceId, ex.getErrors());
         }
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -380,9 +380,9 @@ public class BaseAdvanceService implements AdvanceService {
             advance.setComment(comment);
             saveAdvance(advance);
             //stateMachine.sendEvent(AdvanceEvent.SET_COMMENT);
-            log.info("[Advance]: {} - set comment - '{}'.", advanceId, comment);
+            log.info("[Аванс]: {} - комментарий - '{}'.", advanceId, comment);
         } catch (BusinessLogicException ex) {
-            log.error("[Advance]: {} - comment changing failed: {} . Errors: {}", advanceId, comment, ex.getErrors());
+            log.error("[Аванс]: {} - ошибка при комментировании: {} . Ошибка: {}", advanceId, comment, ex.getErrors());
         }
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -394,9 +394,9 @@ public class BaseAdvanceService implements AdvanceService {
             advance.setLoadingComplete(loadingComplete);
             saveAdvance(advance);
             //if (loadingComplete) stateMachine.sendEvent(AdvanceEvent.COMPLETE_LOADING);
-            log.info("[Advance]: {} - set loading-complete: '{}'", advance.getId(), loadingComplete);
+            log.info("[Аванс]: {} - водитель загружен: '{}'", advance.getId(), loadingComplete);
         } catch (BusinessLogicException e) {
-            log.error("[Advance]: {} 'loading-comlete'-setting failed failed. Errors: {}", advanceId, e.getErrors());
+            log.error("[Аванс]: {} 'загрузка завершена'. Ошибки: {}", advanceId, e.getErrors());
         }
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -407,24 +407,24 @@ public class BaseAdvanceService implements AdvanceService {
         long size = autoTrips.size();
         long contractorsSize = autoTrips.stream().map(Trip::getContractorId).collect(Collectors.toSet()).size();
         if (size > 0) {
-            log.info("[Auto-advance]: Found {} trips for give auto-advance for {} different auto-contractors.",
+            log.info("[Авто-аванс]: Найдено {} поездок для выдачи 'авто-аванса' ( для {} разных контрагентов).",
                 size, contractorsSize);
 
             autoTrips.forEach(trip -> {
                 try {
-                    log.info("[Auto-advance]: try create for trip {}.", trip.getId());
+                    log.info("[Авто-аванс]: создать аванс для поездки: {}.", trip.getId());
 
                     Advance autoAdvance = createAutoAdvanceForTrip(trip, autoUser);
 
                     if (null != autoAdvance) {
-                        log.info("[Auto-advance]: {} was created for trip: {}.",
+                        log.info("[Авто-аванс]: {} создан для поездки: {}.",
                             autoAdvance.getId(), autoAdvance.getAdvanceTripFields().getTripId());
                     }
                 } catch (Exception e) {
-                    log.info("[Auto-advance]: Error for trip: {}. Errors: ", trip.getId(), e.getMessage());
+                    log.info("[Авто-аванс]: Ошибка выдачи аванса по трипу: {}. Ошибки: ", trip.getId(), e.getMessage());
                 }
             });
-        } else log.info("[Auto-advance]: Trips to give auto-advance not found.");
+        } else log.info("[Авто-аванс]: Поездки для выдачи авто-аванса не найдены.");
     }
 
 
@@ -433,7 +433,7 @@ public class BaseAdvanceService implements AdvanceService {
         advanceState.setTooltip(advanceTitle + formatDateFront(advance.getCreatedAt()) +
             (advance.isAuto() ? autoTitle : (authorTitle + personService.getAuthorFullName(advance.getAuthorId()))));
         advanceState.setState(advance.getAdvanceState());
-        log.info("[Advance-state]: state = '{}', tooltip = '{}'.", advanceState.getState(), advanceState.getTooltip());
+        log.info("[Состояние аванса]: состояние = '{}', подсказка = '{}'.", advanceState.getState(), advanceState.getTooltip());
         return advanceState;
     }
 
@@ -447,7 +447,7 @@ public class BaseAdvanceService implements AdvanceService {
             notifyAboutAdvance(autoAdvance);
             return autoAdvance;
         } else {
-            throw getAdvanceError("[Advance] for trip id " + trip.getId() + " already exists.");
+            throw getAdvanceError("[Аванс] для поездки " + trip.getId() + " уже существует.");
         }
     }
 
@@ -468,7 +468,7 @@ public class BaseAdvanceService implements AdvanceService {
                 setRequestUuid(advance, attachments);
             }
         } catch (BusinessLogicException e) {
-            log.error("[Advance]: Trip-documents not found for tripId: {}. ", tripId);
+            log.error("[Аванс]: Не найдены документы для поездки: {}. ", tripId);
         }
         return advance;
     }
