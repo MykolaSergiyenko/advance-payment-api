@@ -53,6 +53,13 @@ public class AdvanceContractorService implements ContractorService {
         return new ResponseEntity<>(contractors, HttpStatus.OK);
     }
 
+    @Override
+    public AdvanceContractor setAuto(AdvanceContractor contractor, Boolean flag) {
+        contractor.setAutoContractor(flag);
+        saveContractor(contractor);
+        return contractor;
+    }
+
 
     private List<AdvanceContractor> getAutoContractors() {
         List<AdvanceContractor> contractors = null;
@@ -70,9 +77,7 @@ public class AdvanceContractorService implements ContractorService {
     private List<AdvanceContractor> setAutoForContractors(List<AdvanceContractor> contractors) {
         try {
             contractors.forEach(contractor -> {
-                contractor.setAutoContractor(true);
-                contractorRepository.save(contractor);
-                log.info("Advance contractor {} set 'auto-advance' flag.", contractor.getId());
+                setAuto(contractor, true);
             });
         } catch (Exception e) {
             log.error("Error while updating auto-advance-contractors. " + e.getMessage());
@@ -82,13 +87,6 @@ public class AdvanceContractorService implements ContractorService {
 
     public AdvanceContractor saveContractor(AdvanceContractor contractor) {
         contractorRepository.save(contractor);
-        return contractor;
-    }
-
-    public AdvanceContractor setAutoFlag(AdvanceContractor contractor, Boolean flag) {
-        contractor.setAutoContractor(flag);
-        saveContractor(contractor);
-        log.info("[Advance-contacts]: Set auto-contractor-flag = '{}' for contractor {}.", flag, contractor.getFullName());
         return contractor;
     }
 

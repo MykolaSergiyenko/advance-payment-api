@@ -8,6 +8,7 @@ import online.oboz.trip.trip_carrier_advance_payment_api.error.BusinessLogicExce
 import online.oboz.trip.trip_carrier_advance_payment_api.repository.AdvanceContactsBookRepository;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.contractors.ContractorService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.util.ErrorUtils;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.util.StringUtils;
 import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.CarrierContactDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,15 +38,19 @@ public class AdvanceContactService implements ContactService {
 
     @Override
     public ResponseEntity<Void> addContact(CarrierContactDTO carrierContactDTO) {
-        log.info("[Advance-contacts]: add contact - {}.", carrierContactDTO);
-        createContact(carrierContactDTO);
-        return new ResponseEntity<>(HttpStatus.OK);
+        log.info("[Advance-contacts]: add contact - {}.", contactInline(carrierContactDTO));
+        try {
+            createContact(carrierContactDTO);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (Exception e) {
+            throw getContactError("[Advance-contacts]: add contact error:" + e.getMessage());
+        }
     }
 
 
     @Override
     public ResponseEntity<Void> updateContact(CarrierContactDTO carrierContactDTO) {
-        log.info("[Advance-contacts]: update contact - {}.", carrierContactDTO);
+        log.info("[Advance-contacts]: update contact - {}.", contactInline(carrierContactDTO));
         setContact(carrierContactDTO);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -53,7 +58,9 @@ public class AdvanceContactService implements ContactService {
     @Override
     public ResponseEntity<CarrierContactDTO> getContact(Long contractorId) {
         log.info("[Advance-contacts]: get contact - {}.", contractorId);
-        return new ResponseEntity<>(contactToDto(findByContractor(contractorId)), HttpStatus.OK);
+        CarrierContactDTO contactToDto = contactToDto(findByContractor(contractorId));
+        log.info(contactInline(contactToDto));
+        return new ResponseEntity<>(contactToDto, HttpStatus.OK);
     }
 
     @Override
@@ -99,12 +106,16 @@ public class AdvanceContactService implements ContactService {
         } else {
             contact = findByContractor(contactDTO.getContractorId());
             contact.setInfo(dtoToPersonInfo(contactDTO));
-
         }
         contactsBookRepository.save(contact);
 
-        contractorService.setAutoFlag(contact.getContractor(), contactDTO.getIsAuto());
+        setContactContractor(contact.getContractorId(), contactDTO.getIsAuto());
         return contact;
+    }
+
+    private void setContactContractor(Long contractorId, Boolean isAuto) {
+        AdvanceContractor contractor = contractorService.findContractor(contractorId);
+        contractorService.setAuto(contractor, isAuto);
     }
 
     private AdvanceContactsBook dtoToContact(CarrierContactDTO contactDTO) {
@@ -117,6 +128,10 @@ public class AdvanceContactService implements ContactService {
 
     private CarrierContactDTO contactToDto(AdvanceContactsBook contact) {
         return contactMapper.toContactDTO(contact);
+    }
+
+    private String contactInline(CarrierContactDTO carrierContactDTO) {
+        return StringUtils.inlineContact(carrierContactDTO);
     }
 
     private BusinessLogicException getContactError(String message) {

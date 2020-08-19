@@ -1,5 +1,6 @@
 package online.oboz.trip.trip_carrier_advance_payment_api.service.util;
 
+import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.CarrierContactDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,5 +55,12 @@ public interface StringUtils {
 
     static String joinWithEmpty(String delim, List<String> strings) {
         return strings.stream().filter(s -> s != null && !s.isEmpty()).collect(Collectors.joining(delim));
+    }
+
+    static String inlineContact(CarrierContactDTO carrierContactDTO) {
+        return carrierContactDTO.toString().
+            replace("\n", "").replace("\r", "").
+            replace("{", "").replace("}", "").
+            replace("class CarrierContactDTO", "").trim();
     }
 }

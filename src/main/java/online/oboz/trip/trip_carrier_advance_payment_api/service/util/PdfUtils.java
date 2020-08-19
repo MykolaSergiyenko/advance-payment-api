@@ -14,8 +14,8 @@ public interface PdfUtils {
 
     static PDDocument loadPdf(Resource resource) throws IOException {
         log.info("load pdf: {}", resource.getDescription());
-
-        RandomAccessBufferedFileInputStream strm = new RandomAccessBufferedFileInputStream(resource.getInputStream());
+        RandomAccessBufferedFileInputStream strm =
+            new RandomAccessBufferedFileInputStream(resource.getInputStream());
         try {
             PDFParser parser = new PDFParser(strm);
             try {

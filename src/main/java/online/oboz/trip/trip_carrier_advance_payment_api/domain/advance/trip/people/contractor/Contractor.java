@@ -18,7 +18,7 @@ import javax.persistence.*;
 @MappedSuperclass
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public abstract class Contractor extends BaseUuidEntity {
-
+    private static final Logger log = LoggerFactory.getLogger(Contractor.class);
 
     /**
      * Auto-advance-contractor
@@ -83,7 +83,15 @@ public abstract class Contractor extends BaseUuidEntity {
     }
 
     public void setAutoContractor(Boolean autoContractor) {
-        isAutoContractor = autoContractor;
+        if (autoContractor && this.isAutoContractor){
+            log.info("[Contractor]:  [{}] - '{}' - is 'auto-advanced' already.",
+                this.getId(), this.getFullName());
+            return;
+        } else {
+            log.info("[Contractor]: [{}] - '{}' - set 'auto-advanced' flag to '{}'.",
+                this.getId(), this.getFullName(), autoContractor);
+            isAutoContractor = autoContractor;
+        }
     }
 
 

@@ -20,19 +20,18 @@ public interface AdvanceContactMapper {
 
     AdvanceContactMapper contactMapper = Mappers.getMapper(AdvanceContactMapper.class);
 
-
-
     @Mapping(source = "uuid", target = "uuid")
     @Mapping(source = "createdAt", target = "createdAt")
     @Mapping(source = "contractorId", target = "contractorId")
-    @Mapping(source = "info.phone", target = "phoneNumber")
-    @Mapping(source = "info.email", target = "email")
-    @Mapping(source = "info.fullName", target = "fullName")
-    @Mapping(source = "contractor.autoContractor", target = "isAuto")
-    CarrierContactDTO toContactDTO(AdvanceContactsBook contact);
+    @Mapping(source = "phoneNumber", target = "info.phone")
+    @Mapping(source = "email", target = "info.email")
+    @Mapping(source = "fullName", target = "info.fullName")
+    AdvanceContactsBook toContactBook(CarrierContactDTO contactDTO);
+
 
     @InheritInverseConfiguration
-    AdvanceContactsBook toContactBook(CarrierContactDTO contactDTO);
+    @Mapping(source = "contractor.autoContractor", target = "isAuto")
+    CarrierContactDTO toContactDTO(AdvanceContactsBook contact);
 
 
     @Mapping(source = "phoneNumber", target = "phone")
