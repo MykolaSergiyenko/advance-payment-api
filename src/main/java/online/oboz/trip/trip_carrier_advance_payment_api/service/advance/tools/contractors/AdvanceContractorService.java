@@ -49,7 +49,14 @@ public class AdvanceContractorService implements ContractorService {
 
     @Override
     public ResponseEntity<List<AdvanceContractor>> updateAutoAdvanceForContractors() {
-        List<AdvanceContractor> contractors = setAutoForContractors(getAutoContractors());
+        List<AdvanceContractor> contractors = getAutoContractors();
+        int count = contractors.size();
+        if (count > 0) {
+            log.info("[Auto-advance]: Found {} contractors to set 'auto-advance' flag for them.", count);
+            contractors = setAutoForContractors(contractors);
+        } else {
+            log.info("[Auto-advance]: Contractors to set 'auto-advance' flag for them not found.");
+        }
         return new ResponseEntity<>(contractors, HttpStatus.OK);
     }
 
@@ -65,8 +72,6 @@ public class AdvanceContractorService implements ContractorService {
         List<AdvanceContractor> contractors = null;
         try {
             contractors = contractorRepository.findByMinCountAdvancesPaid(minPaidAdvancesCount);
-            log.info("[Auto-advance]: Found {} contractors to set 'auto-advance' flag for them.",
-                contractors.size());
         } catch (Exception e) {
             log.error("Error while getAutoContractors. " + e.getMessage());
         }

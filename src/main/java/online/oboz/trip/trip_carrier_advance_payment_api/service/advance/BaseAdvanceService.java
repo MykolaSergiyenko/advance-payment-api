@@ -267,12 +267,15 @@ public class BaseAdvanceService implements AdvanceService {
     @Override
     public void notifyUnread() {
         List<Advance> advances = findUnreadAdvances();
-
-        Set<Long> contractors = advances.stream().map(Advance::getContractorId).collect(Collectors.toSet());
-        log.info("[Auto-advance]: Found {} 'unread' advances for {} different contractors.",
-            advances.size(), contractors.size());
-
-        notifyAboutAdvancesScheduled(advances);
+        int unreadCount = advances.size();
+        if (unreadCount > 0) {
+            int contractorsSize = advances.stream().map(Advance::getContractorId).collect(Collectors.toSet()).size();
+            log.info("[Auto-advance]: Found {} 'unread' advances for {} different contractors.",
+                unreadCount, contractorsSize);
+            notifyAboutAdvancesScheduled(advances);
+        } else {
+            log.info("[Auto-advance]: 'Unread' advance-messages not found.");
+        }
     }
 
 
