@@ -74,7 +74,7 @@ public class NotificationService implements Notificator {
     public Advance notify(Advance advance) {
         if (emailEnabled || smsEnabled) advance = notificate(advance, emailEnabled, smsEnabled);
         else {
-            log.info("[Notifications] - sms and email both unable. Advance: {}.", advance.getId());
+            log.info("[Сообщения об авансе] - смс и и-мейл отключены. Аванс: {}.", advance.getId());
         }
         return advance;
     }
@@ -99,8 +99,8 @@ public class NotificationService implements Notificator {
                 advance.setNotifiedAt(OffsetDateTime.now());
             });
         } else {
-            log.info("[Notifications] - scheduled sms and email both off right now. " +
-                "But found {} unread messages about advance-creation.", advances.size());
+            log.info("[Сообщения об авансе] - отложенные смс и и-мейлы отключены. " +
+                "Но найдено {} непрочитанных сообщений об авансе.", advances.size());
         }
     }
 
@@ -108,12 +108,12 @@ public class NotificationService implements Notificator {
         if (emailEnable) {
             advance = sendEmails(advance);
         } else {
-            log.info("[Notifications] by e-mail is unable.");
+            log.info("[Сообщения об авансе] по имейлу отключены.");
         }
         if (smsEnable) {
             advance = sendSMSes(advance);
         } else {
-            log.info("[Notifications] by sms is unable.");
+            log.info("[Сообщения об авансе] по смс отключены.");
         }
         return advance;
     }
@@ -129,12 +129,12 @@ public class NotificationService implements Notificator {
     }
 
     private void sendEmail(Advance advance) throws MessagingException {
-        log.info("Email-messages enable. Try to send message for advance - " + advance.getId());
+        log.info("Сообщения по электронной почте включены. Отправляем сообщение по авансу: {}.", advance.getId());
         EmailContainer email = messagesService.createEmail(advance,
             contactService.getEmail(advance.getContractorId()));
-        log.info("Create e-mail-message: " + email.getMessage().toString());
+        log.info("Электронное письмо: " + email.getMessage().toString());
         emailSender.sendEmail(email);
-        log.info("E-mail is sent for advance - " + advance.getId());
+        log.info("Электронное письмо отправлено по авансу: {}.", advance.getId());
     }
 
     private Advance sendSMSes(Advance advance) {
@@ -149,12 +149,12 @@ public class NotificationService implements Notificator {
 
 
     private void sendSms(Advance advance) throws MessagingException {
-        log.info("SMS-messages enable. Try to send message for advance - " + advance.getId());
+        log.info("Уведомления по СМС включены. Отправляем сообщение по авансу: {}.",  advance.getId());
         SendSmsRequest container = messagesService.createSms(advance,
             contactService.getPhone(advance.getContractorId()));
-        log.info("Create SMS-message: " + container.toString());
+        log.info("СМС: " + container.toString());
         smsSender.sendSms(container);
-        log.info("SMS is sent for advance " + advance.getId());
+        log.info("СМС отправлена по авансу: {}.", advance.getId());
     }
 
 }
