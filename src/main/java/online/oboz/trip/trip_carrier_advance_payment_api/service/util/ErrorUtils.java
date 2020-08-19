@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 public interface ErrorUtils {
     Logger log = LoggerFactory.getLogger(ErrorUtils.class);
@@ -19,6 +20,10 @@ public interface ErrorUtils {
 
     static BusinessLogicException getInternalError(String message) {
         return getInternalBusinessError(message, INTERNAL_SERVER_ERROR);
+    }
+
+    static BusinessLogicException authError(String message) {
+        return getInternalBusinessError(message, UNAUTHORIZED);
     }
 
     static MessagingException getBadRequestError(String message) {

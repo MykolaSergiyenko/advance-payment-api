@@ -3,6 +3,7 @@ package online.oboz.trip.trip_carrier_advance_payment_api.service.advance.pages.
 import online.oboz.trip.trip_carrier_advance_payment_api.config.ApplicationProperties;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.advance.AdvanceService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.files.AttachmentService;
+import online.oboz.trip.trip_carrier_advance_payment_api.service.util.ErrorUtils;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.util.SecurityUtils;
 import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.AdvanceDesktopDTO;
 import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.Filter;
@@ -13,7 +14,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import javax.transaction.Transactional;
 import java.awt.image.BufferedImage;
@@ -79,8 +79,7 @@ public class AdvancesPage implements AdvanceDesktop {
 
     public void checkAccess() {
         if (SecurityUtils.hasNotAccess(accessUsersEmails)) {
-            log.info("User hasn't access.");
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User permission denied");
+            throw ErrorUtils.authError("[Advance]: User permission denied.");
         }
     }
 
