@@ -26,6 +26,14 @@ public interface AdvanceService {
     Trip findTrip(Long tripId);
 
     /**
+     * Получить Поездку 'assigned\motor'
+     *
+     * @param tripId - id
+     * @return Trip - Поездка
+     */
+    Trip findAdvancedTrip(Long tripId);
+
+    /**
      * Раздать авто-авансы
      */
     void giveAutoAdvances();

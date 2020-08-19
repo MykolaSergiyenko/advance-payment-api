@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface TripRepository extends JpaRepository<Trip, Long> {
     @Query(" select t from Trip t " +
@@ -27,4 +28,7 @@ public interface TripRepository extends JpaRepository<Trip, Long> {
                                       @Param("maxCost") Double maxCost,
                                       @Param("minDate") OffsetDateTime minDate);
 
+    @Query("select t from Trip t where (t.tripStatusCode = 'assigned' " +
+        "and t.tripFields.tripTypeCode = 'motor') and t.id = :id ")
+    Optional<Trip> findAdvancedTripById(@Param("id") Long id);
 }

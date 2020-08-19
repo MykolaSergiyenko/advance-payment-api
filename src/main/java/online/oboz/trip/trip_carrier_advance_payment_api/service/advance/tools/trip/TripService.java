@@ -53,6 +53,14 @@ public interface TripService {
     Trip findTripById(Long tripId);
 
     /**
+     * Найти трип
+     *
+     * @param tripId
+     * @return Trip
+     */
+    Trip findAdvancedTripById(Long tripId);
+
+    /**
      * Найти трипы для автоаванса:
      * - у контрагента стоит признак Auto
      * - поездка типа 'motor' и в статусе 'назначена'

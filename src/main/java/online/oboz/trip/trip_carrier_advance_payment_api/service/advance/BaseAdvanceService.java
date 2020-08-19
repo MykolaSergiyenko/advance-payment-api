@@ -109,11 +109,16 @@ public class BaseAdvanceService implements AdvanceService {
         return tripService.findTripById(tripId);
     }
 
+    @Override
+    public Trip findAdvancedTrip(Long tripId) {
+        return tripService.findAdvancedTripById(tripId);
+    }
+
 
     @Override
     public Advance createAdvanceForTripAndAuthorId(Long tripId, Long authorId) {
         log.info("[Аванс]: запрос на создание аванса от пользователя {} для поездки {}.", authorId, tripId);
-        Trip trip = findTrip(tripId);
+        Trip trip = findAdvancedTrip(tripId);
         if (advancesNotExistsForTrip(trip)) {
             Person author = personService.getPerson(authorId);
             DetailedPersonInfo info = author.getInfo();

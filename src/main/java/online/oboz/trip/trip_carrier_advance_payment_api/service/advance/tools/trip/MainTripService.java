@@ -33,7 +33,8 @@ import java.util.List;
 public class MainTripService implements TripService {
     private static final Logger log = LoggerFactory.getLogger(MainTripService.class);
 
-    private final String tripNullCostError, costError, contactsError, docsError, gt, lt, datePattern;;
+    private final String tripNullCostError, costError, contactsError, docsError, gt, lt, datePattern;
+    ;
 
     private final TripRepository tripRepository;
     private final CostDictService costDictService;
@@ -72,6 +73,14 @@ public class MainTripService implements TripService {
         return tripRepository.findById(tripId).
             orElseThrow(() ->
                 getTripsInternalError("Поездка не найдена: " + tripId));
+    }
+
+    @Override
+    public Trip findAdvancedTripById(Long tripId) {
+        //log.info("--- findTripById: " + tripId);
+        return tripRepository.findAdvancedTripById(tripId).
+            orElseThrow(() ->
+                getTripsInternalError("'Назначенная' автомобильная поездка не найдена: " + tripId));
     }
 
     @Override
