@@ -64,7 +64,7 @@ public class AdvanceCostDict extends BaseEntity {
     }
 
     public Double getRegistrationFee() {
-        return tripAdvanceInfo.getAdvancePaymentSum();
+        return tripAdvanceInfo.getRegistrationFee();
     }
 
     public void setRegistrationFee(Double registrationFee) {
