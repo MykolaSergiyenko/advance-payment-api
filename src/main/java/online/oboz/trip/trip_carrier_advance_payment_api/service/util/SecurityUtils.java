@@ -46,8 +46,7 @@ public interface SecurityUtils {
 
     static String getAuthPersonName() {
         Jwt jwt = getToken();
-        log.info("--- jwt: {}", jwt.getClaims());
-        return jwt.getClaims().get("email").toString();
+        return jwt.getClaims().get("name").toString();
     }
 
 
@@ -63,15 +62,9 @@ public interface SecurityUtils {
     }
 
     static boolean hasAccessEmail(List<String> accessUsersEmails) {
-        String authPerson = getAuthPersonEmail();
-        boolean contains = accessUsersEmails.contains(authPerson);
-
-
-        if (!contains) {
-            Long authPersonId = getAuthPersonId();
-            String personName = getAuthPersonName();
-            log.info("[Рабочий стол авансирования] Пользователь пытается получить доступ: {}.", authPerson);
-        }
+        String authPersonEmail = getAuthPersonEmail();
+        boolean contains = accessUsersEmails.contains(authPersonEmail);
+        if (!contains) log.info("[Рабочий стол авансирования] Пользователь пытается получить доступ: {} ({}).", getAuthPersonName(), authPersonEmail);
         return contains;
     }
 
