@@ -47,18 +47,18 @@ public class TestApi implements AdvanceTestApiDelegate {
 
     @Override
     public ResponseEntity<String> createMessage(Long advanceId) {
-        log.info("Make notifications for advance - " + advanceId);
+        log.info("Уведомление об авансе - " + advanceId);
         Advance advance = service.findById(advanceId);
         service.notifyAboutAdvance(advance);
-        log.info("Out of notifications.");
+        //log.info("Out of notifications.");
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @Override
-    public ResponseEntity<Resource> getFilePreview(UUID uuid){
-        log.info("Get first-page preview for pdf-file: {}.", uuid);
-        BufferedImage b =  attachmentService.pdfPreviewFromBStore(uuid, 1).getBody();
-        log.info("[PDF to PNG]: Preview size: {} x {}.", b.getHeight(), b.getWidth());
+    public ResponseEntity<Resource> getFilePreview(UUID uuid) {
+        log.info("Получить превью главной страницы PDF-файла: {}.", uuid);
+        BufferedImage b = attachmentService.pdfPreviewFromBStore(uuid, 1).getBody();
+        log.info("[PDF to PNG]: Размер изображения: {} x {}.", b.getHeight(), b.getWidth());
         return new ResponseEntity<>(new ByteArrayResource(b.toString().getBytes()), HttpStatus.OK);
     }
 

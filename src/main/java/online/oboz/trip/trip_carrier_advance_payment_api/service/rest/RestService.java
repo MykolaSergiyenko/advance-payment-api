@@ -50,7 +50,7 @@ public class RestService implements RestTemplateService {
         String password = applicationProperties.getPassword();
         ResponseToken responseToken = requestToken(user, password);
         ACCESS_TOKEN = responseToken.getAccessToken();
-        log.info("Success request token. for user  " + applicationProperties.getUsername() + " " + ACCESS_TOKEN);
+        log.info("Init... Токен для пользователя '{}' успешно получен: '{}'.", applicationProperties.getUsername(), ACCESS_TOKEN);
     }
 
     public ResponseToken requestToken(String userName, String password) {
@@ -65,12 +65,12 @@ public class RestService implements RestTemplateService {
             responseToken.setTokenType("Bearer");
             return responseToken;
         } catch (Exception e) {
-            throw new AuthException("Failed request token from keycloak. ", e);
+            throw new AuthException("Ошибка запроса токена в keycloak.", e);
         }
     }
 
     public ResponseEntity<Resource> authGetRequestResource(String url) {
-        log.info("Got resource-request to: '{}'", url);
+        log.info("Запрос ресурса: '{}'.", url);
         HttpHeaders headers = new HttpHeaders();
         headers.add(AUTHORIZATION, "Bearer " + ACCESS_TOKEN);
         return getRequestResource(url, headers);
@@ -85,7 +85,7 @@ public class RestService implements RestTemplateService {
                 return response;
             }
         } catch (Exception e) {
-            log.error("Failed resource-request to url: '{}' . Error: {} .", url, e.getMessage());
+            log.error("Ошибка запроса - url: '{}' . Ошибка: {} .", url, e.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return null;

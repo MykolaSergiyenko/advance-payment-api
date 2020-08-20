@@ -70,42 +70,42 @@ public class AdvanceAttachmentsService implements AttachmentService {
     public ResponseEntity<BufferedImage> pdfPreviewFromBStore(UUID uuid, Integer pageNum) {
         try {
             Resource resource = bStoreService.requestResourceFromBStore(uuid).getBody();
-            if (null != resource){
-                    PDDocument pdDoc = PdfUtils.loadPdf(resource);
-                    PDFRenderer pdfRenderer = new PDFRenderer(pdDoc);
-                    int numberOfPages = pdDoc.getNumberOfPages();
-                    log.info("[PDF] - numberOfPages is: {}", numberOfPages);
-                    if (pageNum < numberOfPages)
-                        throw attachmentsError("[PDF] - Page number for preview must be less than total PDF page number.");
-                    else {
-                        /*
-                         * 600 dpi give good image clarity but size of each image is 2x times of 300 dpi.
-                         * Ex:  1. For 300dpi 04-Request-Headers_2.png expected size is 797 KB
-                         *      2. For 600dpi 04-Request-Headers_2.png expected size is 2.42 MB
-                         */
-                        int dpi = 72;// use less dpi for to save more space in harddisk. For professional usage you can use more than 300dpi
+            if (null != resource) {
+                PDDocument pdDoc = PdfUtils.loadPdf(resource);
+                PDFRenderer pdfRenderer = new PDFRenderer(pdDoc);
+                int numberOfPages = pdDoc.getNumberOfPages();
+                log.info("[PDF] - количество страниц в файле: {}", numberOfPages);
+                if (pageNum < numberOfPages)
+                    throw attachmentsError("[PDF] - Page number for preview must be less than total PDF page number.");
+                else {
+                    /*
+                     * 600 dpi give good image clarity but size of each image is 2x times of 300 dpi.
+                     * Ex:  1. For 300dpi 04-Request-Headers_2.png expected size is 797 KB
+                     *      2. For 600dpi 04-Request-Headers_2.png expected size is 2.42 MB
+                     */
+                    int dpi = 72;// use less dpi for to save more space in harddisk. For professional usage you can use more than 300dpi
 
-                        String fileName = (resource.getFilename()).replace(".pdf", ("_"+pageNum)+".png");
+                    String fileName = (resource.getFilename()).replace(".pdf", ("_" + pageNum) + ".png");
 
-                        File outPutFile = new File(fileName);
-                        BufferedImage bImage = pdfRenderer.renderImageWithDPI(pageNum - 1, dpi, ImageType.RGB);
-                        ImageIO.write(bImage, "png", outPutFile);
-                        PdfUtils.closePdf(pdDoc);
+                    File outPutFile = new File(fileName);
+                    BufferedImage bImage = pdfRenderer.renderImageWithDPI(pageNum - 1, dpi, ImageType.RGB);
+                    ImageIO.write(bImage, "png", outPutFile);
+                    PdfUtils.closePdf(pdDoc);
 
-                        // delete image file if need
-                        //outPutFile.deleteOnExit();
+                    // delete image file if need
+                    //outPutFile.deleteOnExit();
 
 //                        return ResponseEntity.status(HttpStatus.OK)
 //                            .header(HttpHeaders.CONTENT_DISPOSITION, "filename=\"image.png")
 //                            .contentType(MediaType.IMAGE_PNG)
 //                            .body(bImage);
-                        return ResponseEntity.ok(bImage);
-                    }
+                    return ResponseEntity.ok(bImage);
+                }
             } else {
-                log.info("Resource don't exist in B-Store: {}", uuid);
+                log.info("Русерса нет в B-Store: {}", uuid);
             }
         } catch (Exception e) {
-            throw attachmentsError("Get pdf-preview error: "+ e.getMessage());
+            throw attachmentsError("Get pdf-preview error: " + e.getMessage());
 
         }
         return null;
@@ -130,7 +130,7 @@ public class AdvanceAttachmentsService implements AttachmentService {
 
     @Override
     public ResponseEntity<Resource> downloadTemplate(Long id) {
-        log.info("Attachments: download 'Advance-template-request' for advance: {}.", id);
+        log.info("[Файлы аванса]: загрузить шаблонную 'заявку на авнас' по авансу: {}.", id);
         Advance advance = findAdvance(id);
         return downloadAdvanceTemplate(advance);
     }
@@ -138,7 +138,7 @@ public class AdvanceAttachmentsService implements AttachmentService {
 
     @Override
     public ResponseEntity<Resource> downloadTemplate(UUID uuid) {
-        log.info("Attachments: download 'template' for advance: {}.", uuid);
+        log.info("[Файлы аванса]: загрузить шаблонную 'заявку на авнас' по авансу: {}.", uuid);
         Advance advance = findAdvanceByUuid(uuid);
         return downloadAdvanceTemplate(advance);
     }
@@ -160,7 +160,7 @@ public class AdvanceAttachmentsService implements AttachmentService {
 
     @Override
     public ResponseEntity<Void> uploadAssignment(MultipartFile file, Long advanceId) {
-        log.info("Attachments: upload 'Request' for adavance: {}.", advanceId);
+        log.info("[Файлы аванса]: загрузить подписанную заявку на аванс: {}.", advanceId);
         Advance advance = findAdvance(advanceId);
         uploadRequestAdvance(advance, file);
         return new ResponseEntity<>(OK);
@@ -170,9 +170,9 @@ public class AdvanceAttachmentsService implements AttachmentService {
         try {
             UUID fileUuid = saveToBStore(file);
             saveFromBStore(advance, fileUuid);
-            log.info("Attachments: File saved from BStore. Uuid = {}. Filename = {}. Advance = {}.", fileUuid, file, advance);
+            log.info("[Файлы аванса]: Файл сохранен из B-Store. Uuid = {}. Filename = {}. Advance = {}.", fileUuid, file, advance);
         } catch (BusinessLogicException e) {
-            log.error("Upload 'advance-request' file error:" + e.getErrors());
+            log.error("[Файлы аванса]: Ошибка загрузки файла по авансу: {}. Ошибка: {}.", advance.getId(), e.getErrors());
         }
         return new ResponseEntity<>(OK);
     }
@@ -187,16 +187,16 @@ public class AdvanceAttachmentsService implements AttachmentService {
     }
 
     private UUID saveToBStore(MultipartFile file) {
-        log.info("Try to save file to BStore: {}", file.getName());
+        log.info("[Файлы аванса]: Сохранить файл в B-Store: {}", file.getName());
         return bStoreService.saveFile(file);
 
     }
 
     private void saveFromBStore(Advance advance, UUID fileUuid) {
         Long tripId = advance.getAdvanceTripFields().getTripId();
-        log.info("Try to save file-uuid from BStore to Trip: {}.", tripId);
+        log.info("Сохранить файл из B-Store для поездки: {}.", tripId);
         saveToTripAttachments(tripId, fileUuid);
-        log.info("Try to save file-uuid from BStore to Advance: {}.", advance.getId());
+        log.info("Сохранить файл из B-Store для аванса: {}.", advance.getId());
         saveToAdvance(advance, fileUuid);
     }
 

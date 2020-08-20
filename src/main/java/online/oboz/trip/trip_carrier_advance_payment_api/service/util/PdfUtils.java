@@ -13,7 +13,7 @@ public interface PdfUtils {
     Logger log = LoggerFactory.getLogger(PdfUtils.class);
 
     static PDDocument loadPdf(Resource resource) throws IOException {
-        log.info("load pdf: {}", resource.getDescription());
+        log.info("Загрузка PDF-документа: {}", resource.getDescription());
         RandomAccessBufferedFileInputStream strm =
             new RandomAccessBufferedFileInputStream(resource.getInputStream());
         try {
@@ -21,7 +21,7 @@ public interface PdfUtils {
             try {
                 parser.parse();
             } catch (NoClassDefFoundError e) {
-                throw new SecurityException("PDF document is protected.", e);
+                throw new SecurityException("PDF-документ защищен от вскрытия.", e);
             }
             return parser.getPDDocument();
         } finally {

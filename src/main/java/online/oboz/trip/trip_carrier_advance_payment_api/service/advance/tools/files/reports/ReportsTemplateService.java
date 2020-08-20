@@ -4,7 +4,6 @@ package online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.
 import online.oboz.trip.trip_carrier_advance_payment_api.config.ApplicationProperties;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.Advance;
 import online.oboz.trip.trip_carrier_advance_payment_api.error.BusinessLogicException;
-import online.oboz.trip.trip_carrier_advance_payment_api.service.rest.RestService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.rest.RestTemplateService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.util.ErrorUtils;
 import org.slf4j.Logger;
@@ -58,13 +57,13 @@ public class ReportsTemplateService implements ReportService {
             throw getReportsError("Reports-service template's advance is null.");
         } else {
             String reportsUrl = getUrlForReportService(advance);
-            log.info("Report-server URL for advance {} is: {} ", advance.getId(), reportsUrl);
+            //log.info("[Аванс] - [{}] - URL сервиса создания шаблонов и отчетов : {} ", advance.getId(), reportsUrl);
             ResponseEntity<Resource> response = restService.getRequestResource(reportsUrl, new HttpHeaders());
             if (response.getStatusCode() == OK) {
-                log.info("Reports server response Headers is: {}", response.getHeaders().entrySet().toString());
+                //log.info("Reports server response Headers is: {}", response.getHeaders().entrySet().toString());
                 return response;
             } else {
-                log.error("Report-Server returned bad-response for Advance id: {}. Response is: {}", advance, response);
+                log.error("Сервис построения шаблонов и отчетов вернул ошибку по авансу: {}. Ответ: '{}'.", advance, response);
                 return null;
             }
         }
@@ -83,6 +82,6 @@ public class ReportsTemplateService implements ReportService {
     }
 
     private BusinessLogicException getReportsError(String s) {
-        return ErrorUtils.getInternalError("Report-service internal error: " + s);
+        return ErrorUtils.getInternalError("Ошибка сервиса построения шаблонной заявки на аванс: " + s);
     }
 }

@@ -39,14 +39,14 @@ public class SmsSenderService implements SmsSender {
     public void sendSms(SendSmsRequest sms) throws MessagingException {
         try {
             URL smsSenderUrl = smsSender;
-            if (null == smsSenderUrl) throw getSmsSendingException("SMS-sender-url is empty for:", sms);
-            //ResponseEntity<String> response = restService.postForEntity(smsSenderUrl, sms);
+            if (null == smsSenderUrl)
+                throw getSmsSendingException("Укажите url сервиса отправки СМС в конфигурации приложения:", sms);
             ResponseEntity<String> response = restTemplate.postForEntity(smsSenderUrl.toString(),
                 sms, String.class);
             if (response.getStatusCode() != HttpStatus.OK) {
-                getSmsSendingException("Bad SMS-response. " + response.getBody(), sms);
+                getSmsSendingException("Ошибка отправки СМС." + response.getBody(), sms);
             }
-            log.info("Success send notification sms to " + sms.getPhone());
+            log.info("СМС успешно отправлена по номеру {}.", sms.getPhone());
         } catch (HttpServerErrorException e) {
             throw getSmsSendingException(e.getMessage(), sms);
         } catch (ResourceAccessException e) {

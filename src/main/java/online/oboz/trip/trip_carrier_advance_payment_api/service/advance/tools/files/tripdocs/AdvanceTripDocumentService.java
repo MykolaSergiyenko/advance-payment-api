@@ -50,13 +50,13 @@ public class AdvanceTripDocumentService implements TripDocumentsService {
     }
 
     public UUID saveAssignmentAdvanceRequestUuid(Long tripId, UUID fileUuid) {
-        log.info("Try to save assignment advance-request to documents of Trip: {}.", tripId);
+        log.info("Сохранить подписанную 'Заявку на аванс' для поездки: {}.", tripId);
         if (!(StringUtils.isEmptyLongs(tripId) || fileUuid == null)) {
             TripAttachment attachment = createAssignmentAttachment(tripId, fileUuid);
-            log.info("Assignment advance-request saved for trip: {}.", tripId);
+            log.info("Подписанная 'Заявка на аванс' успешно сохранена в трип: {}.", tripId);
             return attachment.getFileId();
         } else {
-            throw tripAttachmentsError("Empty ids: tripId = " + tripId + ", fileUuid = " + fileUuid);
+            throw tripAttachmentsError("Пустые поля: tripId = " + tripId + ", fileUuid = " + fileUuid);
         }
     }
 
@@ -64,7 +64,7 @@ public class AdvanceTripDocumentService implements TripDocumentsService {
         if (attachments == null) return null;
         UUID requestUuid = getRequestUuid(attachments);
         if (requestUuid == null) requestUuid = getTripRequestUuid(attachments);
-        log.info("Request Or Trip-request file-uuid is: {}.", requestUuid);
+        log.info("UUID вложения 'Заявка' или 'Договор-заявка': {}.", requestUuid);
         return requestUuid;
     }
 
@@ -89,10 +89,10 @@ public class AdvanceTripDocumentService implements TripDocumentsService {
         TripAttachment file = attachments.stream().
             filter(a -> a.getDocumentTypeCode().equals(fileType)).findFirst().orElse(null);
         if (file == null) {
-            log.info("File type not found: {}", fileType);
+            log.info("Тип вложения не найден: {}.", fileType);
             return null;
         } else {
-            log.info("File type found: {}", fileType);
+            log.info("Найден тип вложения: {}.", fileType);
             return file.getFileId();
         }
     }

@@ -54,11 +54,10 @@ public class UrlShortenerService implements UrlService {
 
     public String editUrl(String url) {
         try {
-            log.info("Input url is " + url);
+            log.info("Входная ссылка: {}.", url);
             return cutUrl(url);
         } catch (UrlCutterException e) {
-            log.info("UrlCutter error: " + e.getErrors());
-            log.info("Return input: " + url);
+            log.info("Ошибка редактирования ссылки: {}. Входная ссылка: {}.", e.getErrors(), url);
             return url;
         }
     }
@@ -67,8 +66,7 @@ public class UrlShortenerService implements UrlService {
         try {
             return cutUrl(url);
         } catch (UrlCutterException e) {
-            log.info("UrlCutter error: " + e.getErrors());
-            log.info("Return input url: " + url.toString());
+            log.info("Ошибка сокращения ссылки: {}. Входная ссылка: {}.", e.getErrors(), url.toString());
             return url.toString();
         }
     }
@@ -77,8 +75,8 @@ public class UrlShortenerService implements UrlService {
         try {
             return getShortUrl(url);
         } catch (BadRequestException e) {
-            log.info("BadRequestException   " + e.getMessage());
-            throw getCutterException("Bad Request to URL-converter: " + e.getMessage(), BAD_REQUEST);
+            //log.info("Ошибка запроса   " + e.getMessage());
+            throw getCutterException("Ошибка запроса к URL-редактору: " + e.getMessage(), BAD_REQUEST);
         }
     }
 
@@ -86,22 +84,22 @@ public class UrlShortenerService implements UrlService {
         try {
             return cutUrl(new URL(URLDecoder.decode(stringUrl, "UTF-8")));
         } catch (MalformedURLException | UnsupportedEncodingException e) {
-            log.info("MalformedURLException   " + e.getMessage());
-            throw getCutterException("URL convertation error: " + e.getMessage(), BAD_REQUEST);
+            log.error("Битая ссылка: {}", e.getMessage());
+            throw getCutterException("Ошибка преобразования URL: " + e.getMessage(), BAD_REQUEST);
         }
     }
 
 
     private String getShortUrl(URL url) throws BadRequestException {
         if (null == shortenerURL) {
-            throw new BadRequestException("URL-shortener service link empty.");
+            throw new BadRequestException("Не указан URL сервиса сокращения ссылок.");
         }
         ResponseEntity<String> response = restTemplate.exchange(shortenerURL + url.toString(), GET, null, String.class);
         if (response.getStatusCode() != OK) {
-            log.error("URL-shortener server returned bad response {}", response);
-            throw new BadRequestException("URL-shortener response error.");
+            log.error("[Сокращение ссылок]: Сервер вернул ошибку {}", response);
+            throw new BadRequestException("[Сокращение ссылок]: Ошибка сервера.");
         }
-        log.info("Short url is: " + response.getBody());
+        log.info("Короткая ссылка: " + response.getBody());
 
         return response.getBody();
     }

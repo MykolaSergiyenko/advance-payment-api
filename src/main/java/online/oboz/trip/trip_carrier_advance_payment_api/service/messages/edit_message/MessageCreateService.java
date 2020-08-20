@@ -70,7 +70,7 @@ public class MessageCreateService implements MessagesService {
         String phone = to;
         String tripNum = advance.getAdvanceTripFields().getNum();
         if (StringUtils.isEmptyStrings(tripNum, phone, text)) {
-            throw getCreateSmsException("Empty sms-fields for advance ", advance.getId().toString());
+            throw getCreateSmsException("Не заполнены данные для смс по авансу: ", advance.getId().toString());
         }
         SendSmsRequest container = new SendSmsRequest(text, phone);
         return container;
@@ -84,27 +84,17 @@ public class MessageCreateService implements MessagesService {
         String subject = getEmailHeader(advance);
         String text = getEmailText(advance);
         if (StringUtils.isEmptyStrings(from, to, subject, text)) {
-            throw getCreateEmailException("Empty email-fields for advance ", advance.getId().toString());
+            throw getCreateEmailException("Не заполнен электронный адрес по авансу: {}.", advance.getId().toString());
         }
         EmailContainer email = new EmailContainer(from, to, subject, text);
         return email;
     }
 
-
-    private String getPhoneNumber(String phoneNumber) throws MessagingException {
-        try {
-            return formatPhone(phoneNumber);
-        } catch (IllegalFormatException e) {
-            log.error("Format message error: " + e.getMessage());
-            throw getMessagingError("Format phone-number error: " + phoneNumber + ". Errors:" + e.getMessage());
-        }
-    }
-
     private String formatPhone(String num) throws MessagingException {
         String template = phoneTemplate;
         if (StringUtils.isEmptyStrings(template, num)) {
-            log.error("Empty phone number fields.");
-            throw getMessagingError("Empty phone number fields for advance ");
+            log.error("Номер телефона пуст.");
+            throw getMessagingError("Пустой телефонный номер ");
         }
         return String.format(template, num);
     }
@@ -121,8 +111,8 @@ public class MessageCreateService implements MessagesService {
             Double sum = advance.getTripAdvanceInfo().getAdvancePaymentSum();
             return formatMessageWithUrl(template, tripNum, sum, link);
         } catch (IllegalFormatException e) {
-            log.info("Format message error: " + e.getMessage());
-            throw getCreateSmsException("Format sms text error: " + e.getMessage(), advance.getId().toString());
+            log.info("Ошибка форматирования смс: " + e.getMessage());
+            throw getCreateSmsException("Ошибка форматирования текста смс: " + e.getMessage(), advance.getId().toString());
         }
     }
 
@@ -138,8 +128,8 @@ public class MessageCreateService implements MessagesService {
             Double sum = advance.getTripAdvanceInfo().getAdvancePaymentSum();
             return formatMessageWithUrl(template, tripNum, sum, link);
         } catch (IllegalFormatException e) {
-            log.info("Format message error: " + e.getMessage());
-            throw getCreateEmailException("Format email-message error: " + e.getMessage(),
+            log.info("Ошибка форматирования письма: " + e.getMessage());
+            throw getCreateEmailException("Ошибка форматирования текста письма: " + e.getMessage(),
                 advance.getId().toString());
         }
     }
@@ -149,11 +139,11 @@ public class MessageCreateService implements MessagesService {
             String tripNum = advance.getAdvanceTripFields().getNum();
             return formatMessageHeader(emailHeaderTemplate, tripNum);
         } catch (IllegalFormatException e) {
-            log.info("Format message error: " + e.getMessage());
-            throw getCreateEmailException("Format email-header error: " + e.getMessage(),
+            log.info("Ошибка создания сообщения об авансе: {}.", e.getMessage());
+            throw getCreateEmailException("Ошибка форматирования хедера электронного письма: " + e.getMessage(),
                 advance.getId().toString());
         } catch (MessagingException e) {
-            throw getCreateEmailException("Format email-header error: " + e.getMessage(),
+            throw getCreateEmailException("Ошибка форматирования хедера электронного письма: " + e.getMessage(),
                 advance.getId().toString());
         }
     }
@@ -161,16 +151,16 @@ public class MessageCreateService implements MessagesService {
 
     private String formatMessageHeader(String headerTemplate, String tripNum) throws MessagingException {
         if (StringUtils.isEmptyStrings(headerTemplate, tripNum)) {
-            log.error("Empty message-header fields.");
-            throw getFormatException("Empty message-header fields for tripNum ", tripNum);
+            log.error("Пустые поля для заголовка электронного письма.");
+            throw getFormatException("Пустые поля для заголовка электронного письма по заказу ", tripNum);
         }
         return String.format(headerTemplate, tripNum);
     }
 
     private String formatMessageWithUrl(String textTemplate, String num, Double sum, String lkLink) throws MessagingException {
         if (StringUtils.isEmptyStrings(textTemplate, num, sum.toString(), lkLink)) {
-            log.error("Empty message-text fields.");
-            throw getFormatException("Empty message-text fields for tripNum ", num);
+            log.error("Пустые поля для письма.");
+            throw getFormatException("Пустые поля для уведомления по заказу ", num);
         }
         return formatMessage(textTemplate, num, sum, lkLink);
     }
@@ -180,23 +170,20 @@ public class MessageCreateService implements MessagesService {
     }
 
     private MessagingException getCreateEmailException(String message, String id) {
-        String error = ("Error while email creating for advance " + id + ". Messages: " + message);
-        return ErrorUtils.getMessagingError(error);
+        return ErrorUtils.getMessagingError("Ошибка создания уведомления по авансу: " + id + ". Ошибка: " + message);
     }
 
     private MessagingException getCreateSmsException(String message, String id) {
-        String error = ("Error while creating SMS for advance " + id + ". Messages: " + message);
+        String error = ("Ошибка создания СМС по авнсу: " + id + ". Ошибки: " + message);
         return ErrorUtils.getMessagingError(error);
     }
 
     private MessagingException getFormatException(String message, String id) {
-        String error = ("Error while formatting message:" + id + ". Messages: " + message);
-        return ErrorUtils.getMessagingError(error);
+        return ErrorUtils.getMessagingError("Ошибка форматирования сообщения по авансу:" + id + ". Ошибка: " + message);
     }
 
     private MessagingException getMessagingError(String message) {
-        String error = ("Error while formatting message. Messages: " + message);
-        return ErrorUtils.getMessagingError(error);
+        return ErrorUtils.getMessagingError("Ошибка форматирования сообщения. Ошибка: " + message);
     }
 
 }

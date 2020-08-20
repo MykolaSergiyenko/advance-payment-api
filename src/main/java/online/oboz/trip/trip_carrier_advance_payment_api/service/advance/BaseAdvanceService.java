@@ -171,7 +171,7 @@ public class BaseAdvanceService implements AdvanceService {
             logPaging(tab, page, size, sort, desktop);
             return desktop;
         } catch (Exception e) {
-            log.error("[Advance-grid]: Error while grid-building - Filter: {}, tab: {}. Errors: {}.", filter, tab, e.getStackTrace());
+            log.error("[Рабочий стол авансирования]: Ошибка построения грида авансов - Фильтр: {}, вкладка: {}. Ошибки: {}.", filter, tab, e.getStackTrace());
             return null;
         }
     }
@@ -181,7 +181,7 @@ public class BaseAdvanceService implements AdvanceService {
             "-" : sort.getKey().toString();
         String total = (desktop == null || desktop.getPaginator() == null || desktop.getPaginator().getTotal() == null) ?
             "Ø" : desktop.getPaginator().getTotal().toString();
-        log.info("[Advance-grid]: Tab: '{}'; Total advances: {}; Page: '{} x {}'; Filter:'{}'.",
+        log.info("[Рабочий стол авансирования]: Вкладка: '{}'; Всего авансов: {}; Страниц: '{} x {}'; Фильтр:'{}'.",
             tab, total, page, size, sorting);
     }
 

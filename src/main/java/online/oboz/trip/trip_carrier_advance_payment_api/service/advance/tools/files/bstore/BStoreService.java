@@ -51,11 +51,11 @@ public class BStoreService implements StoreService {
         String url = bStoreUrl + uuidFile.toString();
         ResponseEntity<Resource> response = restService.authGetRequestResource(url);
         if (response.getStatusCode() == OK) {
-            log.info("[B-Store]: Loading from B-Store OK for file: {}.", uuidFile);
+            log.info("[B-Store]: Получение ссылки на скачивание из хранилища: {}.", uuidFile);
             return response;
         } else {
-            log.error("[B-Store]: Server returned '{}' for URL: {}.", response.getStatusCode().getReasonPhrase(), url);
-            throw bstoreError("B-Store-server returned '" + response.getStatusCode().getReasonPhrase() + "' for URL: " + url);
+            log.error("[B-Store]: Сервер вернул '{}' по запросу URL: {}.", response.getStatusCode().getReasonPhrase(), url);
+            throw bstoreError("B-Store-server вернул '" + response.getStatusCode().getReasonPhrase() + "' для URL: " + url);
         }
     }
 
@@ -74,10 +74,10 @@ public class BStoreService implements StoreService {
             if (response.getStatusCode() == OK) {
                 UUID fileUuid = UUID.fromString
                     (objectMapper.readTree(response.getBody()).get("file_uuid").asText());
-                log.info("Success save file to BStore {}.", fileUuid);
+                log.info("Файл успешно сохранен в BStore {}.", fileUuid);
                 return fileUuid;
             } else {
-                log.info("B-Store response isn't OK: {}.", response);
+                log.info("Ошибка B-Store: {}.", response);
             }
         } catch (IOException e) {
             throw bstoreError("Failed parse response from bstore. Filename: " + file.getName() +
