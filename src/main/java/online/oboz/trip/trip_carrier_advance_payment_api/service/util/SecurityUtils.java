@@ -46,7 +46,7 @@ public interface SecurityUtils {
 
     static String getAuthPersonName() {
         Jwt jwt = getToken();
-        log.info("--- jwt: {}", jwt);
+        log.info("--- jwt: {}", jwt.getClaims());
         return jwt.getClaims().get("email").toString();
     }
 
