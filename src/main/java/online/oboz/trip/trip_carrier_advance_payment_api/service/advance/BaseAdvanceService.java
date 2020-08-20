@@ -287,6 +287,7 @@ public class BaseAdvanceService implements AdvanceService {
     @Override
     public void notifyAboutAdvancesScheduled(List<Advance> advances) {
         notificationService.repeatNotify(advances);
+        saveAll(advances);
     }
 
 
