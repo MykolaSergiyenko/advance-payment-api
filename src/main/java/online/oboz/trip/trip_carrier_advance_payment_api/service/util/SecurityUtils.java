@@ -44,6 +44,12 @@ public interface SecurityUtils {
         return jwt.getClaims().get("email").toString();
     }
 
+    static String getAuthPersonName() {
+        Jwt jwt = getToken();
+        log.info("--- jwt: {}", jwt);
+        return jwt.getClaims().get("email").toString();
+    }
+
 
     static boolean hasRole(String role) {
         System.out.println("my role: " + getCurrentToken().getClaimAsMap("realm_access").get("roles"));
@@ -59,7 +65,13 @@ public interface SecurityUtils {
     static boolean hasAccessEmail(List<String> accessUsersEmails) {
         String authPerson = getAuthPersonEmail();
         boolean contains = accessUsersEmails.contains(authPerson);
-        if (!contains) log.info("[Рабочий стол авансирования] Пользователь пытается получить доступ: {}.", authPerson);
+
+
+        if (!contains) {
+            Long authPersonId = getAuthPersonId();
+            String personName = getAuthPersonName();
+            log.info("[Рабочий стол авансирования] Пользователь пытается получить доступ: {}.", authPerson);
+        }
         return contains;
     }
 
