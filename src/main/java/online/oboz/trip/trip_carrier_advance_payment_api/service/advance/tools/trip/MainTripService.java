@@ -33,8 +33,8 @@ import java.util.List;
 public class MainTripService implements TripService {
     private static final Logger log = LoggerFactory.getLogger(MainTripService.class);
 
-    private final String tripNullCostError, costError, contactsError, docsError, gt, lt, datePattern;
-    ;
+    private final String tripNullCostError, costError, contactsError, docsError, typeError, stateError,
+        gt, lt, datePattern;
 
     private final TripRepository tripRepository;
     private final CostDictService costDictService;
@@ -64,6 +64,8 @@ public class MainTripService implements TripService {
         this.costError = applicationProperties.getTripCostError();
         this.docsError = applicationProperties.getTripDocsError();
         this.contactsError = applicationProperties.getTripContractsError();
+        this.stateError = applicationProperties.getTripStateError();
+        this.typeError = applicationProperties.getTripTypeError();
         this.datePattern = applicationProperties.getDatePattern();
     }
 
@@ -126,7 +128,7 @@ public class MainTripService implements TripService {
     public TripAdvanceState checkTripAdvanceState(Trip trip) {
         String message = "";
         TripAdvanceState tripAdvanceState = new TripAdvanceState();
-        if (checkTripCosts(trip, tripAdvanceState)) {
+        if (checkTripForAdvance(trip, tripAdvanceState)) {
             if (contactService.notExistsByContractor(trip.getContractorId())) {
                 message = contactsError;
             } else if (!documentsService.isAllTripDocumentsLoaded(trip.getId())) {
@@ -136,6 +138,10 @@ public class MainTripService implements TripService {
         }
         log.info("[Аванс по поездке]: Текст сообщения: {}", tripAdvanceState.getTooltip());
         return tripAdvanceState;
+    }
+
+    private Boolean checkTripForAdvance(Trip trip, TripAdvanceState request) {
+        return checkTripType(trip, request) && checkTripState(trip, request) && checkTripCosts(trip, request);
     }
 
     private Boolean checkTripCosts(Trip trip, TripAdvanceState request) {
@@ -160,6 +166,24 @@ public class MainTripService implements TripService {
         } else {
             request.setTooltip(tripNullCostError);
             return false;
+        }
+    }
+
+    private Boolean checkTripState(Trip trip, TripAdvanceState request) {
+        if (!("assigned").equals(trip.getTripStatusCode())) {
+            request.setTooltip(stateError);
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    private Boolean checkTripType(Trip trip, TripAdvanceState request) {
+        if (!("motor").equals(trip.getTripFields().getTripTypeCode())) {
+            request.setTooltip(typeError);
+            return false;
+        } else {
+            return true;
         }
     }
 

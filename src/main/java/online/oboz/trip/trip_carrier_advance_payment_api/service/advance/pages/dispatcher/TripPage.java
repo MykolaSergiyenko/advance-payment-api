@@ -47,7 +47,7 @@ public class TripPage implements TripAdvance {
     @Override
     public ResponseEntity<TripAdvanceState> getAdvanceState(Long tripId) {
         log.info("[Состояние аванса]: по заказу: {}", tripId);
-        Trip trip = advanceService.findAdvancedTrip(tripId);
+        Trip trip = advanceService.findTrip(tripId);
         Boolean advanceNotExists = advanceService.advancesNotExistsForTrip(trip);
         return new ResponseEntity<>(advanceNotExists ?
             // Можем ли выдать аванс по Трипу?

@@ -100,6 +100,13 @@ public class ApplicationProperties {
     @Value("${services.trip-advance-service.trip-docs-error}")
     private String tripDocsError;
 
+
+    @Value("${services.trip-advance-service.trip-state-error}")
+    private String tripStateError;
+
+    @Value("${services.trip-advance-service.trip-type-error}")
+    private String tripTypeError;
+
     @Value("${services.trip-advance-service.advance-title}")
     private String advanceTitle;
 
@@ -771,5 +778,22 @@ public class ApplicationProperties {
 
     public void setDatePattern(String datePattern) {
         this.datePattern = datePattern;
+    }
+
+
+    public String getTripStateError() {
+        return tripStateError;
+    }
+
+    public void setTripStateError(String tripStateError) {
+        this.tripStateError = tripStateError;
+    }
+
+    public String getTripTypeError() {
+        return tripTypeError;
+    }
+
+    public void setTripTypeError(String tripTypeError) {
+        this.tripTypeError = tripTypeError;
     }
 }
