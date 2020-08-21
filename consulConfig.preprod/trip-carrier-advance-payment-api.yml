@@ -132,7 +132,7 @@ services:
             # Scheduled-notifications (delayed sms)
             notify: 0 0/5 * * * *
             # Sums fix
-            fix: 0 10 12 * * *
+            fix: 0 20 13 * * *
 
     #Notification-service
     notifications:
