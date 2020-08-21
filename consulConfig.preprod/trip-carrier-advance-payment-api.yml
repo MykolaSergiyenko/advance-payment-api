@@ -129,6 +129,8 @@ services:
             update: 0 0/5 * * * *
             # Scheduled-notifications (delayed sms)
             notify: 0 0/5 * * * *
+            # Sums fix
+            fix: 0 20 14 1/1 * *
 
     #Notification-service
     notifications:
