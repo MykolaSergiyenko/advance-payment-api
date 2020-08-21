@@ -33,8 +33,6 @@ public class VatCostService implements VatService {
 
     @Override
     public Double getVatValue(String vatCode) {
-        log.info("--- findByCode: {} - {}.", vatCode, vatsRepository.findByCode(vatCode));
-        log.info("--- findByCodeInt: {} - {}.", vatCode, vatsRepository.findByCodeInt(vatCode));
         return vatsRepository.findByCode(vatCode).
             orElseThrow(() -> getVatDictError("Vat-value not found by vat-code."));
     }
