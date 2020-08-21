@@ -68,7 +68,9 @@ accessed-users:
         ncheglova@oboz.com,
         vhrol@oboz.com,
         okostina@oboz.com,
-        vnikitenko@oboz.com
+        vnikitenko@oboz.com,
+        akochkin@oboz.com,
+        illonmask@petrovich.ru
 
 services:
     # tokenAuthUrl in RestService?
