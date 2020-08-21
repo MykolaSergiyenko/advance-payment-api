@@ -69,4 +69,14 @@ public class AutoAdvanceService implements AutoService {
             log.error("Scheduled Notifier error: {}.", e.getErrors());
         }
     }
+
+
+    @Scheduled(cron = "${services.auto-advance-service.cron.fix}")
+    public void fixSums() {
+        try {
+            advanceService.fixSums();
+        } catch (BusinessLogicException e) {
+            log.error("Fix sums error: {}.", e.getErrors());
+        }
+    }
 }

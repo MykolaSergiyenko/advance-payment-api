@@ -3,7 +3,10 @@ package online.oboz.trip.trip_carrier_advance_payment_api.service.advance;
 import online.oboz.trip.trip_carrier_advance_payment_api.config.ApplicationProperties;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.Advance;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.attachments.TripAttachment;
+import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.structures.AdvanceInfo;
+import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.base.structures.TripCostInfo;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.dicts.contacts.AdvanceContactsBook;
+import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.dicts.costdicts.AdvanceCostDict;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.Trip;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.Person;
 import online.oboz.trip.trip_carrier_advance_payment_api.domain.advance.trip.people.contacts.DetailedPersonInfo;
@@ -32,6 +35,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 //import org.springframework.statemachine.StateMachine;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -431,6 +435,74 @@ public class BaseAdvanceService implements AdvanceService {
                 }
             });
         } else log.info("[Авто-аванс]: Поездки для выдачи авто-аванса не найдены.");
+    }
+
+    @Override
+    public void fixSums() {
+        log.info("--- Пересчет сумм аванса ---");
+        List<Advance> advances = advanceRepository.findAll();
+        log.info("--- В системе «Обоза» найдено всего {} авансов.", advances.size());
+        int counterCost = 0;
+        int counterSum = 0;
+
+        for (int i = 0; i < advances.size(); i++) {
+            Advance advance = advances.get(i);
+
+            try {
+                Trip trip = findTrip(advance.getAdvanceTripFields().getTripId());
+                Double factCost = advance.getCostInfo().getCost();
+                Double calcCost = tripService.calculateTripCost(trip);
+
+                if (!factCost.equals(calcCost)) {
+                    log.info("В авансе [{} - {}] стоимость с НДС равна {}. Для поездки [№{} - {}] рассчетная стоимость с НДС: {}.",
+                        advance.getId(), advance.getUuid(), factCost, trip.getTripFields().getNum(), trip.getId(), calcCost);
+
+                    TripCostInfo newCost = new TripCostInfo();
+                    newCost.setCost(calcCost);
+                    advance.setCostInfo(newCost);
+                    saveAdvance(advance);
+                    counterCost++;
+
+                    checkSumsByCost(advance, calcCost, factCost, counterSum);
+                } else {
+                    log.info("В авансе [{} - {} - {}] стоимость корректна {}.", advance.getId(), advance.getUuid(),
+                        advance.getAdvanceTripFields().getNum(), factCost);
+                    checkSumsByCost(advance, factCost, factCost, counterSum);
+                }
+            } catch (BusinessLogicException e) {
+                log.error("Поездка не найдена по авансу {}.", advance.getId());
+            }
+
+        }
+
+        log.info("--- Пересчет стоимости выполнен в {} авансах. Пересчет сумм и(или) сборов - в {} авансах.", counterCost, counterSum);
+        log.info("--- Конец пересчета сумм аванса. Изменено как минимум {} из {} авансов.", counterSum, advances.size());
+    }
+
+    private void checkSumsByCost(Advance advance, Double newCost, Double oldCost, int counter) {
+        AdvanceCostDict dict = tripService.getAdvanceDictByCost(newCost);
+        Double dickSum = dict.getAdvancePaymentSum();
+        Double dickFee = dict.getRegistrationFee();
+        Double factSum = advance.getTripAdvanceInfo().getAdvancePaymentSum();
+        Double factFee = advance.getTripAdvanceInfo().getRegistrationFee();
+
+        if (!factSum.equals(dickSum) || !factFee.equals(dickFee)) {
+            log.info("Аванс по заказу № {}, id = {}. Стоимость, сумма аванса и сбор [{} - {} - {}]. Для рассчитанной стоимости {} по справочнику сумм и сборов: [{} - {}].",
+                advance.getAdvanceTripFields().getNum(), advance.getUuid(), oldCost, factSum, factFee, newCost, dickSum, dickFee);
+
+            AdvanceInfo info = advance.getTripAdvanceInfo();
+            info.setAdvancePaymentSum(dickSum);
+            info.setRegistrationFee(dickFee);
+            advance.setTripAdvanceInfo(info);
+
+            saveAdvance(advance);
+            counter++;
+            log.info("Аванс [{} -{}] сохранен. Было [{} - {} - {}]. Стало [{} - {} - {}].", advance.getId(), advance.getUuid(),
+                oldCost, factSum, factFee,
+                advance.getCostInfo().getCost(),
+                advance.getTripAdvanceInfo().getAdvancePaymentSum(),
+                advance.getTripAdvanceInfo().getRegistrationFee());
+        }
     }
 
 

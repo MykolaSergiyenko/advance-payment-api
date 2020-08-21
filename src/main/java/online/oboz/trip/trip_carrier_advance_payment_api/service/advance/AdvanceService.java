@@ -212,4 +212,10 @@ public interface AdvanceService {
      */
     TripAdvanceState checkAdvanceState(Advance advance);
 
+    /**
+     * Пересчитать стоимость с НДС, сумму аванса и сборов
+     *
+     */
+    void fixSums();
+
 }
