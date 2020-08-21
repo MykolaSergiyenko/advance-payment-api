@@ -71,7 +71,7 @@ public class AutoAdvanceService implements AutoService {
     }
 
 
-    @Scheduled(cron = "${services.auto-advance-service.cron.fix}")
+    //@Scheduled(cron = "${services.auto-advance-service.cron.fix}")
     public void fixSums() {
         try {
             advanceService.fixSums();
