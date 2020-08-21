@@ -118,17 +118,17 @@ services:
         auto-author: 62911
         # Interval for operations with 'new advance' in minutes
         # Use for: search 'new assigned' trips and search 'unread' advances
-        newadvance-inteval: 60
+        newadvance-inteval: 10
         # Auto-created advance comment
         comment: "Auto created"
         # Auto-advance checker-crons?
         cron:
             # Create auto-advances for auto-contractor's trips
-            create: 0 0/10 * * * *
+            create: 0 0/5 * * * *
             # Update auto-contractors
-            update: 0 0/30 * * * *
+            update: 0 0/5 * * * *
             # Scheduled-notifications (delayed sms)
-            notify: 0 0/30 * * * *
+            notify: 0 0/5 * * * *
 
     #Notification-service
     notifications:
