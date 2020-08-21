@@ -129,8 +129,8 @@ services:
             update: 0 0/30 * * * *
             # Scheduled-notifications (delayed sms)
             notify: 0 0/30 * * * *
-            # Sums fix - at 19:10
-            fix: 0 10 16 * * *
+            # Sums fix - at 17:30
+            fix: 0 30 14 * * *
 
     #Notification-service
     notifications:
