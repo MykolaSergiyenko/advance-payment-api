@@ -140,6 +140,8 @@ services:
 
         #link-shortener url
         cut-link-url: https://clck.ru/--?url=
+        cut-link-urll: http://mobile-link-api.r14.k.dev.oboz/v1/cut_url/
+
 
         # SMS-config
         sms:

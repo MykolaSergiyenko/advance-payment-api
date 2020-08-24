@@ -49,3 +49,11 @@ SpringBoot - MainApplication
 curl -o f.pdf "https://reports.oboz.com/reportserver/reportserver/httpauthexport?key=avance_request&tripAdvancePerson=bertathar&apikey=nzybc16h&p_trip_num=157966-1&p_avance_sum=300&p_avance_comission=150&format=PDF"
 curl -o ff.pdf "https://reports.oboz.com/reportserver/reportserver/httpauthexport?key=unified_contract_request&tripAdvancePerson=bertathar&apikey=nzybc16h&p_trip_num=157966-1&format=PDF"
 sudo keytool -importcert -keystore /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/security/cacerts -storepass changeit -file /home/gmakarov/Downloads/cert.oboz.crt -alias "oboz.com"
+
+[![A Fire Inside - "Advances In Modern Technology", 
+from "Very Proud Of Ya", ℗ Nitro Records, 1996](
+https://i.ytimg.com/vi/KD4VkG6yuLM/maxresdefault.jpg)
+](https://www.youtube.com/watch?v=KD4VkG6yuLM
+"AFI - Advances In Modern Technology")
+
+## Беги скорей из "обоза", чувак.

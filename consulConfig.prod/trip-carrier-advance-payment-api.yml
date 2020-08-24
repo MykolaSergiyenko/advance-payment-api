@@ -139,6 +139,7 @@ services:
 
         #link-shortener url
         cut-link-url: https://clck.ru/--?url=
+        cut-link-urll: http://mobile-link-api:8080/v1/cut_url
 
         # SMS-config
         sms:

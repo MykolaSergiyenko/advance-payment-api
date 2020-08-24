@@ -46,7 +46,7 @@ public class AdvanceCostService implements CostService {
 
     @Override
     public Double calculateNdsCost(Double tripCost, String vatCode, Boolean isVatPayer) {
-        Double ndsCost = tripCost + (isVatPayer ? (tripCost * getVatValue(vatCode)) : 0);
+        Double ndsCost = Math.ceil(tripCost + (isVatPayer ? (tripCost * getVatValue(vatCode)) : 0));
         log.info("Calculate nds cost: cost = {}, vatCode = {}, isVatPayer = {}. Cost with nds: {}.",
             tripCost, vatCode, isVatPayer, ndsCost);
         return ndsCost;

@@ -141,6 +141,7 @@ services:
 
         #link-shortener url
         cut-link-url: https://clck.ru/--?url=
+        cut-link-urll: https://preprod.oboz.online/api/mobile-link-api/v1/cut_url/
 
         # SMS-config
         sms:
