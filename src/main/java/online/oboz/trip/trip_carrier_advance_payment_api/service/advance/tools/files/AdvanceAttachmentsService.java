@@ -75,7 +75,7 @@ public class AdvanceAttachmentsService implements AttachmentService {
                 PDFRenderer pdfRenderer = new PDFRenderer(pdDoc);
                 int numberOfPages = pdDoc.getNumberOfPages();
                 log.info("[PDF] - количество страниц в файле: {}", numberOfPages);
-                if (pageNum < numberOfPages)
+                if (pageNum >= numberOfPages)
                     throw attachmentsError("[PDF] - Page number for preview must be less than total PDF page number.");
                 else {
                     /*
