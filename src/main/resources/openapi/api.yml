@@ -314,7 +314,7 @@ paths:
                     required: true
                     schema:
                         type: integer
-                        format: int64
+                        format: int32
                         minimum: 1
             responses:
                 200:
@@ -322,8 +322,7 @@ paths:
                     content:
                         image/png:
                             schema:
-                                type: string
-                                format: binary
+                                type: file
                 default:
                     description: "Some other error"
                     content:
@@ -644,8 +643,7 @@ paths:
                     content:
                         image/png:
                             schema:
-                                type: string
-                                format: binary
+                                type: file
                 default:
                     description: "Some other error"
                     content:

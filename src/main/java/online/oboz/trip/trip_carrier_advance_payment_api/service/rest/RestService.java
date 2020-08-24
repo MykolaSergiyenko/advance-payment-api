@@ -70,7 +70,7 @@ public class RestService implements RestTemplateService {
     }
 
     public ResponseEntity<Resource> authGetRequestResource(String url) {
-        log.info("Запрос ресурса: '{}'.", url);
+        //log.info("[Запрос ресурса]: '{}'.", url);
         HttpHeaders headers = new HttpHeaders();
         headers.add(AUTHORIZATION, "Bearer " + ACCESS_TOKEN);
         return getRequestResource(url, headers);

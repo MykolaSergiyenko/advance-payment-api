@@ -68,11 +68,18 @@ public interface AdvanceDesktop extends AdvancesApiDelegate {
      *
      * @param uuid - uuid файла из bStore, который везде хранится:
      *             request, trip_request ... - не важно
-     * @return
+     * @return pdf-file
      */
     ResponseEntity<Resource> downloadFile(UUID uuid);
 
-    ResponseEntity<BufferedImage> getPdfPreview(UUID uuid, Integer pageNum);
+    /**
+     * Получить превью PDF-файла
+     *
+     * @param uuid - uuid файла из bStore
+     * @param page - номер страницы в файле
+     * @return image\png
+     */
+    ResponseEntity<Resource> getPdfPreview(UUID uuid, Integer page);
 
 
     /**

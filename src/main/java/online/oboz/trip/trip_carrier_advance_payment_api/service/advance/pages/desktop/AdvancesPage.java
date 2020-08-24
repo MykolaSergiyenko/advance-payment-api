@@ -16,7 +16,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.awt.image.BufferedImage;
 import java.util.List;
 import java.util.UUID;
 
@@ -71,9 +70,9 @@ public class AdvancesPage implements AdvanceDesktop {
         return attachmentService.fromBStore(uuid);
     }
 
-    public ResponseEntity<BufferedImage> getPdfPreview(UUID uuid, Integer pageNum) {
+    public ResponseEntity<Resource> getPdfPreview(UUID uuid, Integer pageNum) {
         log.info("[Аванс] Получить превью pdf-файла: {} - p.{}. ", uuid, pageNum);
-        return attachmentService.pdfPreviewFromBStore(uuid, pageNum);
+        return attachmentService.getPdfPreview(uuid, pageNum);
     }
 
 

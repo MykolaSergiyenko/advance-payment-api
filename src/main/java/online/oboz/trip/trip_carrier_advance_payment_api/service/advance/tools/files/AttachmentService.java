@@ -5,7 +5,10 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.UUID;
 
 
@@ -78,7 +81,6 @@ public interface AttachmentService {
 //    ResponseEntity<Void> uploadRequestAdvance(MultipartFile file, Long id);
 
 
-
     /**
      * Скачать "Заявку" из "Аванса"
      *
@@ -91,7 +93,7 @@ public interface AttachmentService {
      * Загрузить подписанный файл в аванс
      *
      * @param file - файл
-     * @param id - аванс
+     * @param id   - аванс
      * @return
      */
     ResponseEntity<Void> uploadAssignment(MultipartFile file, Long id);
@@ -107,4 +109,6 @@ public interface AttachmentService {
 
     //ResponseEntity<BufferedImage> pdfPreviewFromBStore(UUID uuid, Integer pageNum);
     ResponseEntity<BufferedImage> pdfPreviewFromBStore(UUID uuid, Integer pageNum);
+
+    ResponseEntity<Resource> getPdfPreview(UUID uuid, Integer pageNum);
 }

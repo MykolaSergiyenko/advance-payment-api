@@ -5,17 +5,13 @@ import online.oboz.trip.trip_carrier_advance_payment_api.service.advance.Advance
 import online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.files.AttachmentService;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.urleditor.UrlService;
 import online.oboz.trip.trip_carrier_advance_payment_api.web.api.controller.AdvanceTestApiDelegate;
-import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.AdvanceDesktopDTO;
-import online.oboz.trip.trip_carrier_advance_payment_api.web.api.dto.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.awt.image.BufferedImage;
 import java.util.UUID;
 
 /**
@@ -56,14 +52,8 @@ public class TestApi implements AdvanceTestApiDelegate {
 
     @Override
     public ResponseEntity<Resource> getFilePreview(UUID uuid) {
-        log.info("Получить превью главной страницы PDF-файла: {}.", uuid);
-        BufferedImage b = attachmentService.pdfPreviewFromBStore(uuid, 1).getBody();
-        log.info("[PDF to PNG]: Размер изображения: {} x {}.", b.getHeight(), b.getWidth());
-        return new ResponseEntity<>(new ByteArrayResource(b.toString().getBytes()), HttpStatus.OK);
+        log.info("[Песочница]: Получить превью главной страницы PDF-файла: {}.", uuid);
+        return attachmentService.getPdfPreview(uuid, 1);
     }
 
-//    @Override
-//    public ResponseEntity<AdvanceDesktopDTO> search(String tab, Filter filter) {
-//        return new ResponseEntity<>(service.getAdvances(tab, filter), HttpStatus.OK);
-//    }
 }

@@ -14,7 +14,12 @@ import org.apache.pdfbox.rendering.ImageType;
 import org.apache.pdfbox.rendering.PDFRenderer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -22,6 +27,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.net.URL;
 import java.util.UUID;
 
 import static org.springframework.http.HttpStatus.*;
@@ -39,6 +45,9 @@ public class AdvanceAttachmentsService implements AttachmentService {
     private final StoreService bStoreService;
     private final ReportService reportsService;
     private final AdvanceService advanceService;
+
+    @Value("${services.bstore.preview-dpi}")
+    private Integer previewDPI;
 
     public AdvanceAttachmentsService(
         TripDocumentsService tripDocumentsService,
@@ -71,44 +80,71 @@ public class AdvanceAttachmentsService implements AttachmentService {
         try {
             Resource resource = bStoreService.requestResourceFromBStore(uuid).getBody();
             if (null != resource) {
-                PDDocument pdDoc = PdfUtils.loadPdf(resource);
-                PDFRenderer pdfRenderer = new PDFRenderer(pdDoc);
-                int numberOfPages = pdDoc.getNumberOfPages();
-                log.info("[PDF] - количество страниц в файле: {}", numberOfPages);
-                if (pageNum >= numberOfPages)
-                    throw attachmentsError("[PDF] - Page number for preview must be less than total PDF page number.");
-                else {
-                    /*
-                     * 600 dpi give good image clarity but size of each image is 2x times of 300 dpi.
-                     * Ex:  1. For 300dpi 04-Request-Headers_2.png expected size is 797 KB
-                     *      2. For 600dpi 04-Request-Headers_2.png expected size is 2.42 MB
-                     */
-                    int dpi = 72;// use less dpi for to save more space in harddisk. For professional usage you can use more than 300dpi
+                PDDocument pdDoc = loadPdf(resource, pageNum);
+                BufferedImage bImage = renderPage(pdDoc, pageNum);
+                closePdf(pdDoc);
 
-                    String fileName = (resource.getFilename()).replace(".pdf", ("_" + pageNum) + ".png");
+                //save image file if need
+                savePreviewImage(bImage, resource.getFilename(), uuid, pageNum);
 
-                    File outPutFile = new File(fileName);
-                    BufferedImage bImage = pdfRenderer.renderImageWithDPI(pageNum - 1, dpi, ImageType.RGB);
-                    ImageIO.write(bImage, "png", outPutFile);
-                    PdfUtils.closePdf(pdDoc);
+                //delete image file if need
+                //outPutFile.deleteOnExit();
 
-                    // delete image file if need
-                    //outPutFile.deleteOnExit();
+                //return ResponseEntity.status(HttpStatus.OK)
+                //    .header(HttpHeaders.CONTENT_DISPOSITION, "filename=\"image.png")
+                //    .contentType(MediaType.IMAGE_PNG)
+                //    .body(bImage);
 
-//                        return ResponseEntity.status(HttpStatus.OK)
-//                            .header(HttpHeaders.CONTENT_DISPOSITION, "filename=\"image.png")
-//                            .contentType(MediaType.IMAGE_PNG)
-//                            .body(bImage);
-                    return ResponseEntity.ok(bImage);
-                }
+                return ResponseEntity.ok(bImage);
             } else {
                 log.info("Русерса нет в B-Store: {}", uuid);
             }
         } catch (Exception e) {
-            throw attachmentsError("Get pdf-preview error: " + e.getMessage());
-
+            throw attachmentsError("Ошибка получения превью: " + e.getMessage());
         }
         return null;
+    }
+
+
+    public ResponseEntity<Resource> getPdfPreview(UUID uuid, Integer pageNum) {
+        try {
+            BufferedImage b = pdfPreviewFromBStore(uuid, pageNum).getBody();
+            log.info("[PDF to PNG]: - [{}] - Страница: {}. DPI: {}. Размер превью: {} x {}.",
+                uuid, pageNum, previewDPI, b.getHeight(), b.getWidth());
+            return PdfUtils.imageToPng(b);
+        } catch (BusinessLogicException e) {
+            log.error("[PDF to PNG]: - [{}] - Страница: {}. Ошибка: {}.", uuid, pageNum, e.getErrors());
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    private String getPreviewFileName(String resource, UUID uuid, Integer pageNum) {
+        return PdfUtils.getPreviewFileName(resource, uuid, pageNum);
+    }
+
+    private void savePreviewImage(BufferedImage bImage, String resource, UUID uuid, Integer pageNum) {
+        PdfUtils.saveImage(getPreviewFileName(resource, uuid, pageNum), bImage);
+    }
+
+    private PDDocument loadPdf(Resource resource, Integer pageNum) {
+        try {
+            return PdfUtils.loadPdf(resource, pageNum);
+        } catch (IOException e) {
+            throw attachmentsError("[PDF]: Ошибка загрузки файла " + resource.getFilename() + ": " + e.getMessage());
+        }
+    }
+
+    private void closePdf(PDDocument pdf) {
+        PdfUtils.closePdf(pdf);
+    }
+
+    private BufferedImage renderPage(PDDocument pdDoc, Integer pageNum) {
+        try {
+            return PdfUtils.renderToImage(pdDoc, pageNum, previewDPI);
+        } catch (IOException e) {
+            throw attachmentsError("[PDF]: Ошибка рендеринга страницы " + pageNum +
+                ", dpi=" + previewDPI + ": " + e.getMessage());
+        }
     }
 
 
