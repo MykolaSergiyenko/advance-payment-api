@@ -84,6 +84,7 @@ services:
     bstore:
         url: https://oboz.online/api/bstore/
         pdf: 'pdf/'
+        preview-dpi: 72
 
     #Trip-advance service for check advance-state of trip and give advance.
     trip-advance-service:

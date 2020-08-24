@@ -84,6 +84,7 @@ services:
     bstore:
         url: https://oboz.online/api/bstore/
         pdf: 'pdf/'
+        preview-dpi: 30
 
     #Report-service for download advance-template for carrier
     reports:
