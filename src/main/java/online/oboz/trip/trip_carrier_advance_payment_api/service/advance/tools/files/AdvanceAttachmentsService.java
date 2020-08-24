@@ -10,24 +10,16 @@ import online.oboz.trip.trip_carrier_advance_payment_api.service.advance.tools.f
 import online.oboz.trip.trip_carrier_advance_payment_api.service.util.ErrorUtils;
 import online.oboz.trip.trip_carrier_advance_payment_api.service.util.PdfUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.rendering.ImageType;
-import org.apache.pdfbox.rendering.PDFRenderer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.net.URL;
 import java.util.UUID;
 
 import static org.springframework.http.HttpStatus.*;
@@ -85,7 +77,8 @@ public class AdvanceAttachmentsService implements AttachmentService {
                 closePdf(pdDoc);
 
                 //save image file if need
-                savePreviewImage(bImage, resource.getFilename(), uuid, pageNum);
+
+                //savePreviewImage(bImage, resource.getFilename(), uuid, pageNum);
 
                 //delete image file if need
                 //outPutFile.deleteOnExit();
@@ -179,19 +172,6 @@ public class AdvanceAttachmentsService implements AttachmentService {
         return downloadAdvanceTemplate(advance);
     }
 
-    @Override
-    public ResponseEntity<Resource> downloadAdvanceRequest(Long id) {
-        log.info("Attachments: download 'Advance-Request' request for advance: {}.", id);
-        Advance advance = findAdvance(id);
-        return downloadAdvanceRequestFromBstore(advance);
-    }
-
-    @Override
-    public ResponseEntity<Resource> downloadRequest(Long id) {
-        log.info("Attachments: download 'Request' for advance: {}.", id);
-        Advance advance = findAdvance(id);
-        return downloadRequestFromBstore(advance);
-    }
 
 
     @Override

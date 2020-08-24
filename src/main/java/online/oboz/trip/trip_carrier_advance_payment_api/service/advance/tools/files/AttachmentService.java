@@ -5,10 +5,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.UUID;
 
 
@@ -63,31 +60,7 @@ public interface AttachmentService {
      */
     ResponseEntity<Resource> downloadTemplate(UUID uuid);
 
-    /**
-     * Скачать "Заявку на аванс" по Трипу
-     *
-     * @param id - id аванса
-     * @return
-     */
-    ResponseEntity<Resource> downloadAdvanceRequest(Long id);
 
-//    /**
-//     * Загрузить "Заявку" в Аванс?
-//     *
-//     * @param file    - файл
-//     * @param id -  id аванса
-//     * @return
-//     */
-//    ResponseEntity<Void> uploadRequestAdvance(MultipartFile file, Long id);
-
-
-    /**
-     * Скачать "Заявку" из "Аванса"
-     *
-     * @param id - id аванса
-     * @return
-     */
-    ResponseEntity<Resource> downloadRequest(Long id);
 
     /**
      * Загрузить подписанный файл в аванс

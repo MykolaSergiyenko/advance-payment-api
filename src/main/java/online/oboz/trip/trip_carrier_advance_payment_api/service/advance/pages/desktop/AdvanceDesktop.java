@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 
-import java.awt.image.BufferedImage;
 import java.util.UUID;
 
 /**
