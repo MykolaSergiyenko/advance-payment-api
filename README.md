@@ -55,5 +55,3 @@ from "Very Proud Of Ya", ℗ Nitro Records, 1996](
 https://i.ytimg.com/vi/KD4VkG6yuLM/maxresdefault.jpg)
 ](https://www.youtube.com/watch?v=KD4VkG6yuLM
 "AFI - Advances In Modern Technology")
-
-## Беги скорей из "обоза", чувак.
